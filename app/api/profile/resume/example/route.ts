@@ -7,14 +7,14 @@ export const runtime = 'nodejs';
 
 export async function GET() {
     try {
-        const filePath = path.join(process.cwd(), 'app', 'utils', 'docs', 'exemplo-curriculo.pdf');
+        const filePath = path.join(process.cwd(), 'app', 'utils', 'docs', 'exemplo-curriculo-ats.pdf');
         const fileBuffer = await readFile(filePath);
 
         return new NextResponse(fileBuffer, {
             status: 200,
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename="exemplo-curriculo.pdf"',
+                'Content-Disposition': 'attachment; filename="exemplo-curriculo-ats.pdf"',
                 'Cache-Control': 'public, max-age=3600',
             },
         });
