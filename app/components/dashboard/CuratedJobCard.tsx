@@ -45,9 +45,14 @@ function timeAgo(date: Date | null | undefined): string {
 }
 
 function getFitBadgeClass(pct: number) {
-    if (pct >= 80) return "bg-primary/10 text-primary border-primary/30";
-    if (pct >= 50) return "bg-amber-500/10 text-amber-400 border-amber-500/30";
-    return "bg-red-500/10 text-red-400 border-red-500/30";
+    if (pct >= 80) return "bg-slate-800 dark:bg-slate-900 text-primary border border-primary/40";
+    if (pct >= 50) return "bg-slate-800 dark:bg-slate-900 text-amber-400 border border-amber-500/40";
+    return "bg-slate-800 dark:bg-slate-900 text-red-400 border border-red-500/40";
+}
+
+function getFitIcon(pct: number) {
+    if (pct >= 50) return "check_circle";
+    return "cancel";
 }
 
 export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
@@ -82,53 +87,53 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
     const publishedDate = job.publishedAt ?? job.createdAt;
 
     return (
-        <article className="group bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-primary/40 dark:hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200">
-            {/* Top row: title + badges */}
+        <article className="group bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-200">
+            {/* Top row: title + fit badge */}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-2 flex-wrap">
                         <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors duration-150 line-clamp-2 min-w-0">
                             {job.title}
                         </h3>
-                        <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${levelColor[job.level]}`}>
+                        <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${levelColor[job.level]}`}>
                             {levelLabel[job.level].toUpperCase()}
                         </span>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1 flex-wrap">
-                        <span className="material-symbols-outlined text-base leading-none" style={{ fontSize: "14px" }}>business</span>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1 flex-wrap">
+                        <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>business</span>
                         <span>{job.companyName}</span>
                         {job.location && (
                             <>
-                                <span className="text-slate-300 dark:text-slate-600">•</span>
-                                <span className="material-symbols-outlined leading-none" style={{ fontSize: "14px" }}>location_on</span>
+                                <span className="text-slate-300 dark:text-slate-600 mx-0.5">•</span>
+                                <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>location_on</span>
                                 <span>{job.location}</span>
                             </>
                         )}
                         {job.isRemote && !job.location && (
                             <>
-                                <span className="text-slate-300 dark:text-slate-600">•</span>
+                                <span className="text-slate-300 dark:text-slate-600 mx-0.5">•</span>
                                 <span>Remoto</span>
                             </>
                         )}
                     </p>
                 </div>
 
-                {/* Fit badge */}
-                <div className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getFitBadgeClass(fit.fitPercentage)}`}>
+                {/* Fit badge — dark pill */}
+                <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage)}`}>
                     <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
-                        {fit.fitPercentage >= 50 ? "check_circle" : "cancel"}
+                        {getFitIcon(fit.fitPercentage)}
                     </span>
                     {fit.fitPercentage}% fit
                 </div>
             </div>
 
             {/* Meta row */}
-            <div className="mt-2.5 flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide font-medium">
-                <span>
+            <div className="mt-3 flex items-center gap-5 text-xs font-medium tracking-wide">
+                <span className="text-slate-400 dark:text-slate-500 uppercase">
                     Fonte:{" "}
                     <span className="text-slate-600 dark:text-slate-300 normal-case font-semibold tracking-normal">{sourceLabel[job.source]}</span>
                 </span>
-                <span>
+                <span className="text-slate-400 dark:text-slate-500 uppercase">
                     Publicada:{" "}
                     <span className="text-slate-600 dark:text-slate-300 normal-case font-semibold tracking-normal">{timeAgo(publishedDate)}</span>
                 </span>
@@ -136,11 +141,11 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
 
             {/* Stack tags */}
             {job.stack.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="mt-3.5 flex flex-wrap gap-2">
                     {job.stack.map((tag) => (
                         <span
                             key={`${job.id}-${tag}`}
-                            className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
+                            className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
                         >
                             {tag.toUpperCase()}
                         </span>
