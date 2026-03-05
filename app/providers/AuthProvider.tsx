@@ -108,7 +108,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         const baseUser: UserProfile = {
             ...mockUserProfile,
             name: session?.user?.name || session?.user?.email || mockUserProfile.name,
-            avatar: session?.user?.image || "/default-avatar.png",
+            avatar: session?.user?.image ?? undefined,
             role: session?.user?.email || mockUserProfile.role,
         };
 

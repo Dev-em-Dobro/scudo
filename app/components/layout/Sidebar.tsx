@@ -78,6 +78,7 @@ export default function Sidebar() {
                             alt={`${user.name} Avatar`}
                             className="h-9 w-9 rounded-lg object-cover"
                             src={user.avatar}
+                            referrerPolicy="no-referrer"
                         />
                     ) : (
                         <div className="h-9 w-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
