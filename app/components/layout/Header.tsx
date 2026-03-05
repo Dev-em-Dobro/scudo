@@ -52,6 +52,7 @@ export default function Header({ title = 'Overview' }: Readonly<HeaderProps>) {
                         alt={`${user.name} Avatar`}
                         className="h-9 w-9 rounded-xl object-cover ring-2 ring-primary/30 cursor-pointer hover:ring-primary transition-all duration-150"
                         src={user.avatar}
+                        referrerPolicy="no-referrer"
                     />
                 ) : (
                     <div className="h-9 w-9 rounded-xl bg-primary/20 border-2 border-primary/30 hover:border-primary flex items-center justify-center cursor-pointer transition-all duration-150">
