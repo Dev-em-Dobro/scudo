@@ -51,7 +51,7 @@ const profilePatchSchema = z.object({
         title: z.string().max(200).optional(),
         shortDescription: z.string().max(1000).optional(),
         technologies: z.array(z.string().max(80)).max(30).optional(),
-        deployUrl: z.string().max(500).optional(),
+        deployUrl: z.string().max(500).nullish(),
     })).max(20).optional(),
 }).strict();
 
