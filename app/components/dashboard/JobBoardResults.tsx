@@ -173,41 +173,43 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                         {paginatedJobs.map((job) => <CuratedJobCard key={job.id} job={job} />)}
                     </div>
 
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-4 shadow-sm rounded-lg">
-                        <p className="text-sm text-slate-600 dark:text-slate-300 font-mono">
-                            Mostrando {startItem}-{endItem} de {filteredAndSortedJobs.length} vagas
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-4 rounded-xl">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Mostrando <span className="font-semibold text-slate-900 dark:text-white">{startItem}–{endItem}</span> de <span className="font-semibold text-slate-900 dark:text-white">{filteredAndSortedJobs.length}</span> vagas
                         </p>
 
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
-                                className="px-3 py-2 text-sm font-mono border border-slate-300 dark:border-border-dark rounded bg-white dark:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-background-dark text-slate-700 dark:text-slate-200 hover:border-primary/60 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
                                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                                 disabled={activePage <= 1}
                             >
-                                Anterior
+                                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "16px" }}>chevron_left</span>
+                                {" "}Anterior
                             </button>
 
-                            <span className="text-sm font-mono text-slate-700 dark:text-slate-200 px-2">
-                                Página {activePage} de {totalPages}
+                            <span className="text-sm text-slate-600 dark:text-slate-300 px-2">
+                                {activePage} / {totalPages}
                             </span>
 
                             <button
                                 type="button"
-                                className="px-3 py-2 text-sm font-mono border border-slate-300 dark:border-border-dark rounded bg-white dark:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-background-dark text-slate-700 dark:text-slate-200 hover:border-primary/60 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
                                 onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                                 disabled={activePage >= totalPages}
                             >
-                                Próxima
+                                Próxima{" "}
+                                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "16px" }}>chevron_right</span>
                             </button>
                         </div>
                     </div>
                 </>
             ) : (
-                <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-5 shadow-sm rounded-xl">
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                        Nenhuma vaga encontrada para os filtros selecionados.
-                    </p>
+                <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center gap-3 text-center">
+                    <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600" style={{ fontVariationSettings: "'FILL' 1" }}>search_off</span>
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Nenhuma vaga encontrada</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Tente ajustar os filtros ou o termo de busca.</p>
                 </div>
             )}
         </div>

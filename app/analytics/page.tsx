@@ -25,12 +25,46 @@ function detectWorkModel(location: string | null, isRemote: boolean) {
     return 'Presencial';
 }
 
-function SectionCard({ title, children }: Readonly<{ title: string; children: React.ReactNode }>) {
+function SectionBlock({
+    title,
+    icon,
+    iconColor,
+    children,
+}: Readonly<{ title: string; icon: string; iconColor: string; children: React.ReactNode }>) {
     return (
-        <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-5 shadow-sm rounded-xl">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">{title}</h2>
+        <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-5">
+                <span
+                    className={`material-symbols-outlined ${iconColor}`}
+                    style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}
+                >
+                    {icon}
+                </span>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{title}</h2>
+            </div>
             {children}
         </section>
+    );
+}
+
+function DistributionBar({
+    label,
+    value,
+    total,
+    colorClass,
+    bgClass,
+}: Readonly<{ label: string; value: number; total: number; colorClass: string; bgClass: string }>) {
+    const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+
+    return (
+        <div className="flex items-center gap-3">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-24 shrink-0">{label}</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-background-dark rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${bgClass}`} style={{ width: `${pct}%` }} />
+            </div>
+            <span className={`text-sm font-bold ${colorClass} w-8 text-right shrink-0`}>{value}</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500 w-9 shrink-0">{pct}%</span>
+        </div>
     );
 }
 
@@ -79,6 +113,59 @@ export default async function AnalyticsPage() {
         levelCounts[job.level] += 1;
     }
 
+    let avgFitColor = 'text-red-400';
+    if (avgFit >= 70) {
+        avgFitColor = 'text-primary';
+    } else if (avgFit >= 50) {
+        avgFitColor = 'text-amber-400';
+    }
+
+    let avgFitIconBg = 'bg-red-500/10';
+    if (avgFit >= 70) {
+        avgFitIconBg = 'bg-primary/10';
+    } else if (avgFit >= 50) {
+        avgFitIconBg = 'bg-amber-500/10';
+    }
+
+    const statCards = [
+        {
+            key: 'total',
+            title: 'Vagas Analisadas',
+            value: String(jobs.length),
+            description: 'Total de vagas no Job Board.',
+            icon: 'work',
+            iconColor: 'text-blue-400',
+            iconBg: 'bg-blue-500/10',
+        },
+        {
+            key: 'fit',
+            title: 'Fit Médio',
+            value: `${avgFit}%`,
+            description: 'Compatibilidade média com seu perfil.',
+            icon: 'target',
+            iconColor: avgFitColor,
+            iconBg: avgFitIconBg,
+        },
+        {
+            key: 'high',
+            title: 'Alta Compat.',
+            value: String(highFitJobs),
+            description: 'Vagas com fit ≥ 70% do seu perfil.',
+            icon: 'verified',
+            iconColor: 'text-primary',
+            iconBg: 'bg-primary/10',
+        },
+        {
+            key: 'low',
+            title: 'Baixa Compat.',
+            value: String(lowFitJobs),
+            description: 'Vagas com fit abaixo de 50%.',
+            icon: 'trending_down',
+            iconColor: 'text-red-400',
+            iconBg: 'bg-red-500/10',
+        },
+    ];
+
     return (
         <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased">
             <Sidebar />
@@ -87,51 +174,97 @@ export default async function AnalyticsPage() {
                 <Header title="Analytics" />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6">
+
+                    {/* Stat cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <SectionCard title="Vagas Analisadas">
-                            <p className="text-3xl font-bold text-slate-900 dark:text-white">{jobs.length}</p>
-                        </SectionCard>
-
-                        <SectionCard title="Fit Médio">
-                            <p className="text-3xl font-bold text-primary">{avgFit}%</p>
-                        </SectionCard>
-
-                        <SectionCard title="Alta Compat.">
-                            <p className="text-3xl font-bold text-emerald-600">{highFitJobs}</p>
-                        </SectionCard>
-
-                        <SectionCard title="Baixa Compat.">
-                            <p className="text-3xl font-bold text-amber-600">{lowFitJobs}</p>
-                        </SectionCard>
+                        {statCards.map((card) => (
+                            <div
+                                key={card.key}
+                                className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4"
+                            >
+                                <div className={`shrink-0 w-10 h-10 rounded-lg ${card.iconBg} flex items-center justify-center`}>
+                                    <span
+                                        className={`material-symbols-outlined ${card.iconColor}`}
+                                        style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
+                                    >
+                                        {card.icon}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">{card.value}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
 
+                    {/* Distribuição por Fit e Modelo de Trabalho */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <SectionCard title="Distribuição por Fit">
-                            <div className="space-y-2 text-sm text-slate-700 dark:text-slate-200">
-                                <p><span className="font-bold">Alta (≥70%):</span> {highFitJobs}</p>
-                                <p><span className="font-bold">Média (50-69%):</span> {mediumFitJobs}</p>
-                                <p><span className="font-bold">Baixa (&lt;50%):</span> {lowFitJobs}</p>
+                        <SectionBlock title="Distribuição por Fit" icon="donut_large" iconColor="text-primary">
+                            <div className="space-y-3">
+                                <DistributionBar
+                                    label="Alta (≥70%)"
+                                    value={highFitJobs}
+                                    total={jobs.length}
+                                    colorClass="text-primary"
+                                    bgClass="bg-primary"
+                                />
+                                <DistributionBar
+                                    label="Média (50–69%)"
+                                    value={mediumFitJobs}
+                                    total={jobs.length}
+                                    colorClass="text-amber-400"
+                                    bgClass="bg-amber-400"
+                                />
+                                <DistributionBar
+                                    label="Baixa (<50%)"
+                                    value={lowFitJobs}
+                                    total={jobs.length}
+                                    colorClass="text-red-400"
+                                    bgClass="bg-red-400"
+                                />
                             </div>
-                        </SectionCard>
+                        </SectionBlock>
 
-                        <SectionCard title="Modelo de Trabalho">
-                            <div className="space-y-2 text-sm text-slate-700 dark:text-slate-200">
-                                <p><span className="font-bold">Remoto:</span> {workModelCounts.Remoto}</p>
-                                <p><span className="font-bold">Híbrido:</span> {workModelCounts.Híbrido}</p>
-                                <p><span className="font-bold">Presencial:</span> {workModelCounts.Presencial}</p>
+                        <SectionBlock title="Modelo de Trabalho" icon="location_on" iconColor="text-blue-400">
+                            <div className="space-y-3">
+                                <DistributionBar
+                                    label="Remoto"
+                                    value={workModelCounts.Remoto}
+                                    total={jobs.length}
+                                    colorClass="text-primary"
+                                    bgClass="bg-primary"
+                                />
+                                <DistributionBar
+                                    label="Híbrido"
+                                    value={workModelCounts.Híbrido}
+                                    total={jobs.length}
+                                    colorClass="text-blue-400"
+                                    bgClass="bg-blue-400"
+                                />
+                                <DistributionBar
+                                    label="Presencial"
+                                    value={workModelCounts.Presencial}
+                                    total={jobs.length}
+                                    colorClass="text-slate-400"
+                                    bgClass="bg-slate-400"
+                                />
                             </div>
-                        </SectionCard>
+                        </SectionBlock>
                     </div>
 
-                    <SectionCard title="Distribuição por Senioridade">
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm text-slate-700 dark:text-slate-200">
-                            <p><span className="font-bold">Estágio:</span> {levelCounts.ESTAGIO}</p>
-                            <p><span className="font-bold">Júnior:</span> {levelCounts.JUNIOR}</p>
-                            <p><span className="font-bold">Pleno:</span> {levelCounts.PLENO}</p>
-                            <p><span className="font-bold">Sênior:</span> {levelCounts.SENIOR}</p>
-                            <p><span className="font-bold">Outro:</span> {levelCounts.OUTRO}</p>
+                    {/* Distribuição por Senioridade */}
+                    <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
+                        <div className="space-y-3">
+                            <DistributionBar label="Estágio" value={levelCounts.ESTAGIO} total={jobs.length} colorClass="text-primary" bgClass="bg-primary" />
+                            <DistributionBar label="Júnior" value={levelCounts.JUNIOR} total={jobs.length} colorClass="text-blue-400" bgClass="bg-blue-400" />
+                            <DistributionBar label="Pleno" value={levelCounts.PLENO} total={jobs.length} colorClass="text-amber-400" bgClass="bg-amber-400" />
+                            <DistributionBar label="Sênior" value={levelCounts.SENIOR} total={jobs.length} colorClass="text-purple-400" bgClass="bg-purple-400" />
+                            <DistributionBar label="Outro" value={levelCounts.OUTRO} total={jobs.length} colorClass="text-slate-400" bgClass="bg-slate-400" />
                         </div>
-                    </SectionCard>
+                    </SectionBlock>
+
                 </div>
             </main>
         </div>

@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { auth } from '@/app/lib/auth';
 import { prisma } from '@/app/lib/prisma';
@@ -37,22 +38,24 @@ export async function HEAD() {
     return new NextResponse(null, { status: 200 });
 }
 
-type ProfilePatchBody = {
-    fullName?: string;
-    linkedinUrl?: string;
-    githubUrl?: string;
-    city?: string;
-    professionalSummary?: string;
-    experiences?: string[];
-    projects?: {
-        title?: string;
-        shortDescription?: string;
-        technologies?: string[];
-        deployUrl?: string;
-    }[];
-    certifications?: string[];
-    languages?: string[];
-};
+const profilePatchSchema = z.object({
+    fullName: z.string().max(120).optional(),
+    linkedinUrl: z.string().max(500).optional(),
+    githubUrl: z.string().max(500).optional(),
+    city: z.string().max(100).optional(),
+    professionalSummary: z.string().max(3000).optional(),
+    experiences: z.array(z.string().max(300)).max(50).optional(),
+    certifications: z.array(z.string().max(200)).max(50).optional(),
+    languages: z.array(z.string().max(100)).max(20).optional(),
+    projects: z.array(z.object({
+        title: z.string().max(200).optional(),
+        shortDescription: z.string().max(1000).optional(),
+        technologies: z.array(z.string().max(80)).max(30).optional(),
+        deployUrl: z.string().max(500).nullish(),
+    })).max(20).optional(),
+}).strict();
+
+type ProfilePatchBody = z.infer<typeof profilePatchSchema>;
 
 function normalizeOptionalText(value: unknown) {
     if (typeof value !== 'string') {
@@ -69,11 +72,17 @@ function normalizeUrl(value: unknown) {
         return null;
     }
 
-    if (/^https?:\/\//i.test(text)) {
-        return text;
-    }
+    const withProtocol = /^https?:\/\//i.test(text) ? text : `https://${text}`;
 
-    return `https://${text}`;
+    try {
+        const parsed = new URL(withProtocol);
+        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+            return null;
+        }
+        return parsed.toString();
+    } catch {
+        return null;
+    }
 }
 
 function normalizeStringList(value: unknown) {
@@ -162,7 +171,17 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
     }
 
-    const payload = (await request.json()) as ProfilePatchBody;
+    const rawBody = await request.json().catch(() => null);
+    const parsed = profilePatchSchema.safeParse(rawBody);
+
+    if (!parsed.success) {
+        return NextResponse.json(
+            { error: 'Dados inválidos.', details: parsed.error.issues },
+            { status: 400 },
+        );
+    }
+
+    const payload: ProfilePatchBody = parsed.data;
 
     await getOrCreateUserProfile({
         id: session.user.id,

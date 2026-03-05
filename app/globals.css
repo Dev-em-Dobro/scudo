@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-    --color-primary: #58cc02;
-    --color-secondary: #ffc800;
+    --color-primary: #10b981;
+    --color-secondary: #065f46;
     --color-accent: #1cb0f6;
     --color-background-light: #f8fafc;
-    --color-background-dark: #131f24;
+    --color-background-dark: #0f172a;
     --color-surface-light: #ffffff;
-    --color-surface-dark: #202f36;
-    --color-border-light: #e5e7eb;
-    --color-border-dark: #37464f;
+    --color-surface-dark: #1e293b;
+    --color-border-light: #e2e8f0;
+    --color-border-dark: #334155;
     --color-text-main-dark: #ffffff;
-    --color-text-muted-dark: #afb6b8;
+    --color-text-muted-dark: #94a3b8;
 }
 
 @layer base {
@@ -43,16 +43,24 @@
         background-color: var(--color-primary);
     }
 
+    .bg-primary\/5 {
+        background-color: rgb(16 185 129 / 0.05);
+    }
+
     .bg-primary\/10 {
-        background-color: rgb(88 204 2 / 0.1);
+        background-color: rgb(16 185 129 / 0.1);
     }
 
     .bg-primary\/20 {
-        background-color: rgb(88 204 2 / 0.2);
+        background-color: rgb(16 185 129 / 0.2);
     }
 
     .text-primary {
         color: var(--color-primary);
+    }
+
+    .text-primary\/80 {
+        color: rgb(16 185 129 / 0.8);
     }
 
     .border-primary {
@@ -60,11 +68,11 @@
     }
 
     .border-primary\/20 {
-        border-color: rgb(88 204 2 / 0.2);
+        border-color: rgb(16 185 129 / 0.2);
     }
 
     .border-primary\/30 {
-        border-color: rgb(88 204 2 / 0.3);
+        border-color: rgb(16 185 129 / 0.3);
     }
 
     .hover\:border-primary:hover {
@@ -72,7 +80,35 @@
     }
 
     .hover\:text-primary\/80:hover {
-        color: rgb(88 204 2 / 0.8);
+        color: rgb(16 185 129 / 0.8);
+    }
+
+    .ring-primary\/30 {
+        --tw-ring-color: rgb(16 185 129 / 0.3);
+    }
+
+    .hover\:ring-primary:hover {
+        --tw-ring-color: var(--color-primary);
+    }
+
+    .hover\:border-primary\/40:hover {
+        border-color: rgb(16 185 129 / 0.4);
+    }
+
+    .hover\:border-primary\/60:hover {
+        border-color: rgb(16 185 129 / 0.6);
+    }
+
+    .hover\:border-primary\/30:hover {
+        border-color: rgb(16 185 129 / 0.3);
+    }
+
+    .shadow-primary\/5 {
+        --tw-shadow-color: rgb(16 185 129 / 0.05);
+    }
+
+    .shadow-primary\/20 {
+        --tw-shadow-color: rgb(16 185 129 / 0.2);
     }
 
     .focus\:ring-primary:focus {
@@ -88,11 +124,11 @@
     }
 
     .bg-secondary\/10 {
-        background-color: rgb(255 200 0 / 0.1);
+        background-color: rgb(6 95 70 / 0.1);
     }
 
     .bg-secondary\/20 {
-        background-color: rgb(255 200 0 / 0.2);
+        background-color: rgb(6 95 70 / 0.2);
     }
 
     .text-secondary {
@@ -100,7 +136,7 @@
     }
 
     .text-secondary\/80 {
-        color: rgb(255 200 0 / 0.8);
+        color: rgb(6 95 70 / 0.8);
     }
 
     .border-secondary {
@@ -108,11 +144,11 @@
     }
 
     .border-secondary\/30 {
-        border-color: rgb(255 200 0 / 0.3);
+        border-color: rgb(6 95 70 / 0.3);
     }
 
     .border-secondary\/40 {
-        border-color: rgb(255 200 0 / 0.4);
+        border-color: rgb(6 95 70 / 0.4);
     }
 
     .hover\:border-secondary:hover {
@@ -180,11 +216,11 @@
     }
 
     .dark .dark\:bg-primary\/10 {
-        background-color: rgb(88 204 2 / 0.1);
+        background-color: rgb(16 185 129 / 0.1);
     }
 
     .dark .dark\:bg-primary\/20 {
-        background-color: rgb(88 204 2 / 0.2);
+        background-color: rgb(16 185 129 / 0.2);
     }
 
     .dark .dark\:text-primary {
@@ -196,11 +232,11 @@
     }
 
     .dark .dark\:border-primary\/20 {
-        border-color: rgb(88 204 2 / 0.2);
+        border-color: rgb(16 185 129 / 0.2);
     }
 
     .dark .dark\:border-primary\/30 {
-        border-color: rgb(88 204 2 / 0.3);
+        border-color: rgb(16 185 129 / 0.3);
     }
 
     .dark .dark\:hover\:border-primary:hover {
@@ -212,11 +248,11 @@
     }
 
     .dark .dark\:bg-secondary\/10 {
-        background-color: rgb(255 200 0 / 0.1);
+        background-color: rgb(6 95 70 / 0.1);
     }
 
     .dark .dark\:bg-secondary\/20 {
-        background-color: rgb(255 200 0 / 0.2);
+        background-color: rgb(6 95 70 / 0.2);
     }
 
     .dark .dark\:text-secondary {
@@ -224,7 +260,7 @@
     }
 
     .dark .dark\:text-secondary\/80 {
-        color: rgb(255 200 0 / 0.8);
+        color: rgb(6 95 70 / 0.8);
     }
 
     .dark .dark\:border-secondary {
@@ -232,11 +268,11 @@
     }
 
     .dark .dark\:border-secondary\/30 {
-        border-color: rgb(255 200 0 / 0.3);
+        border-color: rgb(6 95 70 / 0.3);
     }
 
     .dark .dark\:border-secondary\/40 {
-        border-color: rgb(255 200 0 / 0.4);
+        border-color: rgb(6 95 70 / 0.4);
     }
 
     .dark .dark\:hover\:border-secondary:hover {

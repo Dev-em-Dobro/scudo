@@ -1,6 +1,8 @@
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { JobLevel, JobSource, Prisma } from "@prisma/client";
 
+import { auth } from "@/app/lib/auth";
 import { prisma } from "@/app/lib/prisma";
 
 export const runtime = "nodejs";
@@ -18,6 +20,12 @@ function parseLimit(value: string | null) {
 }
 
 export async function GET(request: NextRequest) {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (!session?.user) {
+        return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
 
     const levelParam = searchParams.get("level");

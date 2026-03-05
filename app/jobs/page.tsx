@@ -1,9 +1,19 @@
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+
 import Sidebar from '../components/layout/Sidebar';
 import Header from '../components/layout/Header';
 import JobBoardResults from '../components/dashboard/JobBoardResults';
+import { auth } from '../lib/auth';
 import { getJobBoardJobs } from '../lib/jobs/jobBoard';
 
 export default async function JobsPage() {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (!session?.user) {
+        redirect('/login');
+    }
+
     const jobs = await getJobBoardJobs();
 
     return (
