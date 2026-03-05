@@ -12,15 +12,6 @@ export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
-type PdfParseLegacyFn = (buffer: Buffer) => Promise<{ text: string }>;
-type PdfParseV2Module = {
-    PDFParse?: new (options: { data: Uint8Array | Buffer }) => {
-        getText: () => Promise<{ text: string }>;
-        destroy?: () => Promise<void>;
-    };
-    default?: PdfParseLegacyFn;
-};
-
 PDFParse.setWorker(getData());
 
 function isValidPdfMagicBytes(fileBuffer: Buffer) {
@@ -69,10 +60,12 @@ export async function POST(request: Request) {
         email: session.user.email,
     });
 
+    const safeFileName = file.name.replaceAll(/[^a-zA-Z0-9._\- ]/g, '_').slice(0, 255);
+
     await prisma.userProfile.update({
         where: { userId: session.user.id },
         data: {
-            resumeFileName: file.name,
+            resumeFileName: safeFileName,
             resumeSyncStatus: 'PROCESSING',
             resumeUploadedAt: new Date(),
         },
@@ -125,7 +118,7 @@ export async function POST(request: Request) {
                         ? extracted.certifications
                         : existingProfile.certifications,
                     languages: extracted.languages.length > 0 ? extracted.languages : existingProfile.languages,
-                    resumeFileName: file.name,
+                    resumeFileName: safeFileName,
                     resumeSyncStatus: 'READY',
                     resumeUploadedAt: new Date(),
                 },
@@ -158,7 +151,7 @@ export async function POST(request: Request) {
             where: { userId: session.user.id },
             data: {
                 resumeSyncStatus: 'UPLOADED',
-                resumeFileName: file.name,
+                resumeFileName: safeFileName,
                 resumeUploadedAt: new Date(),
             },
         });

@@ -188,6 +188,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
                             value={fullName}
+                            maxLength={120}
                             onChange={(event) => setFullName(event.target.value)}
                         />
                     </label>
@@ -197,6 +198,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
                             value={city}
+                            maxLength={100}
                             onChange={(event) => setCity(event.target.value)}
                         />
                     </label>
@@ -206,6 +208,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
                             value={linkedinUrl}
+                            maxLength={500}
                             onChange={(event) => setLinkedinUrl(event.target.value)}
                         />
                     </label>
@@ -215,6 +218,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
                             value={githubUrl}
+                            maxLength={500}
                             onChange={(event) => setGithubUrl(event.target.value)}
                         />
                     </label>
@@ -225,6 +229,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     <textarea
                         className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
                         value={professionalSummary}
+                        maxLength={3000}
                         onChange={(event) => setProfessionalSummary(event.target.value)}
                     />
                 </label>
@@ -349,7 +354,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                 </div>
 
                 {feedback && (
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p role="alert" className="text-xs text-slate-600 dark:text-slate-300">
                         {feedback}
                     </p>
                 )}
