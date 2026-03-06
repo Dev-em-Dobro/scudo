@@ -96,6 +96,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         const guestUser: UserProfile = {
             ...mockUserProfile,
             name: "Visitante",
+            email: "",
             role: "Faça login para sincronizar seu perfil",
             knownTechnologies: [],
             projects: [],
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         const baseUser: UserProfile = {
             ...mockUserProfile,
             name: session?.user?.name || session?.user?.email || mockUserProfile.name,
+            email: session?.user?.email ?? "",
             avatar: session?.user?.image ?? undefined,
             role: session?.user?.email || mockUserProfile.role,
             knownTechnologies: [],
