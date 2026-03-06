@@ -86,16 +86,18 @@ export default async function AnalyticsPage() {
 
     const clientProfile = toClientProfile(profile);
     const knownSet = new Set(clientProfile.knownTechnologies.map(normalize));
+    const hasSkills = knownSet.size > 0;
 
-    const fitScores = jobs.map((job) => {
-        const requiredSkills = [...new Set(job.stack.map(normalize))];
-        if (requiredSkills.length === 0) {
-            return 100;
-        }
+    // Apenas vagas com stack definido são avaliáveis — stack vazio não tem requisitos conhecidos
+    const evaluableJobs = jobs.filter((job) => job.stack.length > 0);
 
-        const matched = requiredSkills.filter((skill) => knownSet.has(skill)).length;
-        return Math.round((matched / requiredSkills.length) * 100);
-    });
+    const fitScores = hasSkills
+        ? evaluableJobs.map((job) => {
+            const requiredSkills = [...new Set(job.stack.map(normalize))];
+            const matched = requiredSkills.filter((skill) => knownSet.has(skill)).length;
+            return Math.round((matched / requiredSkills.length) * 100);
+        })
+        : [];
 
     const avgFit = fitScores.length > 0
         ? Math.round(fitScores.reduce((acc, value) => acc + value, 0) / fitScores.length)
@@ -103,6 +105,7 @@ export default async function AnalyticsPage() {
     const highFitJobs = fitScores.filter((value) => value >= 70).length;
     const mediumFitJobs = fitScores.filter((value) => value >= 50 && value < 70).length;
     const lowFitJobs = fitScores.filter((value) => value < 50).length;
+    const evaluableCount = evaluableJobs.length;
 
     const workModelCounts = { Remoto: 0, Híbrido: 0, Presencial: 0 };
     const levelCounts = { ESTAGIO: 0, JUNIOR: 0, PLENO: 0, SENIOR: 0, OUTRO: 0 };
@@ -140,29 +143,29 @@ export default async function AnalyticsPage() {
         {
             key: 'fit',
             title: 'Fit Médio',
-            value: `${avgFit}%`,
-            description: 'Compatibilidade média com seu perfil.',
+            value: hasSkills ? `${avgFit}%` : '—',
+            description: hasSkills ? `Compat. média em ${evaluableCount} vagas com stack definido.` : 'Adicione skills ao perfil.',
             icon: 'target',
-            iconColor: avgFitColor,
-            iconBg: avgFitIconBg,
+            iconColor: hasSkills ? avgFitColor : 'text-slate-400',
+            iconBg: hasSkills ? avgFitIconBg : 'bg-slate-500/10',
         },
         {
             key: 'high',
             title: 'Alta Compat.',
-            value: String(highFitJobs),
-            description: 'Vagas com fit ≥ 70% do seu perfil.',
+            value: hasSkills ? String(highFitJobs) : '—',
+            description: hasSkills ? 'Vagas com stack definido e fit ≥ 70%.' : 'Adicione skills ao perfil.',
             icon: 'verified',
-            iconColor: 'text-primary',
-            iconBg: 'bg-primary/10',
+            iconColor: hasSkills ? 'text-primary' : 'text-slate-400',
+            iconBg: hasSkills ? 'bg-primary/10' : 'bg-slate-500/10',
         },
         {
             key: 'low',
             title: 'Baixa Compat.',
-            value: String(lowFitJobs),
-            description: 'Vagas com fit abaixo de 50%.',
+            value: hasSkills ? String(lowFitJobs) : '—',
+            description: hasSkills ? 'Vagas com stack definido e fit abaixo de 50%.' : 'Adicione skills ao perfil.',
             icon: 'trending_down',
-            iconColor: 'text-red-400',
-            iconBg: 'bg-red-500/10',
+            iconColor: hasSkills ? 'text-red-400' : 'text-slate-400',
+            iconBg: hasSkills ? 'bg-red-500/10' : 'bg-slate-500/10',
         },
     ];
 
@@ -202,29 +205,35 @@ export default async function AnalyticsPage() {
                     {/* Distribuição por Fit e Modelo de Trabalho */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <SectionBlock title="Distribuição por Fit" icon="donut_large" iconColor="text-primary">
-                            <div className="space-y-3">
-                                <DistributionBar
-                                    label="Alta (≥70%)"
-                                    value={highFitJobs}
-                                    total={jobs.length}
-                                    colorClass="text-primary"
-                                    bgClass="bg-primary"
-                                />
-                                <DistributionBar
-                                    label="Média (50–69%)"
-                                    value={mediumFitJobs}
-                                    total={jobs.length}
-                                    colorClass="text-amber-400"
-                                    bgClass="bg-amber-400"
-                                />
-                                <DistributionBar
-                                    label="Baixa (<50%)"
-                                    value={lowFitJobs}
-                                    total={jobs.length}
-                                    colorClass="text-red-400"
-                                    bgClass="bg-red-400"
-                                />
-                            </div>
+                            {hasSkills ? (
+                                <div className="space-y-3">
+                                    <DistributionBar
+                                        label="Alta (≥70%)"
+                                        value={highFitJobs}
+                                        total={evaluableCount}
+                                        colorClass="text-primary"
+                                        bgClass="bg-primary"
+                                    />
+                                    <DistributionBar
+                                        label="Média (50–69%)"
+                                        value={mediumFitJobs}
+                                        total={evaluableCount}
+                                        colorClass="text-amber-400"
+                                        bgClass="bg-amber-400"
+                                    />
+                                    <DistributionBar
+                                        label="Baixa (<50%)"
+                                        value={lowFitJobs}
+                                        total={evaluableCount}
+                                        colorClass="text-red-400"
+                                        bgClass="bg-red-400"
+                                    />
+                                </div>
+                            ) : (
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Faça upload do seu currículo ou adicione suas skills no perfil para ver a distribuição de compatibilidade.
+                                </p>
+                            )}
                         </SectionBlock>
 
                         <SectionBlock title="Modelo de Trabalho" icon="location_on" iconColor="text-blue-400">

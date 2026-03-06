@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { JobListItem } from "@/app/lib/jobs/types";
+import { inferStackFromTitle } from "@/app/lib/jobs/normalizers";
 import { useAuth } from "@/app/providers/AuthProvider";
 
 interface CuratedJobCardProps {
@@ -44,13 +45,17 @@ function timeAgo(date: Date | null | undefined): string {
     return `Há ${months} ${months === 1 ? "mês" : "meses"}`;
 }
 
-function getFitBadgeClass(pct: number) {
+function getFitBadgeClass(pct: number, isEstimated: boolean) {
+    if (isEstimated) {
+        return "bg-slate-800 dark:bg-slate-900 text-slate-400 border border-slate-500/40 border-dashed";
+    }
     if (pct >= 80) return "bg-slate-800 dark:bg-slate-900 text-primary border border-primary/40";
     if (pct >= 50) return "bg-slate-800 dark:bg-slate-900 text-amber-400 border border-amber-500/40";
     return "bg-slate-800 dark:bg-slate-900 text-red-400 border border-red-500/40";
 }
 
-function getFitIcon(pct: number) {
+function getFitIcon(pct: number, isEstimated: boolean) {
+    if (isEstimated) return "help";
     if (pct >= 50) return "check_circle";
     return "cancel";
 }
@@ -61,20 +66,30 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
 
     const fit = useMemo(() => {
         const normalize = (value: string) => value.toLowerCase().trim();
-        const requiredSkills = job.stack.map(normalize);
+        const stackSkills = job.stack.map(normalize).filter(Boolean);
+
+        // Se stack está vazio, tenta inferir do título
+        const requiredSkills = stackSkills.length > 0
+            ? stackSkills
+            : inferStackFromTitle(job.title);
+        const isEstimated = stackSkills.length === 0 && requiredSkills.length > 0;
+
+        // Não há informação nem no stack nem no título
+        if (requiredSkills.length === 0) {
+            return { fitPercentage: null, isEstimated: false, missingSkills: [], isInsufficient: false };
+        }
+
         const knownSkills = new Set(user.knownTechnologies.map(normalize));
         const matchedSkills = requiredSkills.filter((skill) => knownSkills.has(skill));
-        const fitPercentage =
-            requiredSkills.length === 0
-                ? 100
-                : Math.round((matchedSkills.length / requiredSkills.length) * 100);
+        const fitPercentage = Math.round((matchedSkills.length / requiredSkills.length) * 100);
 
         return {
             fitPercentage,
+            isEstimated,
             missingSkills: requiredSkills.filter((skill) => !knownSkills.has(skill)),
             isInsufficient: fitPercentage < 50,
         };
-    }, [job.stack, user.knownTechnologies]);
+    }, [job.stack, job.title, user.knownTechnologies]);
 
     function handleApplyClick() {
         if (fit.isInsufficient) {
@@ -119,12 +134,19 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                 </div>
 
                 {/* Fit badge — dark pill */}
-                <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage)}`}>
-                    <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
-                        {getFitIcon(fit.fitPercentage)}
-                    </span>
-                    {fit.fitPercentage}% fit
-                </div>
+                {fit.fitPercentage === null ? (
+                    <div className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 dark:bg-slate-900 text-slate-500 border border-slate-600/40 border-dashed">
+                        <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>{"help"}</span>
+                        {"? fit"}
+                    </div>
+                ) : (
+                    <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}>
+                        <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
+                            {getFitIcon(fit.fitPercentage, fit.isEstimated)}
+                        </span>
+                        {`${fit.isEstimated ? '~' : ''}${fit.fitPercentage}% fit`}
+                    </div>
+                )}
             </div>
 
             {/* Meta row */}
@@ -154,7 +176,7 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
             )}
 
             {/* Skill gap alert */}
-            {showSkillGapAlert && fit.isInsufficient && (
+            {showSkillGapAlert && fit.fitPercentage !== null && fit.isInsufficient && (
                 <div className="mt-4 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
                     <p className="text-xs font-bold text-amber-400 uppercase mb-1.5 flex items-center gap-1.5">
                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>

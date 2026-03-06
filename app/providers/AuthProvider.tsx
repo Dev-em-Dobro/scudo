@@ -110,6 +110,20 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             name: session?.user?.name || session?.user?.email || mockUserProfile.name,
             avatar: session?.user?.image ?? undefined,
             role: session?.user?.email || mockUserProfile.role,
+            knownTechnologies: [],
+            projects: [],
+            experiences: [],
+            certifications: [],
+            languages: [],
+            level: 0,
+            levelName: '',
+            levelProgress: 0,
+            xp: 0,
+            linkedinUrl: null,
+            githubUrl: null,
+            city: null,
+            professionalSummary: null,
+            resumeSyncStatus: 'not_uploaded',
         };
 
         const mergedUser: UserProfile = profileData
