@@ -8,7 +8,7 @@ interface SearchFilterBarProps {
 }
 
 const selectClass =
-    'appearance-none pl-3 pr-8 py-2.5 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-surface-dark text-slate-700 dark:text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors cursor-pointer hover:border-primary/60 dark:hover:border-primary/60 bg-no-repeat bg-right';
+    'appearance-none pl-3 pr-8 py-2.5 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-surface-dark text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors cursor-pointer hover:border-primary/60 dark:hover:border-primary/60 bg-no-repeat bg-right';
 
 export default function SearchFilterBar({ onSearchChange, onSortChange, onLevelChange, onWorkModelChange }: Readonly<SearchFilterBarProps>) {
     return (
@@ -19,7 +19,7 @@ export default function SearchFilterBar({ onSearchChange, onSortChange, onLevelC
                     <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>search</span>
                 </span>
                 <input
-                    className="block w-full pl-9 pr-3 py-2.5 border border-border-light dark:border-border-dark rounded-lg dark:bg-background-dark dark:text-white text-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm transition-colors"
+                    className="block w-full pl-9 pr-3 py-2.5 border border-border-light dark:border-border-dark rounded-lg dark:bg-background-dark text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm transition-colors"
                     placeholder="Filtrar por título, empresa ou tecnologia..."
                     type="text"
                     onChange={(e) => onSearchChange?.(e.target.value)}

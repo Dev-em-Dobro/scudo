@@ -6,10 +6,10 @@ import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
 
 const FEATURES = [
-    { icon: "auto_awesome", label: "Fit calculado por stack técnica" },
-    { icon: "work_outline", label: "Board com vagas curadas diariamente" },
-    { icon: "bar_chart", label: "Analytics de mercado em tempo real" },
-    { icon: "psychology", label: "Assessments de skills para se destacar" },
+    { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
+    { icon: "work_outline", label: "Vagas selecionadas para você todo dia" },
+    { icon: "bar_chart", label: "Métricas do mercado em tempo real" },
+    { icon: "psychology", label: "Teste suas skills e veja onde se destacar" },
 ];
 
 export default async function LoginPage() {

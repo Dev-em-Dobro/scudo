@@ -13,11 +13,12 @@ interface HeaderProps {
 }
 
 const NAV_ICONS: Record<string, string> = {
-    Dashboard: 'grid_view',
-    'Job Board': 'work_outline',
-    'Skill Assessments': 'psychology',
-    Analytics: 'bar_chart',
-    Perfil: 'person_outline',
+    'Meu Painel': 'grid_view',
+    'Vagas para Você': 'work_outline',
+    'Teste suas Skills': 'psychology',
+    'Jornada do aluno': 'route',
+    'Seus Números': 'bar_chart',
+    'Meu Perfil': 'person_outline',
 };
 
 function getInitials(name: string) {
@@ -53,7 +54,7 @@ async function clearClientAuthState() {
     }
 }
 
-export default function Header({ title = 'Overview' }: Readonly<HeaderProps>) {
+export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) {
     const { user } = useAuth();
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
@@ -95,13 +96,13 @@ export default function Header({ title = 'Overview' }: Readonly<HeaderProps>) {
                         rocket_launch
                     </span>
                 </div>
-                <span className="font-bold text-sm text-slate-900 dark:text-white tracking-tight">
+                <span className="font-bold text-sm text-white tracking-tight">
                     {LOGO_TEXT.main}
                     <span className="text-primary">{LOGO_TEXT.accent}</span>
                 </span>
             </div>
 
-            <h1 className="hidden lg:block text-xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h1>
+            <h1 className="hidden lg:block text-xl font-bold text-white tracking-tight">{title}</h1>
 
             {/* Avatar + dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -131,7 +132,7 @@ export default function Header({ title = 'Overview' }: Readonly<HeaderProps>) {
                     <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
                         {/* Cabeçalho do menu */}
                         <div className="px-4 py-3 border-b border-border-light dark:border-border-dark">
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>
+                            <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                             <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.email}</p>
                         </div>
 
@@ -152,7 +153,7 @@ export default function Header({ title = 'Overview' }: Readonly<HeaderProps>) {
                                         href={item.href}
                                         className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${isActive
                                             ? 'text-primary bg-emerald-50 dark:bg-emerald-900/20'
-                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-background-dark hover:text-slate-900 dark:hover:text-white'
+                                            : 'text-slate-300 hover:bg-slate-50 dark:hover:bg-background-dark hover:text-white'
                                             }`}
                                     >
                                         <span

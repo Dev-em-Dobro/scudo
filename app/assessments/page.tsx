@@ -85,13 +85,13 @@ export default async function AssessmentsPage() {
     ];
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
             <Sidebar />
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
-                <Header title="Skill Assessments" />
+                <Header title="Teste suas Skills" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6">
+                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
 
                     {/* Aviso de funcionalidade em desenvolvimento */}
                     <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
@@ -118,7 +118,7 @@ export default async function AssessmentsPage() {
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">{card.value}</p>
+                                    <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
                                 </div>
                             </div>
@@ -129,7 +129,7 @@ export default async function AssessmentsPage() {
                     <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                         <div className="flex items-center gap-2 mb-5">
                             <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>bar_chart</span>
-                            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Ranking de Skills do Mercado</h2>
+                            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Ranking de Skills do Mercado</h2>
                         </div>
 
                         {topDemanded.length > 0 ? (
@@ -143,7 +143,7 @@ export default async function AssessmentsPage() {
                                             </span>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-mono font-medium text-slate-700 dark:text-slate-200 uppercase">
+                                                    <span className="text-sm font-mono font-medium text-slate-200 uppercase">
                                                         {item.skill}
                                                     </span>
                                                     <div className="flex items-center gap-2 shrink-0 ml-3">
@@ -184,7 +184,7 @@ export default async function AssessmentsPage() {
                     <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                         <div className="flex items-center gap-2 mb-5">
                             <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>school</span>
-                            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Plano de Estudo Sugerido</h2>
+                            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Plano de Estudo Sugerido</h2>
                         </div>
 
                         {topGaps.length > 0 ? (
@@ -197,7 +197,7 @@ export default async function AssessmentsPage() {
                                         <span className="shrink-0 w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xs font-bold text-amber-400">
                                             {index + 1}
                                         </span>
-                                        <span className="flex-1 text-sm font-mono font-medium text-slate-700 dark:text-slate-200 uppercase">
+                                        <span className="flex-1 text-sm font-mono font-medium text-slate-200 uppercase">
                                             {item.skill}
                                         </span>
                                         <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">
@@ -209,7 +209,7 @@ export default async function AssessmentsPage() {
                         ) : (
                             <div className="flex flex-col items-center gap-3 py-8 text-center">
                                 <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Você está bem alinhado!</p>
+                                <p className="text-sm font-medium text-slate-200">Você está bem alinhado!</p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">Nenhum gap prioritário identificado no recorte atual de vagas.</p>
                             </div>
                         )}

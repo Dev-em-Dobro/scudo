@@ -40,7 +40,7 @@ function SectionBlock({
                 >
                     {icon}
                 </span>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{title}</h2>
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">{title}</h2>
             </div>
             {children}
         </section>
@@ -170,13 +170,13 @@ export default async function AnalyticsPage() {
     ];
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
             <Sidebar />
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
-                <Header title="Analytics" />
+                <Header title="Seus Números" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6">
+                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
 
                     {/* Stat cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -195,7 +195,7 @@ export default async function AnalyticsPage() {
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">{card.value}</p>
+                                    <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
                                 </div>
                             </div>
