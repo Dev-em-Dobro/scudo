@@ -74,7 +74,7 @@ export default function JobCard({ job }: Readonly<JobCardProps>) {
                 {/* Content */}
                 <div>
                     <h3
-                        className={`text-base font-bold text-slate-900 dark:text-white font-mono transition-colors ${titleHoverColors[job.type]}`}
+                        className={`text-base font-bold text-white font-mono transition-colors ${titleHoverColors[job.type]}`}
                     >
                         {job.title}
                     </h3>

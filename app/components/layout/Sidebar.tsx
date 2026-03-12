@@ -6,11 +6,12 @@ import { NAV_ITEMS, LOGO_TEXT } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
 
 const NAV_ICONS: Record<string, string> = {
-    Dashboard: 'grid_view',
-    'Job Board': 'work_outline',
-    'Skill Assessments': 'psychology',
-    Analytics: 'bar_chart',
-    Perfil: 'person_outline',
+    'Meu Painel': 'grid_view',
+    'Vagas para Você': 'work_outline',
+    'Teste suas Skills': 'psychology',
+    'Jornada do aluno': 'route',
+    'Seus Números': 'bar_chart',
+    'Meu Perfil': 'person_outline',
 };
 
 function getInitials(name: string) {
@@ -33,7 +34,7 @@ export default function Sidebar() {
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary">
                     <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>rocket_launch</span>
                 </div>
-                <span className="font-bold text-base text-slate-900 dark:text-white tracking-tight">
+                <span className="font-bold text-base text-white tracking-tight">
                     {LOGO_TEXT.main}
                     <span className="text-primary">{LOGO_TEXT.accent}</span>
                 </span>
@@ -53,11 +54,11 @@ export default function Sidebar() {
                             href={item.href}
                             className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
                                 ? 'rounded-l-lg bg-emerald-50 dark:bg-emerald-900/20 text-primary border-r-2 border-primary'
-                                : 'rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark hover:text-slate-900 dark:hover:text-white'
+                                : 'rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark hover:text-white'
                                 }`}
                         >
                             <span
-                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-primary' : 'group-hover:text-slate-700 dark:group-hover:text-white'
+                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-primary' : 'group-hover:text-white'
                                     }`}
                                 style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
                             >
@@ -86,7 +87,7 @@ export default function Sidebar() {
                         </div>
                     )}
                     <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>
+                        <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.role}</p>
                     </div>
                 </div>

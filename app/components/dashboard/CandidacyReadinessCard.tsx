@@ -80,7 +80,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-bold text-slate-900 dark:text-white">Status de Aptidão</h2>
+                        <h2 className="text-sm font-bold text-white">Status de Aptidão</h2>
                         {hasSkills && jobs.length > 0 && (
                             <span className="text-sm font-bold text-amber-400">{avgFit}% médio</span>
                         )}

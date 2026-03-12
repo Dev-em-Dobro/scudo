@@ -22,7 +22,7 @@ function SectionBlock({
                 >
                     {icon}
                 </span>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{title}</h2>
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">{title}</h2>
             </div>
             {children}
         </section>
@@ -91,7 +91,7 @@ function ProjectCard({
     return (
         <article className="border border-border-light dark:border-border-dark rounded-xl p-4 bg-slate-50 dark:bg-background-dark space-y-3 hover:border-primary/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-bold text-slate-900 dark:text-white">{project.title}</p>
+                <p className="text-sm font-bold text-white">{project.title}</p>
                 {project.deployUrl ? (
                     <a
                         href={project.deployUrl}
@@ -149,7 +149,7 @@ function PersonalDataRow({ icon, label, value }: Readonly<{ icon: string; label:
                 {label}
             </span>
             {value ? (
-                <span className="text-sm text-slate-700 dark:text-slate-200 truncate">{value}</span>
+                <span className="text-sm text-slate-200 truncate">{value}</span>
             ) : (
                 <span className="text-sm text-slate-400 dark:text-slate-500 italic">Não informado</span>
             )}
@@ -203,13 +203,13 @@ export default async function PerfilPage() {
     ];
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
             <Sidebar />
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
-                <Header title="Perfil" />
+                <Header title="Meu Perfil" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6">
+                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
 
                     {/* Editor interativo */}
                     <ProfileEditor initialProfile={clientProfile} />
@@ -231,7 +231,7 @@ export default async function PerfilPage() {
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">{card.value}</p>
+                                    <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
                                 </div>
                             </div>

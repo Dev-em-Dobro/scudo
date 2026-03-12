@@ -21,13 +21,13 @@ export default async function Home() {
     const recentJobs = jobs.slice(0, 3);
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
             <Sidebar />
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
-                <Header title="Dashboard" />
+                <Header title="Meu Painel" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-8">
+                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-8 scrollbar-modern">
                     {/* Intro */}
                     <div>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -47,7 +47,7 @@ export default async function Home() {
                         {/* Right column — Recent Jobs */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Vagas Recentes para Você</h2>
+                                <h2 className="text-sm font-bold text-white">Vagas Recentes para Você</h2>
                                 <a href="/jobs" className="text-xs font-medium text-primary hover:text-primary/80 hover:underline transition-colors">
                                     Ver todas
                                 </a>

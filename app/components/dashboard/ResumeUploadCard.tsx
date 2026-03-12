@@ -94,7 +94,7 @@ export default function ResumeUploadCard() {
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+                        <h2 className="text-sm font-bold text-white">
                             Currículo e Projetos
                         </h2>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border ${getSyncBadgeClass(user.resumeSyncStatus)}`}>

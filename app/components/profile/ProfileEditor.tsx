@@ -177,7 +177,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
     return (
         <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-5 shadow-sm rounded-xl">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
                 Editar Perfil
             </h2>
 

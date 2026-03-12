@@ -16,8 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'CareerQuest - Your Career Dashboard',
-    description: 'AI-powered career progression platform for developers',
+    title: 'CareerQuest - Seu painel de carreira',
+    description: 'Plataforma para desenvolvedores evoluírem na carreira com vagas alinhadas ao seu perfil',
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className="dark">
+        <html lang="pt-BR" className="dark">
             <head>
                 <link
                     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
