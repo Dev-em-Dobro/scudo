@@ -88,7 +88,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
 
                     {hasSkills ? (
                         <>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{statusText}</p>
+                            <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">{statusText}</p>
 
                             {showGapRecommendation && (
                                 <div className="mt-4 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
@@ -96,7 +96,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>
                                         {" "}Skills prioritárias
                                     </p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    <p className="text-xs text-slate-400 dark:text-slate-300">
                                         Priorize as skills abaixo para aumentar sua compatibilidade com as vagas atuais.
                                     </p>
                                     <div className="mt-2.5 flex flex-wrap gap-1.5">
@@ -113,7 +113,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                             )}
                         </>
                     ) : (
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
                             Adicione suas skills ao perfil para ver sua aptidão nas vagas.
                         </p>
                     )}

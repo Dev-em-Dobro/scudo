@@ -104,7 +104,7 @@ export default function ResumeUploadCard() {
                             {statusLabel}
                         </span>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
                         Envie seu currículo para extrair projetos e derivar automaticamente as skills do perfil.
                     </p>
 
@@ -122,14 +122,14 @@ export default function ResumeUploadCard() {
                             />
                         </label>
                         {fileName && (
-                            <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-48">
+                            <span className="text-xs text-slate-400 dark:text-slate-300 truncate max-w-48">
                                 {fileName}
                             </span>
                         )}
                     </div>
 
                     {message && (
-                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{message}</p>
+                        <p className="mt-2 text-xs text-slate-400 dark:text-slate-300">{message}</p>
                     )}
                     {!isAuthenticated && (
                         <p className="mt-2 text-xs text-amber-400">Faça login para habilitar o upload de currículo.</p>
@@ -140,7 +140,7 @@ export default function ResumeUploadCard() {
                             {user.knownTechnologies.map((technology) => (
                                 <span
                                     key={technology}
-                                    className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
+                                    className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-400 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
                                 >
                                     {technology}
                                 </span>

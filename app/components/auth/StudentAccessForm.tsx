@@ -46,7 +46,7 @@ function SuccessScreen() {
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">E-mail enviado!</h2>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
                     Enviamos suas credenciais de acesso para o seu e-mail. Verifique sua
                     caixa de entrada (e o spam).
                 </p>
@@ -76,7 +76,7 @@ function CreatedNoEmailScreen({ warning }: Readonly<{ warning: string | null }>)
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">Conta criada</h2>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
                     {warning ?? "Sua conta foi criada, mas não conseguimos enviar o e-mail. Entre em contato com o suporte."}
                 </p>
             </div>
@@ -104,7 +104,7 @@ function ExistingUserScreen() {
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">Você já tem uma conta!</h2>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
                     Este e-mail já está cadastrado no CareerQuest. Acesse com suas
                     credenciais normalmente.
                 </p>
@@ -126,7 +126,7 @@ function NotStudentScreen() {
         <div className="w-full max-w-md text-center space-y-5">
             <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-700/40 mx-auto">
                 <span
-                    className="material-symbols-outlined text-slate-400 text-4xl"
+                    className="material-symbols-outlined text-slate-300 text-4xl"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                 >
                     person_search
@@ -134,7 +134,7 @@ function NotStudentScreen() {
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">E-mail não encontrado</h2>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
                     Não encontramos esse e-mail na nossa plataforma de cursos. Você
                     pode criar uma conta normalmente ou fazer login se já tiver cadastro.
                 </p>
@@ -227,7 +227,7 @@ export default function StudentAccessForm() {
                 </div>
                 <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-white">Algo deu errado</h2>
-                    <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                    <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
                         Não foi possível processar sua solicitação. Tente novamente em breve.
                     </p>
                 </div>
@@ -277,7 +277,7 @@ export default function StudentAccessForm() {
                 <h1 className="text-2xl font-bold text-white">
                     Acesse com seu e-mail
                 </h1>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-slate-300 leading-relaxed">
                     Use o mesmo e-mail cadastrado na nossa plataforma de cursos.
                     Vamos verificar e enviar suas credenciais de acesso.
                 </p>
@@ -287,12 +287,12 @@ export default function StudentAccessForm() {
                 <div className="space-y-1.5">
                     <label
                         htmlFor="email"
-                        className="text-xs font-semibold text-slate-400 uppercase tracking-wide"
+                        className="text-xs font-semibold text-slate-300 uppercase tracking-wide"
                     >
                         E-mail da plataforma de cursos
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             mail
                         </span>
                         <input

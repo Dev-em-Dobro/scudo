@@ -15,7 +15,7 @@ export default function SearchFilterBar({ onSearchChange, onSortChange, onLevelC
         <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-surface-dark p-4 border border-border-light dark:border-border-dark rounded-xl shadow-sm">
             {/* Search Input */}
             <div className="relative grow">
-                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-300">
                     <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>search</span>
                 </span>
                 <input

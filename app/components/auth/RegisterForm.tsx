@@ -107,17 +107,17 @@ export default function RegisterForm() {
 
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Criar conta grátis</h1>
-                <p className="text-sm text-slate-400">Preencha os dados abaixo e comece agora.</p>
+                <p className="text-sm text-slate-300">Preencha os dados abaixo e comece agora.</p>
             </div>
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
                 {/* Nome */}
                 <div className="space-y-1.5">
-                    <label htmlFor="name" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor="name" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
                         Nome completo
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             person
                         </span>
                         <input
@@ -134,11 +134,11 @@ export default function RegisterForm() {
 
                 {/* E-mail */}
                 <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor="email" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
                         E-mail
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             mail
                         </span>
                         <input
@@ -155,11 +155,11 @@ export default function RegisterForm() {
 
                 {/* Senha */}
                 <div className="space-y-1.5">
-                    <label htmlFor="password" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor="password" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
                         Senha
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             lock
                         </span>
                         <input
@@ -176,11 +176,11 @@ export default function RegisterForm() {
 
                 {/* Confirmar senha */}
                 <div className="space-y-1.5">
-                    <label htmlFor="confirmPassword" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor="confirmPassword" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
                         Confirmar senha
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             lock
                         </span>
                         <input
@@ -210,7 +210,7 @@ export default function RegisterForm() {
 
             <div className="my-5 flex items-center gap-3">
                 <div className="flex-1 h-px bg-border-dark" />
-                <span className="text-xs text-slate-600 uppercase tracking-wide">ou cadastre-se com</span>
+                <span className="text-xs text-slate-400 uppercase tracking-wide">ou cadastre-se com</span>
                 <div className="flex-1 h-px bg-border-dark" />
             </div>
 

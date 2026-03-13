@@ -91,7 +91,7 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
         <div className="space-y-6">
             {/* Ficha RPG do aluno */}
             <div className="rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 shadow-sm">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-4">
                     Sua ficha
                 </h2>
                 <div className="flex flex-wrap items-center gap-6">
@@ -100,7 +100,7 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
                             <span className="text-2xl font-black text-primary tabular-nums">{level}</span>
                         </div>
                         <div>
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Nível</p>
+                            <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">Nível</p>
                             <p className="text-lg font-bold text-white">{level}</p>
                         </div>
                     </div>
@@ -109,12 +109,12 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
                             <span className="text-2xl font-black text-amber-400">{currentRankLetter}</span>
                         </div>
                         <div>
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Rank atual</p>
+                            <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">Rank atual</p>
                             <p className="text-lg font-bold text-white">Rank {currentRankLetter}</p>
                         </div>
                     </div>
                     <div className="flex-1 min-w-[200px] max-w-md">
-                        <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                        <div className="flex justify-between text-xs font-medium text-slate-400 dark:text-slate-300 mb-1">
                             <span>Progresso</span>
                             <span>{completedCount} / {totalCount} tarefas</span>
                         </div>
@@ -160,7 +160,7 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
                                             {stage.faixa}
                                         </span>
                                         {stage.levelRange && (
-                                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                                            <span className="text-xs text-slate-400 dark:text-slate-300">
                                                 Níveis {stage.levelRange}
                                             </span>
                                         )}
@@ -168,7 +168,7 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
                                 </div>
                                 <div className="flex-1 p-3 space-y-2 overflow-y-auto max-h-[60vh] scrollbar-modern">
                                     {stageTasks.length === 0 ? (
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 py-2">Nenhuma tarefa</p>
+                                        <p className="text-xs text-slate-400 dark:text-slate-300 py-2">Nenhuma tarefa</p>
                                     ) : (
                                         stageTasks.map((task) => {
                                             const status = getEffectiveStatus(task);
@@ -190,9 +190,8 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
                                                 >
                                                     <div className="flex items-start gap-2">
                                                         <span
-                                                            className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${
-                                                                status === 'done' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'
-                                                            }`}
+                                                            className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-primary' : 'text-slate-400 dark:text-slate-300'
+                                                                }`}
                                                             style={{
                                                                 fontVariationSettings: status === 'done' ? "'FILL' 1" : "'FILL' 0",
                                                             }}
@@ -202,21 +201,19 @@ export default function JornadaBoard({ stages, tasks }: JornadaBoardProps) {
                                                         </span>
                                                         <div className="min-w-0">
                                                             <p
-                                                                className={`text-sm font-semibold ${
-                                                                    status === 'done' ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-white'
-                                                                }`}
+                                                                className={`text-sm font-semibold ${status === 'done' ? 'text-slate-300 dark:text-slate-400 line-through' : 'text-white'
+                                                                    }`}
                                                             >
                                                                 {task.title}
                                                             </p>
                                                             {task.description && (
-                                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{task.description}</p>
+                                                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{task.description}</p>
                                                             )}
                                                             <span
-                                                                className={`inline-block mt-2 text-[10px] font-medium uppercase tracking-wide ${
-                                                                    status === 'done'
+                                                                className={`inline-block mt-2 text-[10px] font-medium uppercase tracking-wide ${status === 'done'
                                                                         ? 'text-primary'
-                                                                        : 'text-slate-500 dark:text-slate-400'
-                                                                }`}
+                                                                        : 'text-slate-400 dark:text-slate-300'
+                                                                    }`}
                                                             >
                                                                 {status === 'done' ? 'Concluída' : 'Clique para marcar'}
                                                             </span>

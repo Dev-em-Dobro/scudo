@@ -65,7 +65,7 @@ export default async function AcessoPage() {
                             Da aula à{" "}
                             <span className="text-primary">vaga certa</span>
                         </h2>
-                        <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+                        <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
                             Como aluno da nossa plataforma, você tem acesso prioritário
                             ao CareerQuest — sua central de oportunidades personalizada.
                         </p>
@@ -82,14 +82,14 @@ export default async function AcessoPage() {
                                         {h.icon}
                                     </span>
                                 </span>
-                                <span className="text-sm text-slate-300">{h.label}</span>
+                                <span className="text-sm text-slate-200">{h.label}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
 
                 {/* Rodapé */}
-                <p className="relative text-xs text-slate-600">
+                <p className="relative text-xs text-slate-400">
                     © {new Date().getFullYear()} CareerQuest. Todos os direitos reservados.
                 </p>
             </div>

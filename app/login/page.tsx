@@ -51,7 +51,7 @@ export default async function LoginPage() {
                         <h2 className="text-3xl font-bold text-white leading-snug">
                             Sua carreira em <span className="text-primary">modo turbo</span>
                         </h2>
-                        <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+                        <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
                             Conectamos seu perfil técnico às vagas certas com precisão — sem desperdício de tempo.
                         </p>
                     </div>
@@ -67,14 +67,14 @@ export default async function LoginPage() {
                                         {f.icon}
                                     </span>
                                 </span>
-                                <span className="text-sm text-slate-300">{f.label}</span>
+                                <span className="text-sm text-slate-200">{f.label}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
 
                 {/* Rodapé */}
-                <p className="relative text-xs text-slate-600">
+                <p className="relative text-xs text-slate-400">
                     © {new Date().getFullYear()} CareerQuest. Todos os direitos reservados.
                 </p>
             </div>

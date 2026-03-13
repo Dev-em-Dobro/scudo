@@ -81,17 +81,17 @@ export default function LoginForm() {
 
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Bem-vindo de volta</h1>
-                <p className="text-sm text-slate-400">Entre na sua conta para continuar.</p>
+                <p className="text-sm text-slate-300">Entre na sua conta para continuar.</p>
             </div>
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
                 {/* E-mail */}
                 <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor="email" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
                         E-mail
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             mail
                         </span>
                         <input
@@ -108,11 +108,11 @@ export default function LoginForm() {
 
                 {/* Senha */}
                 <div className="space-y-1.5">
-                    <label htmlFor="password" className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor="password" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
                         Senha
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
                             lock
                         </span>
                         <input
@@ -127,7 +127,7 @@ export default function LoginForm() {
                     {errors.password ? <p className="text-xs text-red-400">{errors.password.message}</p> : null}
                 </div>
 
-                <label className="inline-flex items-center gap-2 text-sm text-slate-400 cursor-pointer select-none">
+                <label className="inline-flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
                     <input type="checkbox" className="h-4 w-4 accent-primary" {...register("rememberMe")} />
                     <span>Manter sessão ativa</span>
                 </label>
@@ -145,7 +145,7 @@ export default function LoginForm() {
 
             <div className="my-5 flex items-center gap-3">
                 <div className="flex-1 h-px bg-border-dark" />
-                <span className="text-xs text-slate-600 uppercase tracking-wide">ou continue com</span>
+                <span className="text-xs text-slate-400 uppercase tracking-wide">ou continue com</span>
                 <div className="flex-1 h-px bg-border-dark" />
             </div>
 

@@ -133,12 +133,12 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                         {/* Cabeçalho do menu */}
                         <div className="px-4 py-3 border-b border-border-light dark:border-border-dark">
                             <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.email}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-300 truncate mt-0.5">{user.email}</p>
                         </div>
 
                         {/* Navegação — visível apenas em mobile/tablet */}
                         <nav className="lg:hidden py-1.5 border-b border-border-light dark:border-border-dark">
-                            <p className="px-4 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600">
+                            <p className="px-4 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-400">
                                 Navegação
                             </p>
                             {NAV_ITEMS.map((item) => {

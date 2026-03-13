@@ -182,7 +182,7 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-4 rounded-xl">
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-slate-400 dark:text-slate-300">
                             Mostrando <span className="font-semibold text-white">{startItem}–{endItem}</span> de <span className="font-semibold text-white">{filteredAndSortedJobs.length}</span> vagas
                         </p>
 
@@ -197,7 +197,7 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                                 {" "}Anterior
                             </button>
 
-                            <span className="text-sm text-slate-600 dark:text-slate-300 px-2">
+                            <span className="text-sm text-slate-500 dark:text-slate-200 px-2">
                                 {activePage} / {totalPages}
                             </span>
 
@@ -215,9 +215,9 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                 </>
             ) : (
                 <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center gap-3 text-center">
-                    <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600" style={{ fontVariationSettings: "'FILL' 1" }}>search_off</span>
+                    <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 1" }}>search_off</span>
                     <p className="text-sm font-medium text-slate-200">Nenhuma vaga encontrada</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Tente ajustar os filtros ou o termo de busca.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-300">Tente ajustar os filtros ou o termo de busca.</p>
                 </div>
             )}
         </div>
