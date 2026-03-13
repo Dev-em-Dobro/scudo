@@ -184,6 +184,22 @@ export default function LoginForm() {
                     Criar conta grátis
                 </Link>
             </p>
+
+            {/* Área de Alunos */}
+            <div className="mt-5 pt-5 border-t border-border-dark">
+                <Link
+                    href="/acesso"
+                    className="flex items-center justify-center gap-2 w-full rounded-lg border border-primary/25 bg-primary/5 hover:border-primary/50 hover:bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary transition-all duration-150"
+                >
+                    <span
+                        className="material-symbols-outlined text-base"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                        school
+                    </span>
+                    {" "}Sou aluno — Acessar com meu e-mail
+                </Link>
+            </div>
         </div>
     );
 }

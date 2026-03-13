@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
  * Rotas públicas que não exigem autenticação.
  * Prefixos de API com auth própria (secret) também são excluídos.
  */
-const PUBLIC_PATHS = new Set(['/login', '/cadastro']);
+const PUBLIC_PATHS = new Set(['/login', '/cadastro', '/acesso']);
 
 const PUBLIC_API_PREFIXES = [
-    '/api/auth',            // Better Auth internals
+    '/api/auth',            // Better Auth internals + student-access
     '/api/health',          // Monitoramento
     '/api/jobs/webhook',    // Autenticado via JOBS_WEBHOOK_SECRET
     '/api/jobs/bootstrap',  // Autenticado via JOBS_BOOTSTRAP_SECRET + cron Vercel
@@ -29,7 +29,7 @@ function isPublicApiPath(pathname: string): boolean {
     return PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Arquivos estáticos e internos do Next.js — sempre permitir
