@@ -5,7 +5,7 @@ import JornadaBoard from '@/app/components/jornada/JornadaBoard';
 import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
 import { auth } from '@/app/lib/auth';
-import { MOCK_STAGES, MOCK_TASKS } from '@/app/lib/jornada/mockJornada';
+import { getUserJornadaSnapshot, isOfficialStudentUser } from '@/app/lib/jornada/service';
 
 export default async function JornadaPage() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -13,6 +13,13 @@ export default async function JornadaPage() {
     if (!session?.user) {
         redirect('/login');
     }
+
+    const isOfficialStudent = await isOfficialStudentUser(session.user.id);
+    if (!isOfficialStudent) {
+        redirect('/');
+    }
+
+    const snapshot = await getUserJornadaSnapshot(session.user.id);
 
     return (
         <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
@@ -22,7 +29,11 @@ export default async function JornadaPage() {
                 <Header title="Jornada do aluno" />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 scrollbar-modern">
-                    <JornadaBoard stages={MOCK_STAGES} tasks={MOCK_TASKS} />
+                    <JornadaBoard
+                        stages={snapshot.stages}
+                        tasks={snapshot.tasks}
+                        editableStageId={snapshot.editableStageId}
+                    />
                 </div>
             </main>
         </div>

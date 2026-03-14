@@ -163,6 +163,11 @@ export async function POST(request: NextRequest) {
                 password: generatedPassword,
             },
         });
+
+        await prisma.user.update({
+            where: { email: rawEmail },
+            data: { officialStudentVerifiedAt: new Date() },
+        });
     } catch (err) {
         console.error("[student-access] Falha ao criar conta:", err);
         return NextResponse.json(

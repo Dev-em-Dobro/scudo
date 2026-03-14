@@ -40,12 +40,28 @@ model User {
   name          String
   email         String    @unique
   emailVerified Boolean   @default(false)
+  officialStudentVerifiedAt DateTime?
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   profile       UserProfile?
   sessions      Session[]
   accounts      Account[]
+  jornadaTaskProgress UserJornadaTaskProgress[]
+}
+
+model UserJornadaTaskProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  taskId      String
+  completedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskId])
+  @@index([userId])
+  @@index([taskId])
 }
 
 model UserProfile {

@@ -15,6 +15,7 @@ type AuthContextValue = {
 
 type ApiProfileResponse = {
     profile: {
+        isOfficialStudent: boolean;
         fullName: string | null;
         linkedinUrl: string | null;
         githubUrl: string | null;
@@ -98,6 +99,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             name: "Visitante",
             email: "",
             role: "Faça login para sincronizar seu perfil",
+            isOfficialStudent: false,
             knownTechnologies: [],
             projects: [],
             experiences: [],
@@ -112,6 +114,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             email: session?.user?.email ?? "",
             avatar: session?.user?.image ?? undefined,
             role: session?.user?.email || mockUserProfile.role,
+            isOfficialStudent: false,
             knownTechnologies: [],
             projects: [],
             experiences: [],
@@ -131,6 +134,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         const mergedUser: UserProfile = profileData
             ? {
                 ...baseUser,
+                isOfficialStudent: profileData.isOfficialStudent,
                 name: profileData.fullName ?? baseUser.name,
                 linkedinUrl: profileData.linkedinUrl,
                 githubUrl: profileData.githubUrl,

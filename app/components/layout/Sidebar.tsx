@@ -26,6 +26,13 @@ function getInitials(name: string) {
 export default function Sidebar() {
     const { user } = useAuth();
     const pathname = usePathname();
+    const visibleNavItems = NAV_ITEMS.filter((item) => {
+        if (item.href !== '/jornada') {
+            return true;
+        }
+
+        return user.isOfficialStudent;
+    });
 
     return (
         <aside className="w-64 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
@@ -42,7 +49,7 @@ export default function Sidebar() {
 
             {/* Navigation */}
             <nav className="flex-1 pl-3 pr-0 py-5 space-y-1">
-                {NAV_ITEMS.map((item) => {
+                {visibleNavItems.map((item) => {
                     const isActive = item.href === '/'
                         ? pathname === '/'
                         : pathname.startsWith(item.href);

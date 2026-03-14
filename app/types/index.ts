@@ -45,6 +45,7 @@ export interface UserProfile {
     name: string;
     email: string;
     role: string;
+    isOfficialStudent: boolean;
     avatar?: string;
     level: number;
     levelName: string;
