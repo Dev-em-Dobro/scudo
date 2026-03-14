@@ -183,7 +183,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
             <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                         <span>Nome</span>
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
@@ -193,7 +193,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         />
                     </label>
 
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                         <span>Cidade</span>
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
@@ -203,7 +203,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         />
                     </label>
 
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                         <span>LinkedIn</span>
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
@@ -213,7 +213,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         />
                     </label>
 
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                         <span>GitHub</span>
                         <input
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
@@ -224,7 +224,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     </label>
                 </div>
 
-                <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                     <span>Resumo Profissional</span>
                     <textarea
                         className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
@@ -235,7 +235,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                 </label>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                         <span>Experiências (uma por linha)</span>
                         <textarea
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
@@ -244,7 +244,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         />
                     </label>
 
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                         <span>Certificações (uma por linha)</span>
                         <textarea
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
@@ -253,7 +253,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         />
                     </label>
 
-                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                         <span>Idiomas (uma por linha)</span>
                         <textarea
                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
@@ -265,7 +265,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
                 <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Projetos</p>
+                        <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Projetos</p>
                         <button
                             type="button"
                             onClick={addProject}
@@ -276,7 +276,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     </div>
 
                     {projects.length === 0 ? (
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-400 dark:text-slate-300">
                             Nenhum projeto cadastrado. Adicione projetos para derivar suas skills automaticamente.
                         </p>
                     ) : (
@@ -287,7 +287,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                     className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark"
                                 >
                                     <div className="flex items-center justify-between gap-3">
-                                        <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                                        <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">
                                             Projeto {index + 1}
                                         </p>
                                         <button
@@ -299,7 +299,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                         </button>
                                     </div>
 
-                                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                         <span>Título</span>
                                         <input
                                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
@@ -308,7 +308,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                         />
                                     </label>
 
-                                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                         <span>Descrição breve</span>
                                         <textarea
                                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
@@ -317,7 +317,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                         />
                                     </label>
 
-                                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                         <span>Tecnologias (separadas por vírgula)</span>
                                         <textarea
                                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
@@ -326,7 +326,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                         />
                                     </label>
 
-                                    <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 space-y-2 block">
+                                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                         <span>Link de deploy (opcional)</span>
                                         <input
                                             className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
@@ -341,7 +341,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                 </div>
 
                 <div className="flex items-center justify-between gap-4">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-slate-300">
                         Itens atuais: {parsedPreview.knownTechnologies.length} skills derivadas de {parsedPreview.projects.length} projetos e {parsedPreview.experiences.length} experiências
                     </p>
                     <button

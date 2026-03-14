@@ -58,12 +58,12 @@ function DistributionBar({
 
     return (
         <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-24 shrink-0">{label}</span>
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-300 w-24 shrink-0">{label}</span>
             <div className="flex-1 h-2 bg-slate-100 dark:bg-background-dark rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${bgClass}`} style={{ width: `${pct}%` }} />
             </div>
             <span className={`text-sm font-bold ${colorClass} w-8 text-right shrink-0`}>{value}</span>
-            <span className="text-xs text-slate-400 dark:text-slate-500 w-9 shrink-0">{pct}%</span>
+            <span className="text-xs text-slate-400 dark:text-slate-300 w-9 shrink-0">{pct}%</span>
         </div>
     );
 }
@@ -194,9 +194,9 @@ export default async function AnalyticsPage() {
                                     </span>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
+                                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">{card.title}</p>
                                     <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{card.description}</p>
                                 </div>
                             </div>
                         ))}
@@ -230,7 +230,7 @@ export default async function AnalyticsPage() {
                                     />
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                <p className="text-sm text-slate-400 dark:text-slate-300">
                                     Faça upload do seu currículo ou adicione suas skills no perfil para ver a distribuição de compatibilidade.
                                 </p>
                             )}

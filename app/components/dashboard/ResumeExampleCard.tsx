@@ -16,7 +16,7 @@ export default function ResumeExampleCard() {
                     <h2 className="text-sm font-bold text-white">
                         Modelo de Currículo
                     </h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
                         Não tem um currículo pronto? Use nosso modelo em PDF como base e facilite o upload.
                     </p>
                     <div className="mt-3">

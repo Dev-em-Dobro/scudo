@@ -32,7 +32,7 @@ function SectionBlock({
 function TagList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel?: string }>) {
     if (values.length === 0) {
         return (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-400 dark:text-slate-300">
                 {emptyLabel ?? 'Sem informações cadastradas.'}
             </p>
         );
@@ -43,7 +43,7 @@ function TagList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel
             {values.map((value) => (
                 <span
                     key={value}
-                    className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg"
+                    className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-500 dark:text-slate-200 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg"
                 >
                     {value}
                 </span>
@@ -54,7 +54,7 @@ function TagList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel
 
 function SkillTagList({ values }: Readonly<{ values: string[] }>) {
     if (values.length === 0) {
-        return <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma stack cadastrada ainda.</p>;
+        return <p className="text-sm text-slate-400 dark:text-slate-300">Nenhuma stack cadastrada ainda.</p>;
     }
 
     return (
@@ -108,14 +108,15 @@ function ProjectCard({
                         {" "}Deploy
                     </a>
                 ) : (
-                    <span className="shrink-0 inline-flex items-center px-2 py-0.5 text-xs font-medium text-slate-400 border border-border-dark rounded-lg">
+                    <span
+                        className="shrink-0 inline-flex items-center px-2 py-0.5 text-xs font-medium text-slate-300 border border-border-dark rounded-lg">
                         Sem deploy
                     </span>
                 )}
             </div>
 
             {project.shortDescription && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-400 dark:text-slate-300 leading-relaxed">
                     {project.shortDescription}
                 </p>
             )}
@@ -125,7 +126,7 @@ function ProjectCard({
                     {project.technologies.map((tech) => (
                         <span
                             key={`${project.id}-${tech}`}
-                            className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded"
+                            className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-500 dark:text-slate-200 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded"
                         >
                             {tech}
                         </span>
@@ -140,18 +141,18 @@ function PersonalDataRow({ icon, label, value }: Readonly<{ icon: string; label:
     return (
         <div className="flex items-center gap-3 py-2.5 border-b border-border-light dark:border-border-dark last:border-0">
             <span
-                className="shrink-0 material-symbols-outlined text-slate-400"
+                className="shrink-0 material-symbols-outlined text-slate-300"
                 style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
             >
                 {icon}
             </span>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide w-20 shrink-0">
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide w-20 shrink-0">
                 {label}
             </span>
             {value ? (
                 <span className="text-sm text-slate-200 truncate">{value}</span>
             ) : (
-                <span className="text-sm text-slate-400 dark:text-slate-500 italic">Não informado</span>
+                <span className="text-sm text-slate-300 dark:text-slate-400 italic">Não informado</span>
             )}
         </div>
     );
@@ -230,9 +231,9 @@ export default async function PerfilPage() {
                                     </span>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
+                                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">{card.title}</p>
                                     <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{card.description}</p>
                                 </div>
                             </div>
                         ))}
@@ -253,7 +254,7 @@ export default async function PerfilPage() {
                                 {clientProfile.professionalSummary}
                             </p>
                         ) : (
-                            <div className="flex items-center gap-2 py-3 text-sm text-slate-400 dark:text-slate-500">
+                            <div className="flex items-center gap-2 py-3 text-sm text-slate-300 dark:text-slate-400">
                                 <span
                                     className="material-symbols-outlined"
                                     style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
@@ -273,7 +274,7 @@ export default async function PerfilPage() {
                     {/* Experiências */}
                     <SectionBlock title="Experiências" icon="history_edu" iconColor="text-blue-400">
                         {clientProfile.experiences.length === 0 ? (
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Sem experiências cadastradas.</p>
+                            <p className="text-sm text-slate-400 dark:text-slate-300">Sem experiências cadastradas.</p>
                         ) : (
                             <ul className="space-y-2">
                                 {clientProfile.experiences.map((exp) => (
@@ -299,12 +300,12 @@ export default async function PerfilPage() {
                         {clientProfile.projects.length === 0 ? (
                             <div className="flex flex-col items-center gap-3 py-8 text-center">
                                 <span
-                                    className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600"
+                                    className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500"
                                     style={{ fontVariationSettings: "'FILL' 1" }}
                                 >
                                     folder_open
                                 </span>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum projeto cadastrado ainda.</p>
+                                <p className="text-sm font-medium text-slate-400 dark:text-slate-300">Nenhum projeto cadastrado ainda.</p>
                             </div>
                         ) : (
                             <div className="space-y-3">

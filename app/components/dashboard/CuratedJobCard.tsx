@@ -114,19 +114,19 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                             {levelLabel[job.level].toUpperCase()}
                         </span>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1 flex-wrap">
+                    <p className="text-sm text-slate-400 dark:text-slate-300 mt-1.5 flex items-center gap-1 flex-wrap">
                         <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>business</span>
                         <span>{job.companyName}</span>
                         {job.location && (
                             <>
-                                <span className="text-slate-300 dark:text-slate-600 mx-0.5">•</span>
+                                <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
                                 <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>location_on</span>
                                 <span>{job.location}</span>
                             </>
                         )}
                         {job.isRemote && !job.location && (
                             <>
-                                <span className="text-slate-300 dark:text-slate-600 mx-0.5">•</span>
+                                <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
                                 <span>Remoto</span>
                             </>
                         )}
@@ -151,13 +151,13 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
 
             {/* Meta row */}
             <div className="mt-3 flex items-center gap-5 text-xs font-medium tracking-wide">
-                <span className="text-slate-400 dark:text-slate-500 uppercase">
+                <span className="text-slate-400 dark:text-slate-300 uppercase">
                     Fonte:{" "}
-                    <span className="text-slate-600 dark:text-slate-300 normal-case font-semibold tracking-normal">{sourceLabel[job.source]}</span>
+                    <span className="text-slate-500 dark:text-slate-200 normal-case font-semibold tracking-normal">{sourceLabel[job.source]}</span>
                 </span>
-                <span className="text-slate-400 dark:text-slate-500 uppercase">
+                <span className="text-slate-400 dark:text-slate-300 uppercase">
                     Publicada:{" "}
-                    <span className="text-slate-600 dark:text-slate-300 normal-case font-semibold tracking-normal">{timeAgo(publishedDate)}</span>
+                    <span className="text-slate-500 dark:text-slate-200 normal-case font-semibold tracking-normal">{timeAgo(publishedDate)}</span>
                 </span>
             </div>
 
@@ -167,7 +167,7 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                     {job.stack.map((tag) => (
                         <span
                             key={`${job.id}-${tag}`}
-                            className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
+                            className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-400 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
                         >
                             {tag.toUpperCase()}
                         </span>

@@ -64,7 +64,7 @@ export default function JobCard({ job }: Readonly<JobCardProps>) {
                         {job.logo ? (
                             <img src={job.logo} alt={job.company} className="h-8 w-8 object-contain" />
                         ) : (
-                            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400">
+                            <span className="material-symbols-outlined text-slate-400 dark:text-slate-300">
                                 {getJobIcon(job.type)}
                             </span>
                         )}
@@ -78,7 +78,7 @@ export default function JobCard({ job }: Readonly<JobCardProps>) {
                     >
                         {job.title}
                     </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
                         {job.company} • {job.location} • {job.salary}
                     </p>
 

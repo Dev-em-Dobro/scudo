@@ -1,18 +1,18 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import LoginForm from "@/app/components/auth/LoginForm";
+import StudentAccessForm from "@/app/components/auth/StudentAccessForm";
 import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
 
-const FEATURES = [
+const HIGHLIGHTS = [
+    { icon: "school", label: "Acesso exclusivo para alunos da plataforma" },
     { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
     { icon: "work_outline", label: "Vagas selecionadas para você todo dia" },
     { icon: "bar_chart", label: "Métricas do mercado em tempo real" },
-    { icon: "psychology", label: "Teste suas skills e veja onde se destacar" },
 ];
 
-export default async function LoginPage() {
+export default async function AcessoPage() {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -47,27 +47,42 @@ export default async function LoginPage() {
 
                 {/* Hero */}
                 <div className="relative space-y-6">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
+                        <span
+                            className="material-symbols-outlined text-primary text-sm"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                            school
+                        </span>
+                        <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                            Área exclusiva de alunos
+                        </span>
+                    </div>
+
                     <div className="space-y-3">
                         <h2 className="text-3xl font-bold text-white leading-snug">
-                            Sua carreira em <span className="text-primary">modo turbo</span>
+                            Da aula à{" "}
+                            <span className="text-primary">vaga certa</span>
                         </h2>
                         <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
-                            Conectamos seu perfil técnico às vagas certas com precisão — sem desperdício de tempo.
+                            Como aluno da nossa plataforma, você tem acesso prioritário
+                            ao CareerQuest — sua central de oportunidades personalizada.
                         </p>
                     </div>
 
                     <ul className="space-y-3">
-                        {FEATURES.map((f) => (
-                            <li key={f.label} className="flex items-center gap-3">
+                        {HIGHLIGHTS.map((h) => (
+                            <li key={h.label} className="flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 shrink-0">
                                     <span
                                         className="material-symbols-outlined text-primary text-base"
                                         style={{ fontVariationSettings: "'FILL' 1" }}
                                     >
-                                        {f.icon}
+                                        {h.icon}
                                     </span>
                                 </span>
-                                <span className="text-sm text-slate-200">{f.label}</span>
+                                <span className="text-sm text-slate-200">{h.label}</span>
                             </li>
                         ))}
                     </ul>
@@ -81,9 +96,8 @@ export default async function LoginPage() {
 
             {/* Painel do formulário */}
             <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <LoginForm />
+                <StudentAccessForm />
             </div>
         </main>
     );
 }
-

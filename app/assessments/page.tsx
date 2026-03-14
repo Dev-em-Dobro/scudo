@@ -98,7 +98,7 @@ export default async function AssessmentsPage() {
                         <span className="material-symbols-outlined text-amber-400 shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>info</span>
                         <div>
                             <p className="text-sm font-semibold text-amber-300">Assessments em breve</p>
-                            <p className="text-xs text-slate-400 mt-0.5">
+                            <p className="text-xs text-slate-300 mt-0.5">
                                 Os testes interativos de habilidades estão em desenvolvimento. Por enquanto, você pode analisar seus gaps com base nas vagas do Job Board.
                             </p>
                         </div>
@@ -117,9 +117,9 @@ export default async function AssessmentsPage() {
                                     </span>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{card.title}</p>
+                                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">{card.title}</p>
                                     <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{card.description}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{card.description}</p>
                                 </div>
                             </div>
                         ))}
@@ -138,7 +138,7 @@ export default async function AssessmentsPage() {
                                     const barWidth = Math.round((item.demand / maxDemand) * 100);
                                     return (
                                         <div key={item.skill} className="flex items-center gap-3">
-                                            <span className="text-xs font-mono text-slate-400 dark:text-slate-500 w-5 text-right shrink-0">
+                                            <span className="text-xs font-mono text-slate-400 dark:text-slate-300 w-5 text-right shrink-0">
                                                 {index + 1}
                                             </span>
                                             <div className="flex-1 min-w-0">
@@ -147,7 +147,7 @@ export default async function AssessmentsPage() {
                                                         {item.skill}
                                                     </span>
                                                     <div className="flex items-center gap-2 shrink-0 ml-3">
-                                                        <span className="text-xs text-slate-400 dark:text-slate-500">{item.demand} vagas</span>
+                                                        <span className="text-xs text-slate-400 dark:text-slate-300">{item.demand} vagas</span>
                                                         {item.mastered ? (
                                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
                                                                 <span className="material-symbols-outlined" style={{ fontSize: '11px', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -174,8 +174,8 @@ export default async function AssessmentsPage() {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center gap-3 py-8 text-center">
-                                <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600" style={{ fontVariationSettings: "'FILL' 1" }}>psychology_alt</span>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Ainda não há skills suficientes para análise.</p>
+                                <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 1" }}>psychology_alt</span>
+                                <p className="text-sm font-medium text-slate-400 dark:text-slate-300">Ainda não há skills suficientes para análise.</p>
                             </div>
                         )}
                     </div>
@@ -200,7 +200,7 @@ export default async function AssessmentsPage() {
                                         <span className="flex-1 text-sm font-mono font-medium text-slate-200 uppercase">
                                             {item.skill}
                                         </span>
-                                        <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">
+                                        <span className="text-xs text-slate-400 dark:text-slate-300 shrink-0">
                                             {item.demand} {item.demand === 1 ? 'vaga' : 'vagas'}
                                         </span>
                                     </div>
@@ -210,7 +210,7 @@ export default async function AssessmentsPage() {
                             <div className="flex flex-col items-center gap-3 py-8 text-center">
                                 <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
                                 <p className="text-sm font-medium text-slate-200">Você está bem alinhado!</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Nenhum gap prioritário identificado no recorte atual de vagas.</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-300">Nenhum gap prioritário identificado no recorte atual de vagas.</p>
                             </div>
                         )}
                     </div>

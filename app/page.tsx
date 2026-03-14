@@ -30,7 +30,7 @@ export default async function Home() {
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-8 scrollbar-modern">
                     {/* Intro */}
                     <div>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-slate-400 dark:text-slate-300">
                             Aqui está um resumo do seu progresso na CareerQuest.
                         </p>
                     </div>
@@ -56,7 +56,7 @@ export default async function Home() {
                                 <CuratedJobCard key={job.id} job={job} />
                             ))}
                             {recentJobs.length === 0 && (
-                                <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 text-sm text-slate-500 dark:text-slate-400">
+                                <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 text-sm text-slate-400 dark:text-slate-300">
                                     Nenhuma vaga disponível no momento.
                                 </div>
                             )}

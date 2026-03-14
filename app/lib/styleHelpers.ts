@@ -150,7 +150,7 @@ export function getPeerRankClass(isCurrentUser: boolean, rank: number): string {
     if (rank === 1) {
         return 'text-slate-400 dark:text-secondary';
     }
-    return 'text-slate-400 dark:text-slate-500';
+    return 'text-slate-400 dark:text-slate-300';
 }
 
 /**
@@ -168,7 +168,7 @@ export function getPeerXpClass(isCurrentUser: boolean, rank: number): string {
     if (rank === 1) {
         return 'text-primary';
     }
-    return 'text-slate-500 dark:text-slate-400';
+    return 'text-slate-400 dark:text-slate-300';
 }
 
 /**
@@ -183,7 +183,7 @@ export function getSkillTagClass(tag: string, isMissingSkill: boolean): string {
     if (isMissingSkill) {
         return 'font-bold text-amber-700 dark:text-secondary bg-amber-50 dark:bg-background-dark border border-amber-200 dark:border-secondary/40';
     }
-    return 'font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark';
+    return 'font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark';
 }
 
 /**
