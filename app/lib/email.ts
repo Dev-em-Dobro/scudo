@@ -10,7 +10,8 @@ export interface StudentAccessEmailParams {
 
 function createTransport() {
     const host = process.env.RESEND_SMTP_HOST || process.env.SMTP_HOST;
-    const port = process.env.RESEND_SMTP_PORT ? Number.parseInt(process.env.RESEND_SMTP_PORT, 10) : 465;
+    const portStr = process.env.RESEND_SMTP_PORT ?? process.env.SMTP_PORT;
+    const port = portStr ? Number.parseInt(portStr, 10) : 465;
     const user = process.env.RESEND_SMTP_USER || process.env.SMTP_USER;
     const pass = process.env.RESEND_SMTP_PASS || process.env.SMTP_PASS;
     const from = process.env.RESEND_SMTP_FROM_EMAIL || process.env.SMTP_FROM;

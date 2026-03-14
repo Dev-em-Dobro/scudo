@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -15,11 +17,15 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval necessário para Next.js dev
+      // unsafe-eval necessário apenas para Next.js HMR em desenvolvimento
+      isDev ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" : "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
       "img-src 'self' data: blob: https: http:",
-      "connect-src 'self' https: wss: ws://localhost:* ws://127.0.0.1:*",
+      // ws://localhost permite HMR em dev; em produção não é necessário
+      isDev
+        ? "connect-src 'self' https: wss: ws://localhost:* ws://127.0.0.1:*"
+        : "connect-src 'self' https: wss:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -69,6 +69,11 @@ async function validateStudentEmail(
         throw new Error("USER_API_BASE_URL não está configurado.");
     }
 
+    // Garante que as credenciais estão presentes para evitar falsos 401 silenciosos
+    if (!token || !apiKey) {
+        throw new Error("Credenciais da API externa (AUTHORIZATION_TOKEN / API_KEY_HEADER) não configuradas.");
+    }
+
     const url = `${baseUrl}/members/by?email=${encodeURIComponent(email)}`;
 
     const response = await fetch(url, {
@@ -83,7 +88,13 @@ async function validateStudentEmail(
         return response.json() as Promise<ExternalStudentData>;
     }
 
-    return null;
+    if (response.status === 404) {
+        // Aluno não encontrado na plataforma externa
+        return null;
+    }
+
+    // 401, 403, 5xx — erro de serviço externo; não deve ser silenciado como "não aluno"
+    throw new Error(`Falha na API externa: status ${response.status}`);
 }
 
 export async function POST(request: NextRequest) {
@@ -112,7 +123,6 @@ export async function POST(request: NextRequest) {
     let studentData: ExternalStudentData | null = null;
     try {
         studentData = await validateStudentEmail(rawEmail);
-        console.log(studentData)
     } catch (err) {
         console.error("[student-access] Erro na validação externa:", err);
         return NextResponse.json(
@@ -149,7 +159,7 @@ export async function POST(request: NextRequest) {
         await auth.api.signUpEmail({
             body: {
                 name: studentData.name,
-                email: studentData.email,
+                email: rawEmail, // usa o e-mail já normalizado (lowercase) em vez do retornado pela API
                 password: generatedPassword,
             },
         });
@@ -166,7 +176,7 @@ export async function POST(request: NextRequest) {
     
     try {
         await sendStudentAccessEmail({
-            to: studentData.email,
+            to: rawEmail, // mantém consistência com o e-mail normalizado usado no cadastro
             name: studentData.name,
             password: generatedPassword,
             loginUrl,

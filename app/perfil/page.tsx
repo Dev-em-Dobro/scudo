@@ -152,7 +152,7 @@ function PersonalDataRow({ icon, label, value }: Readonly<{ icon: string; label:
             {value ? (
                 <span className="text-sm text-slate-200 truncate">{value}</span>
             ) : (
-                <span className="text-sm text-slate-300 dark:text-slate-400 italic">Ío informado</span>
+                <span className="text-sm text-slate-300 dark:text-slate-400 italic">Não informado</span>
             )}
         </div>
     );
