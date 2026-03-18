@@ -23,6 +23,7 @@ export default function LoginForm() {
     const router = useRouter();
     const [authError, setAuthError] = useState<string | null>(null);
     const [socialLoading, setSocialLoading] = useState<"google" | "linkedin" | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const {
         register,
@@ -117,12 +118,26 @@ export default function LoginForm() {
                         </span>
                         <input
                             id="password"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             autoComplete="current-password"
                             placeholder="••••••••"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
                             {...register("password")}
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword((current) => !current)}
+                            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                            className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-400 hover:text-primary transition-colors"
+                        >
+                            <span
+                                className="material-symbols-outlined text-[18px]"
+                                style={{ fontVariationSettings: "'FILL' 1" }}
+                                aria-hidden="true"
+                            >
+                                {showPassword ? "visibility_off" : "visibility"}
+                            </span>
+                        </button>
                     </div>
                     {errors.password ? <p className="text-xs text-red-400">{errors.password.message}</p> : null}
                 </div>
@@ -187,6 +202,9 @@ export default function LoginForm() {
 
             {/* Área de Alunos */}
             <div className="mt-5 pt-5 border-t border-border-dark">
+                <p className="mb-2 text-xs text-slate-400">
+                    Aluno da formação? Use esta opção somente no primeiro acesso para ativar sua conta.
+                </p>
                 <Link
                     href="/acesso"
                     className="flex items-center justify-center gap-2 w-full rounded-lg border border-primary/25 bg-primary/5 hover:border-primary/50 hover:bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary transition-all duration-150"
@@ -197,7 +215,7 @@ export default function LoginForm() {
                     >
                         school
                     </span>
-                    {" "}Sou aluno — Acessar com meu e-mail
+                    {" "}Primeiro acesso de aluno
                 </Link>
             </div>
         </div>

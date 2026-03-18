@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 
 import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
+import ChangePasswordSection from '@/app/components/profile/ChangePasswordSection';
 import ProfileEditor from '@/app/components/profile/ProfileEditor';
 import { auth } from '@/app/lib/auth';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
@@ -214,6 +215,9 @@ export default async function PerfilPage() {
 
                     {/* Editor interativo */}
                     <ProfileEditor initialProfile={clientProfile} />
+
+                    {/* Segurança da conta */}
+                    <ChangePasswordSection />
 
                     {/* Stat cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
