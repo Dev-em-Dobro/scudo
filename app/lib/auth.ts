@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
+import { sendResetPasswordEmail } from "@/app/lib/email";
 import { prisma } from "@/app/lib/prisma";
 
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET;
@@ -42,6 +43,15 @@ export const auth = betterAuth({
         minPasswordLength: 8,
         maxPasswordLength: 128,
         autoSignIn: true,
+        revokeSessionsOnPasswordReset: true,
+        resetPasswordTokenExpiresIn: 60 * 30,
+        sendResetPassword: async ({ user, url }) => {
+            await sendResetPasswordEmail({
+                to: user.email,
+                name: user.name,
+                resetUrl: url,
+            });
+        },
     },
     socialProviders,
     account: {

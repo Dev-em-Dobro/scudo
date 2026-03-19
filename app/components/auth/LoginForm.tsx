@@ -140,6 +140,11 @@ export default function LoginForm() {
                         </button>
                     </div>
                     {errors.password ? <p className="text-xs text-red-400">{errors.password.message}</p> : null}
+                    <p className="text-right">
+                        <Link href="/recuperar-senha" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                            Esqueci minha senha
+                        </Link>
+                    </p>
                 </div>
 
                 <label className="inline-flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
