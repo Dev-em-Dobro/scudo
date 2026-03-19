@@ -25,6 +25,7 @@ function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
 
 type JornadaApiResponse = {
     tasks: JornadaTask[];
+    editableStageId?: string;
 };
 
 function isInteractiveTarget(target: EventTarget | null) {
@@ -37,6 +38,7 @@ function isInteractiveTarget(target: EventTarget | null) {
 
 export default function JornadaBoard({ stages, tasks, editableStageId }: Readonly<JornadaBoardProps>) {
     const [boardTasks, setBoardTasks] = useState<JornadaTask[]>(tasks);
+    const [currentEditableStageId, setCurrentEditableStageId] = useState(editableStageId);
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
@@ -50,7 +52,7 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
             return;
         }
 
-        if (targetTask.stageId !== editableStageId || updatingTaskIds[taskId]) {
+        if (targetTask.stageId !== currentEditableStageId || updatingTaskIds[taskId]) {
             return;
         }
 
@@ -87,6 +89,9 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
             if (Array.isArray(data.tasks)) {
                 setBoardTasks(data.tasks);
             }
+            if (typeof data.editableStageId === 'string' && data.editableStageId.length > 0) {
+                setCurrentEditableStageId(data.editableStageId);
+            }
         } catch {
             // Reverte apenas a tarefa que falhou, evitando sobrescrever updates concorrentes.
             setBoardTasks((current) => current.map((task) => {
@@ -107,10 +112,13 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                 return next;
             });
         }
-    }, [boardTasks, editableStageId, updatingTaskIds]);
+    }, [boardTasks, currentEditableStageId, updatingTaskIds]);
 
     const tasksByStage = useMemo(() => groupTasksByStageId(boardTasks), [boardTasks]);
     const sortedStages = useMemo(() => [...stages].sort((a, b) => a.order - b.order), [stages]);
+    const currentEditableStageOrder = useMemo(() => (
+        sortedStages.find((stage) => stage.id === currentEditableStageId)?.order ?? Number.POSITIVE_INFINITY
+    ), [currentEditableStageId, sortedStages]);
 
     const completedCount = boardTasks.filter((task) => task.status === 'done').length;
     const totalCount = boardTasks.length;
@@ -286,7 +294,9 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
             >
                 <div className="flex w-max min-w-full gap-4 px-1">
                     {sortedStages.map((stage) => {
-                        const isEditableStage = stage.id === editableStageId;
+                        const isEditableStage = stage.id === currentEditableStageId;
+                        const isCompletedStage = stage.order < currentEditableStageOrder;
+                        const isFutureLockedStage = stage.order > currentEditableStageOrder;
                         const stageTasks = (tasksByStage.get(stage.id) ?? []).sort((a, b) => a.order - b.order);
                         return (
                             <div
@@ -304,9 +314,14 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                                                 Níveis {stage.levelRange}
                                             </span>
                                         )}
-                                        {!isEditableStage && (
+                                        {!isEditableStage && isCompletedStage && (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                                Etapa concluída
+                                            </span>
+                                        )}
+                                        {!isEditableStage && isFutureLockedStage && (
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-700/40 text-slate-300 border border-slate-600/40">
-                                                Bloqueado para check
+                                                Libera após concluir rank atual
                                             </span>
                                         )}
                                     </div>
@@ -319,14 +334,18 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                                             const status = task.status;
                                             const isUpdating = Boolean(updatingTaskIds[task.id]);
                                             const isInteractive = isEditableStage && !isUpdating;
-                                            let statusLabel = 'Acompanhamento restrito ao Rank I';
+                                            let statusLabel = 'Acompanhamento restrito ao rank atual';
 
                                             if (isUpdating) {
                                                 statusLabel = 'Salvando...';
                                             } else if (status === 'done') {
-                                                statusLabel = 'Concluida';
+                                                statusLabel = 'Concluída';
                                             } else if (isEditableStage) {
                                                 statusLabel = 'Clique para marcar';
+                                            } else if (isCompletedStage) {
+                                                statusLabel = 'Etapa concluída';
+                                            } else if (isFutureLockedStage) {
+                                                statusLabel = 'Aguardando desbloqueio';
                                             }
 
                                             return (
@@ -339,7 +358,7 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                                                     disabled={!isInteractive}
                                                     className={`w-full text-left rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark p-3 transition-colors select-none ${isInteractive ? 'hover:border-primary/30 cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
                                                     aria-pressed={status === 'done'}
-                                                    aria-label={status === 'done' ? `Marcar como a fazer: ${task.title}` : `Marcar como concluida: ${task.title}`}
+                                                    aria-label={status === 'done' ? `Marcar como a fazer: ${task.title}` : `Marcar como concluída: ${task.title}`}
                                                 >
                                                     <div className="flex items-start gap-2">
                                                         <span
