@@ -7,7 +7,7 @@ import {
     getCatalogTaskById,
     getUserJornadaSnapshot,
     isOfficialStudentUser,
-    isTaskEditable,
+    isTaskEditableForUser,
     setTaskDoneForUser,
 } from '@/app/lib/jornada/service';
 
@@ -64,9 +64,9 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Tarefa não encontrada.' }, { status: 404 });
     }
 
-    if (!isTaskEditable(taskId)) {
+    if (!await isTaskEditableForUser(session.user.id, taskId)) {
         return NextResponse.json(
-            { error: 'Somente tarefas do Rank I podem ser marcadas no momento.' },
+            { error: 'Somente tarefas do rank atual podem ser marcadas no momento.' },
             { status: 403 },
         );
     }
