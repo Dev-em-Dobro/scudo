@@ -4,7 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
  * Rotas públicas que não exigem autenticação.
  * Prefixos de API com auth própria (secret) também são excluídos.
  */
-const PUBLIC_PATHS = new Set(['/login', '/cadastro', '/acesso']);
+const PUBLIC_PATHS = new Set([
+    '/login',
+    '/cadastro',
+    '/acesso',
+    '/recuperar-senha',
+    '/redefinir-senha',
+]);
 
 const PUBLIC_API_PREFIXES = [
     '/api/auth',            // Better Auth internals + student-access

@@ -8,6 +8,12 @@ export interface StudentAccessEmailParams {
     loginUrl: string;
 }
 
+export interface ResetPasswordEmailParams {
+  to: string;
+  name: string;
+  resetUrl: string;
+}
+
 function createTransport() {
     const host = process.env.RESEND_SMTP_HOST || process.env.SMTP_HOST;
     const portStr = process.env.RESEND_SMTP_PORT ?? process.env.SMTP_PORT;
@@ -172,6 +178,73 @@ export async function sendStudentAccessEmail(
         from,
         to: params.to,
         subject: "Seus dados de acesso ao CareerQuest",
+        html,
+    });
+}
+
+function buildResetPasswordEmailHtml(params: {
+    name: string;
+    resetUrl: string;
+}): string {
+    const firstName = params.name.split(" ")[0] || "aluno";
+    const year = new Date().getFullYear();
+
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redefinição de senha - CareerQuest</title>
+</head>
+<body style="margin:0;padding:0;background-color:#070d12;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#070d12;padding:48px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width:560px;">
+          <tr>
+            <td style="background-color:#111827;border:1px solid #1f2937;border-radius:16px;padding:40px 36px;">
+              <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#ffffff;line-height:1.3;">
+                Redefinição de senha
+              </h1>
+              <p style="margin:0 0 20px;font-size:14px;color:#94a3b8;line-height:1.7;">
+                Olá, ${firstName}. Recebemos uma solicitação para redefinir a senha da sua conta no CareerQuest.
+              </p>
+
+              <a href="${params.resetUrl}" style="display:block;text-align:center;background-color:#10b981;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:10px;font-size:14px;font-weight:600;letter-spacing:0.01em;box-shadow:0 4px 14px rgba(16,185,129,0.3);">
+                Redefinir minha senha
+              </a>
+
+              <p style="margin:20px 0 0;font-size:12px;color:#94a3b8;line-height:1.6;">
+                Este link expira automaticamente em pouco tempo por segurança.
+                Se você não solicitou esta redefinição, ignore este e-mail.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:28px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#374151;">© ${year} CareerQuest. Todos os direitos reservados.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export async function sendResetPasswordEmail(params: ResetPasswordEmailParams): Promise<void> {
+    const { transporter, from } = createTransport();
+
+    const html = buildResetPasswordEmailHtml({
+        name: params.name,
+        resetUrl: params.resetUrl,
+    });
+
+    await transporter.sendMail({
+        from,
+        to: params.to,
+        subject: "Redefina sua senha no CareerQuest",
         html,
     });
 }

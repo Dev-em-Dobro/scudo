@@ -36,5 +36,21 @@ export const signUpSchema = z
         message: "As senhas não conferem",
     });
 
+export const forgotPasswordSchema = z.object({
+    email: emailSchema,
+});
+
+export const resetPasswordSchema = z
+    .object({
+        password: passwordSchema,
+        confirmPassword: z.string().min(1, "Confirme sua senha"),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        path: ["confirmPassword"],
+        message: "As senhas não conferem",
+    });
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
