@@ -33,6 +33,8 @@ export default async function JornadaPage() {
                         stages={snapshot.stages}
                         tasks={snapshot.tasks}
                         editableStageId={snapshot.editableStageId}
+                        initialCurrentRankLetter={snapshot.currentRankLetter}
+                        initialLevel={snapshot.level}
                     />
                 </div>
             </main>
