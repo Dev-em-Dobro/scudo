@@ -8,6 +8,8 @@ interface JornadaBoardProps {
     stages: JornadaStage[];
     tasks: JornadaTask[];
     editableStageId: string;
+    initialCurrentRankLetter: string;
+    initialLevel: number;
 }
 
 function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
@@ -26,6 +28,8 @@ function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
 type JornadaApiResponse = {
     tasks: JornadaTask[];
     editableStageId?: string;
+    currentRankLetter?: string;
+    level?: number;
 };
 
 function isInteractiveTarget(target: EventTarget | null) {
@@ -36,9 +40,17 @@ function isInteractiveTarget(target: EventTarget | null) {
     return Boolean(target.closest('button, a, input, textarea, select, label'));
 }
 
-export default function JornadaBoard({ stages, tasks, editableStageId }: Readonly<JornadaBoardProps>) {
+export default function JornadaBoard({
+    stages,
+    tasks,
+    editableStageId,
+    initialCurrentRankLetter,
+    initialLevel,
+}: Readonly<JornadaBoardProps>) {
     const [boardTasks, setBoardTasks] = useState<JornadaTask[]>(tasks);
     const [currentEditableStageId, setCurrentEditableStageId] = useState(editableStageId);
+    const [currentRankLetter, setCurrentRankLetter] = useState(initialCurrentRankLetter);
+    const [level, setLevel] = useState(initialLevel);
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
@@ -92,6 +104,12 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
             if (typeof data.editableStageId === 'string' && data.editableStageId.length > 0) {
                 setCurrentEditableStageId(data.editableStageId);
             }
+            if (typeof data.currentRankLetter === 'string' && data.currentRankLetter.length > 0) {
+                setCurrentRankLetter(data.currentRankLetter);
+            }
+            if (typeof data.level === 'number' && Number.isFinite(data.level)) {
+                setLevel(data.level);
+            }
         } catch {
             // Reverte apenas a tarefa que falhou, evitando sobrescrever updates concorrentes.
             setBoardTasks((current) => current.map((task) => {
@@ -116,26 +134,49 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
 
     const tasksByStage = useMemo(() => groupTasksByStageId(boardTasks), [boardTasks]);
     const sortedStages = useMemo(() => [...stages].sort((a, b) => a.order - b.order), [stages]);
+    const currentEditableStage = useMemo(
+        () => sortedStages.find((stage) => stage.id === currentEditableStageId) ?? null,
+        [currentEditableStageId, sortedStages],
+    );
+    const currentEditableStageIndex = useMemo(
+        () => (currentEditableStage ? sortedStages.findIndex((stage) => stage.id === currentEditableStage.id) : -1),
+        [currentEditableStage, sortedStages],
+    );
+    const nextStage = useMemo(
+        () => (currentEditableStageIndex >= 0 ? sortedStages[currentEditableStageIndex + 1] ?? null : null),
+        [currentEditableStageIndex, sortedStages],
+    );
     const currentEditableStageOrder = useMemo(() => (
         sortedStages.find((stage) => stage.id === currentEditableStageId)?.order ?? Number.POSITIVE_INFINITY
     ), [currentEditableStageId, sortedStages]);
 
-    const completedCount = boardTasks.filter((task) => task.status === 'done').length;
-    const totalCount = boardTasks.length;
-    const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    const currentStageTasks = currentEditableStage ? tasksByStage.get(currentEditableStage.id) ?? [] : [];
+    const completedCurrentStageTasks = currentStageTasks.filter((task) => task.status === 'done').length;
+    const totalCurrentStageTasks = currentStageTasks.length;
+    const currentStageProgressPercent = totalCurrentStageTasks > 0
+        ? Math.round((completedCurrentStageTasks / totalCurrentStageTasks) * 100)
+        : 0;
 
-    let currentRankLetter = 'I';
-    for (let i = sortedStages.length - 1; i >= 0; i--) {
-        const stage = sortedStages[i];
-        const stageTasks = tasksByStage.get(stage.id) ?? [];
-        const hasDone = stageTasks.some((task) => task.status === 'done');
-        if (hasDone) {
-            currentRankLetter = stage.rankLetter;
-            break;
+    const maxLevel = 50;
+    const levelsPerStage = 5;
+    const tasksToNextLevel = (() => {
+        if (level >= maxLevel || totalCurrentStageTasks === 0) {
+            return 0;
         }
-    }
 
-    const level = 1 + Math.min(49, Math.floor(completedCount / 2));
+        const stageProgress = completedCurrentStageTasks / totalCurrentStageTasks;
+        const currentStageLevelStep = Math.min(levelsPerStage - 1, Math.floor(stageProgress * levelsPerStage));
+        const nextStepThreshold = Math.min(
+            totalCurrentStageTasks,
+            Math.ceil(((currentStageLevelStep + 1) / levelsPerStage) * totalCurrentStageTasks),
+        );
+
+        return Math.max(0, nextStepThreshold - completedCurrentStageTasks);
+    })();
+
+    const tasksToNextRank = currentStageTasks.filter((task) => task.status !== 'done').length;
+
+    const formatTaskCount = (count: number) => `${count} ${count === 1 ? 'tarefa' : 'tarefas'}`;
 
     const scrollBoardBy = useCallback((delta: number) => {
         boardScrollRef.current?.scrollBy({
@@ -217,6 +258,11 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                         <div>
                             <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">Nível</p>
                             <p className="text-lg font-bold text-white">{level}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-300 mt-0.5">
+                                {tasksToNextLevel === 0
+                                    ? 'Você alcançou o nível máximo.'
+                                    : `Faltam ${formatTaskCount(tasksToNextLevel)} para o próximo nível.`}
+                            </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -230,13 +276,13 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                     </div>
                     <div className="flex-1 min-w-50 max-w-md">
                         <div className="flex justify-between text-xs font-medium text-slate-400 dark:text-slate-300 mb-1">
-                            <span>Progresso</span>
-                            <span>{completedCount} / {totalCount} tarefas</span>
+                            <span>Progresso do rank atual</span>
+                            <span>{completedCurrentStageTasks} / {totalCurrentStageTasks} tarefas</span>
                         </div>
                         <div className="h-2.5 rounded-full bg-slate-700 dark:bg-slate-800 overflow-hidden">
                             <div
                                 className="h-full rounded-full bg-primary transition-all duration-300"
-                                style={{ width: `${progressPercent}%` }}
+                                style={{ width: `${currentStageProgressPercent}%` }}
                             />
                         </div>
                     </div>
@@ -251,9 +297,16 @@ export default function JornadaBoard({ stages, tasks, editableStageId }: Readonl
                 ) : (
                     <div className="mt-4 flex items-start gap-3 p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
                         <span className="material-symbols-outlined text-amber-400 shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>info</span>
-                        <p className="text-sm text-amber-200/90">
-                            Com seu nível atual, não concorra às vagas ainda. Conclua as etapas da jornada antes de se candidatar.
-                        </p>
+                        <div className="space-y-1 text-sm text-amber-200/90">
+                            <p>
+                                Com seu nível atual, não concorra às vagas ainda. Conclua as etapas da jornada antes de se candidatar.
+                            </p>
+                            <p>
+                                {nextStage
+                                    ? `Faltam ${formatTaskCount(tasksToNextRank)} para liberar o Rank ${nextStage.rankLetter}.`
+                                    : `Faltam ${formatTaskCount(tasksToNextRank)} para concluir o rank atual.`}
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>

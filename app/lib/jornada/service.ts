@@ -22,29 +22,43 @@ function withPersistedStatuses(completedTaskIds: Set<string>) {
 }
 
 function computeCurrentRankLetter(stages: JornadaStage[], tasks: JornadaTask[]) {
-    const tasksByStage = new Map<string, JornadaTask[]>();
+    const editableStageId = computeEditableStageId(stages, tasks);
+    const currentStage = stages.find((stage) => stage.id === editableStageId);
 
-    for (const task of tasks) {
-        const list = tasksByStage.get(task.stageId) ?? [];
-        list.push(task);
-        tasksByStage.set(task.stageId, list);
-    }
-
-    const sortedStages = [...stages].sort((a, b) => a.order - b.order);
-
-    for (let i = sortedStages.length - 1; i >= 0; i--) {
-        const stage = sortedStages[i];
-        const stageTasks = tasksByStage.get(stage.id) ?? [];
-        if (stageTasks.some((task) => task.status === 'done')) {
-            return stage.rankLetter;
-        }
-    }
-
-    return 'I';
+    return currentStage?.rankLetter ?? 'I';
 }
 
-function computeLevel(completedCount: number) {
-    return 1 + Math.min(49, Math.floor(completedCount / 2));
+function computeLevel(stages: JornadaStage[], tasks: JornadaTask[], editableStageId: string) {
+    const levelsPerStage = 5;
+    const maxLevel = 50;
+    const sortedStages = [...stages].sort((a, b) => a.order - b.order);
+    const allTasksDone = tasks.length > 0 && tasks.every((task) => task.status === 'done');
+
+    if (allTasksDone) {
+        return maxLevel;
+    }
+
+    const currentStageIndex = sortedStages.findIndex((stage) => stage.id === editableStageId);
+    const completedStagesCount = Math.max(0, currentStageIndex);
+    const baseLevel = 1 + (completedStagesCount * levelsPerStage);
+
+    const currentStage = currentStageIndex >= 0 ? sortedStages[currentStageIndex] : null;
+    if (!currentStage) {
+        return Math.min(maxLevel - 1, baseLevel);
+    }
+
+    const currentStageTasks = tasks.filter((task) => task.stageId === currentStage.id);
+    const completedCurrentStageTasks = currentStageTasks.filter((task) => task.status === 'done').length;
+    const totalCurrentStageTasks = currentStageTasks.length;
+
+    if (totalCurrentStageTasks === 0) {
+        return Math.min(maxLevel - 1, baseLevel);
+    }
+
+    const progressWithinStage = completedCurrentStageTasks / totalCurrentStageTasks;
+    const extraLevels = Math.floor(progressWithinStage * levelsPerStage);
+
+    return Math.max(1, Math.min(maxLevel - 1, baseLevel + extraLevels));
 }
 
 function computeEditableStageId(stages: JornadaStage[], tasks: JornadaTask[]) {
@@ -106,15 +120,15 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
 
     const completedTaskIds = new Set<string>(progress.map((item) => item.taskId));
     const tasks = withPersistedStatuses(completedTaskIds);
-    const completedCount = tasks.filter((task) => task.status === 'done').length;
+    const editableStageId = computeEditableStageId(MOCK_STAGES, tasks);
 
     return {
         stages: MOCK_STAGES,
         tasks,
         completedTaskIds: [...completedTaskIds],
         currentRankLetter: computeCurrentRankLetter(MOCK_STAGES, tasks),
-        level: computeLevel(completedCount),
-        editableStageId: computeEditableStageId(MOCK_STAGES, tasks),
+        level: computeLevel(MOCK_STAGES, tasks, editableStageId),
+        editableStageId,
     };
 }
 
