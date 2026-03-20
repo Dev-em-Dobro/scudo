@@ -86,6 +86,28 @@ export default function LoginForm() {
             </div>
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
+                {/* Destaque para primeiro acesso de alunos */}
+                <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 md:p-5">
+                    <p className="text-lg font-semibold text-primary leading-snug">
+                        Aluno da formação? Comece por aqui.
+                    </p>
+                    <p className="mt-1.5 text-sm text-slate-200">
+                        No primeiro acesso, ative sua conta antes de entrar com e-mail e senha.
+                    </p>
+                    <Link
+                        href="/acesso"
+                        className="mt-3.5 flex items-center justify-center gap-2 w-full rounded-lg border border-primary/35 bg-primary/5 hover:border-primary/60 hover:bg-primary/15 px-4 py-2.5 text-sm font-semibold text-primary transition-all duration-150"
+                    >
+                        <span
+                            className="material-symbols-outlined text-base"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                            school
+                        </span>
+                        {" "}Primeiro acesso de aluno
+                    </Link>
+                </div>
+
                 {/* E-mail */}
                 <div className="space-y-1.5">
                     <label htmlFor="email" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
@@ -205,24 +227,6 @@ export default function LoginForm() {
                 </Link>
             </p>
 
-            {/* Área de Alunos */}
-            <div className="mt-5 pt-5 border-t border-border-dark">
-                <p className="mb-2 text-xs text-slate-400">
-                    Aluno da formação? Use esta opção somente no primeiro acesso para ativar sua conta.
-                </p>
-                <Link
-                    href="/acesso"
-                    className="flex items-center justify-center gap-2 w-full rounded-lg border border-primary/25 bg-primary/5 hover:border-primary/50 hover:bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary transition-all duration-150"
-                >
-                    <span
-                        className="material-symbols-outlined text-base"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                        school
-                    </span>
-                    {" "}Primeiro acesso de aluno
-                </Link>
-            </div>
         </div>
     );
 }
