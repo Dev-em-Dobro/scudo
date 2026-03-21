@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "not_student" });
     }
 
-    // --- 3. Verificar se o aluno já possui conta no CareerQuest ---
+    // --- 3. Verificar se o aluno já possui conta no Scudo ---
     const existingUser = await prisma.user.findUnique({
         where: { email: rawEmail },
         select: { id: true },

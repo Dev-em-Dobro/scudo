@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 
 const emailSchema = z.object({
     email: z
@@ -105,7 +106,7 @@ function ExistingUserScreen() {
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">Você já tem uma conta!</h2>
                 <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
-                    Este e-mail já está cadastrado no CareerQuest. Acesse com suas
+                    Este e-mail já está cadastrado no Scudo. Acesse com suas
                     credenciais normalmente.
                 </p>
             </div>
@@ -248,15 +249,10 @@ export default function StudentAccessForm() {
             {/* Logo mobile */}
             <div className="flex items-center gap-2.5 mb-8 lg:hidden">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-md shadow-primary/30">
-                    <span
-                        className="material-symbols-outlined text-white text-lg"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                        rocket_launch
-                    </span>
+                    <ScudoShieldIcon className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-bold text-base text-white tracking-tight">
-                    CAREER<span className="text-primary">QUEST</span>
+                    SCU<span className="text-primary">DO</span>
                 </span>
             </div>
 

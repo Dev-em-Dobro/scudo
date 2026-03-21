@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 import LoginForm from "@/app/components/auth/LoginForm";
 import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
@@ -32,12 +33,7 @@ export default async function LoginPage() {
                 {/* Logo */}
                 <div className="relative flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary shadow-lg shadow-primary/30">
-                        <span
-                            className="material-symbols-outlined text-white text-xl"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            rocket_launch
-                        </span>
+                        <ScudoShieldIcon className="h-6 w-6 text-white" />
                     </div>
                     <span className="font-bold text-lg text-white tracking-tight">
                         {LOGO_TEXT.main}
@@ -75,7 +71,7 @@ export default async function LoginPage() {
 
                 {/* Rodapé */}
                 <p className="relative text-xs text-slate-400">
-                    © {new Date().getFullYear()} CareerQuest. Todos os direitos reservados.
+                    © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
                 </p>
             </div>
 

@@ -170,7 +170,7 @@ export async function fetchFromTrampos(limit = 80): Promise<RawSourceJob[]> {
         const response = await fetch('https://www.trampos.co/oportunidades', {
             headers: {
                 'Accept': 'text/html,application/xhtml+xml',
-                'User-Agent': 'CareerQuest/1.0 (+job-aggregator)',
+                'User-Agent': 'Scudo/1.0 (+job-aggregator)',
             },
             signal: AbortSignal.timeout(20000),
         });

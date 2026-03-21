@@ -31,7 +31,7 @@ export default async function Home() {
                     {/* Intro */}
                     <div>
                         <p className="text-sm text-slate-400 dark:text-slate-300">
-                            Aqui está um resumo do seu progresso na CareerQuest.
+                            Aqui está um resumo do seu progresso na Scudo.
                         </p>
                     </div>
 

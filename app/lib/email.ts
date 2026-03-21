@@ -2,10 +2,10 @@ import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
 export interface StudentAccessEmailParams {
-    to: string;
-    name: string;
-    password: string;
-    loginUrl: string;
+  to: string;
+  name: string;
+  password: string;
+  loginUrl: string;
 }
 
 export interface ResetPasswordEmailParams {
@@ -15,45 +15,45 @@ export interface ResetPasswordEmailParams {
 }
 
 function createTransport() {
-    const host = process.env.RESEND_SMTP_HOST || process.env.SMTP_HOST;
-    const portStr = process.env.RESEND_SMTP_PORT ?? process.env.SMTP_PORT;
-    const port = portStr ? Number.parseInt(portStr, 10) : 465;
-    const user = process.env.RESEND_SMTP_USER || process.env.SMTP_USER;
-    const pass = process.env.RESEND_SMTP_PASS || process.env.SMTP_PASS;
-    const from = process.env.RESEND_SMTP_FROM_EMAIL || process.env.SMTP_FROM;
+  const host = process.env.RESEND_SMTP_HOST || process.env.SMTP_HOST;
+  const portStr = process.env.RESEND_SMTP_PORT ?? process.env.SMTP_PORT;
+  const port = portStr ? Number.parseInt(portStr, 10) : 465;
+  const user = process.env.RESEND_SMTP_USER || process.env.SMTP_USER;
+  const pass = process.env.RESEND_SMTP_PASS || process.env.SMTP_PASS;
+  const from = process.env.RESEND_SMTP_FROM_EMAIL || process.env.SMTP_FROM;
 
-    if (!host || !user || !pass) {
-        throw new Error(
-            "SMTP não configurado. Defina as variáveis: SMTP_HOST, SMTP_USER e SMTP_PASS."
-        );
-    }
+  if (!host || !user || !pass) {
+    throw new Error(
+      "SMTP não configurado. Defina as variáveis: SMTP_HOST, SMTP_USER e SMTP_PASS."
+    );
+  }
 
-    const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass },
-        pool: false,
-    } as SMTPTransport.Options);
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+    pool: false,
+  } as SMTPTransport.Options);
 
-    return { transporter, from };
+  return { transporter, from };
 }
 
 function buildStudentAccessEmailHtml(params: {
-    name: string;
-    email: string;
-    password: string;
-    loginUrl: string;
+  name: string;
+  email: string;
+  password: string;
+  loginUrl: string;
 }): string {
-    const firstName = params.name.split(" ")[0];
-    const year = new Date().getFullYear();
+  const firstName = params.name.split(" ")[0];
+  const year = new Date().getFullYear();
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seus dados de acesso - CareerQuest</title>
+  <title>Seus dados de acesso - Scudo</title>
 </head>
 <body style="margin:0;padding:0;background-color:#070d12;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
@@ -69,11 +69,11 @@ function buildStudentAccessEmailHtml(params: {
                 <tr>
                   <td style="background-color:#10b981;border-radius:10px;padding:9px 10px;
                     box-shadow:0 4px 14px rgba(16,185,129,0.35);">
-                    <span style="font-size:18px;line-height:1;">🚀</span>
+                    <span style="font-size:18px;line-height:1;">🛡️</span>
                   </td>
                   <td style="padding-left:10px;vertical-align:middle;">
                     <span style="font-weight:700;font-size:17px;color:#ffffff;letter-spacing:-0.02em;">
-                      CAREER<span style="color:#10b981;">QUEST</span>
+                      SCU<span style="color:#10b981;">DO</span>
                     </span>
                   </td>
                 </tr>
@@ -89,7 +89,7 @@ function buildStudentAccessEmailHtml(params: {
                 Bem-vindo(a), ${firstName}! 🎉
               </h1>
               <p style="margin:0 0 32px;font-size:14px;color:#94a3b8;line-height:1.7;">
-                Sua conta no <strong style="color:#e2e8f0;">CareerQuest</strong> foi criada com sucesso.
+                Sua conta no <strong style="color:#e2e8f0;">Scudo</strong> foi criada com sucesso.
                 Abaixo estão suas credenciais de acesso à plataforma.
               </p>
 
@@ -146,7 +146,7 @@ function buildStudentAccessEmailHtml(params: {
           <tr>
             <td style="padding-top:28px;text-align:center;">
               <p style="margin:0 0 6px;font-size:12px;color:#374151;">
-                © ${year} CareerQuest. Todos os direitos reservados.
+                © ${year} Scudo. Todos os direitos reservados.
               </p>
               <p style="margin:0;font-size:11px;color:#1f2937;">
                 Se você não solicitou este acesso, ignore este e-mail com segurança.
@@ -163,38 +163,38 @@ function buildStudentAccessEmailHtml(params: {
 }
 
 export async function sendStudentAccessEmail(
-    params: StudentAccessEmailParams
+  params: StudentAccessEmailParams
 ): Promise<void> {
-    const { transporter, from } = createTransport();
+  const { transporter, from } = createTransport();
 
-    const html = buildStudentAccessEmailHtml({
-        name: params.name,
-        email: params.to,
-        password: params.password,
-        loginUrl: params.loginUrl,
-    });
+  const html = buildStudentAccessEmailHtml({
+    name: params.name,
+    email: params.to,
+    password: params.password,
+    loginUrl: params.loginUrl,
+  });
 
-    await transporter.sendMail({
-        from,
-        to: params.to,
-        subject: "Seus dados de acesso ao CareerQuest",
-        html,
-    });
+  await transporter.sendMail({
+    from,
+    to: params.to,
+    subject: "Seus dados de acesso ao Scudo",
+    html,
+  });
 }
 
 function buildResetPasswordEmailHtml(params: {
-    name: string;
-    resetUrl: string;
+  name: string;
+  resetUrl: string;
 }): string {
-    const firstName = params.name.split(" ")[0] || "aluno";
-    const year = new Date().getFullYear();
+  const firstName = params.name.split(" ")[0] || "aluno";
+  const year = new Date().getFullYear();
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Redefinição de senha - CareerQuest</title>
+  <title>Redefinição de senha - Scudo</title>
 </head>
 <body style="margin:0;padding:0;background-color:#070d12;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#070d12;padding:48px 16px;">
@@ -207,7 +207,7 @@ function buildResetPasswordEmailHtml(params: {
                 Redefinição de senha
               </h1>
               <p style="margin:0 0 20px;font-size:14px;color:#94a3b8;line-height:1.7;">
-                Olá, ${firstName}. Recebemos uma solicitação para redefinir a senha da sua conta no CareerQuest.
+                Olá, ${firstName}. Recebemos uma solicitação para redefinir a senha da sua conta no Scudo.
               </p>
 
               <a href="${params.resetUrl}" style="display:block;text-align:center;background-color:#10b981;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:10px;font-size:14px;font-weight:600;letter-spacing:0.01em;box-shadow:0 4px 14px rgba(16,185,129,0.3);">
@@ -222,7 +222,7 @@ function buildResetPasswordEmailHtml(params: {
           </tr>
           <tr>
             <td style="padding-top:28px;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#374151;">© ${year} CareerQuest. Todos os direitos reservados.</p>
+              <p style="margin:0;font-size:12px;color:#374151;">© ${year} Scudo. Todos os direitos reservados.</p>
             </td>
           </tr>
         </table>
@@ -234,17 +234,17 @@ function buildResetPasswordEmailHtml(params: {
 }
 
 export async function sendResetPasswordEmail(params: ResetPasswordEmailParams): Promise<void> {
-    const { transporter, from } = createTransport();
+  const { transporter, from } = createTransport();
 
-    const html = buildResetPasswordEmailHtml({
-        name: params.name,
-        resetUrl: params.resetUrl,
-    });
+  const html = buildResetPasswordEmailHtml({
+    name: params.name,
+    resetUrl: params.resetUrl,
+  });
 
-    await transporter.sendMail({
-        from,
-        to: params.to,
-        subject: "Redefina sua senha no CareerQuest",
-        html,
-    });
+  await transporter.sendMail({
+    from,
+    to: params.to,
+    subject: "Redefina sua senha no Scudo",
+    html,
+  });
 }
