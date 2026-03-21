@@ -99,7 +99,7 @@ export async function fetchFromRemoteOk(limit = 120): Promise<RawSourceJob[]> {
         const response = await fetch('https://remoteok.com/api', {
             headers: {
                 'Accept': 'application/json',
-                'User-Agent': 'CareerQuest/1.0',
+                'User-Agent': 'Scudo/1.0',
             },
             signal: AbortSignal.timeout(20000),
         });

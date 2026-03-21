@@ -1,8 +1,8 @@
-# PRD: CareerQuest (MVP)
+# PRD: Scudo (MVP)
 
 ## 1. Visão Geral
 
-O **CareerQuest** é um hub de oportunidades estratégico para estudantes de tecnologia. A plataforma visa centralizar vagas de nível Estágio e Júnior, utilizando uma camada de inteligência (gamificação) para orientar o aluno sobre o momento ideal de iniciar um processo seletivo.
+O **Scudo** é um hub de oportunidades estratégico para estudantes de tecnologia. A plataforma visa centralizar vagas de nível Estágio e Júnior, utilizando uma camada de inteligência (gamificação) para orientar o aluno sobre o momento ideal de iniciar um processo seletivo.
 
 ## 2. Personas
 

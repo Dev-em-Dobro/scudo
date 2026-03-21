@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ScudoShieldIcon from '@/app/components/layout/ScudoShieldIcon';
 import { NAV_ITEMS, LOGO_TEXT } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
 
@@ -39,7 +40,7 @@ export default function Sidebar() {
             {/* Logo */}
             <div className="h-16 flex items-center px-5 border-b border-border-light dark:border-border-dark gap-3">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary">
-                    <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>rocket_launch</span>
+                    <ScudoShieldIcon className="h-6 w-6 text-white" />
                 </div>
                 <span className="font-bold text-base text-white tracking-tight">
                     {LOGO_TEXT.main}

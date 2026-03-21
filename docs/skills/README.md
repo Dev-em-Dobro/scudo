@@ -1,6 +1,6 @@
 # 📚 Skills - Guia de Referência do Projeto
 
-Este diretório contém a documentação consolidada de **boas práticas, patterns e lições aprendidas** durante o desenvolvimento do CareerQuest.
+Este diretório contém a documentação consolidada de **boas práticas, patterns e lições aprendidas** durante o desenvolvimento do Scudo.
 
 ---
 
@@ -38,7 +38,7 @@ Este diretório contém a documentação consolidada de **boas práticas, patter
 ```bash
 # 1. Clone e instale
 git clone <repo>
-cd carrer-quest
+cd scudo
 npm install
 
 # 2. Rode o dev server
@@ -192,6 +192,6 @@ Para novos desenvolvedores:
 
 **Última Atualização**: 11 de fevereiro de 2026  
 **Versão**: 2.0.0 (Guia Unificado)  
-**Mantenedor**: Time CareerQuest
+**Mantenedor**: Time Scudo
 
 **📖 Próximo passo: Leia o [Project Guide](./project-guide.md)!**

@@ -172,7 +172,7 @@ export async function fetchFromProgramathor(limit = 80): Promise<RawSourceJob[]>
         const response = await fetch('https://programathor.com.br/jobs', {
             headers: {
                 'Accept': 'text/html,application/xhtml+xml',
-                'User-Agent': 'CareerQuest/1.0 (+job-aggregator)',
+                'User-Agent': 'Scudo/1.0 (+job-aggregator)',
             },
             signal: AbortSignal.timeout(20000),
         });

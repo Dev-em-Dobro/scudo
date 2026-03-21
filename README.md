@@ -1,4 +1,4 @@
-# CareerQuest (MVP)
+# Scudo (MVP)
 
 Hub de oportunidades para estudantes e iniciantes em tecnologia, com foco em vagas de entrada (estágio/júnior), análise de aderência por skills, ingestão automática de vagas e jornada guiada de evolução do aluno.
 
@@ -98,7 +98,7 @@ SMTP_HOST="smtp.seu-provedor.com"
 SMTP_PORT="465"
 SMTP_USER="usuario"
 SMTP_PASS="senha"
-SMTP_FROM="CareerQuest <no-reply@seudominio.com>"
+SMTP_FROM="Scudo <no-reply@seudominio.com>"
 
 JOBS_BOOTSTRAP_SECRET="seu-segredo-bootstrap"
 CRON_SECRET="seu-segredo-cron"

@@ -22,7 +22,7 @@ SMTP_HOST=localhost
 SMTP_PORT=1025
 SMTP_USER=test
 SMTP_PASS=test
-SMTP_FROM="CareerQuest <test@careerquest.local>"
+SMTP_FROM="Scudo <test@scudo.local>"
 ```
 
 ## Testando o fluxo da Área de Alunos

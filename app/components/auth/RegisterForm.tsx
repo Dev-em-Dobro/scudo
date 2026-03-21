@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 import { authClient } from "@/app/lib/auth-client";
 import { signUpSchema, type SignUpInput } from "@/app/lib/validations/auth";
 
@@ -96,12 +97,10 @@ export default function RegisterForm() {
             {/* Logo — visível apenas em mobile */}
             <div className="flex items-center gap-2.5 mb-8 lg:hidden">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-md shadow-primary/30">
-                    <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        rocket_launch
-                    </span>
+                    <ScudoShieldIcon className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-bold text-base text-white tracking-tight">
-                    CAREER<span className="text-primary">QUEST</span>
+                    SCU<span className="text-primary">DO</span>
                 </span>
             </div>
 

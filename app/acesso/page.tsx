@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 import StudentAccessForm from "@/app/components/auth/StudentAccessForm";
 import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
@@ -32,12 +33,7 @@ export default async function AcessoPage() {
                 {/* Logo */}
                 <div className="relative flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary shadow-lg shadow-primary/30">
-                        <span
-                            className="material-symbols-outlined text-white text-xl"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            rocket_launch
-                        </span>
+                        <ScudoShieldIcon className="h-5 w-5 text-white" />
                     </div>
                     <span className="font-bold text-lg text-white tracking-tight">
                         {LOGO_TEXT.main}
@@ -67,7 +63,7 @@ export default async function AcessoPage() {
                         </h2>
                         <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
                             Como aluno da nossa plataforma, você tem acesso prioritário
-                            ao CareerQuest — sua central de oportunidades personalizada.
+                            ao Scudo — sua central de oportunidades personalizada.
                         </p>
                     </div>
 
@@ -90,7 +86,7 @@ export default async function AcessoPage() {
 
                 {/* Rodapé */}
                 <p className="relative text-xs text-slate-400">
-                    © {new Date().getFullYear()} CareerQuest. Todos os direitos reservados.
+                    © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
                 </p>
             </div>
 

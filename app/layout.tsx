@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'CareerQuest - Seu painel de carreira',
+    title: 'Scudo - Seu painel de carreira',
     description: 'Plataforma para desenvolvedores evoluírem na carreira com vagas alinhadas ao seu perfil',
 };
 

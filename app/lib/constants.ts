@@ -34,6 +34,6 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export const LOGO_TEXT = {
-  main: 'CAREER',
-  accent: 'QUEST',
+  main: 'SCU',
+  accent: 'DO',
 };

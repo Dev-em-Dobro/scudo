@@ -106,7 +106,7 @@ export async function fetchFromRemotive(limit = 150): Promise<RawSourceJob[]> {
         const response = await fetch('https://remotive.com/api/remote-jobs', {
             headers: {
                 'Accept': 'application/json',
-                'User-Agent': 'CareerQuest/1.0',
+                'User-Agent': 'Scudo/1.0',
             },
             signal: AbortSignal.timeout(20000),
         });

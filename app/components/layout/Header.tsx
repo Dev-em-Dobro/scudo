@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
+import ScudoShieldIcon from '@/app/components/layout/ScudoShieldIcon';
 import { authClient } from '@/app/lib/auth-client';
 import { NAV_ITEMS, LOGO_TEXT } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
@@ -92,9 +93,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
             {/* Logo — visível apenas em mobile/tablet (sidebar oculta abaixo de lg) */}
             <div className="flex items-center gap-3 lg:hidden">
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
-                    <span className="material-symbols-outlined text-white text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        rocket_launch
-                    </span>
+                    <ScudoShieldIcon className="h-4.5 w-4.5 text-white" />
                 </div>
                 <span className="font-bold text-sm text-white tracking-tight">
                     {LOGO_TEXT.main}

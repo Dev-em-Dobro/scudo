@@ -1,4 +1,4 @@
-# 🎯 CareerQuest - Skill Reference Guide
+# 🎯 Scudo - Skill Reference Guide
 
 **Guia centralizado de boas práticas, patterns e lições aprendidas durante o desenvolvimento do projeto.**
 
@@ -21,7 +21,7 @@
 
 ## 🎮 Visão Geral {#visão-geral}
 
-**CareerQuest** é uma plataforma gamificada de progressão de carreira para desenvolvedores, construída com Next.js 16, React 19 e TailwindCSS v4.
+**Scudo** é uma plataforma gamificada de progressão de carreira para desenvolvedores, construída com Next.js 16, React 19 e TailwindCSS v4.
 
 ### Características Principais
 - ✅ Dark mode nativo
@@ -178,7 +178,7 @@ export default function SearchBar() {
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'CareerQuest - Your Career Dashboard',
+    title: 'Scudo - Your Career Dashboard',
     description: 'AI-powered career progression platform',
 };
 

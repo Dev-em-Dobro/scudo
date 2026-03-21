@@ -146,7 +146,7 @@ export async function fetchFromAdzuna(limit = 120): Promise<RawSourceJob[]> {
             const response = await fetch(`https://api.adzuna.com/v1/api/jobs/${country}/search/${page}?${params.toString()}`, {
                 headers: {
                     Accept: 'application/json',
-                    'User-Agent': 'CareerQuest/1.0 (+job-aggregator)',
+                    'User-Agent': 'Scudo/1.0 (+job-aggregator)',
                 },
                 signal: AbortSignal.timeout(20000),
             });
