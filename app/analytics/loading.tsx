@@ -1,10 +1,10 @@
-import PageSkeleton, { AnalyticsContentSkeleton } from "@/app/components/layout/PageSkeleton";
+import AppShellLoading from "@/app/components/layout/AppShellLoading";
+import { AnalyticsContentSkeleton } from "@/app/components/layout/PageSkeleton";
 
 export default function AnalyticsLoading() {
     return (
-        <PageSkeleton
-            headerTitle="Analytics"
-            contentSlot={<AnalyticsContentSkeleton />}
-        />
+        <AppShellLoading title="Seus Números">
+            <AnalyticsContentSkeleton />
+        </AppShellLoading>
     );
 }

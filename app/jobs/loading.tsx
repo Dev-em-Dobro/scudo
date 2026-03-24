@@ -1,10 +1,10 @@
-import PageSkeleton, { JobsContentSkeleton } from "@/app/components/layout/PageSkeleton";
+import AppShellLoading from "@/app/components/layout/AppShellLoading";
+import { JobsContentSkeleton } from "@/app/components/layout/PageSkeleton";
 
 export default function JobsLoading() {
     return (
-        <PageSkeleton
-            headerTitle="Vagas"
-            contentSlot={<JobsContentSkeleton />}
-        />
+        <AppShellLoading title="Vagas para Você">
+            <JobsContentSkeleton />
+        </AppShellLoading>
     );
 }

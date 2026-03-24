@@ -1,10 +1,10 @@
-import PageSkeleton, { ProfileContentSkeleton } from "@/app/components/layout/PageSkeleton";
+import AppShellLoading from "@/app/components/layout/AppShellLoading";
+import { ProfileContentSkeleton } from "@/app/components/layout/PageSkeleton";
 
 export default function PerfilLoading() {
     return (
-        <PageSkeleton
-            headerTitle="Meu Perfil"
-            contentSlot={<ProfileContentSkeleton />}
-        />
+        <AppShellLoading title="Meu Perfil">
+            <ProfileContentSkeleton />
+        </AppShellLoading>
     );
 }

@@ -1,5 +1,10 @@
-import PageSkeleton from "@/app/components/layout/PageSkeleton";
+import AppShellLoading from "@/app/components/layout/AppShellLoading";
+import { DefaultContentSkeleton } from "@/app/components/layout/PageSkeleton";
 
 export default function DashboardLoading() {
-    return <PageSkeleton headerTitle="Meu Painel" />;
+    return (
+        <AppShellLoading title="Meu Painel">
+            <DefaultContentSkeleton />
+        </AppShellLoading>
+    );
 }

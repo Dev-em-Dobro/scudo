@@ -1,5 +1,10 @@
-import PageSkeleton from "@/app/components/layout/PageSkeleton";
+import AppShellLoading from "@/app/components/layout/AppShellLoading";
+import { DefaultContentSkeleton } from "@/app/components/layout/PageSkeleton";
 
 export default function AssessmentsLoading() {
-    return <PageSkeleton headerTitle="Assessments" />;
+    return (
+        <AppShellLoading title="Teste suas Skills">
+            <DefaultContentSkeleton />
+        </AppShellLoading>
+    );
 }
