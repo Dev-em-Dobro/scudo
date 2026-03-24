@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 import { prisma } from "@/app/lib/prisma";
-import { sendStudentAccessEmail } from "@/app/lib/email";
 
 export const runtime = "nodejs";
 
@@ -176,15 +175,15 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // --- 5. Enviar e-mail com as credenciais ---
-    const loginUrl = `${authBaseUrl}/login`;
+    // --- 5. Enviar e-mail com link seguro para definição de senha ---
+    const resetPasswordRedirect = `${authBaseUrl}/redefinir-senha`;
     
     try {
-        await sendStudentAccessEmail({
-            to: rawEmail, // mantém consistência com o e-mail normalizado usado no cadastro
-            name: studentData.name,
-            password: generatedPassword,
-            loginUrl,
+        await auth.api.requestPasswordReset({
+            body: {
+                email: rawEmail,
+                redirectTo: resetPasswordRedirect,
+            },
         });
     } catch (err) {
         console.error("[student-access] Falha ao enviar e-mail:", err);
@@ -193,7 +192,7 @@ export async function POST(request: NextRequest) {
             status: "created",
             emailSent: false,
             warning:
-                "Sua conta foi criada, mas não foi possível enviar o e-mail com a senha. Entre em contato com o suporte.",
+                "Sua conta foi criada, mas não foi possível enviar o e-mail para definir a senha. Entre em contato com o suporte.",
         });
     }
 
