@@ -1,12 +1,13 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import mammoth from 'mammoth';
 import { PDFParse } from 'pdf-parse';
 import { getData } from 'pdf-parse/worker';
 
 import { auth } from '@/app/lib/auth';
 import { prisma } from '@/app/lib/prisma';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
-import { extractResumeDataFromText } from '@/app/lib/resume/extractor';
+import { evaluateResumeExtractionQuality, extractResumeDataFromText, normalizeResumeInputText, type ResumeSourceHint } from '@/app/lib/resume/extractor';
 
 export const runtime = 'nodejs';
 
@@ -19,8 +20,41 @@ function isValidPdfMagicBytes(fileBuffer: Buffer) {
     return signature === '%PDF-';
 }
 
-function hasPdfExtension(fileName: string) {
-    return fileName.toLowerCase().endsWith('.pdf');
+function isValidDocxMagicBytes(fileBuffer: Buffer) {
+    const signature = fileBuffer.subarray(0, 4).toString('binary');
+    return signature === 'PK\u0003\u0004' || signature === 'PK\u0005\u0006' || signature === 'PK\u0007\u0008';
+}
+
+function getFileExtension(fileName: string) {
+    const parts = fileName.toLowerCase().split('.');
+    const extension = parts.at(-1);
+    return extension ?? '';
+}
+
+function isSupportedResumeExtension(extension: string) {
+    return extension === 'pdf' || extension === 'docx';
+}
+
+function detectPdfSourceHintFromInfo(rawInfo: unknown): ResumeSourceHint | undefined {
+    if (!rawInfo || typeof rawInfo !== 'object') {
+        return undefined;
+    }
+
+    const info = rawInfo as Record<string, unknown>;
+    const candidates = [info.Author, info.Creator, info.Producer, info.Title, info.Subject]
+        .filter((value): value is string => typeof value === 'string')
+        .join(' ')
+        .toLowerCase();
+
+    if (!candidates) {
+        return undefined;
+    }
+
+    const isLinkedin = candidates.includes('linkedin')
+        || candidates.includes('resume generated from profile')
+        || candidates.includes('curriculum vitae generated from profile');
+
+    return isLinkedin ? 'linkedin-export' : undefined;
 }
 
 export async function POST(request: Request) {
@@ -39,19 +73,25 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Arquivo inválido.' }, { status: 400 });
     }
 
-    if (!hasPdfExtension(file.name)) {
-        return NextResponse.json({ error: 'Apenas arquivos .pdf são aceitos.' }, { status: 400 });
+    const fileExtension = getFileExtension(file.name);
+
+    if (!isSupportedResumeExtension(fileExtension)) {
+        return NextResponse.json({ error: 'Apenas arquivos .pdf ou .docx são aceitos.' }, { status: 400 });
     }
 
     if (file.size <= 0 || file.size > MAX_FILE_SIZE_BYTES) {
-        return NextResponse.json({ error: 'Arquivo PDF deve ter até 5MB.' }, { status: 400 });
+        return NextResponse.json({ error: 'Arquivo deve ter até 5MB.' }, { status: 400 });
     }
 
     const fileArrayBuffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(fileArrayBuffer);
 
-    if (!isValidPdfMagicBytes(fileBuffer)) {
+    if (fileExtension === 'pdf' && !isValidPdfMagicBytes(fileBuffer)) {
         return NextResponse.json({ error: 'Arquivo rejeitado: assinatura de PDF inválida.' }, { status: 400 });
+    }
+
+    if (fileExtension === 'docx' && !isValidDocxMagicBytes(fileBuffer)) {
+        return NextResponse.json({ error: 'Arquivo rejeitado: assinatura de DOCX inválida.' }, { status: 400 });
     }
 
     const existingProfile = await getOrCreateUserProfile({
@@ -72,11 +112,44 @@ export async function POST(request: Request) {
     });
 
     try {
-        const parser = new PDFParse({ data: fileBuffer });
-        const parsedPdf = await parser.getText();
-        await parser.destroy();
+        let extractedText = '';
+        let sourceHintOverride: ResumeSourceHint | undefined;
 
-        const extracted = extractResumeDataFromText(parsedPdf.text ?? '');
+        if (fileExtension === 'pdf') {
+            const parser = new PDFParse({ data: fileBuffer });
+            const parsedPdf = await parser.getText();
+            const pdfInfo = await parser.getInfo();
+            await parser.destroy();
+            extractedText = parsedPdf.text ?? '';
+            sourceHintOverride = detectPdfSourceHintFromInfo(pdfInfo.info);
+        } else {
+            const docxResult = await mammoth.extractRawText({ buffer: fileBuffer });
+            extractedText = docxResult.value ?? '';
+        }
+
+        const normalizedResume = normalizeResumeInputText(extractedText, sourceHintOverride);
+        const extracted = extractResumeDataFromText(normalizedResume.text);
+        const extractionQuality = evaluateResumeExtractionQuality(extracted, normalizedResume.sourceHint);
+
+        if (!extractionQuality.isReliable) {
+            await prisma.userProfile.update({
+                where: { userId: session.user.id },
+                data: {
+                    resumeSyncStatus: 'UPLOADED',
+                    resumeFileName: safeFileName,
+                    resumeUploadedAt: new Date(),
+                },
+            });
+
+            return NextResponse.json({
+                message: 'Arquivo recebido, mas não foi possível extrair dados com confiança. Revise manualmente no perfil.',
+                extraction: {
+                    sourceHint: normalizedResume.sourceHint,
+                    confidenceScore: extractionQuality.score,
+                    missingFields: extractionQuality.missingFields,
+                },
+            }, { status: 202 });
+        }
 
         await prisma.$transaction(async (transaction) => {
             const profile = await transaction.userProfile.findUnique({
@@ -142,10 +215,15 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
             message: 'Currículo processado com sucesso.',
+            extraction: {
+                sourceHint: normalizedResume.sourceHint,
+                confidenceScore: extractionQuality.score,
+                missingFields: extractionQuality.missingFields,
+            },
             profile: toClientProfile(updatedProfile),
         });
     } catch (error) {
-        console.error('[resume-upload] Falha ao processar PDF:', error);
+        console.error('[resume-upload] Falha ao processar currículo:', error);
 
         await prisma.userProfile.update({
             where: { userId: session.user.id },
@@ -157,7 +235,7 @@ export async function POST(request: Request) {
         });
 
         return NextResponse.json({
-            error: 'Não foi possível processar o conteúdo do PDF.',
+            error: 'Não foi possível processar o conteúdo do arquivo.',
         }, { status: 422 });
     }
 }

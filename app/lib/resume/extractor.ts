@@ -31,6 +31,42 @@ const TECH_STACK_DICTIONARY = [
 
 const LANGUAGE_DICTIONARY = ['português', 'portugues', 'inglês', 'ingles', 'espanhol', 'francês', 'frances', 'alemão', 'alemao'];
 
+const HEADING_TRANSLATIONS: Record<string, string> = {
+    contact: 'contato',
+    contacts: 'contato',
+    contato: 'contato',
+    summary: 'resumo',
+    about: 'resumo',
+    'about me': 'resumo',
+    'professional summary': 'resumo',
+    resumo: 'resumo',
+    'resumo profissional': 'resumo',
+    'sobre mim': 'resumo',
+    experience: 'experiencia',
+    experiences: 'experiencia',
+    'work experience': 'experiencia',
+    'professional experience': 'experiencia',
+    experiência: 'experiencia',
+    experiências: 'experiencia',
+    skills: 'habilidades',
+    'technical skills': 'habilidades',
+    habilidades: 'habilidades',
+    projects: 'projetos',
+    project: 'projetos',
+    projetos: 'projetos',
+    education: 'formacao',
+    formação: 'formacao',
+    formacao: 'formacao',
+    certifications: 'certificacao',
+    certification: 'certificacao',
+    certificações: 'certificacao',
+    certificacao: 'certificacao',
+    languages: 'idiomas',
+    language: 'idiomas',
+    idiomas: 'idiomas',
+    idioma: 'idiomas',
+};
+
 export type ExtractedResumeData = {
     fullName: string | null;
     linkedinUrl: string | null;
@@ -49,8 +85,46 @@ export type ExtractedResumeData = {
     languages: string[];
 };
 
+export type ResumeSourceHint = 'generic' | 'linkedin-export';
+
+export type ResumeExtractionQuality = {
+    score: number;
+    isReliable: boolean;
+    missingFields: string[];
+};
+
 function normalizeLine(line: string) {
     return line.trim().split(/\s+/).join(' ');
+}
+
+const PROJECT_STOP_SECTION_PATTERNS = [
+    /^stacks?\s+conhecidas\b/i,
+    /^skills?\b/i,
+    /^habilidades\b/i,
+    /^forma[cç][aã]o\b/i,
+    /^idiomas?\b/i,
+    /^certifica[cç][aã]o\b/i,
+    /^certifica[cç][oõ]es\b/i,
+    /^education\b/i,
+    /^languages?\b/i,
+    /^certifications?\b/i,
+    /^summary\b/i,
+    /^experience\b/i,
+];
+
+function normalizeHeadingToken(line: string) {
+    const cleaned = normalizeLine(line)
+        .toLowerCase()
+        .replace(/^[-•]\s*/, '')
+        .replace(/[:\-–]+$/, '')
+        .trim();
+
+    return HEADING_TRANSLATIONS[cleaned] ?? cleaned;
+}
+
+function isKnownSectionHeading(line: string) {
+    const normalized = normalizeHeadingToken(line);
+    return /^(contato|resumo|experiencia|certificacao|idiomas|formacao|habilidades|projetos)$/.test(normalized);
 }
 
 function pickFullName(lines: string[]) {
@@ -58,8 +132,9 @@ function pickFullName(lines: string[]) {
         .slice(0, 8)
         .map(normalizeLine)
         .find((line) => {
-            const isNamePattern = /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-\s]{3,60}$/.test(line);
-            const isHeaderNoise = /curr[ií]culo|resume|linkedin|github|email|telefone/i.test(line);
+            const isNamePattern = /^[A-ZÀ-Ý][A-Za-zÀ-ÿ'-]+(?:\s+[A-ZÀ-Ý][A-Za-zÀ-ÿ'-]+){1,3}$/.test(line);
+            const isHeaderNoise = isKnownSectionHeading(line)
+                || /curr[ií]culo|resume|linkedin|github|email|e-mail|telefone|phone|contact|skills|experience|education|languages|certifications?|projects?/i.test(line);
             return isNamePattern && !isHeaderNoise;
         }) ?? null;
 }
@@ -82,7 +157,7 @@ function pickSection(lines: string[], startMatchers: RegExp[], maxItems = 6) {
             continue;
         }
 
-        if (/^(experi[eê]ncia|resumo|certifica[cç][aã]o|idioma|forma[cç][aã]o|skills|habilidades)\b/i.test(currentLine)) {
+        if (isKnownSectionHeading(currentLine)) {
             if (sectionItems.length > 0) {
                 break;
             }
@@ -142,12 +217,10 @@ function normalizeTechnologyToken(token: string) {
 }
 
 function extractProjects(lines: string[]) {
-    const projectSectionIndex = lines.findIndex((line) => /^projetos\b/i.test(line));
+    const projectSectionIndex = lines.findIndex((line) => /^(projetos|projects?|portfolio)\b/i.test(line));
     if (projectSectionIndex < 0) {
         return [];
     }
-
-    const stopSectionRegex = /^(stacks?\s+conhecidas|skills?|habilidades|forma[cç][aã]o|idiomas?|certifica[cç][aã]o|certifica[cç][oõ]es)\b/i;
 
     const projectLines: string[] = [];
     for (let index = projectSectionIndex + 1; index < lines.length; index += 1) {
@@ -157,7 +230,7 @@ function extractProjects(lines: string[]) {
             continue;
         }
 
-        if (stopSectionRegex.test(currentLine)) {
+        if (PROJECT_STOP_SECTION_PATTERNS.some((pattern) => pattern.test(currentLine))) {
             break;
         }
 
@@ -288,17 +361,113 @@ function extractGithubUrl(rawText: string) {
     return match?.[0] ? normalizeExtractedUrl(match[0]) : null;
 }
 
+function detectResumeSourceHint(rawText: string): ResumeSourceHint {
+    const linkedinPatterns = [
+        /linkedin\.com\/in\//i,
+        /(?:perfil|profile)\s+do\s+linkedin/i,
+        /^linkedin$/im,
+    ];
+
+    const hasLinkedinFingerprint = linkedinPatterns.some((pattern) => pattern.test(rawText));
+    return hasLinkedinFingerprint ? 'linkedin-export' : 'generic';
+}
+
+function normalizeLinkedinExportText(rawText: string) {
+    return rawText
+        .replaceAll('\r', '')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => !/^p[aá]gina\s+\d+\s+de\s+\d+$/i.test(line))
+        .filter((line) => !/^page\s+\d+\s+of\s+\d+$/i.test(line))
+        .filter((line) => line.toLowerCase() !== 'linkedin')
+        .join('\n');
+}
+
+export function normalizeResumeInputText(rawText: string, sourceHintOverride?: ResumeSourceHint) {
+    const sourceHint = sourceHintOverride ?? detectResumeSourceHint(rawText);
+
+    if (sourceHint === 'linkedin-export') {
+        return {
+            sourceHint,
+            text: normalizeLinkedinExportText(rawText),
+        };
+    }
+
+    return {
+        sourceHint,
+        text: rawText,
+    };
+}
+
+export function evaluateResumeExtractionQuality(extracted: ExtractedResumeData, sourceHint: ResumeSourceHint = 'generic'): ResumeExtractionQuality {
+    let score = 0;
+    const missingFields: string[] = [];
+
+    if (extracted.fullName) {
+        score += 0.15;
+    } else {
+        missingFields.push('nome');
+    }
+
+    if (extracted.professionalSummary) {
+        score += 0.1;
+    } else {
+        missingFields.push('resumo');
+    }
+
+    if (extracted.experiences.length > 0) {
+        score += 0.2;
+    } else {
+        missingFields.push('experiências');
+    }
+
+    if (extracted.projects.length > 0) {
+        score += 0.2;
+    } else {
+        missingFields.push('projetos');
+    }
+
+    if (extracted.knownTechnologies.length >= 2) {
+        score += 0.2;
+    } else {
+        missingFields.push('tecnologias');
+    }
+
+    if (extracted.linkedinUrl || extracted.githubUrl || extracted.city) {
+        score += 0.1;
+    } else {
+        missingFields.push('contato/localização');
+    }
+
+    if (extracted.languages.length > 0 || extracted.certifications.length > 0) {
+        score += 0.05;
+    }
+
+    const roundedScore = Math.min(1, Math.max(0, Number(score.toFixed(2))));
+    const reliabilityThreshold = sourceHint === 'linkedin-export' ? 0.3 : 0.4;
+    const isReliable = roundedScore >= reliabilityThreshold;
+
+    return {
+        score: roundedScore,
+        isReliable,
+        missingFields,
+    };
+}
+
 export function extractResumeDataFromText(rawText: string): ExtractedResumeData {
     const lines = rawText
         .split(/\r?\n/)
         .map(normalizeLine)
         .filter(Boolean);
 
-    const summaryLines = pickSection(lines, [/^resumo\b/i, /^resumo profissional\b/i, /^sobre mim\b/i], 4);
-    const experienceLines = pickSection(lines, [/^experi[eê]ncia\b/i, /^experi[eê]ncias\b/i], 8);
-    const certificationLines = pickSection(lines, [/^certifica[cç][aã]o\b/i, /^certifica[cç][oõ]es\b/i], 8);
-    const languageSectionLines = pickSection(lines, [/^idioma\b/i, /^idiomas\b/i, /^languages\b/i], 6);
+    const summaryLines = pickSection(lines, [/^resumo\b/i, /^resumo profissional\b/i, /^sobre mim\b/i, /^summary\b/i, /^about\b/i], 4);
+    const experienceLines = pickSection(lines, [/^experi[eê]ncia\b/i, /^experi[eê]ncias\b/i, /^experience\b/i], 8);
+    const certificationLines = pickSection(lines, [/^certifica[cç][aã]o\b/i, /^certifica[cç][oõ]es\b/i, /^certification\b/i, /^certifications\b/i], 8);
+    const languageSectionLines = pickSection(lines, [/^idioma\b/i, /^idiomas\b/i, /^languages\b/i, /^language\b/i], 6);
     const projects = extractProjects(lines);
+    const knownTechnologies = projects.length > 0
+        ? deriveKnownTechnologiesFromProjects(projects)
+        : extractKnownTechnologies(rawText);
 
     return {
         fullName: pickFullName(lines),
@@ -307,9 +476,7 @@ export function extractResumeDataFromText(rawText: string): ExtractedResumeData 
         city: extractCity(lines),
         professionalSummary: summaryLines.length > 0 ? summaryLines.join(' ') : null,
         experiences: uniqueList(experienceLines),
-        knownTechnologies: projects.length > 0
-            ? deriveKnownTechnologiesFromProjects(projects)
-            : [],
+        knownTechnologies,
         projects,
         certifications: uniqueList(certificationLines),
         languages: extractLanguages(rawText, languageSectionLines),

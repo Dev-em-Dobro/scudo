@@ -61,6 +61,8 @@ export interface UserProfile {
     certifications: string[];
     languages: string[];
     resumeSyncStatus: 'not_uploaded' | 'uploaded' | 'processing' | 'ready';
+    resumeFileName: string | null;
+    resumeUploadedAt: string | null;
 }
 
 export type NavItem = {

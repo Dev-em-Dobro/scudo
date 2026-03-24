@@ -27,6 +27,8 @@ type ApiProfileResponse = {
         certifications: string[];
         languages: string[];
         resumeSyncStatus: UserProfile["resumeSyncStatus"];
+        resumeFileName: UserProfile["resumeFileName"];
+        resumeUploadedAt: UserProfile["resumeUploadedAt"];
     };
 };
 
@@ -87,7 +89,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         } finally {
             setIsProfilePending(false);
         }
-    }, [session?.user, session?.user?.email]);
+    }, [session?.user]);
 
     useEffect(() => {
         void refreshProfile();
@@ -106,6 +108,8 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             certifications: [],
             languages: [],
             resumeSyncStatus: "not_uploaded",
+            resumeFileName: null,
+            resumeUploadedAt: null,
         };
 
         const baseUser: UserProfile = {
@@ -129,6 +133,8 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             city: null,
             professionalSummary: null,
             resumeSyncStatus: 'not_uploaded',
+            resumeFileName: null,
+            resumeUploadedAt: null,
         };
 
         const mergedUser: UserProfile = profileData
@@ -146,6 +152,8 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
                 certifications: profileData.certifications,
                 languages: profileData.languages,
                 resumeSyncStatus: profileData.resumeSyncStatus,
+                resumeFileName: profileData.resumeFileName,
+                resumeUploadedAt: profileData.resumeUploadedAt,
             }
             : baseUser;
 
@@ -164,7 +172,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             isPending: isSessionPending,
             refreshProfile,
         };
-    }, [isSessionPending, isProfilePending, profileData, refreshProfile, session?.user, session?.user?.email, session?.user?.image, session?.user?.name]);
+    }, [isSessionPending, isProfilePending, profileData, refreshProfile, session?.user]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

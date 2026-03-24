@@ -20,6 +20,8 @@ export const mockUserProfile: UserProfile = {
     certifications: [],
     languages: [],
     resumeSyncStatus: 'not_uploaded',
+    resumeFileName: null,
+    resumeUploadedAt: null,
 };
 
 export const mockJobs: Job[] = [
