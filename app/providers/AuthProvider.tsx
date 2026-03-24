@@ -6,6 +6,16 @@ import { authClient } from "@/app/lib/auth-client";
 import { mockUserProfile } from "@/app/lib/mockData";
 import type { UserProfile } from "@/app/types";
 
+type AuthSessionUser = {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+};
+
+type AuthSessionState = {
+    user?: AuthSessionUser;
+} | null;
+
 type AuthContextValue = {
     user: UserProfile;
     isAuthenticated: boolean;
@@ -34,9 +44,13 @@ type ApiProfileResponse = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [session, setSession] = useState<{ user?: { name?: string | null; email?: string | null; image?: string | null } } | null>(null);
-    const [isSessionPending, setIsSessionPending] = useState(true);
+export function AuthProvider({
+    children,
+    initialSession,
+}: Readonly<{ children: React.ReactNode; initialSession?: AuthSessionState }>) {
+    const hasInitialSession = initialSession !== undefined;
+    const [session, setSession] = useState<AuthSessionState>(initialSession ?? null);
+    const [isSessionPending, setIsSessionPending] = useState(!hasInitialSession);
     const [profileData, setProfileData] = useState<ApiProfileResponse["profile"] | null>(null);
     const [isProfilePending, setIsProfilePending] = useState(false);
 
@@ -44,13 +58,23 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         let isActive = true;
 
         async function loadSession() {
-            setIsSessionPending(true);
+            if (!hasInitialSession) {
+                setIsSessionPending(true);
+            }
+
             try {
                 const result = await authClient.getSession();
                 if (!isActive) {
                     return;
                 }
                 setSession(result.data ?? null);
+            } catch {
+                if (!isActive) {
+                    return;
+                }
+
+                // Keep current authenticated session on transient failures.
+                setSession((previous) => (previous?.user ? previous : null));
             } finally {
                 if (isActive) {
                     setIsSessionPending(false);
@@ -63,7 +87,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         return () => {
             isActive = false;
         };
-    }, []);
+    }, [hasInitialSession]);
 
     const refreshProfile = useCallback(async () => {
         if (!session?.user) {

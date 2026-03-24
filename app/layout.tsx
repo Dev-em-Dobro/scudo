@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+
+import { auth } from '@/app/lib/auth';
 import { AuthProvider } from '@/app/providers/AuthProvider';
 import './globals.css';
 
@@ -20,11 +23,23 @@ export const metadata: Metadata = {
     description: 'Plataforma para desenvolvedores evoluírem na carreira com vagas alinhadas ao seu perfil',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    const initialSession = session?.user
+        ? {
+            user: {
+                name: session.user.name ?? null,
+                email: session.user.email ?? null,
+                image: session.user.image ?? null,
+            },
+        }
+        : null;
+
     return (
         <html lang="pt-BR" className="dark">
             <head>
@@ -34,7 +49,7 @@ export default function RootLayout({
                 />
             </head>
             <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider initialSession={initialSession}>{children}</AuthProvider>
             </body>
         </html>
     );
