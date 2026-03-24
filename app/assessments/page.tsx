@@ -98,7 +98,7 @@ export default async function AssessmentsPage() {
                         <span className="material-symbols-outlined text-amber-400 shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>info</span>
                         <div>
                             <p className="text-sm font-semibold text-amber-300">Assessments em breve</p>
-                            <p className="text-xs text-slate-300 mt-0.5">
+                            <p className="text-base text-slate-300 mt-0.5">
                                 Os testes interativos de habilidades estão em desenvolvimento. Por enquanto, você pode analisar seus gaps com base nas vagas do Job Board.
                             </p>
                         </div>
