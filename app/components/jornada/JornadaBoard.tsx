@@ -335,7 +335,7 @@ export default function JornadaBoard({
                 <p className="text-xs text-slate-400 dark:text-slate-300">
                     Dica: arraste para os lados, use Shift + scroll, ou as setas para navegar entre os ranks.
                 </p>
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-2">
                     <button
                         type="button"
                         onClick={() => scrollBoardBy(-340)}
