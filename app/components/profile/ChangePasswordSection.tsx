@@ -210,7 +210,7 @@ export default function ChangePasswordSection() {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="px-4 py-2 text-xs font-bold rounded border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 transition-colors uppercase disabled:opacity-60"
+                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60 transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? 'Alterando...' : 'Alterar Senha'}
                     </button>

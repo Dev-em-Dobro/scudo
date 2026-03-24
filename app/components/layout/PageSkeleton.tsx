@@ -4,7 +4,7 @@ import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 function SkeletonBlock({ className }: Readonly<{ className?: string }>) {
     return (
         <div
-            className={`animate-pulse rounded-lg bg-surface-dark/60 ${className ?? ""}`}
+            className={`animate-pulse rounded-lg bg-slate-700/60 ${className ?? ""}`}
         />
     );
 }
@@ -72,7 +72,7 @@ export default function PageSkeleton({ contentSlot, headerTitle }: Readonly<Page
     );
 }
 
-function DefaultContentSkeleton() {
+export function DefaultContentSkeleton() {
     return (
         <div className="space-y-6">
             <SkeletonBlock className="h-4 w-64" />

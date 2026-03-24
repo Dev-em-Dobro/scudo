@@ -16,10 +16,13 @@ export const mockUserProfile: UserProfile = {
     professionalSummary: null,
     experiences: [],
     knownTechnologies: ['javascript', 'typescript', 'react', 'next', 'node'],
+    softSkills: [],
     projects: [],
     certifications: [],
     languages: [],
     resumeSyncStatus: 'not_uploaded',
+    resumeFileName: null,
+    resumeUploadedAt: null,
 };
 
 export const mockJobs: Job[] = [

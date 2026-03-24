@@ -57,16 +57,57 @@ export default function JornadaBoard({
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
     const dragStartXRef = useRef(0);
     const dragStartScrollLeftRef = useRef(0);
+    const updateQueueRef = useRef<Promise<void>>(Promise.resolve());
+    const inFlightTaskIdsRef = useRef<Set<string>>(new Set());
 
-    const toggleTask = useCallback(async (taskId: string) => {
+    const clearTaskUpdating = useCallback((taskId: string) => {
+        inFlightTaskIdsRef.current.delete(taskId);
+        setUpdatingTaskIds((current) => {
+            const next = { ...current };
+            delete next[taskId];
+            return next;
+        });
+    }, []);
+
+    const applyJornadaResponse = useCallback((data: JornadaApiResponse) => {
+        if (Array.isArray(data.tasks)) {
+            setBoardTasks(data.tasks);
+        }
+        if (typeof data.editableStageId === 'string' && data.editableStageId.length > 0) {
+            setCurrentEditableStageId(data.editableStageId);
+        }
+        if (typeof data.currentRankLetter === 'string' && data.currentRankLetter.length > 0) {
+            setCurrentRankLetter(data.currentRankLetter);
+        }
+        if (typeof data.level === 'number' && Number.isFinite(data.level)) {
+            setLevel(data.level);
+        }
+    }, []);
+
+    const rollbackTaskStatus = useCallback((taskId: string, originalStatus: JornadaTask['status']) => {
+        setBoardTasks((current) => current.map((task) => {
+            if (task.id !== taskId) {
+                return task;
+            }
+
+            return {
+                ...task,
+                status: originalStatus,
+            };
+        }));
+    }, []);
+
+    const toggleTask = useCallback((taskId: string) => {
         const targetTask = boardTasks.find((task) => task.id === taskId);
         if (!targetTask) {
             return;
         }
 
-        if (targetTask.stageId !== currentEditableStageId || updatingTaskIds[taskId]) {
+        if (targetTask.stageId !== currentEditableStageId || inFlightTaskIdsRef.current.has(taskId)) {
             return;
         }
+
+        inFlightTaskIdsRef.current.add(taskId);
 
         setRequestError(null);
 
@@ -84,53 +125,31 @@ export default function JornadaBoard({
 
         setUpdatingTaskIds((current) => ({ ...current, [taskId]: true }));
 
-        try {
-            const response = await fetch('/api/jornada', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ taskId, done: nextDone }),
-            });
+        updateQueueRef.current = updateQueueRef.current
+            .then(async () => {
+                const response = await fetch('/api/jornada', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ taskId, done: nextDone }),
+                });
 
-            if (!response.ok) {
-                throw new Error('Falha ao atualizar progresso da tarefa.');
-            }
-
-            const data = await response.json() as JornadaApiResponse;
-            if (Array.isArray(data.tasks)) {
-                setBoardTasks(data.tasks);
-            }
-            if (typeof data.editableStageId === 'string' && data.editableStageId.length > 0) {
-                setCurrentEditableStageId(data.editableStageId);
-            }
-            if (typeof data.currentRankLetter === 'string' && data.currentRankLetter.length > 0) {
-                setCurrentRankLetter(data.currentRankLetter);
-            }
-            if (typeof data.level === 'number' && Number.isFinite(data.level)) {
-                setLevel(data.level);
-            }
-        } catch {
-            // Reverte apenas a tarefa que falhou, evitando sobrescrever updates concorrentes.
-            setBoardTasks((current) => current.map((task) => {
-                if (task.id !== taskId) {
-                    return task;
+                if (!response.ok) {
+                    throw new Error('Falha ao atualizar progresso da tarefa.');
                 }
 
-                return {
-                    ...task,
-                    status: targetTask.status,
-                };
-            }));
-            setRequestError('Não foi possível salvar o progresso agora. Tente novamente.');
-        } finally {
-            setUpdatingTaskIds((current) => {
-                const next = { ...current };
-                delete next[taskId];
-                return next;
+                const data = await response.json() as JornadaApiResponse;
+                applyJornadaResponse(data);
+            })
+            .catch(() => {
+                rollbackTaskStatus(taskId, targetTask.status);
+                setRequestError('Não foi possível salvar o progresso agora. Tente novamente.');
+            })
+            .finally(() => {
+                clearTaskUpdating(taskId);
             });
-        }
-    }, [boardTasks, currentEditableStageId, updatingTaskIds]);
+    }, [applyJornadaResponse, boardTasks, clearTaskUpdating, currentEditableStageId, rollbackTaskStatus]);
 
     const tasksByStage = useMemo(() => groupTasksByStageId(boardTasks), [boardTasks]);
     const sortedStages = useMemo(() => [...stages].sort((a, b) => a.order - b.order), [stages]);
@@ -354,7 +373,7 @@ export default function JornadaBoard({
                         return (
                             <div
                                 key={stage.id}
-                                className="shrink-0 snap-start w-80 sm:w-72 lg:w-70 flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden"
+                                className={`shrink-0 snap-start w-80 sm:w-72 lg:w-70 flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden ${isFutureLockedStage ? 'opacity-60' : 'opacity-100'}`}
                             >
                                 <div className="p-4 border-b border-border-light dark:border-border-dark">
                                     <h3 className="text-sm font-bold text-white leading-tight">{stage.title}</h3>
@@ -394,7 +413,7 @@ export default function JornadaBoard({
                                             } else if (status === 'done') {
                                                 statusLabel = 'Concluída';
                                             } else if (isEditableStage) {
-                                                statusLabel = 'Clique para marcar';
+                                                statusLabel = '';
                                             } else if (isCompletedStage) {
                                                 statusLabel = 'Etapa concluída';
                                             } else if (isFutureLockedStage) {
@@ -406,7 +425,7 @@ export default function JornadaBoard({
                                                     key={task.id}
                                                     type="button"
                                                     onClick={() => {
-                                                        void toggleTask(task.id);
+                                                        toggleTask(task.id);
                                                     }}
                                                     disabled={!isInteractive}
                                                     className={`w-full text-left rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark p-3 transition-colors select-none ${isInteractive ? 'hover:border-primary/30 cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
@@ -422,7 +441,7 @@ export default function JornadaBoard({
                                                             }}
                                                             aria-hidden
                                                         >
-                                                            {status === 'done' ? 'check_circle' : 'radio_button_unchecked'}
+                                                            {status === 'done' ? 'check_box' : 'check_box_outline_blank'}
                                                         </span>
                                                         <div className="min-w-0">
                                                             <p
@@ -434,14 +453,16 @@ export default function JornadaBoard({
                                                             {task.description && (
                                                                 <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{task.description}</p>
                                                             )}
-                                                            <span
-                                                                className={`inline-block mt-2 text-[10px] font-medium uppercase tracking-wide ${status === 'done'
-                                                                    ? 'text-primary'
-                                                                    : 'text-slate-400 dark:text-slate-300'
-                                                                    }`}
-                                                            >
-                                                                {statusLabel}
-                                                            </span>
+                                                            {statusLabel ? (
+                                                                <span
+                                                                    className={`inline-block mt-2 text-[10px] font-medium uppercase tracking-wide ${status === 'done'
+                                                                        ? 'text-primary'
+                                                                        : 'text-slate-400 dark:text-slate-300'
+                                                                        }`}
+                                                                >
+                                                                    {statusLabel}
+                                                                </span>
+                                                            ) : null}
                                                         </div>
                                                     </div>
                                                 </button>

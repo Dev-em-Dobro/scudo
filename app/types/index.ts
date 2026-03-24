@@ -57,10 +57,13 @@ export interface UserProfile {
     professionalSummary?: string | null;
     experiences: string[];
     knownTechnologies: string[];
+    softSkills: string[];
     projects: UserProject[];
     certifications: string[];
     languages: string[];
     resumeSyncStatus: 'not_uploaded' | 'uploaded' | 'processing' | 'ready';
+    resumeFileName: string | null;
+    resumeUploadedAt: string | null;
 }
 
 export type NavItem = {

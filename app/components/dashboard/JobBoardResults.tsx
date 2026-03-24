@@ -71,6 +71,22 @@ function calculateJobFit(job: JobListItem, knownTechnologies: string[]) {
     return Math.round((matched.length / requiredSkills.length) * 100);
 }
 
+function getFitPriority(fit: number) {
+    if (fit === 100) {
+        return 0;
+    }
+
+    if (fit >= 50) {
+        return 1;
+    }
+
+    if (fit >= 0) {
+        return 2;
+    }
+
+    return 3;
+}
+
 export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>) {
     const { user } = useAuth();
     const [searchValue, setSearchValue] = useState('');
@@ -120,19 +136,30 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                 return right.title.localeCompare(left.title);
             }
 
-            const levelDiff = levelPriority[left.level] - levelPriority[right.level];
-            if (levelDiff !== 0) {
-                return levelDiff;
-            }
-
             if (sortMode === 'salary') {
+                const levelDiff = levelPriority[left.level] - levelPriority[right.level];
+                if (levelDiff !== 0) {
+                    return levelDiff;
+                }
+
                 return left.companyName.localeCompare(right.companyName);
             }
 
             const fitLeft = calculateJobFit(left, user.knownTechnologies);
             const fitRight = calculateJobFit(right, user.knownTechnologies);
+
+            const fitPriorityDiff = getFitPriority(fitLeft) - getFitPriority(fitRight);
+            if (fitPriorityDiff !== 0) {
+                return fitPriorityDiff;
+            }
+
             if (fitLeft !== fitRight) {
                 return fitRight - fitLeft;
+            }
+
+            const levelDiff = levelPriority[left.level] - levelPriority[right.level];
+            if (levelDiff !== 0) {
+                return levelDiff;
             }
 
             const leftDate = left.publishedAt ?? left.createdAt;

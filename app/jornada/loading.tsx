@@ -1,10 +1,10 @@
-import PageSkeleton, { JornadaContentSkeleton } from "@/app/components/layout/PageSkeleton";
+import AppShellLoading from "@/app/components/layout/AppShellLoading";
+import { JornadaContentSkeleton } from "@/app/components/layout/PageSkeleton";
 
 export default function JornadaLoading() {
     return (
-        <PageSkeleton
-            headerTitle="Minha Jornada"
-            contentSlot={<JornadaContentSkeleton />}
-        />
+        <AppShellLoading title="Jornada do aluno">
+            <JornadaContentSkeleton />
+        </AppShellLoading>
     );
 }

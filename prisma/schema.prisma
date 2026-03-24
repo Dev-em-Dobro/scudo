@@ -75,6 +75,7 @@ model UserProfile {
   professionalSummary String?
   experiences         String[]         @default([])
   knownTechnologies   String[]         @default([])
+  softSkills          String[]         @default([])
   certifications      String[]         @default([])
   languages           String[]         @default([])
   projects            UserProject[]

@@ -6,6 +6,16 @@ import { authClient } from "@/app/lib/auth-client";
 import { mockUserProfile } from "@/app/lib/mockData";
 import type { UserProfile } from "@/app/types";
 
+type AuthSessionUser = {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+};
+
+type AuthSessionState = {
+    user?: AuthSessionUser;
+} | null;
+
 type AuthContextValue = {
     user: UserProfile;
     isAuthenticated: boolean;
@@ -23,18 +33,25 @@ type ApiProfileResponse = {
         professionalSummary: string | null;
         experiences: string[];
         knownTechnologies: string[];
+        softSkills: string[];
         projects: UserProfile["projects"];
         certifications: string[];
         languages: string[];
         resumeSyncStatus: UserProfile["resumeSyncStatus"];
+        resumeFileName: UserProfile["resumeFileName"];
+        resumeUploadedAt: UserProfile["resumeUploadedAt"];
     };
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [session, setSession] = useState<{ user?: { name?: string | null; email?: string | null; image?: string | null } } | null>(null);
-    const [isSessionPending, setIsSessionPending] = useState(true);
+export function AuthProvider({
+    children,
+    initialSession,
+}: Readonly<{ children: React.ReactNode; initialSession?: AuthSessionState }>) {
+    const hasInitialSession = initialSession !== undefined;
+    const [session, setSession] = useState<AuthSessionState>(initialSession ?? null);
+    const [isSessionPending, setIsSessionPending] = useState(!hasInitialSession);
     const [profileData, setProfileData] = useState<ApiProfileResponse["profile"] | null>(null);
     const [isProfilePending, setIsProfilePending] = useState(false);
 
@@ -42,13 +59,23 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         let isActive = true;
 
         async function loadSession() {
-            setIsSessionPending(true);
+            if (!hasInitialSession) {
+                setIsSessionPending(true);
+            }
+
             try {
                 const result = await authClient.getSession();
                 if (!isActive) {
                     return;
                 }
                 setSession(result.data ?? null);
+            } catch {
+                if (!isActive) {
+                    return;
+                }
+
+                // Keep current authenticated session on transient failures.
+                setSession((previous) => (previous?.user ? previous : null));
             } finally {
                 if (isActive) {
                     setIsSessionPending(false);
@@ -61,7 +88,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         return () => {
             isActive = false;
         };
-    }, []);
+    }, [hasInitialSession]);
 
     const refreshProfile = useCallback(async () => {
         if (!session?.user) {
@@ -87,7 +114,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
         } finally {
             setIsProfilePending(false);
         }
-    }, [session?.user, session?.user?.email]);
+    }, [session?.user]);
 
     useEffect(() => {
         void refreshProfile();
@@ -105,7 +132,10 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             experiences: [],
             certifications: [],
             languages: [],
+            softSkills: [],
             resumeSyncStatus: "not_uploaded",
+            resumeFileName: null,
+            resumeUploadedAt: null,
         };
 
         const baseUser: UserProfile = {
@@ -120,6 +150,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             experiences: [],
             certifications: [],
             languages: [],
+            softSkills: [],
             level: 0,
             levelName: '',
             levelProgress: 0,
@@ -129,6 +160,8 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             city: null,
             professionalSummary: null,
             resumeSyncStatus: 'not_uploaded',
+            resumeFileName: null,
+            resumeUploadedAt: null,
         };
 
         const mergedUser: UserProfile = profileData
@@ -142,10 +175,13 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
                 professionalSummary: profileData.professionalSummary,
                 experiences: profileData.experiences,
                 knownTechnologies: profileData.knownTechnologies,
+                softSkills: profileData.softSkills,
                 projects: profileData.projects,
                 certifications: profileData.certifications,
                 languages: profileData.languages,
                 resumeSyncStatus: profileData.resumeSyncStatus,
+                resumeFileName: profileData.resumeFileName,
+                resumeUploadedAt: profileData.resumeUploadedAt,
             }
             : baseUser;
 
@@ -164,7 +200,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             isPending: isSessionPending,
             refreshProfile,
         };
-    }, [isSessionPending, isProfilePending, profileData, refreshProfile, session?.user, session?.user?.email, session?.user?.image, session?.user?.name]);
+    }, [isSessionPending, isProfilePending, profileData, refreshProfile, session?.user]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

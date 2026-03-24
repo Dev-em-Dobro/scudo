@@ -50,6 +50,8 @@ const profilePatchSchema = z.object({
     city: z.string().max(100).optional(),
     professionalSummary: z.string().max(3000).optional(),
     experiences: z.array(z.string().max(300)).max(50).optional(),
+    knownTechnologies: z.array(z.string().max(80)).max(100).optional(),
+    softSkills: z.array(z.string().max(100)).max(100).optional(),
     certifications: z.array(z.string().max(200)).max(50).optional(),
     languages: z.array(z.string().max(100)).max(20).optional(),
     projects: z.array(z.object({
@@ -99,6 +101,10 @@ function normalizeStringList(value: unknown) {
         .filter((item): item is string => typeof item === 'string')
         .map((item) => item.trim())
         .filter(Boolean))];
+}
+
+function normalizeTechnologyList(value: unknown) {
+    return [...new Set(normalizeStringList(value).map(normalizeTechnology).filter(Boolean))];
 }
 
 function normalizeTechnology(value: string) {
@@ -195,7 +201,10 @@ export async function PATCH(request: Request) {
     });
 
     const projects = normalizeProjects(payload.projects);
-    const knownTechnologies = deriveKnownTechnologiesFromProjects(projects);
+    const projectKnownTechnologies = deriveKnownTechnologiesFromProjects(projects);
+    const manualKnownTechnologies = normalizeTechnologyList(payload.knownTechnologies);
+    const knownTechnologies = [...new Set([...manualKnownTechnologies, ...projectKnownTechnologies])];
+    const softSkills = normalizeStringList(payload.softSkills);
 
     await prisma.$transaction(async (transaction) => {
         const profile = await transaction.userProfile.findUnique({
@@ -233,6 +242,7 @@ export async function PATCH(request: Request) {
                 professionalSummary: normalizeOptionalText(payload.professionalSummary),
                 experiences: normalizeStringList(payload.experiences),
                 knownTechnologies,
+                softSkills,
                 certifications: normalizeStringList(payload.certifications),
                 languages: normalizeStringList(payload.languages),
             },
@@ -285,6 +295,7 @@ export async function DELETE() {
             professionalSummary: null,
             experiences: [],
             knownTechnologies: [],
+            softSkills: [],
             certifications: [],
             languages: [],
             projects: {
