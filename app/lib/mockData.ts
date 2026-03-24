@@ -16,6 +16,7 @@ export const mockUserProfile: UserProfile = {
     professionalSummary: null,
     experiences: [],
     knownTechnologies: ['javascript', 'typescript', 'react', 'next', 'node'],
+    softSkills: [],
     projects: [],
     certifications: [],
     languages: [],

@@ -57,6 +57,7 @@ export interface UserProfile {
     professionalSummary?: string | null;
     experiences: string[];
     knownTechnologies: string[];
+    softSkills: string[];
     projects: UserProject[];
     certifications: string[];
     languages: string[];

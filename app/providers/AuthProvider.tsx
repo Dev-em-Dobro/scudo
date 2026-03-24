@@ -33,6 +33,7 @@ type ApiProfileResponse = {
         professionalSummary: string | null;
         experiences: string[];
         knownTechnologies: string[];
+        softSkills: string[];
         projects: UserProfile["projects"];
         certifications: string[];
         languages: string[];
@@ -131,6 +132,7 @@ export function AuthProvider({
             experiences: [],
             certifications: [],
             languages: [],
+            softSkills: [],
             resumeSyncStatus: "not_uploaded",
             resumeFileName: null,
             resumeUploadedAt: null,
@@ -148,6 +150,7 @@ export function AuthProvider({
             experiences: [],
             certifications: [],
             languages: [],
+            softSkills: [],
             level: 0,
             levelName: '',
             levelProgress: 0,
@@ -172,6 +175,7 @@ export function AuthProvider({
                 professionalSummary: profileData.professionalSummary,
                 experiences: profileData.experiences,
                 knownTechnologies: profileData.knownTechnologies,
+                softSkills: profileData.softSkills,
                 projects: profileData.projects,
                 certifications: profileData.certifications,
                 languages: profileData.languages,

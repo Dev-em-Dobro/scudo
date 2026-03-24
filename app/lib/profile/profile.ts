@@ -10,6 +10,7 @@ export type ClientProfile = {
     professionalSummary: string | null;
     experiences: string[];
     knownTechnologies: string[];
+    softSkills: string[];
     certifications: string[];
     languages: string[];
     projects: {
@@ -58,6 +59,7 @@ export function toClientProfile(profile: PrismaUserProfileWithProjects): ClientP
         professionalSummary: profile.professionalSummary,
         experiences: profile.experiences,
         knownTechnologies: profile.knownTechnologies,
+        softSkills: profile.softSkills,
         certifications: profile.certifications,
         languages: profile.languages,
         projects: profile.projects
@@ -84,6 +86,7 @@ export async function getOrCreateUserProfile(user: SessionUser) {
             fullName: user.name ?? user.email,
             experiences: [],
             knownTechnologies: [],
+            softSkills: [],
             certifications: [],
             languages: [],
             resumeSyncStatus: 'NOT_UPLOADED',
