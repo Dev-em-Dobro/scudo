@@ -22,6 +22,14 @@ const NAV_ICONS: Record<string, string> = {
     'Meu Perfil': 'person_outline',
 };
 
+function getOnboardingNavId(href: string) {
+    if (href === '/jobs') {
+        return 'nav-vagas';
+    }
+
+    return undefined;
+}
+
 function getInitials(name: string) {
     return name
         .split(' ')
@@ -150,6 +158,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                     <Link
                                         key={item.label}
                                         href={item.href}
+                                        data-onboarding-id={getOnboardingNavId(item.href)}
                                         className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${isActive
                                             ? 'text-primary bg-primary/15'
                                             : 'text-slate-300 hover:bg-primary/10 hover:text-primary'
