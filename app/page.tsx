@@ -7,6 +7,7 @@ import ResumeExampleCard from './components/dashboard/ResumeExampleCard';
 import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
+import InitialOnboardingModal from './components/onboarding/InitialOnboardingModal';
 import { auth } from './lib/auth';
 import { getJobBoardJobs } from './lib/jobs/jobBoard';
 import { getOrCreateUserProfile } from './lib/profile/profile';
@@ -65,10 +66,11 @@ export default async function Home() {
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
                 <Header title="Meu Painel" />
+                <InitialOnboardingModal />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-8 scrollbar-modern">
                     {/* Intro */}
-                    <div>
+                    <div data-onboarding-id="painel-resumo">
                         <p className="text-sm text-slate-400 dark:text-slate-300">
                             Aqui está um resumo do seu progresso na Scudo.
                         </p>
@@ -79,12 +81,14 @@ export default async function Home() {
                         {/* Left / main column */}
                         <div className="xl:col-span-2 space-y-6">
                             <ResumeExampleCard />
-                            <ResumeUploadCard />
+                            <div data-onboarding-id="painel-curriculo">
+                                <ResumeUploadCard />
+                            </div>
                             <CandidacyReadinessCard jobs={jobs} />
                         </div>
 
                         {/* Right column — Apt Jobs */}
-                        <div className="space-y-4">
+                        <div className="space-y-4" data-onboarding-id="painel-vagas-aptas">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-sm font-bold text-white">Vagas Aptas para Você</h2>
                                 <a href="/jobs" className="text-xs font-medium text-primary hover:text-primary/80 hover:underline transition-colors">

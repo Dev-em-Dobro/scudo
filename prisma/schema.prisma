@@ -35,6 +35,13 @@ enum ResumeSyncStatus {
   READY
 }
 
+enum OnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String
@@ -48,6 +55,26 @@ model User {
   sessions      Session[]
   accounts      Account[]
   jornadaTaskProgress UserJornadaTaskProgress[]
+  onboardingProgress UserOnboardingProgress[]
+}
+
+model UserOnboardingProgress {
+  id              String           @id @default(cuid())
+  userId          String
+  tutorialKey     String
+  tutorialVersion Int
+  status          OnboardingStatus @default(NOT_STARTED)
+  currentStep     Int              @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  skippedAt       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tutorialKey, tutorialVersion])
+  @@index([userId])
+  @@index([tutorialKey, tutorialVersion])
 }
 
 model UserJornadaTaskProgress {
