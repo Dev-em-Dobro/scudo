@@ -2,14 +2,13 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react';
-import type { JornadaStage, JornadaTask } from '@/app/types';
+import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
 
 interface JornadaBoardProps {
     stages: JornadaStage[];
     tasks: JornadaTask[];
     editableStageId: string;
     initialCurrentRankLetter: string;
-    initialLevel: number;
 }
 
 function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
@@ -29,8 +28,81 @@ type JornadaApiResponse = {
     tasks: JornadaTask[];
     editableStageId?: string;
     currentRankLetter?: string;
-    level?: number;
 };
+
+const TASK_KIND_LABEL: Record<JornadaTaskKind, string> = {
+    aula: 'Aula',
+    projeto: 'Projeto',
+    desafio: 'Desafio',
+    conceito: 'Checkpoint',
+    pratica: 'Exercício',
+    entrega: 'Entrega',
+    extra: 'Extra',
+};
+
+const RANK_EMOJI: Record<string, string> = {
+    Ferro: '🔩',
+    Bronze: '🥉',
+    Prata: '🥈',
+    Ouro: '🥇',
+    Platina: '🏅',
+    Esmeralda: '💚',
+    Diamante: '💎',
+    Mythril: '🔷',
+    Mestre: '🟣',
+    Lendário: '🌟',
+};
+
+const RANK_ICON_FALLBACK: Record<string, string> = {
+    Ferro: 'hardware',
+    Bronze: 'military_tech',
+    Prata: 'verified',
+    Ouro: 'emoji_events',
+    Platina: 'workspace_premium',
+    Esmeralda: 'ecg_heart',
+    Diamante: 'diamond',
+    Mythril: 'auto_awesome',
+    Mestre: 'school',
+    Lendário: 'crown',
+};
+
+const RANK_ICON_STYLE: Record<string, { box: string; icon: string }> = {
+    Ferro: { box: 'bg-slate-500/20 border-slate-400/50', icon: 'text-slate-200' },
+    Bronze: { box: 'bg-orange-600/20 border-orange-500/50', icon: 'text-orange-300' },
+    Prata: { box: 'bg-zinc-400/20 border-zinc-300/50', icon: 'text-zinc-100' },
+    Ouro: { box: 'bg-yellow-500/20 border-yellow-400/50', icon: 'text-yellow-300' },
+    Platina: { box: 'bg-cyan-500/20 border-cyan-400/50', icon: 'text-cyan-200' },
+    Esmeralda: { box: 'bg-emerald-500/20 border-emerald-400/50', icon: 'text-emerald-300' },
+    Diamante: { box: 'bg-sky-500/20 border-sky-400/50', icon: 'text-sky-300' },
+    Mythril: { box: 'bg-indigo-500/20 border-indigo-400/50', icon: 'text-indigo-300' },
+    Mestre: { box: 'bg-violet-500/20 border-violet-400/50', icon: 'text-violet-300' },
+    Lendário: { box: 'bg-amber-500/20 border-amber-400/50', icon: 'text-amber-300' },
+};
+
+function inferTaskKind(task: JornadaTask): JornadaTaskKind {
+    if (task.kind) {
+        return task.kind;
+    }
+
+    const lower = task.title.toLowerCase();
+    if (lower.includes('exercício')) {
+        return 'pratica';
+    }
+    if (lower.includes('desafio')) {
+        return 'desafio';
+    }
+    if (lower.includes('projeto')) {
+        return 'projeto';
+    }
+    if (lower.includes('conceito') || task.description?.toLowerCase().includes('conceito-chave')) {
+        return 'conceito';
+    }
+    if (lower.includes('entrega') || lower.includes('checkpoint')) {
+        return 'entrega';
+    }
+
+    return 'aula';
+}
 
 function isInteractiveTarget(target: EventTarget | null) {
     if (!(target instanceof HTMLElement)) {
@@ -45,12 +117,10 @@ export default function JornadaBoard({
     tasks,
     editableStageId,
     initialCurrentRankLetter,
-    initialLevel,
 }: Readonly<JornadaBoardProps>) {
     const [boardTasks, setBoardTasks] = useState<JornadaTask[]>(tasks);
     const [currentEditableStageId, setCurrentEditableStageId] = useState(editableStageId);
     const [currentRankLetter, setCurrentRankLetter] = useState(initialCurrentRankLetter);
-    const [level, setLevel] = useState(initialLevel);
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
@@ -78,9 +148,6 @@ export default function JornadaBoard({
         }
         if (typeof data.currentRankLetter === 'string' && data.currentRankLetter.length > 0) {
             setCurrentRankLetter(data.currentRankLetter);
-        }
-        if (typeof data.level === 'number' && Number.isFinite(data.level)) {
-            setLevel(data.level);
         }
     }, []);
 
@@ -176,23 +243,6 @@ export default function JornadaBoard({
         ? Math.round((completedCurrentStageTasks / totalCurrentStageTasks) * 100)
         : 0;
 
-    const maxLevel = 50;
-    const levelsPerStage = 5;
-    const tasksToNextLevel = (() => {
-        if (level >= maxLevel || totalCurrentStageTasks === 0) {
-            return 0;
-        }
-
-        const stageProgress = completedCurrentStageTasks / totalCurrentStageTasks;
-        const currentStageLevelStep = Math.min(levelsPerStage - 1, Math.floor(stageProgress * levelsPerStage));
-        const nextStepThreshold = Math.min(
-            totalCurrentStageTasks,
-            Math.ceil(((currentStageLevelStep + 1) / levelsPerStage) * totalCurrentStageTasks),
-        );
-
-        return Math.max(0, nextStepThreshold - completedCurrentStageTasks);
-    })();
-
     const tasksToNextRank = currentStageTasks.filter((task) => task.status !== 'done').length;
 
     const formatTaskCount = (count: number) => `${count} ${count === 1 ? 'tarefa' : 'tarefas'}`;
@@ -270,29 +320,40 @@ export default function JornadaBoard({
                     Sua ficha
                 </h2>
                 <div className="flex flex-wrap items-center gap-6">
+                    {(() => {
+                        const rankStyle = RANK_ICON_STYLE[currentRankLetter]
+                            ?? { box: 'bg-amber-500/20 border-amber-500/50', icon: 'text-amber-400' };
+                        return (
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary/20 border-2 border-primary/50">
-                            <span className="text-2xl font-black text-primary tabular-nums">{level}</span>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">Nível</p>
-                            <p className="text-lg font-bold text-white">{level}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-300 mt-0.5">
-                                {tasksToNextLevel === 0
-                                    ? 'Você alcançou o nível máximo.'
-                                    : `Faltam ${formatTaskCount(tasksToNextLevel)} para o próximo nível.`}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-amber-500/20 border-2 border-amber-500/50">
-                            <span className="text-2xl font-black text-amber-400">{currentRankLetter}</span>
+                        <div className={`flex items-center justify-center w-14 h-14 rounded-xl border-2 ${rankStyle.box}`}>
+                            <span
+                                className={rankStyle.icon}
+                                style={{
+                                    fontSize: '28px',
+                                    lineHeight: 1,
+                                    fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',
+                                }}
+                                aria-hidden
+                            >
+                                {RANK_EMOJI[currentRankLetter] ?? ''}
+                            </span>
+                            {!RANK_EMOJI[currentRankLetter] ? (
+                                <span
+                                    className={`material-symbols-outlined ${rankStyle.icon}`}
+                                    style={{ fontSize: '28px', fontVariationSettings: "'FILL' 1, 'wght' 600" }}
+                                    aria-hidden
+                                >
+                                    {RANK_ICON_FALLBACK[currentRankLetter] ?? 'military_tech'}
+                                </span>
+                            ) : null}
                         </div>
                         <div>
                             <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">Rank atual</p>
                             <p className="text-lg font-bold text-white">Rank {currentRankLetter}</p>
                         </div>
                     </div>
+                        );
+                    })()}
                     <div className="flex-1 min-w-50 max-w-md">
                         <div className="flex justify-between text-xs font-medium text-slate-400 dark:text-slate-300 mb-1">
                             <span>Progresso do rank atual</span>
@@ -306,7 +367,7 @@ export default function JornadaBoard({
                         </div>
                     </div>
                 </div>
-                {currentRankLetter === 'S' ? (
+                {currentRankLetter === 'Lendário' ? (
                     <div className="mt-4 flex items-start gap-3 p-4 rounded-lg border border-primary/30 bg-primary/10">
                         <span className="material-symbols-outlined text-primary shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>verified</span>
                         <p className="text-sm text-primary/90">
@@ -318,7 +379,7 @@ export default function JornadaBoard({
                         <span className="material-symbols-outlined text-amber-400 shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>info</span>
                         <div className="space-y-1 text-sm text-amber-200/90">
                             <p>
-                                Com seu nível atual, não concorra às vagas ainda. Conclua as etapas da jornada antes de se candidatar.
+                                Ainda não concorra às vagas. Conclua as etapas da jornada antes de se candidatar.
                             </p>
                             <p>
                                 {nextStage
@@ -378,14 +439,9 @@ export default function JornadaBoard({
                                 <div className="p-4 border-b border-border-light dark:border-border-dark">
                                     <h3 className="text-sm font-bold text-white leading-tight">{stage.title}</h3>
                                     <div className="mt-2 flex items-center gap-2 flex-wrap">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary/15 text-primary border border-primary/30">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/50">
                                             {stage.faixa}
                                         </span>
-                                        {stage.levelRange && (
-                                            <span className="text-xs text-slate-400 dark:text-slate-300">
-                                                Níveis {stage.levelRange}
-                                            </span>
-                                        )}
                                         {!isEditableStage && isCompletedStage && (
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                                                 Etapa concluída
@@ -399,11 +455,26 @@ export default function JornadaBoard({
                                     </div>
                                 </div>
                                 <div className="flex-1 p-3 space-y-2 overflow-y-auto max-h-[60vh] scrollbar-modern">
-                                    {stageTasks.length === 0 ? (
+                                    {isFutureLockedStage ? (
+                                        <div className="h-full min-h-40 rounded-lg border border-slate-700/50 bg-slate-900/40 p-4 flex flex-col items-center justify-center text-center">
+                                            <span
+                                                className="material-symbols-outlined text-slate-300"
+                                                style={{ fontSize: '28px', fontVariationSettings: "'FILL' 1" }}
+                                                aria-hidden
+                                            >
+                                                lock
+                                            </span>
+                                            <p className="mt-2 text-sm font-semibold text-slate-200">Rank bloqueado</p>
+                                            <p className="mt-1 text-xs text-slate-400 max-w-56">
+                                                Conclua o rank atual para visualizar as tarefas deste rank.
+                                            </p>
+                                        </div>
+                                    ) : stageTasks.length === 0 ? (
                                         <p className="text-xs text-slate-400 dark:text-slate-300 py-2">Nenhuma tarefa</p>
                                     ) : (
                                         stageTasks.map((task) => {
                                             const status = task.status;
+                                            const kind = inferTaskKind(task);
                                             const isUpdating = Boolean(updatingTaskIds[task.id]);
                                             const isInteractive = isEditableStage && !isUpdating;
                                             let statusLabel = 'Acompanhamento restrito ao rank atual';
@@ -411,7 +482,7 @@ export default function JornadaBoard({
                                             if (isUpdating) {
                                                 statusLabel = 'Salvando...';
                                             } else if (status === 'done') {
-                                                statusLabel = 'Concluída';
+                                                statusLabel = '';
                                             } else if (isEditableStage) {
                                                 statusLabel = '';
                                             } else if (isCompletedStage) {
@@ -434,7 +505,7 @@ export default function JornadaBoard({
                                                 >
                                                     <div className="flex items-start gap-2">
                                                         <span
-                                                            className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-primary' : 'text-slate-500 dark:text-slate-200'
+                                                            className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-emerald-400' : 'text-slate-500 dark:text-slate-200'
                                                                 }`}
                                                             style={{
                                                                 fontVariationSettings: status === 'done' ? "'FILL' 1" : "'FILL' 0",
@@ -445,12 +516,15 @@ export default function JornadaBoard({
                                                         </span>
                                                         <div className="min-w-0">
                                                             <p
-                                                                className={`text-sm font-semibold ${status === 'done' ? 'text-slate-300 dark:text-slate-300 line-through' : 'text-white'
+                                                                className={`text-sm font-normal ${status === 'done' ? 'text-slate-300 dark:text-slate-300 line-through' : 'text-white'
                                                                     }`}
                                                             >
                                                                 {task.title}
                                                             </p>
-                                                            {task.description && (
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-blue-500/20 text-blue-200 border border-blue-400/40 mt-1">
+                                                                {TASK_KIND_LABEL[kind]}
+                                                            </span>
+                                                            {task.description && !(kind === 'conceito' && task.description === 'Conceito-chave') && (
                                                                 <p className="text-xs text-slate-500 dark:text-slate-200 mt-1">{task.description}</p>
                                                             )}
                                                             {statusLabel ? (

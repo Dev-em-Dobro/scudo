@@ -72,7 +72,9 @@ export type NavItem = {
     href: string;
 };
 
-export type JornadaFaixa = 'Iniciante' | 'Consolidação' | 'Full Stack' | 'Projeto autoral' | 'Empregabilidade';
+export type JornadaFaixa = 'Preparação' | 'Consolidação' | 'Lapidação' | 'Elite';
+
+export type JornadaTaskKind = 'aula' | 'projeto' | 'desafio' | 'conceito' | 'pratica' | 'entrega' | 'extra';
 
 export interface JornadaStage {
     id: string;
@@ -86,6 +88,7 @@ export interface JornadaStage {
 export interface JornadaTask {
     id: string;
     stageId: string;
+    kind?: JornadaTaskKind;
     title: string;
     description?: string;
     status: 'pending' | 'done';
