@@ -24,7 +24,7 @@ export default function ResumeExampleCard() {
                             href="/api/profile/resume/example"
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 active:scale-95 transition-all duration-150 uppercase tracking-wide"
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary bg-primary hover:bg-primary/90 text-white active:scale-95 transition-all duration-150 uppercase tracking-wide"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: "15px", fontVariationSettings: "'FILL' 1" }} aria-hidden="true">download</span>
                             <span>Baixar Exemplo</span>

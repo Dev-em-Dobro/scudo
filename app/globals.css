@@ -1,33 +1,60 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Material Symbols Outlined";
+    font-style: normal;
+    font-weight: 100 700;
+    src: url("https://fonts.gstatic.com/s/materialsymbolsoutlined/v321/kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsLjBuVY.woff2") format("woff2");
+}
+
 :root {
-    --color-primary: #10b981;
-    --color-secondary: #065f46;
-    --color-accent: #1cb0f6;
-    --color-background-light: #f8fafc;
-    --color-background-dark: #0f172a;
-    --color-surface-light: #ffffff;
-    --color-surface-dark: #1e293b;
-    --color-border-light: #e2e8f0;
-    --color-border-dark: #334155;
-    --color-text-main-dark: #ffffff;
-    --color-text-muted-dark: #cbd5e1;
+    --color-primary: #6528d3;
+    --color-primary-rgb: 101 40 211;
+    --color-secondary: #22c55e;
+    --color-secondary-rgb: 34 197 94;
+    --color-accent: #22c55e;
+    --color-accent-rgb: 34 197 94;
+    --color-background-light: #111111;
+    --color-background-dark: #000000;
+    --color-surface-light: #1a1a1a;
+    --color-surface-dark: #1a1a1a;
+    --color-border-light: #333333;
+    --color-border-dark: #333333;
+    --color-text-main-dark: #ededed;
+    --color-text-muted-dark: #b5b5b5;
     /* Scrollbar moderno */
-    --scrollbar-track: rgb(15 23 42 / 0.4);
-    --scrollbar-thumb: #334155;
-    --scrollbar-thumb-hover: #475569;
-    --scrollbar-thumb-active: #10b981;
+    --scrollbar-track: rgb(0 0 0 / 0.45);
+    --scrollbar-thumb: #333333;
+    --scrollbar-thumb-hover: #4a4a4a;
+    --scrollbar-thumb-active: var(--color-primary);
     --scrollbar-size: 8px;
     --scrollbar-size-hover: 10px;
 }
 
 @layer base {
     body {
-        font-family: "Inter", system-ui, sans-serif;
+        font-family: var(--font-ubuntu), "Ubuntu", system-ui, sans-serif;
         margin: 0;
         padding: 0;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    button,
+    label {
+        font-family: var(--font-ubuntu), "Ubuntu", system-ui, sans-serif;
+    }
+
+    code,
+    pre,
+    .font-mono {
+        font-family: var(--font-martian-mono), "Martian Mono", ui-monospace, monospace;
     }
 
     html,
@@ -88,7 +115,24 @@
 
 @layer components {
     .material-symbols-outlined {
-        font-variation-settings: FILL 0, wght 400, GRAD 0, opsz 24;
+        font-family: "Material Symbols Outlined", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        font-feature-settings: "liga";
+        -webkit-font-feature-settings: "liga";
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .font-orbitron {
+        font-family: var(--font-orbitron), "Orbitron", sans-serif;
     }
 
     /* Classe para scrollbars modernos em containers (ex.: board da Jornada) */
@@ -133,15 +177,23 @@
     }
 
     .bg-primary\/5 {
-        background-color: rgb(16 185 129 / 0.05);
+        background-color: rgb(var(--color-primary-rgb) / 0.05);
     }
 
     .bg-primary\/10 {
-        background-color: rgb(16 185 129 / 0.1);
+        background-color: rgb(var(--color-primary-rgb) / 0.1);
+    }
+
+    .bg-primary\/15 {
+        background-color: rgb(var(--color-primary-rgb) / 0.15);
     }
 
     .bg-primary\/20 {
-        background-color: rgb(16 185 129 / 0.2);
+        background-color: rgb(var(--color-primary-rgb) / 0.2);
+    }
+
+    .bg-primary\/90 {
+        background-color: rgb(var(--color-primary-rgb) / 0.9);
     }
 
     .text-primary {
@@ -149,7 +201,11 @@
     }
 
     .text-primary\/80 {
-        color: rgb(16 185 129 / 0.8);
+        color: rgb(var(--color-primary-rgb) / 0.8);
+    }
+
+    .text-primary\/90 {
+        color: rgb(var(--color-primary-rgb) / 0.9);
     }
 
     .border-primary {
@@ -157,11 +213,27 @@
     }
 
     .border-primary\/20 {
-        border-color: rgb(16 185 129 / 0.2);
+        border-color: rgb(var(--color-primary-rgb) / 0.2);
     }
 
     .border-primary\/30 {
-        border-color: rgb(16 185 129 / 0.3);
+        border-color: rgb(var(--color-primary-rgb) / 0.3);
+    }
+
+    .border-primary\/35 {
+        border-color: rgb(var(--color-primary-rgb) / 0.35);
+    }
+
+    .border-primary\/40 {
+        border-color: rgb(var(--color-primary-rgb) / 0.4);
+    }
+
+    .border-primary\/50 {
+        border-color: rgb(var(--color-primary-rgb) / 0.5);
+    }
+
+    .border-primary\/60 {
+        border-color: rgb(var(--color-primary-rgb) / 0.6);
     }
 
     .hover\:border-primary:hover {
@@ -169,11 +241,31 @@
     }
 
     .hover\:text-primary\/80:hover {
-        color: rgb(16 185 129 / 0.8);
+        color: rgb(var(--color-primary-rgb) / 0.8);
+    }
+
+    .hover\:bg-primary\/5:hover {
+        background-color: rgb(var(--color-primary-rgb) / 0.05);
+    }
+
+    .hover\:bg-primary\/10:hover {
+        background-color: rgb(var(--color-primary-rgb) / 0.1);
+    }
+
+    .hover\:bg-primary\/15:hover {
+        background-color: rgb(var(--color-primary-rgb) / 0.15);
+    }
+
+    .hover\:bg-primary\/90:hover {
+        background-color: rgb(var(--color-primary-rgb) / 0.9);
     }
 
     .ring-primary\/30 {
-        --tw-ring-color: rgb(16 185 129 / 0.3);
+        --tw-ring-color: rgb(var(--color-primary-rgb) / 0.3);
+    }
+
+    .ring-primary\/40 {
+        --tw-ring-color: rgb(var(--color-primary-rgb) / 0.4);
     }
 
     .hover\:ring-primary:hover {
@@ -181,23 +273,23 @@
     }
 
     .hover\:border-primary\/40:hover {
-        border-color: rgb(16 185 129 / 0.4);
+        border-color: rgb(var(--color-primary-rgb) / 0.4);
     }
 
     .hover\:border-primary\/60:hover {
-        border-color: rgb(16 185 129 / 0.6);
+        border-color: rgb(var(--color-primary-rgb) / 0.6);
     }
 
     .hover\:border-primary\/30:hover {
-        border-color: rgb(16 185 129 / 0.3);
+        border-color: rgb(var(--color-primary-rgb) / 0.3);
     }
 
     .shadow-primary\/5 {
-        --tw-shadow-color: rgb(16 185 129 / 0.05);
+        --tw-shadow-color: rgb(var(--color-primary-rgb) / 0.05);
     }
 
     .shadow-primary\/20 {
-        --tw-shadow-color: rgb(16 185 129 / 0.2);
+        --tw-shadow-color: rgb(var(--color-primary-rgb) / 0.2);
     }
 
     .focus\:ring-primary:focus {
@@ -208,16 +300,20 @@
         border-color: var(--color-primary);
     }
 
+    .focus\:ring-primary\/40:focus {
+        --tw-ring-color: rgb(var(--color-primary-rgb) / 0.4);
+    }
+
     .bg-secondary {
         background-color: var(--color-secondary);
     }
 
     .bg-secondary\/10 {
-        background-color: rgb(6 95 70 / 0.1);
+        background-color: rgb(var(--color-secondary-rgb) / 0.1);
     }
 
     .bg-secondary\/20 {
-        background-color: rgb(6 95 70 / 0.2);
+        background-color: rgb(var(--color-secondary-rgb) / 0.2);
     }
 
     .text-secondary {
@@ -225,7 +321,7 @@
     }
 
     .text-secondary\/80 {
-        color: rgb(6 95 70 / 0.8);
+        color: rgb(var(--color-secondary-rgb) / 0.8);
     }
 
     .border-secondary {
@@ -233,11 +329,11 @@
     }
 
     .border-secondary\/30 {
-        border-color: rgb(6 95 70 / 0.3);
+        border-color: rgb(var(--color-secondary-rgb) / 0.3);
     }
 
     .border-secondary\/40 {
-        border-color: rgb(6 95 70 / 0.4);
+        border-color: rgb(var(--color-secondary-rgb) / 0.4);
     }
 
     .hover\:border-secondary:hover {
@@ -249,7 +345,7 @@
     }
 
     .bg-accent\/20 {
-        background-color: rgb(28 176 246 / 0.2);
+        background-color: rgb(var(--color-accent-rgb) / 0.2);
     }
 
     .text-accent {
@@ -261,7 +357,7 @@
     }
 
     .border-accent\/30 {
-        border-color: rgb(28 176 246 / 0.3);
+        border-color: rgb(var(--color-accent-rgb) / 0.3);
     }
 
     .hover\:border-accent:hover {
@@ -305,11 +401,15 @@
     }
 
     .dark .dark\:bg-primary\/10 {
-        background-color: rgb(16 185 129 / 0.1);
+        background-color: rgb(var(--color-primary-rgb) / 0.1);
+    }
+
+    .dark .dark\:bg-primary\/15 {
+        background-color: rgb(var(--color-primary-rgb) / 0.15);
     }
 
     .dark .dark\:bg-primary\/20 {
-        background-color: rgb(16 185 129 / 0.2);
+        background-color: rgb(var(--color-primary-rgb) / 0.2);
     }
 
     .dark .dark\:text-primary {
@@ -321,11 +421,19 @@
     }
 
     .dark .dark\:border-primary\/20 {
-        border-color: rgb(16 185 129 / 0.2);
+        border-color: rgb(var(--color-primary-rgb) / 0.2);
     }
 
     .dark .dark\:border-primary\/30 {
-        border-color: rgb(16 185 129 / 0.3);
+        border-color: rgb(var(--color-primary-rgb) / 0.3);
+    }
+
+    .dark .dark\:border-primary\/40 {
+        border-color: rgb(var(--color-primary-rgb) / 0.4);
+    }
+
+    .dark .dark\:border-primary\/50 {
+        border-color: rgb(var(--color-primary-rgb) / 0.5);
     }
 
     .dark .dark\:hover\:border-primary:hover {
@@ -337,11 +445,11 @@
     }
 
     .dark .dark\:bg-secondary\/10 {
-        background-color: rgb(6 95 70 / 0.1);
+        background-color: rgb(var(--color-secondary-rgb) / 0.1);
     }
 
     .dark .dark\:bg-secondary\/20 {
-        background-color: rgb(6 95 70 / 0.2);
+        background-color: rgb(var(--color-secondary-rgb) / 0.2);
     }
 
     .dark .dark\:text-secondary {
@@ -349,7 +457,7 @@
     }
 
     .dark .dark\:text-secondary\/80 {
-        color: rgb(6 95 70 / 0.8);
+        color: rgb(var(--color-secondary-rgb) / 0.8);
     }
 
     .dark .dark\:border-secondary {
@@ -357,11 +465,11 @@
     }
 
     .dark .dark\:border-secondary\/30 {
-        border-color: rgb(6 95 70 / 0.3);
+        border-color: rgb(var(--color-secondary-rgb) / 0.3);
     }
 
     .dark .dark\:border-secondary\/40 {
-        border-color: rgb(6 95 70 / 0.4);
+        border-color: rgb(var(--color-secondary-rgb) / 0.4);
     }
 
     .dark .dark\:hover\:border-secondary:hover {
@@ -373,7 +481,7 @@
     }
 
     .dark .dark\:bg-accent\/20 {
-        background-color: rgb(28 176 246 / 0.2);
+        background-color: rgb(var(--color-accent-rgb) / 0.2);
     }
 
     .dark .dark\:text-accent {
@@ -385,7 +493,7 @@
     }
 
     .dark .dark\:border-accent\/30 {
-        border-color: rgb(28 176 246 / 0.3);
+        border-color: rgb(var(--color-accent-rgb) / 0.3);
     }
 
     .dark .dark\:hover\:border-accent:hover {
@@ -414,6 +522,22 @@
 
     .dark .dark\:hover\:bg-surface-dark:hover {
         background-color: var(--color-surface-dark);
+    }
+
+    /* Increase muted text contrast in dark mode across the app. */
+    .dark .text-slate-300,
+    .dark .dark\:text-slate-300 {
+        color: rgb(241 245 249);
+    }
+
+    .dark .text-slate-400,
+    .dark .dark\:text-slate-400 {
+        color: rgb(226 232 240);
+    }
+
+    .dark .text-slate-500,
+    .dark .dark\:text-slate-500 {
+        color: rgb(203 213 225);
     }
 
     .group:hover .group-hover\:text-primary {

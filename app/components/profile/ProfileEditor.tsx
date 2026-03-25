@@ -424,7 +424,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     <button
                         type="button"
                         onClick={handleOpenEditor}
-                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60 transition-colors uppercase"
+                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase"
                     >
                         Editar Perfil
                     </button>
@@ -644,7 +644,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 <button
                                     type="button"
                                     onClick={handleSaveNewProject}
-                                    className="cursor-pointer px-3 py-2 text-xs font-bold rounded border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60 transition-colors uppercase"
+                                    className="cursor-pointer px-3 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase"
                                 >
                                     Salvar Novo Projeto
                                 </button>
@@ -727,7 +727,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60 transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {isSaving ? 'Salvando...' : 'Salvar Perfil'}
                         </button>

@@ -16,9 +16,9 @@ interface PageSkeletonProps {
 
 export default function PageSkeleton({ contentSlot, headerTitle }: Readonly<PageSkeletonProps>) {
     return (
-        <div className="min-h-screen flex dark bg-background-dark text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-surface-dark text-white font-sans antialiased">
             {/* Sidebar skeleton */}
-            <aside className="w-64 bg-background-dark border-r border-border-dark shrink-0 hidden lg:flex flex-col">
+            <aside className="w-64 bg-surface-dark border-r border-border-dark shrink-0 hidden lg:flex flex-col">
                 {/* Logo */}
                 <div className="h-16 flex items-center px-5 border-b border-border-dark gap-3">
                     <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary">
@@ -50,7 +50,7 @@ export default function PageSkeleton({ contentSlot, headerTitle }: Readonly<Page
                 </div>
             </aside>
 
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-background-dark">
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-surface-dark">
                 {/* Header skeleton */}
                 <header className="h-16 border-b border-border-dark flex items-center justify-between px-6">
                     <div className="flex items-center gap-3">

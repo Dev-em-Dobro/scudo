@@ -148,7 +148,7 @@ export default function ResumeUploadCard() {
                     </p>
 
                     <div className="mt-3 flex items-center gap-3 flex-wrap">
-                        <label className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary/30 text-primary bg-primary/5 cursor-pointer hover:bg-primary/10 active:scale-95 transition-all duration-150 uppercase tracking-wide ${(isUploading || !isAuthenticated) ? 'opacity-50 cursor-not-allowed' : ''
+                        <label className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary bg-primary hover:bg-primary/90 text-white cursor-pointer active:scale-95 transition-all duration-150 uppercase tracking-wide ${(isUploading || !isAuthenticated) ? 'opacity-50 cursor-not-allowed' : ''
                             }`}>
                             <span className="material-symbols-outlined" style={{ fontSize: "15px", fontVariationSettings: "'FILL' 1" }}>upload_file</span>
                             <span>{isUploading ? 'Processando...' : 'Upload PDF/DOCX'}</span>
@@ -261,7 +261,7 @@ export default function ResumeUploadCard() {
                         <Link
                             href="/perfil"
                             onClick={() => setIsReadyModalOpen(false)}
-                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 transition-colors uppercase tracking-wide"
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase tracking-wide"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: '15px', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                                 edit_square

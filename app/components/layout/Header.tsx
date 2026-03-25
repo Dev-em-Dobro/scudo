@@ -89,7 +89,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     }
 
     return (
-        <header className="bg-white dark:bg-background-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between px-6 shrink-0">
+        <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between px-6 shrink-0">
             {/* Logo — visível apenas em mobile/tablet (sidebar oculta abaixo de lg) */}
             <div className="flex items-center gap-3 lg:hidden">
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
@@ -151,8 +151,8 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                         key={item.label}
                                         href={item.href}
                                         className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${isActive
-                                            ? 'text-primary bg-emerald-50 dark:bg-emerald-900/20'
-                                            : 'text-slate-300 hover:bg-slate-50 dark:hover:bg-background-dark hover:text-white'
+                                            ? 'text-primary bg-primary/15'
+                                            : 'text-slate-300 hover:bg-primary/10 hover:text-primary'
                                             }`}
                                     >
                                         <span

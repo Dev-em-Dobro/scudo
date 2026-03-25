@@ -434,7 +434,7 @@ export default function JornadaBoard({
                                                 >
                                                     <div className="flex items-start gap-2">
                                                         <span
-                                                            className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-primary' : 'text-slate-400 dark:text-slate-300'
+                                                            className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-primary' : 'text-slate-500 dark:text-slate-200'
                                                                 }`}
                                                             style={{
                                                                 fontVariationSettings: status === 'done' ? "'FILL' 1" : "'FILL' 0",
@@ -445,19 +445,19 @@ export default function JornadaBoard({
                                                         </span>
                                                         <div className="min-w-0">
                                                             <p
-                                                                className={`text-sm font-semibold ${status === 'done' ? 'text-slate-300 dark:text-slate-400 line-through' : 'text-white'
+                                                                className={`text-sm font-semibold ${status === 'done' ? 'text-slate-300 dark:text-slate-300 line-through' : 'text-white'
                                                                     }`}
                                                             >
                                                                 {task.title}
                                                             </p>
                                                             {task.description && (
-                                                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{task.description}</p>
+                                                                <p className="text-xs text-slate-500 dark:text-slate-200 mt-1">{task.description}</p>
                                                             )}
                                                             {statusLabel ? (
                                                                 <span
                                                                     className={`inline-block mt-2 text-[10px] font-medium uppercase tracking-wide ${status === 'done'
                                                                         ? 'text-primary'
-                                                                        : 'text-slate-400 dark:text-slate-300'
+                                                                        : 'text-slate-500 dark:text-slate-200'
                                                                         }`}
                                                                 >
                                                                     {statusLabel}
