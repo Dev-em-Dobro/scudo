@@ -95,7 +95,7 @@ export default function LoginForm() {
                     </p>
                     <Link
                         href="/acesso"
-                        className="mt-3.5 flex items-center justify-center gap-2 w-full rounded-lg border border-primary/35 bg-primary/5 hover:border-primary/60 hover:bg-primary/15 px-4 py-2.5 text-sm font-semibold text-primary transition-all duration-150"
+                        className="mt-3.5 flex items-center justify-center gap-2 w-full rounded-lg border border-primary bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
                     >
                         <span
                             className="material-symbols-outlined text-base"

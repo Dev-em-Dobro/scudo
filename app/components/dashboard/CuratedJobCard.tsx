@@ -20,7 +20,7 @@ const levelLabel: Record<JobListItem["level"], string> = {
 const levelColor: Record<JobListItem["level"], string> = {
     ESTAGIO: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
     JUNIOR: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    PLENO: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+    PLENO: "bg-violet-950/60 text-violet-100 border-violet-700/60",
     SENIOR: "bg-amber-500/15 text-amber-400 border-amber-500/30",
     OUTRO: "bg-slate-500/15 text-slate-400 border-slate-500/30",
 };
@@ -49,9 +49,16 @@ function getFitBadgeClass(pct: number, isEstimated: boolean) {
     if (isEstimated) {
         return "bg-slate-800 dark:bg-slate-900 text-slate-400 border border-slate-500/40 border-dashed";
     }
-    if (pct >= 80) return "bg-slate-800 dark:bg-slate-900 text-primary border border-primary/40";
+    if (pct >= 80) return "bg-violet-950/60 text-violet-100 border border-violet-700/60";
     if (pct >= 50) return "bg-slate-800 dark:bg-slate-900 text-amber-400 border border-amber-500/40";
     return "bg-slate-800 dark:bg-slate-900 text-red-400 border border-red-500/40";
+}
+
+function getFitIconClass(pct: number, isEstimated: boolean) {
+    if (isEstimated) return "text-slate-400";
+    if (pct >= 80) return "text-violet-500";
+    if (pct >= 50) return "text-amber-400";
+    return "text-red-400";
 }
 
 function getFitIcon(pct: number, isEstimated: boolean) {
@@ -141,7 +148,10 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                     </div>
                 ) : (
                     <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}>
-                        <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
+                        <span
+                            className={`material-symbols-outlined ${getFitIconClass(fit.fitPercentage, fit.isEstimated)}`}
+                            style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}
+                        >
                             {getFitIcon(fit.fitPercentage, fit.isEstimated)}
                         </span>
                         {`${fit.isEstimated ? '~' : ''}${fit.fitPercentage}% fit`}

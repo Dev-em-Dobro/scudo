@@ -36,7 +36,7 @@ export default function Sidebar() {
     });
 
     return (
-        <aside className="w-64 bg-white dark:bg-background-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
+        <aside className="w-64 bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
             {/* Logo */}
             <div className="h-16 flex items-center px-5 border-b border-border-light dark:border-border-dark gap-3">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary">
@@ -61,12 +61,12 @@ export default function Sidebar() {
                             key={item.label}
                             href={item.href}
                             className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
-                                ? 'rounded-l-lg bg-emerald-50 dark:bg-emerald-900/20 text-primary border-r-2 border-primary'
-                                : 'rounded-lg text-slate-400 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-dark hover:text-white'
+                                ? 'rounded-l-lg bg-primary/15 text-primary border-r-2 border-primary'
+                                : 'rounded-lg text-slate-300 hover:bg-primary/10 hover:text-primary'
                                 }`}
                         >
                             <span
-                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-primary' : 'group-hover:text-white'
+                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-primary' : 'group-hover:text-primary'
                                     }`}
                                 style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
                             >

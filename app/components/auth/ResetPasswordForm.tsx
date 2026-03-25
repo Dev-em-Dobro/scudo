@@ -99,7 +99,7 @@ function InvalidTokenState() {
             </p>
             <Link
                 href="/recuperar-senha"
-                className="inline-flex items-center justify-center rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
+                className="inline-flex items-center justify-center rounded-lg border border-primary bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
             >
                 Solicitar novo link
             </Link>

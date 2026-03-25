@@ -1,19 +1,28 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Martian_Mono, Orbitron, Ubuntu } from 'next/font/google';
 
 import { auth } from '@/app/lib/auth';
 import { AuthProvider } from '@/app/providers/AuthProvider';
 import './globals.css';
 
-const inter = Inter({
-    variable: '--font-inter',
+const ubuntu = Ubuntu({
+    variable: '--font-ubuntu',
+    weight: ['300', '400', '500', '700'],
     subsets: ['latin'],
     display: 'swap',
 });
 
-const jetbrainsMono = JetBrains_Mono({
-    variable: '--font-jetbrains-mono',
+const martianMono = Martian_Mono({
+    variable: '--font-martian-mono',
+    weight: ['300', '400', '500', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+});
+
+const orbitron = Orbitron({
+    variable: '--font-orbitron',
+    weight: ['400', '500', '600', '700'],
     subsets: ['latin'],
     display: 'swap',
 });
@@ -42,13 +51,7 @@ export default async function RootLayout({
 
     return (
         <html lang="pt-BR" className="dark">
-            <head>
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-                    rel="stylesheet"
-                />
-            </head>
-            <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+            <body className={`${ubuntu.variable} ${martianMono.variable} ${orbitron.variable} antialiased`}>
                 <AuthProvider initialSession={initialSession}>{children}</AuthProvider>
             </body>
         </html>
