@@ -23,7 +23,7 @@ export default async function JobsPage() {
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
                 <Header title="Vagas para Você" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 scrollbar-modern">
+                <div data-onboarding-id="jobs-board" className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 scrollbar-modern">
                     <JobBoardResults jobs={jobs} />
                 </div>
             </main>

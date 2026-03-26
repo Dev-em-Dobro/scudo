@@ -231,7 +231,7 @@ export default async function AnalyticsPage() {
                 <Header title="Radar de Mercado" />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
-                    <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
+                    <section data-onboarding-id="analytics-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
                         <div className="flex items-start gap-3">
                             <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <span
@@ -254,7 +254,7 @@ export default async function AnalyticsPage() {
                     </section>
 
                     {/* Stat cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div data-onboarding-id="analytics-stats" className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {statCards.map((card) => (
                             <div
                                 key={card.key}
@@ -278,7 +278,7 @@ export default async function AnalyticsPage() {
                     </div>
 
                     {/* Distribuição por Fit e Modelo de Trabalho */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div data-onboarding-id="analytics-fit-model" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <SectionBlock title="Distribuição por Fit" icon="donut_large" iconColor="text-primary">
                             {fitStats.hasSkills ? (
                                 <div className="space-y-3">
@@ -342,7 +342,8 @@ export default async function AnalyticsPage() {
                     </div>
 
                     {/* Distribuição por Senioridade */}
-                    <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
+                    <div data-onboarding-id="analytics-seniority">
+                        <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
                         <div className="space-y-3">
                             <DistributionBar label="Estágio" value={generalStats.levelCounts.ESTAGIO} total={generalStats.totalJobs} colorClass="text-primary" bgClass="bg-primary" />
                             <DistributionBar label="Júnior" value={generalStats.levelCounts.JUNIOR} total={generalStats.totalJobs} colorClass="text-blue-400" bgClass="bg-blue-400" />
@@ -350,7 +351,8 @@ export default async function AnalyticsPage() {
                             <DistributionBar label="Sênior" value={generalStats.levelCounts.SENIOR} total={generalStats.totalJobs} colorClass="text-purple-400" bgClass="bg-purple-400" />
                             <DistributionBar label="Outro" value={generalStats.levelCounts.OUTRO} total={generalStats.totalJobs} colorClass="text-slate-400" bgClass="bg-slate-400" />
                         </div>
-                    </SectionBlock>
+                        </SectionBlock>
+                    </div>
 
                 </div>
             </main>

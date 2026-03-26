@@ -17,11 +17,14 @@ const NAV_ICONS: Record<string, string> = {
 };
 
 function getOnboardingNavId(href: string) {
-    if (href === '/jobs') {
-        return 'nav-vagas';
-    }
+    const anchorMap: Record<string, string> = {
+        '/jobs': 'nav-vagas',
+        '/assessments': 'nav-assessments',
+        '/analytics': 'nav-analytics',
+        '/jornada': 'nav-jornada',
+    };
 
-    return undefined;
+    return anchorMap[href];
 }
 
 function getInitials(name: string) {

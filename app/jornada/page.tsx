@@ -28,13 +28,27 @@ export default async function JornadaPage() {
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
                 <Header title="Jornada do aluno" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 scrollbar-modern">
-                    <JornadaBoard
-                        stages={snapshot.stages}
-                        tasks={snapshot.tasks}
-                        editableStageId={snapshot.editableStageId}
-                        initialCurrentRankLetter={snapshot.currentRankLetter}
-                    />
+                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
+                    <section data-onboarding-id="jornada-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
+                        <div className="space-y-1">
+                            <h2 className="text-base md:text-lg font-bold text-white">Evolua por ranks antes da candidatura</h2>
+                            <p className="text-base text-slate-300">
+                                A Jornada organiza seu progresso em etapas práticas para você ganhar consistência antes de se candidatar.
+                            </p>
+                            <p className="text-sm text-slate-300">
+                                Conclua as tarefas do rank atual para desbloquear o próximo nível.
+                            </p>
+                        </div>
+                    </section>
+
+                    <div data-onboarding-id="jornada-board">
+                        <JornadaBoard
+                            stages={snapshot.stages}
+                            tasks={snapshot.tasks}
+                            editableStageId={snapshot.editableStageId}
+                            initialCurrentRankLetter={snapshot.currentRankLetter}
+                        />
+                    </div>
                 </div>
             </main>
         </div>
