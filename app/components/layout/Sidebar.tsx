@@ -9,7 +9,7 @@ import { useAuth } from '@/app/providers/AuthProvider';
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
     'Vagas para Você': 'work_outline',
-    'Teste suas Skills': 'psychology',
+    Avaliações: 'psychology',
     'Jornada do aluno': 'route',
     'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',

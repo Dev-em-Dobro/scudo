@@ -10,7 +10,7 @@ const FEATURES = [
     { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
     { icon: "work_outline", label: "Vagas selecionadas para você todo dia" },
     { icon: "bar_chart", label: "Métricas do mercado em tempo real" },
-    { icon: "psychology", label: "Teste suas skills e veja onde se destacar" },
+    { icon: "psychology", label: "Teste suas habilidades e veja onde se destacar" },
 ];
 
 export default async function LoginPage() {

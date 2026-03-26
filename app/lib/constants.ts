@@ -17,11 +17,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/jobs',
   },
   {
-    label: 'Teste suas Skills',
-    icon: 'psychology',
-    href: '/assessments',
-  },
-  {
     label: 'Radar de Mercado',
     icon: 'bar_chart',
     href: '/analytics',
