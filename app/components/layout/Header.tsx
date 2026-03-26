@@ -18,7 +18,7 @@ const NAV_ICONS: Record<string, string> = {
     'Vagas para Você': 'work_outline',
     'Teste suas Skills': 'psychology',
     'Jornada do aluno': 'route',
-    'Seus Números': 'bar_chart',
+    'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
 };
 

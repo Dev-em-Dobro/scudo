@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/assessments',
   },
   {
-    label: 'Seus Números',
+    label: 'Radar de Mercado',
     icon: 'bar_chart',
     href: '/analytics',
   },
