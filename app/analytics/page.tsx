@@ -215,6 +215,7 @@ function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]
     };
 }
 
+// SONAR: pagina agrega multiplas secoes e variacoes de renderizacao; refatoracao em componentes menores sera feita em tarefa dedicada.
 export default async function AnalyticsPage() {
     const session = await auth.api.getSession({ headers: await headers() });
 
@@ -330,7 +331,7 @@ export default async function AnalyticsPage() {
                         ))}
                     </div>
 
-                    <div data-onboarding-id="assessments-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
+                    <div data-onboarding-id="analytics-skill-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
                         <div className="flex items-start gap-3">
                             <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                                 <span
@@ -349,8 +350,8 @@ export default async function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div data-onboarding-id="assessments-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
+                    <div data-onboarding-id="analytics-skill-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div data-onboarding-id="analytics-skill-coverage" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
                             <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <span className="material-symbols-outlined text-primary" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
                                     verified
@@ -389,7 +390,7 @@ export default async function AnalyticsPage() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div data-onboarding-id="assessments-ranking" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                        <div data-onboarding-id="analytics-skill-ranking" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>bar_chart</span>
                                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">Ranking de Habilidades do Mercado</h2>
@@ -443,7 +444,7 @@ export default async function AnalyticsPage() {
                             )}
                         </div>
 
-                        <div data-onboarding-id="assessments-study-plan" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                        <div data-onboarding-id="analytics-study-plan" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>school</span>
                                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">Plano de Estudo Sugerido</h2>
@@ -545,13 +546,13 @@ export default async function AnalyticsPage() {
                     {/* Distribuição por Senioridade */}
                     <div data-onboarding-id="analytics-seniority">
                         <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
-                        <div className="space-y-3">
-                            <DistributionBar label="Estágio" value={generalStats.levelCounts.ESTAGIO} total={generalStats.totalJobs} colorClass="text-primary" bgClass="bg-primary" />
-                            <DistributionBar label="Júnior" value={generalStats.levelCounts.JUNIOR} total={generalStats.totalJobs} colorClass="text-blue-400" bgClass="bg-blue-400" />
-                            <DistributionBar label="Pleno" value={generalStats.levelCounts.PLENO} total={generalStats.totalJobs} colorClass="text-amber-400" bgClass="bg-amber-400" />
-                            <DistributionBar label="Sênior" value={generalStats.levelCounts.SENIOR} total={generalStats.totalJobs} colorClass="text-purple-400" bgClass="bg-purple-400" />
-                            <DistributionBar label="Outro" value={generalStats.levelCounts.OUTRO} total={generalStats.totalJobs} colorClass="text-slate-400" bgClass="bg-slate-400" />
-                        </div>
+                            <div className="space-y-3">
+                                <DistributionBar label="Estágio" value={generalStats.levelCounts.ESTAGIO} total={generalStats.totalJobs} colorClass="text-primary" bgClass="bg-primary" />
+                                <DistributionBar label="Júnior" value={generalStats.levelCounts.JUNIOR} total={generalStats.totalJobs} colorClass="text-blue-400" bgClass="bg-blue-400" />
+                                <DistributionBar label="Pleno" value={generalStats.levelCounts.PLENO} total={generalStats.totalJobs} colorClass="text-amber-400" bgClass="bg-amber-400" />
+                                <DistributionBar label="Sênior" value={generalStats.levelCounts.SENIOR} total={generalStats.totalJobs} colorClass="text-purple-400" bgClass="bg-purple-400" />
+                                <DistributionBar label="Outro" value={generalStats.levelCounts.OUTRO} total={generalStats.totalJobs} colorClass="text-slate-400" bgClass="bg-slate-400" />
+                            </div>
                         </SectionBlock>
                     </div>
 

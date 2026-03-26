@@ -17,7 +17,7 @@ interface HeaderProps {
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
     'Vagas para Você': 'work_outline',
-    Avaliações: 'psychology',
+    'Avaliações': 'psychology',
     'Jornada do aluno': 'route',
     'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
@@ -27,7 +27,6 @@ const NAV_ICONS: Record<string, string> = {
 function getOnboardingNavId(href: string) {
     const anchorMap: Record<string, string> = {
         '/jobs': 'nav-vagas',
-        '/assessments': 'nav-assessments',
         '/analytics': 'nav-analytics',
         '/jornada': 'nav-jornada',
     };
