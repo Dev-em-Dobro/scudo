@@ -13,6 +13,7 @@ const NAV_ICONS: Record<string, string> = {
     'Jornada do aluno': 'route',
     'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
+    'Feedbacks de melhorias': 'feedback',
 };
 
 function getOnboardingNavId(href: string) {

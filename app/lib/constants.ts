@@ -31,6 +31,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'person_outline',
     href: '/perfil',
   },
+  {
+    label: 'Feedbacks de melhorias',
+    icon: 'feedback',
+    href: '/feedback',
+  },
 ];
 
 export const LOGO_TEXT = {
