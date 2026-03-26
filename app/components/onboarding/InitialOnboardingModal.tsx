@@ -96,10 +96,53 @@ function findPreviousAnchoredStep(
     return null;
 }
 
-function toRouteGuideSteps(tutorial: OnboardingTutorial, pathname: string, canAccessJornada: boolean) {
+function findFirstExpectedStepOnRoute(
+    tutorial: OnboardingTutorial,
+    pathname: string,
+    currentStep: number,
+    canAccessJornada: boolean
+) {
+    for (const [index, step] of tutorial.steps.entries()) {
+        if (index < currentStep) {
+            continue;
+        }
+
+        if (!step.anchorId || !isStepAccessible(step, canAccessJornada)) {
+            continue;
+        }
+
+        if (getStepRoute(step.route) === pathname) {
+            return step;
+        }
+    }
+
+    return null;
+}
+
+function scheduleMissingAnchorRetry(retryRef: { current: number }, onRetry: () => void) {
+    retryRef.current += 1;
+    return setTimeout(onRetry, 150);
+}
+
+function clearRetryTimeout(retryTimeout: ReturnType<typeof setTimeout> | null) {
+    if (retryTimeout) {
+        clearTimeout(retryTimeout);
+    }
+}
+
+function toRouteGuideSteps(
+    tutorial: OnboardingTutorial,
+    pathname: string,
+    canAccessJornada: boolean,
+    minStepIndex = 0
+) {
     const mapped: GuideStep[] = [];
 
     for (const [index, step] of tutorial.steps.entries()) {
+        if (index < minStepIndex) {
+            continue;
+        }
+
         if (!step.anchorId || !isStepAccessible(step, canAccessJornada)) {
             continue;
         }
@@ -135,11 +178,13 @@ export default function InitialOnboardingModal() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [payload, setPayload] = useState<OnboardingResponse | null>(null);
     const [mode, setMode] = useState<'welcome' | 'tutorial'>('welcome');
+    const [anchorRetryTick, setAnchorRetryTick] = useState(0);
     const driverRef = useRef<Driver | null>(null);
     const hasStartedGuidedRef = useRef(false);
     const lastSyncedStepRef = useRef<number | null>(null);
     const destroyReasonRef = useRef<'navigate' | 'complete' | 'skip' | null>(null);
     const canAccessJornadaRef = useRef(false);
+    const missingAnchorsRetryRef = useRef(0);
 
     useEffect(() => {
         let isActive = true;
@@ -266,13 +311,19 @@ export default function InitialOnboardingModal() {
         if (destroyReasonRef.current === 'navigate') {
             destroyReasonRef.current = null;
         }
+
+        missingAnchorsRetryRef.current = 0;
     }, [pathname]);
 
     useEffect(() => {
         canAccessJornadaRef.current = canAccessJornada;
     }, [canAccessJornada]);
 
+    // SONAR: este efeito concentra a orquestracao multi-rota (driver lifecycle, persistencia e navegacao) para evitar regressoes de estado entre paginas.
+    // NOSONAR
     useEffect(() => {
+        let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+
         if (!guidedEnabled || mode !== 'tutorial' || !shouldShow || !tutorial) {
             driverRef.current?.destroy();
             driverRef.current = null;
@@ -296,6 +347,28 @@ export default function InitialOnboardingModal() {
         const tutorialForRun = tutorial;
         const canAccessJornadaForRun = canAccessJornadaRef.current;
 
+        const firstExpectedStepOnRoute = findFirstExpectedStepOnRoute(
+            tutorialForRun,
+            pathname,
+            currentStep,
+            canAccessJornadaForRun
+        );
+
+        if (firstExpectedStepOnRoute?.anchorId) {
+            const firstExpectedSelector = `[data-onboarding-id="${firstExpectedStepOnRoute.anchorId}"]`;
+            if (!document.querySelector(firstExpectedSelector)) {
+                retryTimeout = scheduleMissingAnchorRetry(missingAnchorsRetryRef, () => {
+                    setAnchorRetryTick((value) => value + 1);
+                });
+
+                if (retryTimeout) {
+                    return () => clearRetryTimeout(retryTimeout);
+                }
+
+                return;
+            }
+        }
+
         async function persistStepAndNavigate(
             stepIndex: number,
             route: string,
@@ -316,11 +389,32 @@ export default function InitialOnboardingModal() {
             }
         }
 
-        const guideSteps = toRouteGuideSteps(tutorialForRun, pathname, canAccessJornadaForRun);
+        const guideSteps = toRouteGuideSteps(tutorialForRun, pathname, canAccessJornadaForRun, currentStep);
         if (guideSteps.length === 0) {
+            if (firstExpectedStepOnRoute) {
+                retryTimeout = scheduleMissingAnchorRetry(missingAnchorsRetryRef, () => {
+                    setAnchorRetryTick((value) => value + 1);
+                });
+
+                return () => clearRetryTimeout(retryTimeout);
+            }
+
+            retryTimeout = scheduleMissingAnchorRetry(missingAnchorsRetryRef, () => {
+                    setAnchorRetryTick((value) => value + 1);
+            });
+
+            if (retryTimeout) {
+                return () => clearRetryTimeout(retryTimeout);
+            }
+
             const nextStep = findNextAnchoredStep(tutorialForRun, currentStep - 1, canAccessJornadaForRun);
-            if (nextStep?.route && nextStep.route !== pathname) {
-                void persistStepAndNavigate(nextStep.stepIndex, nextStep.route);
+            if (nextStep) {
+                if (nextStep.route !== pathname) {
+                    void persistStepAndNavigate(nextStep.stepIndex, nextStep.route);
+                    return;
+                }
+
+                void submitAction('set-step', nextStep.stepIndex);
                 return;
             }
 
@@ -329,6 +423,7 @@ export default function InitialOnboardingModal() {
         }
 
         const startIndex = Math.max(0, guideSteps.findIndex((step) => step.stepIndex >= currentStep));
+        missingAnchorsRetryRef.current = 0;
 
         let isCancelled = false;
 
@@ -483,16 +578,18 @@ export default function InitialOnboardingModal() {
 
         return () => {
             isCancelled = true;
+            clearRetryTimeout(retryTimeout);
         };
-    }, [currentStep, guidedEnabled, mode, pathname, payload?.progress, router, shouldShow, tutorial]);
+    }, [anchorRetryTick, currentStep, guidedEnabled, mode, pathname, payload?.progress, router, shouldShow, tutorial]);
 
     if (isLoading || !shouldShow || !tutorial || !payload?.progress) {
         return null;
     }
 
     const activeStep = tutorial.steps[currentStep];
+    const isGuidedInProgress = guidedEnabled && payload.progress.status === 'IN_PROGRESS';
 
-    if (guidedEnabled && mode === 'tutorial') {
+    if (guidedEnabled && (mode === 'tutorial' || isGuidedInProgress)) {
         return null;
     }
 

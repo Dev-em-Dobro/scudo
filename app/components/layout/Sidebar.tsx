@@ -19,7 +19,6 @@ const NAV_ICONS: Record<string, string> = {
 function getOnboardingNavId(href: string) {
     const anchorMap: Record<string, string> = {
         '/jobs': 'nav-vagas',
-        '/assessments': 'nav-assessments',
         '/analytics': 'nav-analytics',
         '/jornada': 'nav-jornada',
     };
