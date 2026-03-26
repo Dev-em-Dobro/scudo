@@ -450,8 +450,8 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                 <SectionBlock title="Competências Técnicas" icon="integration_instructions" iconColor="text-primary">
                     <TagList values={profileSnapshot.knownTechnologies} emptyLabel="Nenhuma competência técnica cadastrada." />
                 </SectionBlock>
-                <SectionBlock title="Soft Skills" icon="psychology" iconColor="text-blue-400">
-                    <TagList values={profileSnapshot.softSkills} emptyLabel="Nenhuma soft skill cadastrada." />
+                <SectionBlock title="Habilidades comportamentais" icon="psychology" iconColor="text-blue-400">
+                    <TagList values={profileSnapshot.softSkills} emptyLabel="Nenhuma habilidade comportamental cadastrada." />
                 </SectionBlock>
             </div>
 
@@ -573,7 +573,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                            <span>Soft Skills (uma por linha)</span>
+                            <span>Habilidades comportamentais (uma por linha)</span>
                             <textarea
                                 className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
                                 value={softSkillsText}

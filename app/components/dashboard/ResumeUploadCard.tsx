@@ -144,7 +144,7 @@ export default function ResumeUploadCard() {
                         </span>
                     </div>
                     <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
-                        Envie seu currículo (PDF ou DOCX) para extrair projetos e derivar automaticamente as skills do perfil.
+                        Envie seu currículo (PDF ou DOCX) para extrair projetos e derivar automaticamente as habilidades do perfil.
                     </p>
 
                     <div className="mt-3 flex items-center gap-3 flex-wrap">
@@ -238,7 +238,7 @@ export default function ResumeUploadCard() {
                                         Finalizamos a leitura do seu currículo.
                                     </p>
                                     <p className="text-sm text-slate-400 dark:text-slate-300">
-                                        Para os cálculos da plataforma, consideramos as skills extraídas dos seus projetos pessoais identificados no arquivo. Confira no perfil se as informações refletem sua experiência.
+                                        Para os cálculos da plataforma, consideramos as habilidades extraídas dos seus projetos pessoais identificados no arquivo. Confira no perfil se as informações refletem sua experiência.
                                     </p>
                                 </div>
                             </div>

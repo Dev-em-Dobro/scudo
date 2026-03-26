@@ -102,7 +102,7 @@ export default async function Home() {
                             ))}
                             {aptJobs.length === 0 && (
                                 <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 text-sm text-slate-400 dark:text-slate-300">
-                                    Nenhuma vaga apta no momento. Atualize suas skills para ampliar a compatibilidade.
+                                    Nenhuma vaga apta no momento. Atualize suas habilidades para ampliar a compatibilidade.
                                 </div>
                             )}
                         </div>

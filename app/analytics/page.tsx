@@ -95,6 +95,26 @@ type FitStats = {
     evaluableCount: number;
 };
 
+type SkillDemandStats = {
+    demandedSkills: Array<{
+        skill: string;
+        demand: number;
+        mastered: boolean;
+    }>;
+    topDemanded: Array<{
+        skill: string;
+        demand: number;
+        mastered: boolean;
+    }>;
+    topGaps: Array<{
+        skill: string;
+        demand: number;
+        mastered: boolean;
+    }>;
+    coverage: number;
+    maxDemand: number;
+};
+
 function buildGeneralStats(jobs: AnalyticsJob[]): GeneralStats {
     const workModelCounts = { Remoto: 0, Híbrido: 0, Presencial: 0 };
     const levelCounts = { ESTAGIO: 0, JUNIOR: 0, PLENO: 0, SENIOR: 0, OUTRO: 0 };
@@ -160,6 +180,41 @@ function getAvgFitVisual(avgFit: number) {
     };
 }
 
+function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]): SkillDemandStats {
+    const knownSet = new Set(knownTechnologies.map(normalize));
+    const demandMap = new Map<string, number>();
+
+    for (const job of jobs) {
+        const uniqueJobSkills = [...new Set(job.stack.map(normalize))];
+        for (const skill of uniqueJobSkills) {
+            demandMap.set(skill, (demandMap.get(skill) ?? 0) + 1);
+        }
+    }
+
+    const demandedSkills = [...demandMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([skill, demand]) => ({
+            skill,
+            demand,
+            mastered: knownSet.has(skill),
+        }));
+
+    const topDemanded = demandedSkills.slice(0, 12);
+    const topGaps = demandedSkills.filter((item) => !item.mastered).slice(0, 8);
+    const masteredDemanded = demandedSkills.filter((item) => item.mastered).length;
+    const coverage = demandedSkills.length > 0
+        ? Math.round((masteredDemanded / demandedSkills.length) * 100)
+        : 0;
+
+    return {
+        demandedSkills,
+        topDemanded,
+        topGaps,
+        coverage,
+        maxDemand: topDemanded[0]?.demand ?? 1,
+    };
+}
+
 export default async function AnalyticsPage() {
     const session = await auth.api.getSession({ headers: await headers() });
 
@@ -180,6 +235,7 @@ export default async function AnalyticsPage() {
     const clientProfile = toClientProfile(profile);
     const generalStats = buildGeneralStats(allJobs);
     const fitStats = buildFitStats(filteredJobs, clientProfile.knownTechnologies);
+    const skillDemandStats = buildSkillDemandStats(filteredJobs, clientProfile.knownTechnologies);
     const avgFitVisual = getAvgFitVisual(fitStats.avgFit);
 
     const statCards = [
@@ -194,11 +250,11 @@ export default async function AnalyticsPage() {
         },
         {
             key: 'fit',
-            title: 'Fit Médio',
+            title: 'Compatibilidade Média',
             value: fitStats.hasSkills ? `${fitStats.avgFit}%` : '—',
             description: fitStats.hasSkills
-                ? `Compat. média em ${fitStats.evaluableCount} vagas do recorte de fit.`
-                : 'Adicione skills ao perfil.',
+                ? `Compatibilidade média em ${fitStats.evaluableCount} vagas do recorte analisado.`
+                : 'Adicione habilidades ao perfil.',
             icon: 'target',
             iconColor: fitStats.hasSkills ? avgFitVisual.color : 'text-slate-400',
             iconBg: fitStats.hasSkills ? avgFitVisual.iconBg : 'bg-slate-500/10',
@@ -207,7 +263,7 @@ export default async function AnalyticsPage() {
             key: 'high',
             title: 'Alta Compat.',
             value: fitStats.hasSkills ? String(fitStats.highFitJobs) : '—',
-            description: fitStats.hasSkills ? 'Vagas do recorte de fit com compatibilidade ≥ 70%.' : 'Adicione skills ao perfil.',
+            description: fitStats.hasSkills ? 'Vagas analisadas com compatibilidade ≥ 70%.' : 'Adicione habilidades ao perfil.',
             icon: 'verified',
             iconColor: fitStats.hasSkills ? 'text-primary' : 'text-slate-400',
             iconBg: fitStats.hasSkills ? 'bg-primary/10' : 'bg-slate-500/10',
@@ -216,7 +272,7 @@ export default async function AnalyticsPage() {
             key: 'low',
             title: 'Baixa Compat.',
             value: fitStats.hasSkills ? String(fitStats.lowFitJobs) : '—',
-            description: fitStats.hasSkills ? 'Vagas do recorte de fit com compatibilidade abaixo de 50%.' : 'Adicione skills ao perfil.',
+            description: fitStats.hasSkills ? 'Vagas analisadas com compatibilidade abaixo de 50%.' : 'Adicione habilidades ao perfil.',
             icon: 'trending_down',
             iconColor: fitStats.hasSkills ? 'text-red-400' : 'text-slate-400',
             iconBg: fitStats.hasSkills ? 'bg-red-500/10' : 'bg-slate-500/10',
@@ -242,12 +298,9 @@ export default async function AnalyticsPage() {
                                 </span>
                             </div>
                             <div className="space-y-1">
-                                <h2 className="text-base md:text-lg font-bold text-white">Visão geral do mercado de vagas</h2>
+                                <h2 className="text-base md:text-lg font-bold text-white">Pare de adivinhar: veja o que o mercado realmente pede.</h2>
                                 <p className="text-base text-slate-300">
-                                    Aqui você acompanha tendências do job board da plataforma: senioridade, modelo de trabalho e demanda por perfis mais aderentes.
-                                </p>
-                                <p className="text-sm text-slate-300">
-                                    Use este painel para entender para onde o mercado está indo e ajustar seu perfil com mais estratégia.
+                                    Acompanhe as vagas em alta e ajuste seu perfil com estratégia para aumentar suas chances de contratação.
                                 </p>
                             </div>
                         </div>
@@ -277,9 +330,157 @@ export default async function AnalyticsPage() {
                         ))}
                     </div>
 
-                    {/* Distribuição por Fit e Modelo de Trabalho */}
+                    <div data-onboarding-id="assessments-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
+                        <div className="flex items-start gap-3">
+                            <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                                <span
+                                    className="material-symbols-outlined text-amber-400"
+                                    style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
+                                >
+                                    school
+                                </span>
+                            </div>
+                            <div className="space-y-1">
+                                <h2 className="text-base md:text-lg font-bold text-white">Seu plano de evolução no mercado</h2>
+                                <p className="text-base text-slate-300">
+                                    Veja as habilidades mais demandadas, seus gaps prioritários e o que estudar primeiro para subir sua compatibilidade.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div data-onboarding-id="assessments-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
+                            <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-primary" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+                                    verified
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Cobertura de Habilidades</p>
+                                <p className="text-2xl font-bold text-white mt-0.5">{`${skillDemandStats.coverage}%`}</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Habilidades demandadas já dominadas no perfil.</p>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
+                            <div className="shrink-0 w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-blue-400" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+                                    psychology
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Habilidades Demandadas</p>
+                                <p className="text-2xl font-bold text-white mt-0.5">{String(skillDemandStats.demandedSkills.length)}</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Competências identificadas nas vagas atuais.</p>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
+                            <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+                                    trending_up
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Gaps Prioritários</p>
+                                <p className="text-2xl font-bold text-white mt-0.5">{String(skillDemandStats.topGaps.length)}</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Habilidades para evolução imediata.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div data-onboarding-id="assessments-ranking" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                            <div className="flex items-center gap-2 mb-5">
+                                <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>bar_chart</span>
+                                <h2 className="text-sm font-bold text-white uppercase tracking-wider">Ranking de Habilidades do Mercado</h2>
+                            </div>
+
+                            {skillDemandStats.topDemanded.length > 0 ? (
+                                <div className="space-y-3">
+                                    {skillDemandStats.topDemanded.map((item, index) => {
+                                        const barWidth = Math.round((item.demand / skillDemandStats.maxDemand) * 100);
+                                        return (
+                                            <div key={item.skill} className="flex items-center gap-3">
+                                                <span className="text-xs font-mono text-slate-400 dark:text-slate-300 w-5 text-right shrink-0">
+                                                    {index + 1}
+                                                </span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-sm font-mono font-medium text-slate-200 uppercase">
+                                                            {item.skill}
+                                                        </span>
+                                                        <div className="flex items-center gap-2 shrink-0 ml-3">
+                                                            <span className="text-xs text-slate-400 dark:text-slate-300">{item.demand} vagas</span>
+                                                            {item.mastered ? (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
+                                                                    <span className="material-symbols-outlined" style={{ fontSize: '11px', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                                                    {' '}Dominada
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                                                                    <span className="material-symbols-outlined" style={{ fontSize: '11px', fontVariationSettings: "'FILL' 1" }}>trending_up</span>
+                                                                    {' '}Gap
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="h-1.5 bg-slate-100 dark:bg-background-dark rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full rounded-full ${item.mastered ? 'bg-primary' : 'bg-amber-500/60'}`}
+                                                            style={{ width: `${barWidth}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-3 py-8 text-center">
+                                    <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 1" }}>psychology_alt</span>
+                                    <p className="text-sm font-medium text-slate-400 dark:text-slate-300">Ainda não há habilidades suficientes para análise.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div data-onboarding-id="assessments-study-plan" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                            <div className="flex items-center gap-2 mb-5">
+                                <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>school</span>
+                                <h2 className="text-sm font-bold text-white uppercase tracking-wider">Plano de Estudo Sugerido</h2>
+                            </div>
+
+                            {skillDemandStats.topGaps.length > 0 ? (
+                                <div className="space-y-2.5">
+                                    {skillDemandStats.topGaps.map((item, index) => (
+                                        <div
+                                            key={item.skill}
+                                            className="flex items-center gap-3 p-3 rounded-lg border border-border-light dark:border-border-dark bg-slate-50 dark:bg-background-dark hover:border-primary/30 transition-colors"
+                                        >
+                                            <span className="shrink-0 w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xs font-bold text-amber-400">
+                                                {index + 1}
+                                            </span>
+                                            <span className="flex-1 text-sm font-mono font-medium text-slate-200 uppercase">
+                                                {item.skill}
+                                            </span>
+                                            <span className="text-xs text-slate-400 dark:text-slate-300 shrink-0">
+                                                {item.demand} {item.demand === 1 ? 'vaga' : 'vagas'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-3 py-8 text-center">
+                                    <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
+                                    <p className="text-sm font-medium text-slate-200">Você está bem alinhado!</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-300">Nenhum gap prioritário identificado no recorte atual de vagas.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Distribuição por Compatibilidade e Modelo de Trabalho */}
                     <div data-onboarding-id="analytics-fit-model" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <SectionBlock title="Distribuição por Fit" icon="donut_large" iconColor="text-primary">
+                        <SectionBlock title="Distribuição por Compatibilidade" icon="donut_large" iconColor="text-primary">
                             {fitStats.hasSkills ? (
                                 <div className="space-y-3">
                                     <DistributionBar
@@ -304,12 +505,12 @@ export default async function AnalyticsPage() {
                                         bgClass="bg-red-400"
                                     />
                                     <p className="pt-1 text-xs text-slate-400 dark:text-slate-300">
-                                        Adendo: o fit considera apenas o recorte técnico do Radar (fontes, senioridade e stack mapeada).
+                                        Adendo: a compatibilidade considera apenas o recorte técnico do Radar (fontes, senioridade e stack mapeada).
                                     </p>
                                 </div>
                             ) : (
                                 <p className="text-sm text-slate-400 dark:text-slate-300">
-                                    Faça upload do seu currículo ou adicione suas skills no perfil para ver a distribuição de compatibilidade.
+                                    Faça upload do seu currículo ou adicione suas habilidades no perfil para ver a distribuição de compatibilidade.
                                 </p>
                             )}
                         </SectionBlock>

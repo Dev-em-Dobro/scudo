@@ -86,7 +86,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-bold text-white">Status de Aptidão</h2>
+                        <h2 className="text-sm font-bold text-white">Status de compatibilidade</h2>
                         {hasSkills && jobs.length > 0 && (
                             <span className="text-sm font-bold text-amber-400">{avgFit}% médio</span>
                         )}
@@ -133,10 +133,10 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                                 <div className="mt-4 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
                                     <p className="text-xs font-bold text-amber-400 uppercase mb-1.5 flex items-center gap-1.5">
                                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>
-                                        {" "}Skills prioritárias
+                                        {" "}Habilidades prioritárias
                                     </p>
                                     <p className="text-xs text-slate-400 dark:text-slate-300">
-                                        Priorize as skills abaixo para aumentar sua compatibilidade com as vagas atuais.
+                                        Priorize as habilidades abaixo para aumentar sua compatibilidade com as vagas atuais.
                                     </p>
                                     <div className="mt-2.5 flex flex-wrap gap-1.5">
                                         {prioritizedMissingSkills.map((skill) => (
@@ -153,7 +153,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                         </>
                     ) : (
                         <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
-                            Adicione suas skills ao perfil para ver sua aptidão nas vagas.
+                            Adicione suas habilidades ao perfil para ver sua aptidão nas vagas.
                         </p>
                     )}
                 </div>

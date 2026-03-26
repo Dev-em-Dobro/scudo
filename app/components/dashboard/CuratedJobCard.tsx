@@ -144,7 +144,7 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                 {fit.fitPercentage === null ? (
                     <div className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 dark:bg-slate-900 text-slate-500 border border-slate-600/40 border-dashed">
                         <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>{"help"}</span>
-                        {"? fit"}
+                        {"? compatibilidade"}
                     </div>
                 ) : (
                     <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}>
@@ -154,7 +154,7 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                         >
                             {getFitIcon(fit.fitPercentage, fit.isEstimated)}
                         </span>
-                        {`${fit.isEstimated ? '~' : ''}${fit.fitPercentage}% fit`}
+                        {`${fit.isEstimated ? '~' : ''}${fit.fitPercentage}% compatibilidade`}
                     </div>
                 )}
             </div>
@@ -190,10 +190,10 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                 <div className="mt-4 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
                     <p className="text-xs font-bold text-amber-400 uppercase mb-1.5 flex items-center gap-1.5">
                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>
-                        {" "}Skills insuficientes
+                        {" "}Habilidades insuficientes
                     </p>
                     <p className="text-xs text-slate-400">
-                        O nível desta vaga é superior ao seu estágio atual. Priorize adquirir as skills abaixo antes de se candidatar.
+                        O nível desta vaga é superior ao seu estágio atual. Priorize adquirir as habilidades abaixo antes de se candidatar.
                     </p>
                     {fit.missingSkills.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1.5">
