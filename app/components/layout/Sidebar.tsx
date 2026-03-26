@@ -11,16 +11,20 @@ const NAV_ICONS: Record<string, string> = {
     'Vagas para Você': 'work_outline',
     'Teste suas Skills': 'psychology',
     'Jornada do aluno': 'route',
-    'Seus Números': 'bar_chart',
+    'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
+    'Feedbacks de melhorias': 'feedback',
 };
 
 function getOnboardingNavId(href: string) {
-    if (href === '/jobs') {
-        return 'nav-vagas';
-    }
+    const anchorMap: Record<string, string> = {
+        '/jobs': 'nav-vagas',
+        '/assessments': 'nav-assessments',
+        '/analytics': 'nav-analytics',
+        '/jornada': 'nav-jornada',
+    };
 
-    return undefined;
+    return anchorMap[href];
 }
 
 function getInitials(name: string) {

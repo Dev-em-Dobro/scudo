@@ -231,11 +231,16 @@ export default function ResumeUploadCard() {
                             </span>
                             <div>
                                 <h3 id="resume-ready-modal-title" className="text-sm font-bold text-white">
-                                    Currículo sincronizado
+                                    Currículo processado com sucesso
                                 </h3>
-                                <p className="mt-1 text-sm text-slate-400 dark:text-slate-300">
-                                    Os dados do seu currículo foram processados. Revise no perfil para garantir que tudo está correto.
-                                </p>
+                                <div className="mt-1 space-y-2">
+                                    <p className="text-sm text-slate-400 dark:text-slate-300">
+                                        Finalizamos a leitura do seu currículo.
+                                    </p>
+                                    <p className="text-sm text-slate-400 dark:text-slate-300">
+                                        Para os cálculos da plataforma, consideramos as skills extraídas dos seus projetos pessoais identificados no arquivo. Confira no perfil se as informações refletem sua experiência.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         <button
@@ -256,7 +261,7 @@ export default function ResumeUploadCard() {
                             onClick={() => setIsReadyModalOpen(false)}
                             className="inline-flex items-center px-3 py-2 text-xs font-bold rounded-lg border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 transition-colors uppercase tracking-wide"
                         >
-                            Depois
+                            Revisar depois
                         </button>
                         <Link
                             href="/perfil"
@@ -266,7 +271,7 @@ export default function ResumeUploadCard() {
                             <span className="material-symbols-outlined" style={{ fontSize: '15px', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                                 edit_square
                             </span>
-                            <span>Revisar no perfil</span>
+                            <span>Conferir no perfil</span>
                         </Link>
                     </div>
                 </div>

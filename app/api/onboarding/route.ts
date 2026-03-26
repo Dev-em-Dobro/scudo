@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/app/lib/auth';
-import { isInitialOnboardingEnabled } from '@/app/lib/featureFlags';
+import { isGuidedOnboardingEnabled, isInitialOnboardingEnabled } from '@/app/lib/featureFlags';
+import { isOfficialStudentUser } from '@/app/lib/jornada/service';
 import {
   completeTutorial,
   getTutorialProgress,
@@ -36,16 +37,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
   }
 
-  const enabled = isInitialOnboardingEnabled();
+  const initialEnabled = isInitialOnboardingEnabled();
+  const guidedEnabled = isGuidedOnboardingEnabled();
+  const enabled = initialEnabled || guidedEnabled;
 
   if (!enabled) {
-    return NextResponse.json({ enabled: false });
+    return NextResponse.json({ enabled: false, guidedEnabled: false, canAccessJornada: false });
   }
+
+  const canAccessJornada = await isOfficialStudentUser(session.user.id);
 
   const progress = await getTutorialProgress(session.user.id, PLATFORM_INTRO_TUTORIAL);
 
   return NextResponse.json({
     enabled: true,
+    guidedEnabled,
+    canAccessJornada,
     tutorial: PLATFORM_INTRO_TUTORIAL,
     progress,
     shouldShow: getShouldShow(progress.status),
@@ -61,7 +68,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
   }
 
-  if (!isInitialOnboardingEnabled()) {
+  if (!isInitialOnboardingEnabled() && !isGuidedOnboardingEnabled()) {
     return NextResponse.json({ error: 'Onboarding inicial desativado.' }, { status: 403 });
   }
 

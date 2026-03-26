@@ -5,6 +5,7 @@ import { Martian_Mono, Orbitron, Ubuntu } from 'next/font/google';
 import { auth } from '@/app/lib/auth';
 import { AuthProvider } from '@/app/providers/AuthProvider';
 import './globals.css';
+import 'driver.js/dist/driver.css';
 
 const ubuntu = Ubuntu({
     variable: '--font-ubuntu',

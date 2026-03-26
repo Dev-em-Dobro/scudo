@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
+import InitialOnboardingModal from '@/app/components/onboarding/InitialOnboardingModal';
 import ScudoShieldIcon from '@/app/components/layout/ScudoShieldIcon';
 import { authClient } from '@/app/lib/auth-client';
 import { NAV_ITEMS, LOGO_TEXT } from '@/app/lib/constants';
@@ -18,16 +19,20 @@ const NAV_ICONS: Record<string, string> = {
     'Vagas para Você': 'work_outline',
     'Teste suas Skills': 'psychology',
     'Jornada do aluno': 'route',
-    'Seus Números': 'bar_chart',
+    'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
+    'Feedbacks de melhorias': 'feedback',
 };
 
 function getOnboardingNavId(href: string) {
-    if (href === '/jobs') {
-        return 'nav-vagas';
-    }
+    const anchorMap: Record<string, string> = {
+        '/jobs': 'nav-vagas',
+        '/assessments': 'nav-assessments',
+        '/analytics': 'nav-analytics',
+        '/jornada': 'nav-jornada',
+    };
 
-    return undefined;
+    return anchorMap[href];
 }
 
 function getInitials(name: string) {
@@ -97,7 +102,9 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     }
 
     return (
-        <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between px-6 shrink-0">
+        <>
+            <InitialOnboardingModal />
+            <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between px-6 shrink-0">
             {/* Logo — visível apenas em mobile/tablet (sidebar oculta abaixo de lg) */}
             <div className="flex items-center gap-3 lg:hidden">
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
@@ -193,6 +200,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                     </div>
                 )}
             </div>
-        </header>
+            </header>
+        </>
     );
 }

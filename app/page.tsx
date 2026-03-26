@@ -7,7 +7,6 @@ import ResumeExampleCard from './components/dashboard/ResumeExampleCard';
 import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
-import InitialOnboardingModal from './components/onboarding/InitialOnboardingModal';
 import { auth } from './lib/auth';
 import { getJobBoardJobs } from './lib/jobs/jobBoard';
 import { getOrCreateUserProfile } from './lib/profile/profile';
@@ -66,7 +65,6 @@ export default async function Home() {
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
                 <Header title="Meu Painel" />
-                <InitialOnboardingModal />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-8 scrollbar-modern">
                     {/* Intro */}
@@ -80,11 +78,15 @@ export default async function Home() {
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                         {/* Left / main column */}
                         <div className="xl:col-span-2 space-y-6">
-                            <ResumeExampleCard />
+                            <div data-onboarding-id="painel-modelo-curriculo">
+                                <ResumeExampleCard />
+                            </div>
                             <div data-onboarding-id="painel-curriculo">
                                 <ResumeUploadCard />
                             </div>
-                            <CandidacyReadinessCard jobs={jobs} />
+                            <div data-onboarding-id="painel-aptidao">
+                                <CandidacyReadinessCard jobs={jobs} />
+                            </div>
                         </div>
 
                         {/* Right column — Apt Jobs */}

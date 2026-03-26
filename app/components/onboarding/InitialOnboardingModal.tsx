@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Driver } from 'driver.js';
+import { usePathname, useRouter } from 'next/navigation';
 
 import type { OnboardingTutorial } from '@/app/lib/onboarding/tutorials';
 
@@ -8,6 +10,8 @@ type OnboardingStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED';
 
 type OnboardingResponse = {
     enabled: boolean;
+    guidedEnabled?: boolean;
+    canAccessJornada?: boolean;
     tutorial?: OnboardingTutorial;
     progress?: {
         status: OnboardingStatus;
@@ -26,11 +30,116 @@ function clampStep(step: number, total: number) {
     return Math.max(0, Math.min(step, total - 1));
 }
 
+type GuideStep = {
+    element: string;
+    route: string;
+    popover: {
+        title: string;
+        description: string;
+    };
+    stepIndex: number;
+};
+
+function getStepRoute(route: string | undefined) {
+    return route ?? '/';
+}
+
+function isJornadaStep(step: OnboardingTutorial['steps'][number]) {
+    return step.route === '/jornada' || step.anchorId === 'nav-jornada' || step.anchorId?.startsWith('jornada-');
+}
+
+function isStepAccessible(step: OnboardingTutorial['steps'][number], canAccessJornada: boolean) {
+    if (!canAccessJornada && isJornadaStep(step)) {
+        return false;
+    }
+
+    return true;
+}
+
+function findNextAnchoredStep(
+    tutorial: OnboardingTutorial,
+    fromStepIndex: number,
+    canAccessJornada: boolean
+) {
+    for (let index = fromStepIndex + 1; index < tutorial.steps.length; index += 1) {
+        const step = tutorial.steps[index];
+        if (!step.anchorId || !isStepAccessible(step, canAccessJornada)) {
+            continue;
+        }
+
+        return {
+            stepIndex: index,
+            route: getStepRoute(step.route),
+        };
+    }
+
+    return null;
+}
+
+function findPreviousAnchoredStep(
+    tutorial: OnboardingTutorial,
+    fromStepIndex: number,
+    canAccessJornada: boolean
+) {
+    for (let index = fromStepIndex - 1; index >= 0; index -= 1) {
+        const step = tutorial.steps[index];
+        if (!step.anchorId || !isStepAccessible(step, canAccessJornada)) {
+            continue;
+        }
+
+        return {
+            stepIndex: index,
+            route: getStepRoute(step.route),
+        };
+    }
+
+    return null;
+}
+
+function toRouteGuideSteps(tutorial: OnboardingTutorial, pathname: string, canAccessJornada: boolean) {
+    const mapped: GuideStep[] = [];
+
+    for (const [index, step] of tutorial.steps.entries()) {
+        if (!step.anchorId || !isStepAccessible(step, canAccessJornada)) {
+            continue;
+        }
+
+        const route = getStepRoute(step.route);
+        if (route !== pathname) {
+            continue;
+        }
+
+        const element = `[data-onboarding-id="${step.anchorId}"]`;
+        if (!document.querySelector(element)) {
+            continue;
+        }
+
+        mapped.push({
+            element,
+            route,
+            stepIndex: index,
+            popover: {
+                title: step.title,
+                description: step.description,
+            },
+        });
+    }
+
+    return mapped;
+}
+
 export default function InitialOnboardingModal() {
+    const pathname = usePathname();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [payload, setPayload] = useState<OnboardingResponse | null>(null);
     const [mode, setMode] = useState<'welcome' | 'tutorial'>('welcome');
+    const driverRef = useRef<Driver | null>(null);
+    const hasStartedGuidedRef = useRef(false);
+    const lastSyncedStepRef = useRef<number | null>(null);
+    const destroyReasonRef = useRef<'navigate' | 'complete' | 'skip' | null>(null);
+    const canAccessJornadaRef = useRef(false);
 
     useEffect(() => {
         let isActive = true;
@@ -68,6 +177,8 @@ export default function InitialOnboardingModal() {
     }, []);
 
     const tutorial = payload?.tutorial;
+    const guidedEnabled = Boolean(payload?.guidedEnabled);
+    const canAccessJornada = Boolean(payload?.canAccessJornada);
     const shouldShow = Boolean(payload?.enabled && payload?.shouldShow && tutorial);
     const totalSteps = tutorial?.steps.length ?? 0;
     const currentStep = useMemo(() => {
@@ -139,14 +250,251 @@ export default function InitialOnboardingModal() {
     }
 
     async function handleSkip() {
+        driverRef.current?.destroy();
+        driverRef.current = null;
         await submitAction('skip');
     }
+
+    useEffect(() => {
+        return () => {
+            driverRef.current?.destroy();
+            driverRef.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (destroyReasonRef.current === 'navigate') {
+            destroyReasonRef.current = null;
+        }
+    }, [pathname]);
+
+    useEffect(() => {
+        canAccessJornadaRef.current = canAccessJornada;
+    }, [canAccessJornada]);
+
+    useEffect(() => {
+        if (!guidedEnabled || mode !== 'tutorial' || !shouldShow || !tutorial) {
+            driverRef.current?.destroy();
+            driverRef.current = null;
+            return;
+        }
+
+        if (driverRef.current || !payload?.progress) {
+            return;
+        }
+
+        if (payload.progress.status === 'NOT_STARTED' && !hasStartedGuidedRef.current) {
+            hasStartedGuidedRef.current = true;
+            void submitAction('start');
+            return;
+        }
+
+        if (payload.progress.status !== 'IN_PROGRESS') {
+            return;
+        }
+
+        const tutorialForRun = tutorial;
+        const canAccessJornadaForRun = canAccessJornadaRef.current;
+
+        async function persistStepAndNavigate(
+            stepIndex: number,
+            route: string,
+            driverToDestroy?: Driver
+        ) {
+            await submitAction('set-step', stepIndex);
+
+            if (route !== pathname) {
+                destroyReasonRef.current = 'navigate';
+                driverToDestroy?.destroy();
+                router.push(route);
+                return;
+            }
+
+            if (driverToDestroy) {
+                destroyReasonRef.current = 'navigate';
+                driverToDestroy.destroy();
+            }
+        }
+
+        const guideSteps = toRouteGuideSteps(tutorialForRun, pathname, canAccessJornadaForRun);
+        if (guideSteps.length === 0) {
+            const nextStep = findNextAnchoredStep(tutorialForRun, currentStep - 1, canAccessJornadaForRun);
+            if (nextStep?.route && nextStep.route !== pathname) {
+                void persistStepAndNavigate(nextStep.stepIndex, nextStep.route);
+                return;
+            }
+
+            void submitAction('complete');
+            return;
+        }
+
+        const startIndex = Math.max(0, guideSteps.findIndex((step) => step.stepIndex >= currentStep));
+
+        let isCancelled = false;
+
+        async function highlight() {
+            const { driver } = await import('driver.js');
+
+            if (isCancelled) {
+                return;
+            }
+
+            const lastGuideStepIndex = guideSteps.at(-1)?.stepIndex ?? -1;
+            const hasNextGlobalStep =
+                lastGuideStepIndex >= 0
+                    ? Boolean(findNextAnchoredStep(tutorialForRun, lastGuideStepIndex, canAccessJornadaForRun))
+                    : false;
+
+            const instance = driver({
+                steps: guideSteps,
+                showProgress: true,
+                nextBtnText: 'Próximo',
+                prevBtnText: 'Anterior',
+                doneBtnText: hasNextGlobalStep ? 'Continuar' : 'Concluir',
+                overlayClickBehavior: 'close',
+                stagePadding: 6,
+                overlayColor: 'rgba(2, 6, 23, 0.72)',
+                popoverClass: 'scudo-onboarding-popover',
+                onNextClick: (_, __, options) => {
+                    const activeIndex = options.state.activeIndex ?? 0;
+                    const isLastLocalStep = activeIndex >= guideSteps.length - 1;
+
+                    if (!isLastLocalStep) {
+                        options.driver.moveNext();
+                        return;
+                    }
+
+                    const lastLocalStep = guideSteps.at(-1);
+                    if (!lastLocalStep) {
+                        destroyReasonRef.current = 'complete';
+                        options.driver.destroy();
+                        return;
+                    }
+
+                    const nextStep = findNextAnchoredStep(
+                        tutorialForRun,
+                        lastLocalStep.stepIndex,
+                        canAccessJornadaForRun
+                    );
+
+                    if (!nextStep) {
+                        destroyReasonRef.current = 'complete';
+                        options.driver.destroy();
+                        return;
+                    }
+
+                    if (nextStep.route !== pathname) {
+                        void persistStepAndNavigate(nextStep.stepIndex, nextStep.route, options.driver);
+                        return;
+                    }
+
+                    void persistStepAndNavigate(nextStep.stepIndex, nextStep.route, options.driver);
+                },
+                onPrevClick: (_, __, options) => {
+                    const activeIndex = options.state.activeIndex ?? 0;
+
+                    if (activeIndex > 0) {
+                        options.driver.movePrevious();
+                        return;
+                    }
+
+                    const firstLocalStep = guideSteps[0];
+                    const previousStep = findPreviousAnchoredStep(
+                        tutorialForRun,
+                        firstLocalStep.stepIndex,
+                        canAccessJornadaForRun
+                    );
+                    if (!previousStep) {
+                        return;
+                    }
+
+                    if (previousStep.route !== pathname) {
+                        void persistStepAndNavigate(previousStep.stepIndex, previousStep.route, options.driver);
+                        return;
+                    }
+
+                    void persistStepAndNavigate(previousStep.stepIndex, previousStep.route, options.driver);
+                },
+                onCloseClick: (_, __, options) => {
+                    destroyReasonRef.current = 'skip';
+                    options.driver.destroy();
+                },
+                onHighlighted: (_, __, options) => {
+                    const activeIndex = options.state.activeIndex ?? 0;
+                    const currentGuideStep = guideSteps[activeIndex];
+
+                    if (!currentGuideStep) {
+                        return;
+                    }
+
+                    if (lastSyncedStepRef.current === currentGuideStep.stepIndex) {
+                        return;
+                    }
+
+                    lastSyncedStepRef.current = currentGuideStep.stepIndex;
+                    void submitAction('set-step', currentGuideStep.stepIndex);
+                },
+                onDestroyed: () => {
+                    driverRef.current = null;
+
+                    if (destroyReasonRef.current === 'navigate') {
+                        destroyReasonRef.current = null;
+                        return;
+                    }
+
+                    if (destroyReasonRef.current === 'complete') {
+                        destroyReasonRef.current = null;
+                        void submitAction('complete');
+                        return;
+                    }
+
+                    const lastHighlightedStepIndex = lastSyncedStepRef.current;
+                    if (lastHighlightedStepIndex !== null) {
+                        const nextStep = findNextAnchoredStep(
+                            tutorialForRun,
+                            lastHighlightedStepIndex,
+                            canAccessJornadaForRun
+                        );
+
+                        if (nextStep) {
+                            if (nextStep.route !== pathname) {
+                                void persistStepAndNavigate(nextStep.stepIndex, nextStep.route);
+                                return;
+                            }
+
+                            void submitAction('set-step', nextStep.stepIndex);
+                            return;
+                        }
+
+                        void submitAction('complete');
+                        return;
+                    }
+
+                    destroyReasonRef.current = null;
+                    void submitAction('skip');
+                },
+            });
+
+            driverRef.current = instance;
+            instance.drive(Math.max(0, startIndex));
+        }
+
+        void highlight();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [currentStep, guidedEnabled, mode, pathname, payload?.progress, router, shouldShow, tutorial]);
 
     if (isLoading || !shouldShow || !tutorial || !payload?.progress) {
         return null;
     }
 
     const activeStep = tutorial.steps[currentStep];
+
+    if (guidedEnabled && mode === 'tutorial') {
+        return null;
+    }
 
     return (
         <dialog
@@ -169,6 +517,11 @@ export default function InitialOnboardingModal() {
                                 <p className="text-sm text-slate-300">
                                     Esse guia rápido ajuda você a entender o caminho ideal para começar. Você pode pular agora e voltar depois.
                                 </p>
+                                {guidedEnabled && (
+                                    <p className="text-sm text-slate-300">
+                                        O modo guiado destaca as áreas da interface durante cada passo para facilitar a navegação.
+                                    </p>
+                                )}
                                 <p className="text-xs text-slate-400">
                                     Dica: quando o tutorial em vídeo estiver disponível, ele aparecerá como um passo desta experiência.
                                 </p>
@@ -226,7 +579,7 @@ export default function InitialOnboardingModal() {
                                 disabled={isSubmitting}
                                 className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Começar tutorial
+                                {guidedEnabled ? 'Começar tour guiado' : 'Começar tutorial'}
                             </button>
                         ) : (
                             <div className="flex items-center gap-2 self-end sm:self-auto">

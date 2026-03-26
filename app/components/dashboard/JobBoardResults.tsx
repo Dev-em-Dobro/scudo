@@ -183,32 +183,36 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
 
     return (
         <div className="space-y-6">
-            <SearchFilterBar
-                onSearchChange={(value) => {
-                    setSearchValue(value);
-                    resetPage();
-                }}
-                onLevelChange={(value) => {
-                    setLevelFilter((value as LevelFilter) || 'all');
-                    resetPage();
-                }}
-                onWorkModelChange={(value) => {
-                    setWorkModelFilter((value as WorkModelFilter) || 'all');
-                    resetPage();
-                }}
-                onSortChange={(value) => {
-                    setSortMode((value as SortMode) || 'relevant');
-                    resetPage();
-                }}
-            />
+            <div data-onboarding-id="jobs-filters">
+                <SearchFilterBar
+                    onSearchChange={(value) => {
+                        setSearchValue(value);
+                        resetPage();
+                    }}
+                    onLevelChange={(value) => {
+                        setLevelFilter((value as LevelFilter) || 'all');
+                        resetPage();
+                    }}
+                    onWorkModelChange={(value) => {
+                        setWorkModelFilter((value as WorkModelFilter) || 'all');
+                        resetPage();
+                    }}
+                    onSortChange={(value) => {
+                        setSortMode((value as SortMode) || 'relevant');
+                        resetPage();
+                    }}
+                />
+            </div>
 
             {filteredAndSortedJobs.length > 0 ? (
                 <>
                     <div className="space-y-4">
-                        {paginatedJobs.map((job) => <CuratedJobCard key={job.id} job={job} />)}
+                        <div data-onboarding-id="jobs-results">
+                            {paginatedJobs.map((job) => <CuratedJobCard key={job.id} job={job} />)}
+                        </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-4 rounded-xl">
+                    <div data-onboarding-id="jobs-pagination" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-4 rounded-xl">
                         <p className="text-sm text-slate-400 dark:text-slate-300">
                             Mostrando <span className="font-semibold text-white">{startItem}–{endItem}</span> de <span className="font-semibold text-white">{filteredAndSortedJobs.length}</span> vagas
                         </p>
@@ -241,7 +245,7 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                     </div>
                 </>
             ) : (
-                <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center gap-3 text-center">
+                <div data-onboarding-id="jobs-results" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center gap-3 text-center">
                     <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 1" }}>search_off</span>
                     <p className="text-sm font-medium text-slate-200">Nenhuma vaga encontrada</p>
                     <p className="text-xs text-slate-400 dark:text-slate-300">Tente ajustar os filtros ou o termo de busca.</p>

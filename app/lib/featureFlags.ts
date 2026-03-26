@@ -9,3 +9,7 @@ function parseBooleanFlag(value: string | undefined) {
 export function isInitialOnboardingEnabled() {
   return parseBooleanFlag(process.env.ENABLE_INITIAL_ONBOARDING);
 }
+
+export function isGuidedOnboardingEnabled() {
+  return parseBooleanFlag(process.env.ENABLE_GUIDED_ONBOARDING);
+}

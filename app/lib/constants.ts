@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/assessments',
   },
   {
-    label: 'Seus Números',
+    label: 'Radar de Mercado',
     icon: 'bar_chart',
     href: '/analytics',
   },
@@ -30,6 +30,11 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Meu Perfil',
     icon: 'person_outline',
     href: '/perfil',
+  },
+  {
+    label: 'Feedbacks de melhorias',
+    icon: 'feedback',
+    href: '/feedback',
   },
 ];
 

@@ -91,10 +91,10 @@ export default async function AssessmentsPage() {
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
                 <Header title="Teste suas Skills" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
+                <div data-onboarding-id="assessments-overview" className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
 
                     {/* Aviso de funcionalidade em desenvolvimento */}
-                    <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                    <div data-onboarding-id="assessments-warning" className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
                         <span className="material-symbols-outlined text-amber-400 shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>info</span>
                         <div>
                             <p className="text-sm font-semibold text-amber-300">Assessments em breve</p>
@@ -105,7 +105,7 @@ export default async function AssessmentsPage() {
                     </div>
 
                     {/* Stat cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div data-onboarding-id="assessments-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {statCards.map((card) => (
                             <div
                                 key={card.key}
@@ -126,7 +126,7 @@ export default async function AssessmentsPage() {
                     </div>
 
                     {/* Ranking de Skills */}
-                    <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                    <div data-onboarding-id="assessments-ranking" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                         <div className="flex items-center gap-2 mb-5">
                             <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>bar_chart</span>
                             <h2 className="text-sm font-bold text-white uppercase tracking-wider">Ranking de Skills do Mercado</h2>
@@ -181,7 +181,7 @@ export default async function AssessmentsPage() {
                     </div>
 
                     {/* Plano de Estudo */}
-                    <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                    <div data-onboarding-id="assessments-study-plan" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
                         <div className="flex items-center gap-2 mb-5">
                             <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>school</span>
                             <h2 className="text-sm font-bold text-white uppercase tracking-wider">Plano de Estudo Sugerido</h2>

@@ -16,6 +16,27 @@ const JOB_BOARD_STACK_FILTER = [
     'nestjs',
 ];
 
+const BASE_JOB_SELECT = {
+    id: true,
+    title: true,
+    companyName: true,
+    level: true,
+    stack: true,
+    location: true,
+    isRemote: true,
+    publishedAt: true,
+    source: true,
+    sourceUrl: true,
+    createdAt: true,
+} as const;
+
+export async function getAllAvailableJobs() {
+    return prisma.job.findMany({
+        orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+        select: BASE_JOB_SELECT,
+    });
+}
+
 export async function getJobBoardJobs() {
     return prisma.job.findMany({
         where: {
@@ -37,18 +58,6 @@ export async function getJobBoardJobs() {
             ],
         },
         orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
-        select: {
-            id: true,
-            title: true,
-            companyName: true,
-            level: true,
-            stack: true,
-            location: true,
-            isRemote: true,
-            publishedAt: true,
-            source: true,
-            sourceUrl: true,
-            createdAt: true,
-        },
+        select: BASE_JOB_SELECT,
     });
 }

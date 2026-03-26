@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
 import { auth } from '@/app/lib/auth';
-import { getJobBoardJobs } from '@/app/lib/jobs/jobBoard';
+import { getAllAvailableJobs, getJobBoardJobs } from '@/app/lib/jobs/jobBoard';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
 
 function normalize(value: string) {
@@ -68,27 +68,53 @@ function DistributionBar({
     );
 }
 
-export default async function AnalyticsPage() {
-    const session = await auth.api.getSession({ headers: await headers() });
+type AnalyticsJob = Awaited<ReturnType<typeof getAllAvailableJobs>>[number];
 
-    if (!session?.user) {
-        redirect('/login');
+type GeneralStats = {
+    totalJobs: number;
+    workModelCounts: {
+        Remoto: number;
+        Híbrido: number;
+        Presencial: number;
+    };
+    levelCounts: {
+        ESTAGIO: number;
+        JUNIOR: number;
+        PLENO: number;
+        SENIOR: number;
+        OUTRO: number;
+    };
+};
+
+type FitStats = {
+    hasSkills: boolean;
+    avgFit: number;
+    highFitJobs: number;
+    mediumFitJobs: number;
+    lowFitJobs: number;
+    evaluableCount: number;
+};
+
+function buildGeneralStats(jobs: AnalyticsJob[]): GeneralStats {
+    const workModelCounts = { Remoto: 0, Híbrido: 0, Presencial: 0 };
+    const levelCounts = { ESTAGIO: 0, JUNIOR: 0, PLENO: 0, SENIOR: 0, OUTRO: 0 };
+
+    for (const job of jobs) {
+        const workModel = detectWorkModel(job.location, job.isRemote);
+        workModelCounts[workModel] += 1;
+        levelCounts[job.level] += 1;
     }
 
-    const [profile, jobs] = await Promise.all([
-        getOrCreateUserProfile({
-            id: session.user.id,
-            name: session.user.name,
-            email: session.user.email,
-        }),
-        getJobBoardJobs(),
-    ]);
+    return {
+        totalJobs: jobs.length,
+        workModelCounts,
+        levelCounts,
+    };
+}
 
-    const clientProfile = toClientProfile(profile);
-    const knownSet = new Set(clientProfile.knownTechnologies.map(normalize));
+function buildFitStats(jobs: AnalyticsJob[], knownTechnologies: string[]): FitStats {
+    const knownSet = new Set(knownTechnologies.map(normalize));
     const hasSkills = knownSet.size > 0;
-
-    // Apenas vagas com stack definido são avaliáveis — stack vazio não tem requisitos conhecidos
     const evaluableJobs = jobs.filter((job) => job.stack.length > 0);
 
     const fitScores = hasSkills
@@ -102,40 +128,66 @@ export default async function AnalyticsPage() {
     const avgFit = fitScores.length > 0
         ? Math.round(fitScores.reduce((acc, value) => acc + value, 0) / fitScores.length)
         : 0;
-    const highFitJobs = fitScores.filter((value) => value >= 70).length;
-    const mediumFitJobs = fitScores.filter((value) => value >= 50 && value < 70).length;
-    const lowFitJobs = fitScores.filter((value) => value < 50).length;
-    const evaluableCount = evaluableJobs.length;
 
-    const workModelCounts = { Remoto: 0, Híbrido: 0, Presencial: 0 };
-    const levelCounts = { ESTAGIO: 0, JUNIOR: 0, PLENO: 0, SENIOR: 0, OUTRO: 0 };
+    return {
+        hasSkills,
+        avgFit,
+        highFitJobs: fitScores.filter((value) => value >= 70).length,
+        mediumFitJobs: fitScores.filter((value) => value >= 50 && value < 70).length,
+        lowFitJobs: fitScores.filter((value) => value < 50).length,
+        evaluableCount: evaluableJobs.length,
+    };
+}
 
-    for (const job of jobs) {
-        const workModel = detectWorkModel(job.location, job.isRemote);
-        workModelCounts[workModel] += 1;
-        levelCounts[job.level] += 1;
-    }
-
-    let avgFitColor = 'text-red-400';
+function getAvgFitVisual(avgFit: number) {
     if (avgFit >= 70) {
-        avgFitColor = 'text-primary';
-    } else if (avgFit >= 50) {
-        avgFitColor = 'text-amber-400';
+        return {
+            color: 'text-primary',
+            iconBg: 'bg-primary/10',
+        };
     }
 
-    let avgFitIconBg = 'bg-red-500/10';
-    if (avgFit >= 70) {
-        avgFitIconBg = 'bg-primary/10';
-    } else if (avgFit >= 50) {
-        avgFitIconBg = 'bg-amber-500/10';
+    if (avgFit >= 50) {
+        return {
+            color: 'text-amber-400',
+            iconBg: 'bg-amber-500/10',
+        };
     }
+
+    return {
+        color: 'text-red-400',
+        iconBg: 'bg-red-500/10',
+    };
+}
+
+export default async function AnalyticsPage() {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (!session?.user) {
+        redirect('/login');
+    }
+
+    const [profile, allJobs, filteredJobs] = await Promise.all([
+        getOrCreateUserProfile({
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email,
+        }),
+        getAllAvailableJobs(),
+        getJobBoardJobs(),
+    ]);
+
+    const clientProfile = toClientProfile(profile);
+    const generalStats = buildGeneralStats(allJobs);
+    const fitStats = buildFitStats(filteredJobs, clientProfile.knownTechnologies);
+    const avgFitVisual = getAvgFitVisual(fitStats.avgFit);
 
     const statCards = [
         {
             key: 'total',
-            title: 'Vagas Analisadas',
-            value: String(jobs.length),
-            description: 'Total de vagas no Job Board.',
+            title: 'Vagas disponíveis',
+            value: String(generalStats.totalJobs),
+            description: 'Total geral de vagas disponíveis na base.',
             icon: 'work',
             iconColor: 'text-blue-400',
             iconBg: 'bg-blue-500/10',
@@ -143,29 +195,31 @@ export default async function AnalyticsPage() {
         {
             key: 'fit',
             title: 'Fit Médio',
-            value: hasSkills ? `${avgFit}%` : '—',
-            description: hasSkills ? `Compat. média em ${evaluableCount} vagas com stack definido.` : 'Adicione skills ao perfil.',
+            value: fitStats.hasSkills ? `${fitStats.avgFit}%` : '—',
+            description: fitStats.hasSkills
+                ? `Compat. média em ${fitStats.evaluableCount} vagas do recorte de fit.`
+                : 'Adicione skills ao perfil.',
             icon: 'target',
-            iconColor: hasSkills ? avgFitColor : 'text-slate-400',
-            iconBg: hasSkills ? avgFitIconBg : 'bg-slate-500/10',
+            iconColor: fitStats.hasSkills ? avgFitVisual.color : 'text-slate-400',
+            iconBg: fitStats.hasSkills ? avgFitVisual.iconBg : 'bg-slate-500/10',
         },
         {
             key: 'high',
             title: 'Alta Compat.',
-            value: hasSkills ? String(highFitJobs) : '—',
-            description: hasSkills ? 'Vagas com stack definido e fit ≥ 70%.' : 'Adicione skills ao perfil.',
+            value: fitStats.hasSkills ? String(fitStats.highFitJobs) : '—',
+            description: fitStats.hasSkills ? 'Vagas do recorte de fit com compatibilidade ≥ 70%.' : 'Adicione skills ao perfil.',
             icon: 'verified',
-            iconColor: hasSkills ? 'text-primary' : 'text-slate-400',
-            iconBg: hasSkills ? 'bg-primary/10' : 'bg-slate-500/10',
+            iconColor: fitStats.hasSkills ? 'text-primary' : 'text-slate-400',
+            iconBg: fitStats.hasSkills ? 'bg-primary/10' : 'bg-slate-500/10',
         },
         {
             key: 'low',
             title: 'Baixa Compat.',
-            value: hasSkills ? String(lowFitJobs) : '—',
-            description: hasSkills ? 'Vagas com stack definido e fit abaixo de 50%.' : 'Adicione skills ao perfil.',
+            value: fitStats.hasSkills ? String(fitStats.lowFitJobs) : '—',
+            description: fitStats.hasSkills ? 'Vagas do recorte de fit com compatibilidade abaixo de 50%.' : 'Adicione skills ao perfil.',
             icon: 'trending_down',
-            iconColor: hasSkills ? 'text-red-400' : 'text-slate-400',
-            iconBg: hasSkills ? 'bg-red-500/10' : 'bg-slate-500/10',
+            iconColor: fitStats.hasSkills ? 'text-red-400' : 'text-slate-400',
+            iconBg: fitStats.hasSkills ? 'bg-red-500/10' : 'bg-slate-500/10',
         },
     ];
 
@@ -174,12 +228,33 @@ export default async function AnalyticsPage() {
             <Sidebar />
 
             <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
-                <Header title="Seus Números" />
+                <Header title="Radar de Mercado" />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
+                    <section data-onboarding-id="analytics-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
+                        <div className="flex items-start gap-3">
+                            <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <span
+                                    className="material-symbols-outlined text-primary"
+                                    style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
+                                >
+                                    insights
+                                </span>
+                            </div>
+                            <div className="space-y-1">
+                                <h2 className="text-base md:text-lg font-bold text-white">Visão geral do mercado de vagas</h2>
+                                <p className="text-base text-slate-300">
+                                    Aqui você acompanha tendências do job board da plataforma: senioridade, modelo de trabalho e demanda por perfis mais aderentes.
+                                </p>
+                                <p className="text-sm text-slate-300">
+                                    Use este painel para entender para onde o mercado está indo e ajustar seu perfil com mais estratégia.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
 
                     {/* Stat cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div data-onboarding-id="analytics-stats" className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {statCards.map((card) => (
                             <div
                                 key={card.key}
@@ -203,31 +278,34 @@ export default async function AnalyticsPage() {
                     </div>
 
                     {/* Distribuição por Fit e Modelo de Trabalho */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div data-onboarding-id="analytics-fit-model" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <SectionBlock title="Distribuição por Fit" icon="donut_large" iconColor="text-primary">
-                            {hasSkills ? (
+                            {fitStats.hasSkills ? (
                                 <div className="space-y-3">
                                     <DistributionBar
                                         label="Alta (≥70%)"
-                                        value={highFitJobs}
-                                        total={evaluableCount}
+                                        value={fitStats.highFitJobs}
+                                        total={fitStats.evaluableCount}
                                         colorClass="text-primary"
                                         bgClass="bg-primary"
                                     />
                                     <DistributionBar
                                         label="Média (50–69%)"
-                                        value={mediumFitJobs}
-                                        total={evaluableCount}
+                                        value={fitStats.mediumFitJobs}
+                                        total={fitStats.evaluableCount}
                                         colorClass="text-amber-400"
                                         bgClass="bg-amber-400"
                                     />
                                     <DistributionBar
                                         label="Baixa (<50%)"
-                                        value={lowFitJobs}
-                                        total={evaluableCount}
+                                        value={fitStats.lowFitJobs}
+                                        total={fitStats.evaluableCount}
                                         colorClass="text-red-400"
                                         bgClass="bg-red-400"
                                     />
+                                    <p className="pt-1 text-xs text-slate-400 dark:text-slate-300">
+                                        Adendo: o fit considera apenas o recorte técnico do Radar (fontes, senioridade e stack mapeada).
+                                    </p>
                                 </div>
                             ) : (
                                 <p className="text-sm text-slate-400 dark:text-slate-300">
@@ -240,22 +318,22 @@ export default async function AnalyticsPage() {
                             <div className="space-y-3">
                                 <DistributionBar
                                     label="Remoto"
-                                    value={workModelCounts.Remoto}
-                                    total={jobs.length}
+                                    value={generalStats.workModelCounts.Remoto}
+                                    total={generalStats.totalJobs}
                                     colorClass="text-primary"
                                     bgClass="bg-primary"
                                 />
                                 <DistributionBar
                                     label="Híbrido"
-                                    value={workModelCounts.Híbrido}
-                                    total={jobs.length}
+                                    value={generalStats.workModelCounts.Híbrido}
+                                    total={generalStats.totalJobs}
                                     colorClass="text-blue-400"
                                     bgClass="bg-blue-400"
                                 />
                                 <DistributionBar
                                     label="Presencial"
-                                    value={workModelCounts.Presencial}
-                                    total={jobs.length}
+                                    value={generalStats.workModelCounts.Presencial}
+                                    total={generalStats.totalJobs}
                                     colorClass="text-slate-400"
                                     bgClass="bg-slate-400"
                                 />
@@ -264,15 +342,17 @@ export default async function AnalyticsPage() {
                     </div>
 
                     {/* Distribuição por Senioridade */}
-                    <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
+                    <div data-onboarding-id="analytics-seniority">
+                        <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
                         <div className="space-y-3">
-                            <DistributionBar label="Estágio" value={levelCounts.ESTAGIO} total={jobs.length} colorClass="text-primary" bgClass="bg-primary" />
-                            <DistributionBar label="Júnior" value={levelCounts.JUNIOR} total={jobs.length} colorClass="text-blue-400" bgClass="bg-blue-400" />
-                            <DistributionBar label="Pleno" value={levelCounts.PLENO} total={jobs.length} colorClass="text-amber-400" bgClass="bg-amber-400" />
-                            <DistributionBar label="Sênior" value={levelCounts.SENIOR} total={jobs.length} colorClass="text-purple-400" bgClass="bg-purple-400" />
-                            <DistributionBar label="Outro" value={levelCounts.OUTRO} total={jobs.length} colorClass="text-slate-400" bgClass="bg-slate-400" />
+                            <DistributionBar label="Estágio" value={generalStats.levelCounts.ESTAGIO} total={generalStats.totalJobs} colorClass="text-primary" bgClass="bg-primary" />
+                            <DistributionBar label="Júnior" value={generalStats.levelCounts.JUNIOR} total={generalStats.totalJobs} colorClass="text-blue-400" bgClass="bg-blue-400" />
+                            <DistributionBar label="Pleno" value={generalStats.levelCounts.PLENO} total={generalStats.totalJobs} colorClass="text-amber-400" bgClass="bg-amber-400" />
+                            <DistributionBar label="Sênior" value={generalStats.levelCounts.SENIOR} total={generalStats.totalJobs} colorClass="text-purple-400" bgClass="bg-purple-400" />
+                            <DistributionBar label="Outro" value={generalStats.levelCounts.OUTRO} total={generalStats.totalJobs} colorClass="text-slate-400" bgClass="bg-slate-400" />
                         </div>
-                    </SectionBlock>
+                        </SectionBlock>
+                    </div>
 
                 </div>
             </main>
