@@ -34,6 +34,7 @@ export type RawSourceJob = {
     companyName: string;
     level?: string | null;
     stack?: string[] | string | null;
+    description?: string | null;
     location?: string | null;
     publishedAt?: string | Date | null;
     sourceUrl: string;

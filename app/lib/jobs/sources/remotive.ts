@@ -1,6 +1,7 @@
 import { JobSource } from '@prisma/client';
 
 import type { RawSourceJob } from '../types';
+import { normalizeDescriptionText } from '../sourceDescription';
 
 interface RemotiveJob {
     id: number;
@@ -9,6 +10,7 @@ interface RemotiveJob {
     company_name: string;
     category?: string;
     tags?: string[];
+    description?: string;
     job_type?: string;
     publication_date?: string;
     candidate_required_location?: string;
@@ -126,6 +128,7 @@ export async function fetchFromRemotive(limit = 150): Promise<RawSourceJob[]> {
                 companyName: job.company_name,
                 level: job.job_type ?? null,
                 stack: extractStack(job.title, job.tags),
+                description: job.description ? normalizeDescriptionText(job.description) : null,
                 location: job.candidate_required_location ?? 'Remoto',
                 publishedAt: job.publication_date ?? null,
                 sourceUrl: job.url,

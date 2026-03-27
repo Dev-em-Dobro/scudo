@@ -1,6 +1,7 @@
 import { JobSource } from '@prisma/client';
 
 import type { RawSourceJob } from '../types';
+import { fetchAndExtractJobDescription } from '../sourceDescription';
 
 type TramposCard = {
     id: string;
@@ -182,16 +183,26 @@ export async function fetchFromTrampos(limit = 80): Promise<RawSourceJob[]> {
         const html = await response.text();
         const cards = parseTramposCards(html);
 
-        return cards.slice(0, limit).map((job) => ({
-            title: job.title,
-            companyName: job.companyName,
-            level: job.level,
-            stack: job.stack,
-            location: job.location,
-            sourceUrl: `https://www.trampos.co/oportunidades/${job.id}`,
-            source: JobSource.OTHER,
-            externalId: `trampos-${job.id}`,
+        const selectedCards = cards.slice(0, limit);
+
+        const jobs = await Promise.all(selectedCards.map(async (job) => {
+            const sourceUrl = `https://www.trampos.co/oportunidades/${job.id}`;
+            const description = await fetchAndExtractJobDescription(sourceUrl);
+
+            return {
+                title: job.title,
+                companyName: job.companyName,
+                level: job.level,
+                stack: job.stack,
+                description: description || null,
+                location: job.location,
+                sourceUrl,
+                source: JobSource.OTHER,
+                externalId: `trampos-${job.id}`,
+            } as RawSourceJob;
         }));
+
+        return jobs;
     } catch {
         return [];
     }

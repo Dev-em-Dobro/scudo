@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { buildJobFingerprint } from '@/app/lib/jobs/dedupe';
-import { normalizeLevel, normalizeLocation, normalizeStack } from '@/app/lib/jobs/normalizers';
+import { normalizeLocation } from '@/app/lib/jobs/normalizers';
+import { curateJobData } from '@/app/lib/jobs/curation';
 import { prisma } from '@/app/lib/prisma';
 
 export const runtime = 'nodejs';
@@ -16,6 +17,7 @@ const incomingJobSchema = z.object({
     sourceUrl: z.url(),
     level: z.string().optional().nullable(),
     stack: z.union([z.string(), z.array(z.string())]).optional().nullable(),
+    description: z.string().optional().nullable(),
     location: z.string().optional().nullable(),
     publishedAt: z.string().optional().nullable(),
     source: sourceEnum.optional().default('OTHER'),
@@ -111,8 +113,13 @@ export async function POST(request: NextRequest) {
         }
 
         const source = toJobSource(item.source);
-        const normalizedStack = normalizeStack(item.stack);
         const { location, isRemote } = normalizeLocation(item.location);
+        const { normalizedStack, normalizedLevel } = await curateJobData({
+            title: item.title,
+            level: item.level,
+            stack: item.stack,
+            description: item.description,
+        });
         const fingerprint = buildJobFingerprint({
             title: item.title,
             companyName: item.companyName,
@@ -132,7 +139,7 @@ export async function POST(request: NextRequest) {
         const data: Prisma.JobUncheckedCreateInput = {
             title: item.title,
             companyName: item.companyName,
-            level: normalizeLevel(item.level),
+            level: normalizedLevel,
             stack: normalizedStack,
             location,
             isRemote,

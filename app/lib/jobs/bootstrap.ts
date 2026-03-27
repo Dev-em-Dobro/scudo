@@ -2,13 +2,14 @@ import { JobSource } from "@prisma/client";
 
 import { prisma } from "@/app/lib/prisma";
 import { buildJobFingerprint } from "@/app/lib/jobs/dedupe";
-import { normalizeLevel, normalizeLocation, normalizeStack } from "@/app/lib/jobs/normalizers";
+import { inferStackFromText, normalizeLocation, normalizeStack } from "@/app/lib/jobs/normalizers";
 import { fetchFromAdzuna } from "@/app/lib/jobs/sources/adzuna";
 import { fetchFromGupy } from "@/app/lib/jobs/sources/gupy";
-import { fetchFromProgramathor } from "@/app/lib/jobs/sources/programathor";
+import { fetchFromProgramathor, fetchProgramathorDetailStackByUrl } from "@/app/lib/jobs/sources/programathor";
 import { fetchFromRemotive } from "@/app/lib/jobs/sources/remotive";
 import { fetchFromRemoteOk } from "@/app/lib/jobs/sources/remoteok";
 import { fetchFromTrampos } from "@/app/lib/jobs/sources/trampos";
+import { curateJobData } from "@/app/lib/jobs/curation";
 import type { RawSourceJob } from "@/app/lib/jobs/types";
 
 function normalizeSourceUrl(value: string): string | null {
@@ -33,7 +34,12 @@ async function persistRawJob(rawJob: RawSourceJob): Promise<PersistResult> {
     const externalId = rawJob.externalId ?? null;
     const publishedAt = rawJob.publishedAt ? new Date(rawJob.publishedAt) : null;
     const { location, isRemote } = normalizeLocation(rawJob.location);
-    const normalizedStack = normalizeStack(rawJob.stack);
+    const { normalizedStack, normalizedLevel } = await curateJobData({
+        title: rawJob.title,
+        level: rawJob.level,
+        stack: rawJob.stack,
+        description: rawJob.description,
+    });
     const fingerprint = buildJobFingerprint({
         title: rawJob.title,
         companyName: rawJob.companyName,
@@ -61,7 +67,7 @@ async function persistRawJob(rawJob: RawSourceJob): Promise<PersistResult> {
                 data: {
                     title: rawJob.title,
                     companyName: rawJob.companyName,
-                    level: normalizeLevel(rawJob.level),
+                    level: normalizedLevel,
                     stack: normalizedStack,
                     location,
                     isRemote,
@@ -87,7 +93,7 @@ async function persistRawJob(rawJob: RawSourceJob): Promise<PersistResult> {
         create: {
             title: rawJob.title,
             companyName: rawJob.companyName,
-            level: normalizeLevel(rawJob.level),
+            level: normalizedLevel,
             stack: normalizedStack,
             location,
             isRemote,
@@ -101,7 +107,7 @@ async function persistRawJob(rawJob: RawSourceJob): Promise<PersistResult> {
         update: {
             title: rawJob.title,
             companyName: rawJob.companyName,
-            level: normalizeLevel(rawJob.level),
+            level: normalizedLevel,
             stack: normalizedStack,
             location,
             isRemote,
@@ -148,6 +154,52 @@ export async function bootstrapInitialJobs() {
             updatedCount += 1;
         } else {
             skippedCount += 1;
+        }
+    }
+
+    // Optional backfill to refresh stack of existing Programathor records that were not re-fetched in this run.
+    if (process.env.JOBS_PROGRAMATHOR_BACKFILL === "true") {
+        const existingProgramathorJobs = await prisma.job.findMany({
+            where: {
+                source: JobSource.OTHER,
+                sourceUrl: {
+                    contains: 'programathor.com.br/jobs/',
+                },
+            },
+            select: {
+                id: true,
+                title: true,
+                stack: true,
+                sourceUrl: true,
+            },
+        });
+
+        for (const job of existingProgramathorJobs) {
+            const detailStack = await fetchProgramathorDetailStackByUrl(job.sourceUrl);
+            const enriched = normalizeStack([
+                ...inferStackFromText(job.title),
+                ...detailStack,
+            ]);
+
+            if (enriched.length === 0) {
+                continue;
+            }
+
+            const hasChanged = enriched.length !== job.stack.length
+                || enriched.some((item, index) => item !== job.stack[index]);
+
+            if (!hasChanged) {
+                continue;
+            }
+
+            await prisma.job.update({
+                where: { id: job.id },
+                data: {
+                    stack: enriched,
+                    lastSeenAt: new Date(),
+                },
+            });
+            updatedCount += 1;
         }
     }
 

@@ -6,6 +6,7 @@ import Header from '../components/layout/Header';
 import JobBoardResults from '../components/dashboard/JobBoardResults';
 import { auth } from '../lib/auth';
 import { getJobBoardJobs } from '../lib/jobs/jobBoard';
+import { getUserJornadaSnapshot, isOfficialStudentUser } from '../lib/jornada/service';
 
 export default async function JobsPage() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -15,6 +16,8 @@ export default async function JobsPage() {
     }
 
     const jobs = await getJobBoardJobs();
+    const isOfficialStudent = await isOfficialStudentUser(session.user.id);
+    const jornadaSnapshot = isOfficialStudent ? await getUserJornadaSnapshot(session.user.id) : null;
 
     return (
         <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
@@ -24,7 +27,11 @@ export default async function JobsPage() {
                 <Header title="Vagas para Você" />
 
                 <div data-onboarding-id="jobs-board" className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 scrollbar-modern">
-                    <JobBoardResults jobs={jobs} />
+                    <JobBoardResults
+                        jobs={jobs}
+                        currentRank={jornadaSnapshot?.currentRankLetter ?? null}
+                        isOfficialStudent={isOfficialStudent}
+                    />
                 </div>
             </main>
         </div>

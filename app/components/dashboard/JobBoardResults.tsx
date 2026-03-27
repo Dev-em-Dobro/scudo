@@ -10,6 +10,8 @@ import SearchFilterBar from '@/app/components/dashboard/SearchFilterBar';
 
 interface JobBoardResultsProps {
     readonly jobs: JobListItem[];
+    readonly currentRank?: string | null;
+    readonly isOfficialStudent?: boolean;
 }
 
 type SortMode = 'relevant' | 'newest' | 'salary';
@@ -87,7 +89,11 @@ function getFitPriority(fit: number) {
     return 3;
 }
 
-export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>) {
+export default function JobBoardResults({
+    jobs,
+    currentRank = null,
+    isOfficialStudent = false,
+}: Readonly<JobBoardResultsProps>) {
     const { user } = useAuth();
     const [searchValue, setSearchValue] = useState('');
     const [sortMode, setSortMode] = useState<SortMode>('relevant');
@@ -208,7 +214,14 @@ export default function JobBoardResults({ jobs }: Readonly<JobBoardResultsProps>
                 <>
                     <div className="space-y-4">
                         <div data-onboarding-id="jobs-results">
-                            {paginatedJobs.map((job) => <CuratedJobCard key={job.id} job={job} />)}
+                            {paginatedJobs.map((job) => (
+                                <CuratedJobCard
+                                    key={job.id}
+                                    job={job}
+                                    currentRank={currentRank}
+                                    isOfficialStudent={isOfficialStudent}
+                                />
+                            ))}
                         </div>
                     </div>
 
