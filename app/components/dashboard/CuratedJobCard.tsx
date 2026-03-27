@@ -7,6 +7,8 @@ import { useAuth } from "@/app/providers/AuthProvider";
 
 interface CuratedJobCardProps {
     readonly job: JobListItem;
+    readonly currentRank?: string | null;
+    readonly isOfficialStudent?: boolean;
 }
 
 const levelLabel: Record<JobListItem["level"], string> = {
@@ -67,7 +69,15 @@ function getFitIcon(pct: number, isEstimated: boolean) {
     return "cancel";
 }
 
-export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
+function requiresLegendaryRank(level: JobListItem['level']) {
+    return level === 'PLENO' || level === 'SENIOR';
+}
+
+export default function CuratedJobCard({
+    job,
+    currentRank = null,
+    isOfficialStudent = false,
+}: Readonly<CuratedJobCardProps>) {
     const { user } = useAuth();
     const [showSkillGapAlert, setShowSkillGapAlert] = useState(false);
 
@@ -98,7 +108,16 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
         };
     }, [job.stack, job.title, user.knownTechnologies]);
 
+    const isBlockedByRank = isOfficialStudent
+        && requiresLegendaryRank(job.level)
+        && currentRank !== 'Lendário';
+
     function handleApplyClick() {
+        if (isBlockedByRank) {
+            setShowSkillGapAlert(true);
+            return;
+        }
+
         if (fit.isInsufficient) {
             setShowSkillGapAlert(true);
             return;
@@ -186,7 +205,7 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
             )}
 
             {/* Skill gap alert */}
-            {showSkillGapAlert && fit.fitPercentage !== null && fit.isInsufficient && (
+            {showSkillGapAlert && !isBlockedByRank && fit.fitPercentage !== null && fit.isInsufficient && (
                 <div className="mt-4 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
                     <p className="text-xs font-bold text-amber-400 uppercase mb-1.5 flex items-center gap-1.5">
                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>
@@ -207,6 +226,18 @@ export default function CuratedJobCard({ job }: Readonly<CuratedJobCardProps>) {
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {showSkillGapAlert && isBlockedByRank && (
+                <div className="mt-4 p-3 rounded-lg border border-violet-500/30 bg-violet-500/5">
+                    <p className="text-xs font-bold text-violet-300 uppercase mb-1.5 flex items-center gap-1.5">
+                        <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>lock</span>
+                        {' '}Candidatura bloqueada por rank
+                    </p>
+                    <p className="text-xs text-slate-300">
+                        Para vagas de nível {levelLabel[job.level].toLowerCase()}, é necessário chegar ao rank Lendário na Jornada.
+                    </p>
                 </div>
             )}
 

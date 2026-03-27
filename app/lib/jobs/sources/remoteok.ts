@@ -1,6 +1,7 @@
 import { JobSource } from '@prisma/client';
 
 import type { RawSourceJob } from '../types';
+import { normalizeDescriptionText } from '../sourceDescription';
 
 type RemoteOkJob = {
     id?: number;
@@ -8,6 +9,7 @@ type RemoteOkJob = {
     company?: string;
     url?: string;
     tags?: string[];
+    description?: string;
     date?: string;
     location?: string;
 };
@@ -120,6 +122,7 @@ export async function fetchFromRemoteOk(limit = 120): Promise<RawSourceJob[]> {
                 companyName: job.company ?? 'Empresa não informada',
                 level: null,
                 stack: extractStack(job.position ?? '', job.tags ?? []),
+                description: job.description ? normalizeDescriptionText(job.description) : null,
                 location: job.location ?? 'Remoto',
                 publishedAt: job.date ?? null,
                 sourceUrl: job.url ?? '',

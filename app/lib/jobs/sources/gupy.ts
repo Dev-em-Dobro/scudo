@@ -1,4 +1,5 @@
 import { RawSourceJob } from '../types';
+import { fetchAndExtractJobDescription } from '../sourceDescription';
 
 /**
  * Conector para o portal Gupy
@@ -219,7 +220,7 @@ export async function fetchGupyJobs(
                 }
 
                 // Filtra e transforma
-                const techJobs = data.data
+                const filteredJobs = data.data
                     .filter(job => {
                         // Deduplica por URL
                         if (seenUrls.has(job.jobUrl)) return false;
@@ -228,10 +229,11 @@ export async function fetchGupyJobs(
                         // Valida se é vaga tech
                         return isTechJob(job.name);
                     })
-                    .map(job => {
+                const techJobs = await Promise.all(filteredJobs.map(async (job) => {
                         const location = job.isRemoteWork
                             ? 'Remoto'
                             : [job.city, job.state].filter(Boolean).join(', ') || job.country;
+                        const description = await fetchAndExtractJobDescription(job.jobUrl);
 
                         const rawJob: RawSourceJob = {
                             title: job.name,
@@ -240,11 +242,12 @@ export async function fetchGupyJobs(
                             sourceUrl: job.jobUrl,
                             level: job.type || undefined,
                             stack: extractStackFromJobName(job.name),
+                            description: description || null,
                             publishedAt: job.publishedDate ? new Date(job.publishedDate) : undefined
                         };
 
                         return rawJob;
-                    });
+                    }));
 
                 allJobs.push(...techJobs);
                 currentPage++;

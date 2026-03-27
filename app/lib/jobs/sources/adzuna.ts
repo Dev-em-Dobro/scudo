@@ -1,6 +1,7 @@
 import { JobSource } from '@prisma/client';
 
 import type { RawSourceJob } from '../types';
+import { normalizeDescriptionText } from '../sourceDescription';
 
 type AdzunaJob = {
     id?: string | number;
@@ -173,6 +174,7 @@ export async function fetchFromAdzuna(limit = 120): Promise<RawSourceJob[]> {
                     companyName: job.company?.display_name ?? 'Empresa não informada',
                     level: normalizeLevel(searchableText),
                     stack: extractStack(searchableText),
+                    description: job.description ? normalizeDescriptionText(job.description) : null,
                     location: job.location?.display_name ?? null,
                     publishedAt: job.created ?? null,
                     sourceUrl: job.redirect_url ?? '',

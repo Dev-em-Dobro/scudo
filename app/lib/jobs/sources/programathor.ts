@@ -1,6 +1,10 @@
 import { JobSource } from '@prisma/client';
 
 import type { RawSourceJob } from '../types';
+import { inferStackFromText } from '../normalizers';
+import { enrichStackWithAi } from '../stackAi';
+import { extractSkillsSectionFromText } from '../extractSkillsSection';
+import { extractRelevantDescriptionFromHtml } from '../sourceDescription';
 
 type ProgramathorJobCard = {
     slug: string;
@@ -31,6 +35,8 @@ const TECH_KEYWORDS = [
     'frontend', 'front-end', 'backend', 'back-end', 'fullstack', 'full stack', 'full-stack',
     'react', 'next', 'node', 'express', 'nestjs',
     'javascript', 'typescript', 'python',
+    'ia', 'ai', 'inteligência artificial', 'inteligencia artificial',
+    'automação', 'automacao', 'automation', 'n8n', 'make', 'make.com', 'low-code', 'nocode', 'no-code',
     'qa', 'test', 'tester', 'devops', 'sre',
 ];
 
@@ -85,35 +91,56 @@ function normalizeLevel(text: string): string | null {
 }
 
 function extractStack(text: string): string[] {
-    const source = text.toLowerCase();
-    const stack: string[] = [];
+    return inferStackFromText(text);
+}
 
-    const languages = ['javascript', 'typescript', 'python'];
-    const frameworks = ['react', 'next', 'node', 'express', 'nestjs'];
+type DetailData = { stack: string[]; description: string };
 
-    languages.forEach((lang) => {
-        if (source.includes(lang)) {
-            stack.push(lang);
+async function fetchDetail(slug: string): Promise<DetailData> {
+    try {
+        const response = await fetch(`https://programathor.com.br${slug}`, {
+            headers: {
+                Accept: 'text/html,application/xhtml+xml',
+                'User-Agent': 'Scudo/1.0 (+job-aggregator)',
+            },
+            signal: AbortSignal.timeout(10000),
+        });
+
+        if (!response.ok) {
+            return { stack: [], description: '' };
         }
-    });
 
-    frameworks.forEach((item) => {
-        if (source.includes(item)) {
-            stack.push(item);
+        const html = await response.text();
+        const deterministicText = extractRelevantDescriptionFromHtml(html, 8000);
+        const prioritizedText = extractSkillsSectionFromText(deterministicText);
+        const deterministicStack = extractStack(prioritizedText);
+
+        const stack = deterministicStack.length >= 3
+            ? deterministicStack
+            : await enrichStackWithAi({
+                title: slug.replace('/jobs/', '').replaceAll('-', ' '),
+                description: prioritizedText.slice(0, 8000),
+                baseStack: deterministicStack,
+            });
+
+        return { stack, description: deterministicText.slice(0, 8000) };
+    } catch {
+        return { stack: [], description: '' };
+    }
+}
+
+export async function fetchProgramathorDetailStackByUrl(sourceUrl: string): Promise<string[]> {
+    try {
+        const parsed = new URL(sourceUrl);
+        const slug = `${parsed.pathname}`;
+        if (!slug.startsWith('/jobs/')) {
+            return [];
         }
-    });
-
-    if (source.includes('frontend') || source.includes('front-end')) {
-        stack.push('frontend');
+        const { stack } = await fetchDetail(slug);
+        return stack;
+    } catch {
+        return [];
     }
-    if (source.includes('backend') || source.includes('back-end')) {
-        stack.push('backend');
-    }
-    if (source.includes('fullstack') || source.includes('full stack') || source.includes('full-stack')) {
-        stack.push('fullstack');
-    }
-
-    return [...new Set(stack)];
 }
 
 function parseJobCards(html: string): ProgramathorJobCard[] {
@@ -184,11 +211,22 @@ export async function fetchFromProgramathor(limit = 80): Promise<RawSourceJob[]>
         const html = await response.text();
         const cards = parseJobCards(html);
 
-        return cards.slice(0, limit).map((job) => ({
+        const baseCards = cards.slice(0, limit);
+        const enrichedCards = await Promise.all(baseCards.map(async (job) => {
+            const { stack: detailStack, description } = await fetchDetail(job.slug);
+            return {
+                ...job,
+                stack: [...new Set([...job.stack, ...detailStack])],
+                description,
+            };
+        }));
+
+        return enrichedCards.map((job) => ({
             title: job.title,
             companyName: job.companyName,
             level: job.level,
             stack: job.stack,
+            description: job.description,
             location: job.location,
             sourceUrl: `https://programathor.com.br${job.slug}`,
             source: JobSource.OTHER,
