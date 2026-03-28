@@ -28,6 +28,14 @@ const levelPriority: Record<JobListItem['level'], number> = {
     OUTRO: 4,
 };
 
+/** Estágio e júnior primeiro na listagem; depois pleno, sênior e outro. */
+function getListingLevelGroup(level: JobListItem['level']): number {
+    if (level === 'ESTAGIO' || level === 'JUNIOR') {
+        return 0;
+    }
+    return 1;
+}
+
 const levelLabel: Record<JobListItem['level'], string> = {
     ESTAGIO: 'estágio',
     JUNIOR: 'júnior',
@@ -149,6 +157,11 @@ export default function JobBoardResults({
                 }
 
                 return left.companyName.localeCompare(right.companyName);
+            }
+
+            const tierDiff = getListingLevelGroup(left.level) - getListingLevelGroup(right.level);
+            if (tierDiff !== 0) {
+                return tierDiff;
             }
 
             const fitLeft = calculateJobFit(left, user.knownTechnologies);
