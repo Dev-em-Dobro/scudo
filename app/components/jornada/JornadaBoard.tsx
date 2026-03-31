@@ -34,14 +34,6 @@ type JornadaApiResponse = {
 type JornadaSyncResponse = {
     ok: boolean;
     error?: string;
-    result?: {
-        completedLessons: number;
-        mappedLessons: number;
-        upsertedTasks: number;
-        skippedWithoutMap: number;
-        totalProgressItems?: number;
-        memberSlug?: string;
-    };
     snapshot?: JornadaApiResponse;
 };
 
@@ -342,23 +334,20 @@ export default function JornadaBoard({
 
             const data = await response.json() as JornadaSyncResponse;
             if (!response.ok || !data.ok) {
-                throw new Error(data.error ?? 'Não foi possível sincronizar agora.');
+                throw new Error(data.error ?? 'sync_failed');
             }
 
             if (data.snapshot) {
                 applyJornadaResponse(data.snapshot);
             }
 
-            const mapped = data.result?.mappedLessons ?? 0;
-            const skipped = data.result?.skippedWithoutMap ?? 0;
-            const updated = data.result?.upsertedTasks ?? 0;
-            const slug = data.result?.memberSlug;
-            const slugPart = slug ? ` Conta na plataforma de aulas: ${slug}.` : '';
             setSyncMessage(
-                `Sincronização concluída.${slugPart} ${mapped} aulas mapeadas na jornada, ${updated} tarefas atualizadas e ${skipped} conclusões fora do mapa (outros cursos ou aulas ainda não ligadas ao trilho).`,
+                'Sincronização com as aulas concluídas na plataforma realizada com sucesso.',
             );
         } catch {
-            setRequestError('Não foi possível sincronizar com a Curseduca agora. Tente novamente.');
+            setRequestError(
+                'Não foi possível sincronizar com as aulas concluídas agora. Tente novamente em instantes ou entre em contato com o suporte.',
+            );
         } finally {
             setIsSyncing(false);
         }
