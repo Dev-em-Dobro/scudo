@@ -5,6 +5,7 @@ import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 import LoginForm from "@/app/components/auth/LoginForm";
 import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
+import { isStudentVerifiedAuthOnlyEnabled } from "@/app/lib/featureFlags";
 
 const FEATURES = [
     { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
@@ -14,6 +15,8 @@ const FEATURES = [
 ];
 
 export default async function LoginPage() {
+    const studentVerifiedAuthOnly = isStudentVerifiedAuthOnlyEnabled();
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -77,7 +80,7 @@ export default async function LoginPage() {
 
             {/* Painel do formulário */}
             <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <LoginForm />
+                <LoginForm studentVerifiedAuthOnly={studentVerifiedAuthOnly} />
             </div>
         </main>
     );

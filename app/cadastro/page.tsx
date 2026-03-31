@@ -5,6 +5,7 @@ import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 import RegisterForm from "@/app/components/auth/RegisterForm";
 import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
+import { isStudentVerifiedAuthOnlyEnabled } from "@/app/lib/featureFlags";
 
 const FEATURES = [
     { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
@@ -14,6 +15,10 @@ const FEATURES = [
 ];
 
 export default async function CadastroPage() {
+    if (isStudentVerifiedAuthOnlyEnabled()) {
+        redirect("/acesso");
+    }
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });

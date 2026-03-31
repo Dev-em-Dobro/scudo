@@ -609,46 +609,6 @@ export default function JornadaBoard({
                 </div>
             ) : null}
 
-            {syncCodeQuestError ? (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-                    <p className="text-sm text-red-200">{syncCodeQuestError}</p>
-                </div>
-            ) : null}
-
-            {hasCodeQuestAccount ? (
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                        <span
-                            className="material-symbols-outlined text-primary shrink-0"
-                            style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
-                            aria-hidden
-                        >
-                            sync
-                        </span>
-                        <p className="text-xs text-slate-300">
-                            {codeQuestProgress
-                                ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%)`
-                                : 'Progresso do CodeQuest não carregado.'}
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={() => { void syncCodeQuestProgress(); }}
-                        disabled={isSyncingCodeQuest}
-                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase border border-primary/40 text-primary hover:bg-primary/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        <span
-                            className={`material-symbols-outlined ${isSyncingCodeQuest ? 'animate-spin' : ''}`}
-                            style={{ fontSize: '12px' }}
-                            aria-hidden
-                        >
-                            refresh
-                        </span>
-                        {isSyncingCodeQuest ? 'Sincronizando...' : 'Sincronizar'}
-                    </button>
-                </div>
-            ) : null}
-
             {/* Ficha RPG do aluno */}
             <div className="rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 shadow-sm">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-4">

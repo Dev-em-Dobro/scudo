@@ -5,6 +5,7 @@ import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
 import StudentAccessForm from "@/app/components/auth/StudentAccessForm";
 import { auth } from "@/app/lib/auth";
 import { LOGO_TEXT } from "@/app/lib/constants";
+import { isStudentVerifiedAuthOnlyEnabled } from "@/app/lib/featureFlags";
 
 const HIGHLIGHTS = [
     { icon: "school", label: "Acesso exclusivo para alunos da plataforma" },
@@ -14,6 +15,8 @@ const HIGHLIGHTS = [
 ];
 
 export default async function AcessoPage() {
+    const studentVerifiedAuthOnly = isStudentVerifiedAuthOnlyEnabled();
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -92,7 +95,7 @@ export default async function AcessoPage() {
 
             {/* Painel do formulário */}
             <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <StudentAccessForm />
+                <StudentAccessForm studentVerifiedAuthOnly={studentVerifiedAuthOnly} />
             </div>
         </main>
     );
