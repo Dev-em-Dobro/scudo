@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 import { prisma } from "@/app/lib/prisma";
+import { syncCurseducaProgressForUser } from "@/app/lib/jornada/curseducaSync";
 
 export const runtime = "nodejs";
 
-interface ExternalStudentData {
+interface CurseducaMemberByEmail {
     uuid: string;
     id: number;
     name: string;
@@ -15,6 +16,29 @@ interface ExternalStudentData {
     image: string;
     lastLogin: string;
     phones: Record<string, unknown>;
+}
+
+interface CurseducaMemberDetails {
+    id: number;
+    uuid: string;
+    email: string;
+    slug: string;
+}
+
+function getCurseducaAuthConfig() {
+    const baseUrl = process.env.CURSEDUCA_API_URL ?? process.env.USER_API_BASE_URL;
+    const token = process.env.CURSEDUCA_API_TOKEN ?? process.env.AUTHORIZATION_TOKEN ?? "";
+    const apiKey = process.env.CURSEDUCA_API_KEY ?? process.env.API_KEY_HEADER ?? "";
+
+    if (!baseUrl) {
+        throw new Error("CURSEDUCA_API_URL não está configurado.");
+    }
+
+    if (!token || !apiKey) {
+        throw new Error("Credenciais da Curseduca (CURSEDUCA_API_TOKEN / CURSEDUCA_API_KEY) não configuradas.");
+    }
+
+    return { baseUrl, token, apiKey };
 }
 
 /**
@@ -59,19 +83,8 @@ function generateSecurePassword(): string {
  */
 async function validateStudentEmail(
     email: string
-): Promise<ExternalStudentData | null> {
-    const baseUrl = process.env.USER_API_BASE_URL;
-    const token = process.env.AUTHORIZATION_TOKEN ?? "";
-    const apiKey = process.env.API_KEY_HEADER ?? "";
-
-    if (!baseUrl) {
-        throw new Error("USER_API_BASE_URL não está configurado.");
-    }
-
-    // Garante que as credenciais estão presentes para evitar falsos 401 silenciosos
-    if (!token || !apiKey) {
-        throw new Error("Credenciais da API externa (AUTHORIZATION_TOKEN / API_KEY_HEADER) não configuradas.");
-    }
+): Promise<CurseducaMemberByEmail | null> {
+    const { baseUrl, token, apiKey } = getCurseducaAuthConfig();
 
     const url = `${baseUrl}/members/by?email=${encodeURIComponent(email)}`;
 
@@ -84,7 +97,7 @@ async function validateStudentEmail(
     });
 
     if (response.status === 200) {
-        return response.json() as Promise<ExternalStudentData>;
+        return response.json() as Promise<CurseducaMemberByEmail>;
     }
 
     if (response.status === 404) {
@@ -94,6 +107,29 @@ async function validateStudentEmail(
 
     // 401, 403, 5xx — erro de serviço externo; não deve ser silenciado como "não aluno"
     throw new Error(`Falha na API externa: status ${response.status}`);
+}
+
+async function fetchMemberDetailsById(memberId: number): Promise<CurseducaMemberDetails | null> {
+    const { baseUrl, token, apiKey } = getCurseducaAuthConfig();
+    const url = `${baseUrl}/members/${memberId}`;
+
+    const response = await fetch(url, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            api_key: apiKey,
+        },
+        signal: AbortSignal.timeout(10_000),
+    });
+
+    if (response.status === 200) {
+        return response.json() as Promise<CurseducaMemberDetails>;
+    }
+
+    if (response.status === 404) {
+        return null;
+    }
+
+    throw new Error(`Falha ao buscar membro por id: status ${response.status}`);
 }
 
 export async function POST(request: NextRequest) {
@@ -119,7 +155,7 @@ export async function POST(request: NextRequest) {
     }
 
     // --- 1. Validar contra API externa ---
-    let studentData: ExternalStudentData | null = null;
+    let studentData: CurseducaMemberByEmail | null = null;
     try {
         studentData = await validateStudentEmail(rawEmail);
     } catch (err) {
@@ -154,6 +190,16 @@ export async function POST(request: NextRequest) {
     process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
     "http://localhost:3000";
 
+    let memberDetails: CurseducaMemberDetails | null = null;
+    let memberDetailsError = false;
+
+    try {
+        memberDetails = await fetchMemberDetailsById(studentData.id);
+    } catch (err) {
+        memberDetailsError = true;
+        console.error("[student-access] Falha ao buscar detalhes do membro:", err);
+    }
+
     try {
         await auth.api.signUpEmail({
             body: {
@@ -163,9 +209,21 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        await prisma.user.update({
+        const updatedUser = await prisma.user.update({
             where: { email: rawEmail },
-            data: { officialStudentVerifiedAt: new Date() },
+            select: { id: true },
+            data: {
+                officialStudentVerifiedAt: new Date(),
+                curseducaMemberId: studentData.id,
+                curseducaMemberUuid: studentData.uuid,
+                curseducaMemberSlug: memberDetails?.slug ?? null,
+                curseducaSyncNeedsRetry: memberDetailsError || !memberDetails?.slug,
+            },
+        });
+
+        // Primeiro sync em background: não bloqueia criação de conta.
+        void syncCurseducaProgressForUser(updatedUser.id).catch((syncError) => {
+            console.error("[student-access] Falha no sync inicial da Curseduca:", syncError);
         });
     } catch (err) {
         console.error("[student-access] Falha ao criar conta:", err);
@@ -196,5 +254,13 @@ export async function POST(request: NextRequest) {
         });
     }
 
-    return NextResponse.json({ status: "created", emailSent: true });
+    return NextResponse.json({
+        status: "created",
+        emailSent: true,
+        curseducaSyncReady: !memberDetailsError && Boolean(memberDetails?.slug),
+        warning:
+            memberDetailsError || !memberDetails?.slug
+                ? "Conta criada. Não foi possível concluir a vinculação com a Curseduca agora; tente sincronizar na jornada ou contate o suporte se persistir."
+                : undefined,
+    });
 }

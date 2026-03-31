@@ -1,0 +1,2767 @@
+{
+  "mapped": [
+    {
+      "rank": "ferro",
+      "taskId": "ferro-1",
+      "taskTitle": "Boas-vindas + Visão Geral AI-Driven/AI First",
+      "classId": 5990,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-2",
+      "taskTitle": "Como usar os devquest agents do Devquest e modo Socrático",
+      "classId": 5991,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-3",
+      "taskTitle": "Conhecendo o VS Code para criação de código",
+      "classId": 5992,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-4",
+      "taskTitle": "GitHub Copilot Seu Assistente de Código Inteligente",
+      "classId": 5993,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-5",
+      "taskTitle": "Gemini CLI – Seu colega experiente no terminal",
+      "classId": 5994,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-6",
+      "taskTitle": "Comunidade Guilda DevQuest",
+      "classId": 5995,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-7",
+      "taskTitle": "Como usar a plataforma de aulas",
+      "classId": 5996,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-8",
+      "taskTitle": "Como usar o Discord",
+      "classId": 6493,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-9",
+      "taskTitle": "Solicitação de Certificado com Reconhecimento do MEC",
+      "classId": 6500,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-10",
+      "taskTitle": "O que é HTML e como funciona",
+      "classId": 5998,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-11",
+      "taskTitle": "Meta tags e favicon",
+      "classId": 5999,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-12",
+      "taskTitle": "Tags essenciais: headings, parágrafos, listas",
+      "classId": 6000,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-14",
+      "taskTitle": "Atributos, links e imagens",
+      "classId": 6001,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-16",
+      "taskTitle": "Comentários",
+      "classId": 6002,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-18",
+      "taskTitle": "Tabelas em HTML",
+      "classId": 6003,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-20",
+      "taskTitle": "Semântica no HTML - main, nav, section, header e footer",
+      "classId": 6004,
+      "sectionTitle": "Fundamentos do HTML",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-22",
+      "taskTitle": "DevTools: inspecionando elementos e debug visual",
+      "classId": 6006,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-23",
+      "taskTitle": "IA no DevTools",
+      "classId": 6007,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-24",
+      "taskTitle": "O que é CSS e como conectar ao HTML",
+      "classId": 6008,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-25",
+      "taskTitle": "Display: block, inline, inline-block, none",
+      "classId": 6009,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-27",
+      "taskTitle": "Seletores, classes e IDs",
+      "classId": 6010,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-29",
+      "taskTitle": "Cores, fontes e estilização de texto",
+      "classId": 6011,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ferro",
+      "taskId": "ferro-31",
+      "taskTitle": "Box model padding, margin e border",
+      "classId": 6012,
+      "sectionTitle": "Fundamentos CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-1",
+      "taskTitle": "Introdução Flexbox",
+      "classId": 6188,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-2",
+      "taskTitle": "Flex Direction",
+      "classId": 6189,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-3",
+      "taskTitle": "Justify Content",
+      "classId": 6190,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-5",
+      "taskTitle": "Align Itens",
+      "classId": 6191,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-7",
+      "taskTitle": "Flex Wrap e Flex Flow",
+      "classId": 6192,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-8",
+      "taskTitle": "Align Content",
+      "classId": 6193,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-9",
+      "taskTitle": "Gap",
+      "classId": 6194,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-10",
+      "taskTitle": "Grow",
+      "classId": 6195,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-11",
+      "taskTitle": "Basis",
+      "classId": 6196,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-12",
+      "taskTitle": "Shrink",
+      "classId": 6197,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-13",
+      "taskTitle": "Flex",
+      "classId": 6198,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-14",
+      "taskTitle": "Order",
+      "classId": 6199,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-15",
+      "taskTitle": "Align Self",
+      "classId": 6200,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-16",
+      "taskTitle": "Dicas finais",
+      "classId": 6201,
+      "sectionTitle": "Flexbox",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-17",
+      "taskTitle": "O que é? começando layout com grid",
+      "classId": 6005,
+      "sectionTitle": "Grid",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-18",
+      "taskTitle": "Propriedades grid: grid-template-columns, grid-template-rows, gap",
+      "classId": 6014,
+      "sectionTitle": "Grid",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-20",
+      "taskTitle": "Grid: ocupando espaços",
+      "classId": 6015,
+      "sectionTitle": "Grid",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-21",
+      "taskTitle": "grid  area",
+      "classId": 6016,
+      "sectionTitle": "Grid",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-22",
+      "taskTitle": "grid template area",
+      "classId": 6017,
+      "sectionTitle": "Grid",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-24",
+      "taskTitle": "grid auto-fill e auto-fit",
+      "classId": 6018,
+      "sectionTitle": "Grid",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-26",
+      "taskTitle": "O que é responsividade?",
+      "classId": 6019,
+      "sectionTitle": "Responsividade",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-27",
+      "taskTitle": "O que é media query?",
+      "classId": 6020,
+      "sectionTitle": "Responsividade",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-29",
+      "taskTitle": "Introdução ao Terminal e comandos básicos",
+      "classId": 6021,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-30",
+      "taskTitle": "Introdução Git/GitHub",
+      "classId": 6022,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-31",
+      "taskTitle": "Configurando git",
+      "classId": 6023,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-32",
+      "taskTitle": "Estado dos arquivos na prática",
+      "classId": 6024,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-33",
+      "taskTitle": "Como gerar token de acesso pessoal no Github",
+      "classId": 6025,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-34",
+      "taskTitle": "Git no VS Code",
+      "classId": 6026,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-35",
+      "taskTitle": "GitHub Pages",
+      "classId": 6027,
+      "sectionTitle": "Terminal, Git, GitHub",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-36",
+      "taskTitle": "Explicação do projeto e Planejameto do projeto com IA",
+      "classId": 6028,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-37",
+      "taskTitle": "Setup do projeto + GitHub",
+      "classId": 6029,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-38",
+      "taskTitle": "Estrutura base com HTML semântico",
+      "classId": 6030,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-39",
+      "taskTitle": "Estilização inicial com CSS global",
+      "classId": 6031,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-40",
+      "taskTitle": "Criando o HTML do menu",
+      "classId": 6032,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-41",
+      "taskTitle": "Estilizando o menu",
+      "classId": 6033,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-42",
+      "taskTitle": "Criando Banner/Hero",
+      "classId": 6034,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-43",
+      "taskTitle": "Layout com Flexbox nos cards",
+      "classId": 6035,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-44",
+      "taskTitle": "Galeria com Grid responsivo",
+      "classId": 6036,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-45",
+      "taskTitle": "Rodapé",
+      "classId": 6037,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-46",
+      "taskTitle": "Responsividade do menu",
+      "classId": 6455,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-47",
+      "taskTitle": "Responsividade das demais seções",
+      "classId": 6456,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-48",
+      "taskTitle": "Correção do Menu",
+      "classId": 6501,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "bronze",
+      "taskId": "bronze-49",
+      "taskTitle": "Deploy no Pages",
+      "classId": 6038,
+      "sectionTitle": "Projeto E-commerce HTML e CSS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-1",
+      "taskTitle": "Variáveis, console e template literal",
+      "classId": 6041,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-3",
+      "taskTitle": "Tipos primitivos",
+      "classId": 6042,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-5",
+      "taskTitle": "Operadores lógicos - Parte 1",
+      "classId": 6043,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-6",
+      "taskTitle": "Operadores lógicos - Parte 2",
+      "classId": 6044,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-8",
+      "taskTitle": "Operadores matemáticos",
+      "classId": 6045,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-10",
+      "taskTitle": "Condicionais (if else e switch)",
+      "classId": 6046,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-12",
+      "taskTitle": "Loops (for, while e do while)",
+      "classId": 6047,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-14",
+      "taskTitle": "Funções - Um dos conceitos mais importantes do JavaScript",
+      "classId": 6048,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-16",
+      "taskTitle": "Funções anônimas e arrow functions",
+      "classId": 6049,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-18",
+      "taskTitle": "Arrays",
+      "classId": 6050,
+      "sectionTitle": "Arrays e objetos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-19",
+      "taskTitle": "Objetos",
+      "classId": 6051,
+      "sectionTitle": "Arrays e objetos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-21",
+      "taskTitle": "Usando map, filter e spread operator",
+      "classId": 6052,
+      "sectionTitle": "Arrays e objetos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-22",
+      "taskTitle": "Find e reduce",
+      "classId": 6053,
+      "sectionTitle": "Arrays e objetos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-23",
+      "taskTitle": "Desestruturação de objetos: extraindo dados facilmente",
+      "classId": 6054,
+      "sectionTitle": "Arrays e objetos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-25",
+      "taskTitle": "Introdução ao DOM e seletores",
+      "classId": 6055,
+      "sectionTitle": "DOM e Eventos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-26",
+      "taskTitle": "Eventos no JS - clique, input e submit no formulário de busca",
+      "classId": 6056,
+      "sectionTitle": "DOM e Eventos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-27",
+      "taskTitle": "Alterando classes e atributos com JS",
+      "classId": 6057,
+      "sectionTitle": "DOM e Eventos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-28",
+      "taskTitle": "Renderizando arrays dinamicamente no DOM",
+      "classId": 6058,
+      "sectionTitle": "DOM e Eventos",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-29",
+      "taskTitle": "APIs e JSON: Como o JavaScript conversa com o mundo",
+      "classId": 6059,
+      "sectionTitle": "Assíncrono e Integração com API e localStorage",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-30",
+      "taskTitle": "Promises e async/await: Como lidar com código assíncrono no JavaScript",
+      "classId": 6060,
+      "sectionTitle": "Assíncrono e Integração com API e localStorage",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-31",
+      "taskTitle": "Try/Catch - Lidando com erros e carregamento de dados",
+      "classId": 6061,
+      "sectionTitle": "Assíncrono e Integração com API e localStorage",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-32",
+      "taskTitle": "Buscando múltiplos filmes com Promise.all e Promise.allSettled (API Studio Ghibli)",
+      "classId": 6062,
+      "sectionTitle": "Assíncrono e Integração com API e localStorage",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-33",
+      "taskTitle": "O que é o localStorage",
+      "classId": 6063,
+      "sectionTitle": "Assíncrono e Integração com API e localStorage",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-34",
+      "taskTitle": "Criando modo escuro com toggle + localStorage",
+      "classId": 6064,
+      "sectionTitle": "Assíncrono e Integração com API e localStorage",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-36",
+      "taskTitle": "Apresentando o projeto e a estrutura inicial",
+      "classId": 6065,
+      "sectionTitle": "Projeto pra consolidar o JS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-37",
+      "taskTitle": "Buscando os dados do usuário pela API do GitHub",
+      "classId": 6066,
+      "sectionTitle": "Projeto pra consolidar o JS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-38",
+      "taskTitle": "Renderizando total de seguidores e seguindo e refatoração",
+      "classId": 6067,
+      "sectionTitle": "Projeto pra consolidar o JS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-39",
+      "taskTitle": "Buscando os repositórios do usuário pela API do GitHub",
+      "classId": 6068,
+      "sectionTitle": "Projeto pra consolidar o JS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-40",
+      "taskTitle": "Subindo o projeto para o GitHub Pages",
+      "classId": 6069,
+      "sectionTitle": "Projeto pra consolidar o JS",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-1",
+      "taskTitle": "Entendendo o TypeScript",
+      "classId": 6203,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-2",
+      "taskTitle": "Instalação e primeiros passos de uso",
+      "classId": 6204,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-3",
+      "taskTitle": "Entenda os tipos no TypeScript - Parte 1",
+      "classId": 6205,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-4",
+      "taskTitle": "Entenda os tipos no TypeScript - Parte 2",
+      "classId": 6206,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-5",
+      "taskTitle": "Tipagem explicita e inferência de tipo",
+      "classId": 6207,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-6",
+      "taskTitle": "Sendo mais produtivo com a verificação de tipo estático",
+      "classId": 6208,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-7",
+      "taskTitle": "Tipos Tuples: uma coleção mais específica que o Array",
+      "classId": 6209,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-8",
+      "taskTitle": "Tipos Enums: facilitando o entendimento do código",
+      "classId": 6210,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-10",
+      "taskTitle": "Desabilitar tipagem com tipo Any",
+      "classId": 6211,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-11",
+      "taskTitle": "Tipagem em funções",
+      "classId": 6212,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-13",
+      "taskTitle": "Unions: unindo um ou mais tipos",
+      "classId": 6213,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-15",
+      "taskTitle": "Type aliases: dando apelidos aos nossos tipos",
+      "classId": 6214,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-16",
+      "taskTitle": "Tipagem de objetos",
+      "classId": 6215,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-17",
+      "taskTitle": "Propriedades e parâmetros opcionais",
+      "classId": 6216,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-18",
+      "taskTitle": "Especificando tipos com Type Assertions",
+      "classId": 6217,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-19",
+      "taskTitle": "Interfaces: mais uma forma de nomear tipos de objetos",
+      "classId": 6218,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-21",
+      "taskTitle": "Generics: deixando o código reutilizável",
+      "classId": 6219,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-23",
+      "taskTitle": "Import e export de módulo no TS",
+      "classId": 6220,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-24",
+      "taskTitle": "TS Config: Configurando o TS dos nossos projetos",
+      "classId": 6222,
+      "sectionTitle": "TypeScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-25",
+      "taskTitle": "Introdução ao React",
+      "classId": 6223,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-26",
+      "taskTitle": "Introdução Vite vs Create React App",
+      "classId": 6224,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-27",
+      "taskTitle": "O que é o VITE?",
+      "classId": 6225,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-28",
+      "taskTitle": "Inicializando um projeto com Vite",
+      "classId": 6226,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-29",
+      "taskTitle": "Estrutura de um projeto React",
+      "classId": 6227,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-30",
+      "taskTitle": "Fluxo de Renderização no React com Vite: App.tsx, main.tsx e index.html",
+      "classId": 6228,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-31",
+      "taskTitle": "Introdução ao JSX",
+      "classId": 6229,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-32",
+      "taskTitle": "JSX na prática",
+      "classId": 6230,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-33",
+      "taskTitle": "Componentes de função vs Componentes de classe",
+      "classId": 6231,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-34",
+      "taskTitle": "Props",
+      "classId": 6232,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-36",
+      "taskTitle": "Props Default",
+      "classId": 6233,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-37",
+      "taskTitle": "Props Children",
+      "classId": 6234,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-38",
+      "taskTitle": "Renderização condicional",
+      "classId": 6235,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-39",
+      "taskTitle": "Hooks: useState",
+      "classId": 6236,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-41",
+      "taskTitle": "Trabalhando com listas",
+      "classId": 6237,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-42",
+      "taskTitle": "Trabalhando com eventos",
+      "classId": 6238,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-44",
+      "taskTitle": "Estilização no React",
+      "classId": 6239,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-45",
+      "taskTitle": "Introdução ao projeto Com React + TS + Tailwind",
+      "classId": 6240,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-46",
+      "taskTitle": "Conhecendo o TailwindCSS",
+      "classId": 6241,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-47",
+      "taskTitle": "Largura, altura, flexbox e responsividade no Tailwind",
+      "classId": 6242,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-48",
+      "taskTitle": "Estilizando com TailwindCSS",
+      "classId": 6243,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-49",
+      "taskTitle": "Conhecendo a Context API",
+      "classId": 6244,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-50",
+      "taskTitle": "Context API - partes 1 e 2 - Finalizando o Header e a TodoList",
+      "classId": 6245,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-51",
+      "taskTitle": "Context API - parte 3 - Alterando a imagem de fundo",
+      "classId": 6246,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-52",
+      "taskTitle": "Context API - parte 4 - correção dos erros e hovers",
+      "classId": 6247,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-53",
+      "taskTitle": "Desenvolvendo a parte lógica da aplicação - Adicionando uma tarefa",
+      "classId": 6248,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-54",
+      "taskTitle": "Desenvolvendo a parte lógica - Renderizando as tarefas na tela",
+      "classId": 6249,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-55",
+      "taskTitle": "Desenvolvendo a parte lógica da aplicação - Filtrando tarefas",
+      "classId": 6250,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "ouro",
+      "taskId": "ouro-56",
+      "taskTitle": "Hooks customizados",
+      "classId": 6251,
+      "sectionTitle": "Fundamentos de React",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-1",
+      "taskTitle": "useEffect",
+      "classId": 6439,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-3",
+      "taskTitle": "Gerenciamento de formulários com Zod",
+      "classId": 6440,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-4",
+      "taskTitle": "React Hook Form",
+      "classId": 6441,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-6",
+      "taskTitle": "React Router Dom",
+      "classId": 6442,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-7",
+      "taskTitle": "useParams",
+      "classId": 6443,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-8",
+      "taskTitle": "Client Side Rendering (CSR)",
+      "classId": 6454,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-9",
+      "taskTitle": "Ciclo de Vida no React",
+      "classId": 6444,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-10",
+      "taskTitle": "Code Splitting,  Lazy Loading e Suspense",
+      "classId": 6445,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-11",
+      "taskTitle": "TanStack Query: O Jeito Inteligente de Buscar Dados no React",
+      "classId": 6446,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-13",
+      "taskTitle": "Desafio - Consumindo a API do Studio Ghibli com React e TypeScript",
+      "classId": 6491,
+      "sectionTitle": "React Avançado",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-14",
+      "taskTitle": "Introdução",
+      "classId": 6494,
+      "sectionTitle": "Aqui começa seu marketing pessoal",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-15",
+      "taskTitle": "A importância da criação das redes sociais",
+      "classId": 6495,
+      "sectionTitle": "Aqui começa seu marketing pessoal",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-16",
+      "taskTitle": "O que é backend?",
+      "classId": 6072,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-17",
+      "taskTitle": "Por que é bom separar o frontend do backend?",
+      "classId": 6073,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-18",
+      "taskTitle": "Node.js - Trabalhando com JavaScript no backend",
+      "classId": 6074,
+      "sectionTitle": "Introdução",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-19",
+      "taskTitle": "O que são bancos de dados?",
+      "classId": 6075,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-20",
+      "taskTitle": "Conhecendo o SQL",
+      "classId": 6076,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-21",
+      "taskTitle": "Diferenças entre SQL e NoSQL",
+      "classId": 6077,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-22",
+      "taskTitle": "Instalação do PostegreSQL",
+      "classId": 6078,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-23",
+      "taskTitle": "Instalação do DBeaver",
+      "classId": 6079,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-24",
+      "taskTitle": "Estrutura de um banco de dados",
+      "classId": 6080,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-25",
+      "taskTitle": "Tipos de dados",
+      "classId": 6081,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-26",
+      "taskTitle": "Chaves primárias",
+      "classId": 6082,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-27",
+      "taskTitle": "Chaves estrangeiras",
+      "classId": 6083,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-28",
+      "taskTitle": "Comando INSERT - Inserindo dados - Parte 1",
+      "classId": 6084,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-29",
+      "taskTitle": "Comando INSERT - Inserindo dados - Parte 2",
+      "classId": 6085,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-30",
+      "taskTitle": "Comando UPDATE - Atualizando dados do banco",
+      "classId": 6086,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-31",
+      "taskTitle": "Comando DELETE - Atualizando dados do banco",
+      "classId": 6087,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-32",
+      "taskTitle": "Comando SELECT - Selecionando dados do banco - PARTE 1",
+      "classId": 6088,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-33",
+      "taskTitle": "Comando SELECT e JOIN - Selecionando dados em mais de uma tabela",
+      "classId": 6089,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-34",
+      "taskTitle": "Complemento - JOIN",
+      "classId": 6090,
+      "sectionTitle": "SQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-35",
+      "taskTitle": "Operadores lógicos - Parte 1",
+      "classId": 6043,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-36",
+      "taskTitle": "Operadores lógicos - Parte 2",
+      "classId": 6044,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-37",
+      "taskTitle": "Operadores matemáticos",
+      "classId": 6045,
+      "sectionTitle": "Fundamentos JavaScript",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-39",
+      "taskTitle": "O que é HTTP?",
+      "classId": 6096,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-40",
+      "taskTitle": "Como funciona a comunicação via HTTP",
+      "classId": 6097,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-41",
+      "taskTitle": "Visão geral de uma requisição",
+      "classId": 6098,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-42",
+      "taskTitle": "Visualizando as requisições no DevTools",
+      "classId": 6099,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-43",
+      "taskTitle": "Headers",
+      "classId": 6100,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-44",
+      "taskTitle": "Métodos HTTP",
+      "classId": 6101,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-45",
+      "taskTitle": "Status Codes HTTP",
+      "classId": 6102,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-46",
+      "taskTitle": "Corpo da requisição",
+      "classId": 6103,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-47",
+      "taskTitle": "URL: Passando parâmetros",
+      "classId": 6104,
+      "sectionTitle": "HTTP",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-48",
+      "taskTitle": "O objetivo principal do currículo do dev iniciante",
+      "classId": 5904,
+      "sectionTitle": "Marketing Pessoal (Curriculo)",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-49",
+      "taskTitle": "A escolha do template",
+      "classId": 5905,
+      "sectionTitle": "Marketing Pessoal (Curriculo)",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-50",
+      "taskTitle": "Informações que precisam estar no seu currículo",
+      "classId": 5906,
+      "sectionTitle": "Marketing Pessoal (Curriculo)",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-51",
+      "taskTitle": "Sugestão de estrutura de um currículo que se destaca",
+      "classId": 5907,
+      "sectionTitle": "Marketing Pessoal (Curriculo)",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-52",
+      "taskTitle": "Como demonstrar experiência, mesmo sem ter trabalhado na área",
+      "classId": 5908,
+      "sectionTitle": "Marketing Pessoal (Curriculo)",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-53",
+      "taskTitle": "Como se cadastrar no LinkedIn",
+      "classId": 5897,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-54",
+      "taskTitle": "Objetivo do LinkedIn",
+      "classId": 5898,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-55",
+      "taskTitle": "Estrutura básica de um perfil no LinkedIn de sucesso",
+      "classId": 5899,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-56",
+      "taskTitle": "SEJA ATIVO(A)!",
+      "classId": 5900,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-57",
+      "taskTitle": "Já tenho um perfil antigo, o que fazer?",
+      "classId": 5901,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-58",
+      "taskTitle": "Melhorando suas chances com o LinkedIn premium",
+      "classId": 5902,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-59",
+      "taskTitle": "Comecei a receber propostas de emprego, e agora?",
+      "classId": 5903,
+      "sectionTitle": "Marketing Pessoal - LinkedIn",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-60",
+      "taskTitle": "Empregabilidade e dicas",
+      "classId": 5845,
+      "sectionTitle": "Aplicações e Vagas",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-61",
+      "taskTitle": "Empresas, vagas e aplicações",
+      "classId": 5846,
+      "sectionTitle": "Aplicações e Vagas",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-62",
+      "taskTitle": "Dicas de preparação, insegurança e timidez",
+      "classId": 5896,
+      "sectionTitle": "Entrevistas de emprego",
+      "courseTitle": "Marketing pessoal e empregabilidade"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-1",
+      "taskTitle": "Conhecimentos necessários para o módulo de Node.js",
+      "classId": 6106,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-2",
+      "taskTitle": "Instalando o Node.js",
+      "classId": 6107,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-3",
+      "taskTitle": "Executando scripts na linha de comando",
+      "classId": 6108,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-4",
+      "taskTitle": "Diferenças entre o node e o navegador",
+      "classId": 6109,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-5",
+      "taskTitle": "Criando um módulo",
+      "classId": 6110,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-6",
+      "taskTitle": "Entendendo os módulos do Node.js",
+      "classId": 6111,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-7",
+      "taskTitle": "Manipulando arquivos",
+      "classId": 6112,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-8",
+      "taskTitle": "Como criar um servidor HTTP com Node.js",
+      "classId": 6113,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-9",
+      "taskTitle": "Criando rotas para o nosso servidor",
+      "classId": 6114,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-10",
+      "taskTitle": "Configurando o NPM",
+      "classId": 6115,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-11",
+      "taskTitle": "Sendo mais produtivo(a) com Nodemon",
+      "classId": 6116,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-12",
+      "taskTitle": "Comando node —watch",
+      "classId": 6117,
+      "sectionTitle": "NodeJS",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-13",
+      "taskTitle": "Introdução ao Express",
+      "classId": 6119,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-14",
+      "taskTitle": "Testando API no VS Code com Thunder Client",
+      "classId": 6120,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-15",
+      "taskTitle": "Rotas no express",
+      "classId": 6121,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-16",
+      "taskTitle": "Rotas com parâmetros",
+      "classId": 6122,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-17",
+      "taskTitle": "Métodos de resposta",
+      "classId": 6123,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-18",
+      "taskTitle": "Mesma rota com métodos diferentes",
+      "classId": 6124,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-19",
+      "taskTitle": "Chain of Responsability",
+      "classId": 6125,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-20",
+      "taskTitle": "O que é Middleware?",
+      "classId": 6126,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-21",
+      "taskTitle": "Middleware na prática - Application-level middleware",
+      "classId": 6127,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-22",
+      "taskTitle": "Middleware na prática - Error Handling middleware",
+      "classId": 6128,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-23",
+      "taskTitle": "Middleware na prática - Middlewares de terceiros",
+      "classId": 6129,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-24",
+      "taskTitle": "Middleware na prática - Middlewares do Express",
+      "classId": 6130,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-25",
+      "taskTitle": "Grupo de rotas",
+      "classId": 6131,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-26",
+      "taskTitle": "Route Handlers",
+      "classId": 6132,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-27",
+      "taskTitle": "Servindo arquivos estáticos",
+      "classId": 6133,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-28",
+      "taskTitle": "Tratando erros",
+      "classId": 6134,
+      "sectionTitle": "Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-29",
+      "taskTitle": "O que vamos criar?",
+      "classId": 6137,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-30",
+      "taskTitle": "Requisitos funcionais do projeto",
+      "classId": 6138,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-31",
+      "taskTitle": "Configurações iniciais",
+      "classId": 6139,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-32",
+      "taskTitle": "Configurações iniciais - Parte 2",
+      "classId": 6140,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-33",
+      "taskTitle": "Deixando o código padronizado com ESLint",
+      "classId": 6141,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-34",
+      "taskTitle": "ESLint - NOVA ATUALIZAÇÃO",
+      "classId": 6504,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-35",
+      "taskTitle": "Instalando o Express",
+      "classId": 6142,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-36",
+      "taskTitle": "Introdução ao Prisma e iniciando a conexão com o banco",
+      "classId": 6143,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-37",
+      "taskTitle": "Atualização de versão do Prisma",
+      "classId": 6560,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-38",
+      "taskTitle": "Criando os models de um banco já existente",
+      "classId": 6144,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-39",
+      "taskTitle": "Criando os models de um banco já existente - Parte 2",
+      "classId": 6145,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-41",
+      "taskTitle": "Ordenando e adicionando relacionamentos na listagem de filmes",
+      "classId": 6146,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-42",
+      "taskTitle": "Cadastro de um filme",
+      "classId": 6147,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-43",
+      "taskTitle": "Cadastro de um filme - Parte 2",
+      "classId": 6148,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-44",
+      "taskTitle": "Validando filmes com títulos duplicados",
+      "classId": 6149,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-45",
+      "taskTitle": "Atualizando um filme",
+      "classId": 6150,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-46",
+      "taskTitle": "Atualizando um filme - Parte 2",
+      "classId": 6151,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-47",
+      "taskTitle": "Removendo um filme",
+      "classId": 6152,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-48",
+      "taskTitle": "Filtrar filmes por gênero",
+      "classId": 6153,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-49",
+      "taskTitle": "Swagger para documentação e endpoints",
+      "classId": 6154,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-50",
+      "taskTitle": "Configurando o swagger na aplicação",
+      "classId": 6155,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-51",
+      "taskTitle": "Criando a documentação da rota de atualização de filme",
+      "classId": 6156,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-52",
+      "taskTitle": "Criando a documentação do delete",
+      "classId": 6157,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-53",
+      "taskTitle": "Criando a a documentação da rota de filtro de filmes por gênero",
+      "classId": 6158,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-54",
+      "taskTitle": "Gerando o build do projeto",
+      "classId": 6159,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-55",
+      "taskTitle": "Conclusão do módulo",
+      "classId": 6160,
+      "sectionTitle": "Projeto com Node e PostgreSQL",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-56",
+      "taskTitle": "Introdução ao Docker",
+      "classId": 6161,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-57",
+      "taskTitle": "Entendendo imagens e containers",
+      "classId": 6162,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-58",
+      "taskTitle": "Docker Hub",
+      "classId": 6163,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-59",
+      "taskTitle": "Instalando o Docker Desktop",
+      "classId": 6164,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-60",
+      "taskTitle": "Dockerfile",
+      "classId": 6165,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-61",
+      "taskTitle": "Docker Compose",
+      "classId": 6166,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-62",
+      "taskTitle": "Volumes e persistências de dados",
+      "classId": 6167,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-63",
+      "taskTitle": "Primeiros passos com o Docker",
+      "classId": 6168,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-64",
+      "taskTitle": "Dicas de Docker para testes técnicos",
+      "classId": 6169,
+      "sectionTitle": "Docker",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-65",
+      "taskTitle": "Introdução",
+      "classId": 6494,
+      "sectionTitle": "Aqui começa seu marketing pessoal",
+      "courseTitle": "DevQuest 2.0 Front-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-66",
+      "taskTitle": "Primeiros passos",
+      "classId": 4298,
+      "sectionTitle": "Cronograma + aulas exclusivas de freelancer",
+      "courseTitle": "Aqui começa o desafio"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-75",
+      "taskTitle": "Métodos do Prisma (Create, Update e Delete)",
+      "classId": 6179,
+      "sectionTitle": "Prisma",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-78",
+      "taskTitle": "Transaction",
+      "classId": 6182,
+      "sectionTitle": "Prisma",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-81",
+      "taskTitle": "Desafio - Node.JS e Express: Criando API de Todos com Node.js e TypeScript",
+      "classId": 6467,
+      "sectionTitle": "Quest Node.JS e Express",
+      "courseTitle": "DevQuest 2.0 Back-end"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-1",
+      "taskTitle": "O que é IA e por que ela vai mudar o rumo do mercado de programação",
+      "classId": 4380,
+      "sectionTitle": "Aulas",
+      "courseTitle": "Curso IA para Devs"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-2",
+      "taskTitle": "Ferramentas de IA para Acelerar o Desenvolvimento de Código",
+      "classId": 4381,
+      "sectionTitle": "Aulas",
+      "courseTitle": "Curso IA para Devs"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-3",
+      "taskTitle": "Utilizando IA na Busca e Candidatura de Vagas",
+      "classId": 4382,
+      "sectionTitle": "Aulas",
+      "courseTitle": "Curso IA para Devs"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-7",
+      "taskTitle": "JavaScript que você precisa saber para trabalhar com REACT",
+      "classId": 4312,
+      "sectionTitle": "Javascript que você precisa saber para ir para React",
+      "courseTitle": "Bônus - Deep Dives"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-8",
+      "taskTitle": "Como criar um projeto do zero sem travar",
+      "classId": 4372,
+      "sectionTitle": "Como criar um projeto do 0 sem travar",
+      "courseTitle": "Bônus - Workshops"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-9",
+      "taskTitle": "Criando um projeto do zero do frontend mentor utilizando figma",
+      "classId": 4373,
+      "sectionTitle": "Como criar um projeto do 0 sem travar",
+      "courseTitle": "Bônus - Workshops"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-10",
+      "taskTitle": "Codando com o monitor Pablo",
+      "classId": 4374,
+      "sectionTitle": "Como criar um projeto do 0 sem travar",
+      "courseTitle": "Bônus - Workshops"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-13",
+      "taskTitle": "Quando eu uso Divs!? Aprenda a criar um HTML que não vai dar dor de cabeça",
+      "classId": 4379,
+      "sectionTitle": "Quando eu uso divs?",
+      "courseTitle": "Bônus - Workshops"
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-14",
+      "taskTitle": "Produtividade máxima nos estudos",
+      "classId": 4378,
+      "sectionTitle": "Produtividade máxima nos estudos",
+      "courseTitle": "Bônus - Workshops"
+    }
+  ],
+  "unmatched": [
+    {
+      "rank": "ouro",
+      "taskId": "ouro-58",
+      "taskTitle": "Automações com N8N",
+      "description": ""
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-69",
+      "taskTitle": "Atualizar redes com o rank Platina",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-40",
+      "taskTitle": "Models do Prisma - ATUALIZAÇÃO",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-67",
+      "taskTitle": "Criação do banco de dados",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-68",
+      "taskTitle": "Conectando o banco de dados com o Prisma",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-69",
+      "taskTitle": "Prisma Studio",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-70",
+      "taskTitle": "Migrations",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-71",
+      "taskTitle": "Instropect",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-72",
+      "taskTitle": "Padronizando o nome do Model e configurando Prisma Client",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-73",
+      "taskTitle": "Prisma Client - Atualização",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-74",
+      "taskTitle": "Configurações do Model",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-76",
+      "taskTitle": "Métodos de busca de registros",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-77",
+      "taskTitle": "Chave estrangeira",
+      "description": ""
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-79",
+      "taskTitle": "Include - buscando dados de chaves estrangeiras",
+      "description": ""
+    },
+    {
+      "rank": "mythril",
+      "taskId": "mythril-3",
+      "taskTitle": "Freela com IA",
+      "description": ""
+    },
+    {
+      "rank": "mythril",
+      "taskId": "mythril-4",
+      "taskTitle": "Formação JS Avançado com Next.js",
+      "description": ""
+    },
+    {
+      "rank": "mythril",
+      "taskId": "mythril-5",
+      "taskTitle": "Portfólio publicado",
+      "description": ""
+    },
+    {
+      "rank": "mestre",
+      "taskId": "mestre-4",
+      "taskTitle": "Monitorias com Tech Recruiter",
+      "description": ""
+    },
+    {
+      "rank": "lendario",
+      "taskId": "lendario-3",
+      "taskTitle": "Primeira vaga na área",
+      "description": "Conceito-chave"
+    },
+    {
+      "rank": "lendario",
+      "taskId": "lendario-4",
+      "taskTitle": "Mentorar outro aluno",
+      "description": "Conceito-chave"
+    }
+  ],
+  "ambiguous": [
+    {
+      "rank": "prata",
+      "taskId": "prata-5",
+      "taskTitle": "Operadores lógicos - Parte 1",
+      "options": [
+        {
+          "classId": 6043,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Fundamentos JavaScript"
+        },
+        {
+          "classId": 6091,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "SQL"
+        }
+      ]
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-6",
+      "taskTitle": "Operadores lógicos - Parte 2",
+      "options": [
+        {
+          "classId": 6044,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Fundamentos JavaScript"
+        },
+        {
+          "classId": 6092,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "SQL"
+        }
+      ]
+    },
+    {
+      "rank": "prata",
+      "taskId": "prata-8",
+      "taskTitle": "Operadores matemáticos",
+      "options": [
+        {
+          "classId": 6045,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Fundamentos JavaScript"
+        },
+        {
+          "classId": 6093,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "SQL"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-14",
+      "taskTitle": "Introdução",
+      "options": [
+        {
+          "classId": 6494,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Aqui começa seu marketing pessoal"
+        },
+        {
+          "classId": 6170,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "Prisma"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-35",
+      "taskTitle": "Operadores lógicos - Parte 1",
+      "options": [
+        {
+          "classId": 6043,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Fundamentos JavaScript"
+        },
+        {
+          "classId": 6091,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "SQL"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-36",
+      "taskTitle": "Operadores lógicos - Parte 2",
+      "options": [
+        {
+          "classId": 6044,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Fundamentos JavaScript"
+        },
+        {
+          "classId": 6092,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "SQL"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-37",
+      "taskTitle": "Operadores matemáticos",
+      "options": [
+        {
+          "classId": 6045,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Fundamentos JavaScript"
+        },
+        {
+          "classId": 6093,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "SQL"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-60",
+      "taskTitle": "Empregabilidade e dicas",
+      "options": [
+        {
+          "classId": 5845,
+          "courseTitle": "Marketing pessoal e empregabilidade",
+          "sectionTitle": "Aplicações e Vagas"
+        },
+        {
+          "classId": 6264,
+          "courseTitle": "DevQuest 2.0 Empregabilidade",
+          "sectionTitle": "Aplicações e Vagas"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-61",
+      "taskTitle": "Empresas, vagas e aplicações",
+      "options": [
+        {
+          "classId": 5846,
+          "courseTitle": "Marketing pessoal e empregabilidade",
+          "sectionTitle": "Aplicações e Vagas"
+        },
+        {
+          "classId": 6265,
+          "courseTitle": "DevQuest 2.0 Empregabilidade",
+          "sectionTitle": "Aplicações e Vagas"
+        }
+      ]
+    },
+    {
+      "rank": "platina",
+      "taskId": "platina-62",
+      "taskTitle": "Dicas de preparação, insegurança e timidez",
+      "options": [
+        {
+          "classId": 5896,
+          "courseTitle": "Marketing pessoal e empregabilidade",
+          "sectionTitle": "Entrevistas de emprego"
+        },
+        {
+          "classId": 6266,
+          "courseTitle": "DevQuest 2.0 Empregabilidade",
+          "sectionTitle": "Entrevistas de emprego"
+        }
+      ]
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-65",
+      "taskTitle": "Introdução",
+      "options": [
+        {
+          "classId": 6494,
+          "courseTitle": "DevQuest 2.0 Front-end",
+          "sectionTitle": "Aqui começa seu marketing pessoal"
+        },
+        {
+          "classId": 6170,
+          "courseTitle": "DevQuest 2.0 Back-end",
+          "sectionTitle": "Prisma"
+        }
+      ]
+    },
+    {
+      "rank": "esmeralda",
+      "taskId": "esmeralda-66",
+      "taskTitle": "Primeiros passos",
+      "options": [
+        {
+          "classId": 4298,
+          "courseTitle": "Aqui começa o desafio",
+          "sectionTitle": "Cronograma + aulas exclusivas de freelancer"
+        },
+        {
+          "classId": 4394,
+          "courseTitle": "Desafio meu primeiro freela em 60 dias - Atualizado",
+          "sectionTitle": "Cronograma + aulas exclusivas de freelancer"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-1",
+      "taskTitle": "O que é IA e por que ela vai mudar o rumo do mercado de programação",
+      "options": [
+        {
+          "classId": 4380,
+          "courseTitle": "Curso IA para Devs",
+          "sectionTitle": "Aulas"
+        },
+        {
+          "classId": 6185,
+          "courseTitle": "Curso IA para Devs 2.0",
+          "sectionTitle": "Aulas"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-2",
+      "taskTitle": "Ferramentas de IA para Acelerar o Desenvolvimento de Código",
+      "options": [
+        {
+          "classId": 4381,
+          "courseTitle": "Curso IA para Devs",
+          "sectionTitle": "Aulas"
+        },
+        {
+          "classId": 6186,
+          "courseTitle": "Curso IA para Devs 2.0",
+          "sectionTitle": "Aulas"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-3",
+      "taskTitle": "Utilizando IA na Busca e Candidatura de Vagas",
+      "options": [
+        {
+          "classId": 4382,
+          "courseTitle": "Curso IA para Devs",
+          "sectionTitle": "Aulas"
+        },
+        {
+          "classId": 6187,
+          "courseTitle": "Curso IA para Devs 2.0",
+          "sectionTitle": "Aulas"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-7",
+      "taskTitle": "JavaScript que você precisa saber para trabalhar com REACT",
+      "options": [
+        {
+          "classId": 4312,
+          "courseTitle": "Bônus - Deep Dives",
+          "sectionTitle": "Javascript que você precisa saber para ir para React"
+        },
+        {
+          "classId": 6319,
+          "courseTitle": "Deep Dives 2.0",
+          "sectionTitle": "Javascript que você precisa saber para ir para React"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-8",
+      "taskTitle": "Como criar um projeto do zero sem travar",
+      "options": [
+        {
+          "classId": 4372,
+          "courseTitle": "Bônus - Workshops",
+          "sectionTitle": "Como criar um projeto do 0 sem travar"
+        },
+        {
+          "classId": 5758,
+          "courseTitle": "DevQuest Starter V2",
+          "sectionTitle": "Módulo Reforço CSS"
+        },
+        {
+          "classId": 6320,
+          "courseTitle": "Workshops 2.0",
+          "sectionTitle": "Como criar um projeto do 0 sem travar"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-9",
+      "taskTitle": "Criando um projeto do zero do frontend mentor utilizando figma",
+      "options": [
+        {
+          "classId": 4373,
+          "courseTitle": "Bônus - Workshops",
+          "sectionTitle": "Como criar um projeto do 0 sem travar"
+        },
+        {
+          "classId": 6321,
+          "courseTitle": "Workshops 2.0",
+          "sectionTitle": "Como criar um projeto do 0 sem travar"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-10",
+      "taskTitle": "Codando com o monitor Pablo",
+      "options": [
+        {
+          "classId": 4374,
+          "courseTitle": "Bônus - Workshops",
+          "sectionTitle": "Como criar um projeto do 0 sem travar"
+        },
+        {
+          "classId": 6322,
+          "courseTitle": "Workshops 2.0",
+          "sectionTitle": "Como criar um projeto do 0 sem travar"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-13",
+      "taskTitle": "Quando eu uso Divs!? Aprenda a criar um HTML que não vai dar dor de cabeça",
+      "options": [
+        {
+          "classId": 4379,
+          "courseTitle": "Bônus - Workshops",
+          "sectionTitle": "Quando eu uso divs?"
+        },
+        {
+          "classId": 6325,
+          "courseTitle": "Workshops 2.0",
+          "sectionTitle": "Quando eu uso divs?"
+        }
+      ]
+    },
+    {
+      "rank": "diamante",
+      "taskId": "diamante-14",
+      "taskTitle": "Produtividade máxima nos estudos",
+      "options": [
+        {
+          "classId": 4378,
+          "courseTitle": "Bônus - Workshops",
+          "sectionTitle": "Produtividade máxima nos estudos"
+        },
+        {
+          "classId": 6326,
+          "courseTitle": "Workshops 2.0",
+          "sectionTitle": "Produtividade máxima nos estudos"
+        }
+      ]
+    }
+  ],
+  "perRank": {
+    "ferro": {
+      "total": 23,
+      "matched": 23,
+      "unmatched": 0
+    },
+    "bronze": {
+      "total": 43,
+      "matched": 43,
+      "unmatched": 0
+    },
+    "prata": {
+      "total": 29,
+      "matched": 29,
+      "unmatched": 0
+    },
+    "ouro": {
+      "total": 49,
+      "matched": 48,
+      "unmatched": 1
+    },
+    "platina": {
+      "total": 59,
+      "matched": 58,
+      "unmatched": 1
+    },
+    "esmeralda": {
+      "total": 80,
+      "matched": 68,
+      "unmatched": 12
+    },
+    "diamante": {
+      "total": 9,
+      "matched": 9,
+      "unmatched": 0
+    },
+    "mythril": {
+      "total": 3,
+      "matched": 0,
+      "unmatched": 3
+    },
+    "mestre": {
+      "total": 1,
+      "matched": 0,
+      "unmatched": 1
+    },
+    "lendario": {
+      "total": 2,
+      "matched": 0,
+      "unmatched": 2
+    }
+  },
+  "generatedAt": "2026-03-30T21:30:39.421Z"
+}

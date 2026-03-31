@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react';
 import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
+import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
 
 interface JornadaBoardProps {
     stages: JornadaStage[];
@@ -28,6 +29,20 @@ type JornadaApiResponse = {
     tasks: JornadaTask[];
     editableStageId?: string;
     currentRankLetter?: string;
+};
+
+type JornadaSyncResponse = {
+    ok: boolean;
+    error?: string;
+    result?: {
+        completedLessons: number;
+        mappedLessons: number;
+        upsertedTasks: number;
+        skippedWithoutMap: number;
+        totalProgressItems?: number;
+        memberSlug?: string;
+    };
+    snapshot?: JornadaApiResponse;
 };
 
 const TASK_KIND_LABEL: Record<JornadaTaskKind, string> = {
@@ -123,6 +138,8 @@ export default function JornadaBoard({
     const [currentRankLetter, setCurrentRankLetter] = useState(initialCurrentRankLetter);
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
+    const [syncMessage, setSyncMessage] = useState<string | null>(null);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
     const dragStartXRef = useRef(0);
@@ -306,11 +323,57 @@ export default function JornadaBoard({
         setIsDraggingBoard(false);
     }, []);
 
+    const syncFromCurseduca = useCallback(async () => {
+        if (isSyncing) {
+            return;
+        }
+
+        setIsSyncing(true);
+        setRequestError(null);
+        setSyncMessage(null);
+
+        try {
+            const response = await fetch('/api/jornada/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json() as JornadaSyncResponse;
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error ?? 'Não foi possível sincronizar agora.');
+            }
+
+            if (data.snapshot) {
+                applyJornadaResponse(data.snapshot);
+            }
+
+            const mapped = data.result?.mappedLessons ?? 0;
+            const skipped = data.result?.skippedWithoutMap ?? 0;
+            const updated = data.result?.upsertedTasks ?? 0;
+            const slug = data.result?.memberSlug;
+            const slugPart = slug ? ` Conta na plataforma de aulas: ${slug}.` : '';
+            setSyncMessage(
+                `Sincronização concluída.${slugPart} ${mapped} aulas mapeadas na jornada, ${updated} tarefas atualizadas e ${skipped} conclusões fora do mapa (outros cursos ou aulas ainda não ligadas ao trilho).`,
+            );
+        } catch {
+            setRequestError('Não foi possível sincronizar com a Curseduca agora. Tente novamente.');
+        } finally {
+            setIsSyncing(false);
+        }
+    }, [applyJornadaResponse, isSyncing]);
+
     return (
         <div className="space-y-6">
             {requestError ? (
                 <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
                     <p className="text-sm text-red-200">{requestError}</p>
+                </div>
+            ) : null}
+            {syncMessage ? (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
+                    <p className="text-sm text-emerald-200">{syncMessage}</p>
                 </div>
             ) : null}
 
@@ -399,6 +462,19 @@ export default function JornadaBoard({
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
+                        onClick={() => {
+                            void syncFromCurseduca();
+                        }}
+                        disabled={isSyncing}
+                        className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                        <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                            {isSyncing ? 'autorenew' : 'sync'}
+                        </span>
+                        {isSyncing ? 'Sincronizando...' : 'Sincronizar Curseduca'}
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => scrollBoardBy(-340)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
                         aria-label="Rolar ranks para a esquerda"
@@ -475,6 +551,7 @@ export default function JornadaBoard({
                                         stageTasks.map((task) => {
                                             const status = task.status;
                                             const kind = inferTaskKind(task);
+                                            const sectionTitle = kind === 'aula' ? getCurseducaSectionTitleByTaskId(task.id) : null;
                                             const isUpdating = Boolean(updatingTaskIds[task.id]);
                                             const isInteractive = isEditableStage && !isUpdating;
                                             let statusLabel = 'Acompanhamento restrito ao rank atual';
@@ -519,7 +596,7 @@ export default function JornadaBoard({
                                                                 className={`text-sm font-normal ${status === 'done' ? 'text-slate-300 dark:text-slate-300 line-through' : 'text-white'
                                                                     }`}
                                                             >
-                                                                {task.title}
+                                                                {sectionTitle ? `${sectionTitle} - ${task.title}` : task.title}
                                                             </p>
                                                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-blue-500/20 text-blue-200 border border-blue-400/40 mt-1">
                                                                 {TASK_KIND_LABEL[kind]}
