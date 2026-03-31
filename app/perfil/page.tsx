@@ -31,7 +31,6 @@ export default async function PerfilPage() {
                 <Header title="Meu Perfil" />
 
                 <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
-
                     <ProfileEditor initialProfile={clientProfile} />
                     <ChangePasswordSection />
                 </div>

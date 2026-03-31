@@ -47,6 +47,8 @@ export default async function JornadaPage() {
                             tasks={snapshot.tasks}
                             editableStageId={snapshot.editableStageId}
                             initialCurrentRankLetter={snapshot.currentRankLetter}
+                            initialCodeQuestProgress={snapshot.codeQuestProgress}
+                            hasCodeQuestAccount={snapshot.hasCodeQuestAccount}
                         />
                     </div>
                 </div>
