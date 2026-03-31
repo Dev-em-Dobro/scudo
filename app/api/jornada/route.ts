@@ -7,6 +7,7 @@ import {
     getCatalogTaskById,
     getUserJornadaSnapshot,
     isOfficialStudentUser,
+    isPraticaTask,
     isTaskEditableForUser,
     setTaskDoneForUser,
 } from '@/app/lib/jornada/service';
@@ -62,6 +63,13 @@ export async function PATCH(request: Request) {
 
     if (!task) {
         return NextResponse.json({ error: 'Tarefa não encontrada.' }, { status: 404 });
+    }
+
+    if (isPraticaTask(task)) {
+        return NextResponse.json(
+            { error: 'Tarefas de exercício são marcadas automaticamente pelo CodeQuest.' },
+            { status: 403 },
+        );
     }
 
     if (!await isTaskEditableForUser(session.user.id, taskId)) {
