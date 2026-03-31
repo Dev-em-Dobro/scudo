@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react';
 import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
 import type { CodeQuestProgress } from '@/app/lib/codequest/service';
+import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
 
 interface JornadaBoardProps {
     stages: JornadaStage[];
@@ -32,6 +33,12 @@ type JornadaApiResponse = {
     editableStageId?: string;
     currentRankLetter?: string;
     codeQuestProgress?: CodeQuestProgress | null;
+};
+
+type JornadaSyncResponse = {
+    ok: boolean;
+    error?: string;
+    snapshot?: JornadaApiResponse;
 };
 
 const TASK_KIND_LABEL: Record<JornadaTaskKind, string> = {
@@ -232,6 +239,7 @@ function RegularTaskButton({
     isInteractive,
     statusLabel,
     onToggle,
+    taskTitleLine,
 }: Readonly<{
     task: JornadaTask;
     kind: JornadaTaskKind;
@@ -239,6 +247,8 @@ function RegularTaskButton({
     isInteractive: boolean;
     statusLabel: string;
     onToggle: () => void;
+    /** Quando definido (ex.: seção Curseduca + título), substitui só a linha principal. */
+    taskTitleLine?: string;
 }>) {
     return (
         <button
@@ -263,7 +273,7 @@ function RegularTaskButton({
                     <p
                         className={`text-sm font-normal ${status === 'done' ? 'text-slate-300 dark:text-slate-300 line-through' : 'text-white'}`}
                     >
-                        {task.title}
+                        {taskTitleLine ?? task.title}
                     </p>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-blue-500/20 text-blue-200 border border-blue-400/40 mt-1">
                         {TASK_KIND_LABEL[kind]}
@@ -297,6 +307,8 @@ export default function JornadaBoard({
     const [currentRankLetter, setCurrentRankLetter] = useState(initialCurrentRankLetter);
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
+    const [syncMessage, setSyncMessage] = useState<string | null>(null);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
     const [codeQuestProgress, setCodeQuestProgress] = useState<CodeQuestProgress | null>(initialCodeQuestProgress);
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
@@ -506,11 +518,94 @@ export default function JornadaBoard({
         setIsDraggingBoard(false);
     }, []);
 
+    const syncFromCurseduca = useCallback(async () => {
+        if (isSyncing) {
+            return;
+        }
+
+        setIsSyncing(true);
+        setRequestError(null);
+        setSyncMessage(null);
+
+        try {
+            const response = await fetch('/api/jornada/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json() as JornadaSyncResponse;
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error ?? 'sync_failed');
+            }
+
+            if (data.snapshot) {
+                applyJornadaResponse(data.snapshot);
+            }
+
+            setSyncMessage(
+                'Sincronização com as aulas concluídas na plataforma realizada com sucesso.',
+            );
+        } catch {
+            setRequestError(
+                'Não foi possível sincronizar com as aulas concluídas agora. Tente novamente em instantes ou entre em contato com o suporte.',
+            );
+        } finally {
+            setIsSyncing(false);
+        }
+    }, [applyJornadaResponse, isSyncing]);
+
     return (
         <div className="space-y-6">
             {requestError ? (
                 <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
                     <p className="text-sm text-red-200">{requestError}</p>
+                </div>
+            ) : null}
+            {syncMessage ? (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
+                    <p className="text-sm text-emerald-200">{syncMessage}</p>
+                </div>
+            ) : null}
+
+            {syncCodeQuestError ? (
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
+                    <p className="text-sm text-red-200">{syncCodeQuestError}</p>
+                </div>
+            ) : null}
+
+            {hasCodeQuestAccount ? (
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
+                    <div className="flex items-center gap-2">
+                        <span
+                            className="material-symbols-outlined text-primary shrink-0"
+                            style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
+                            aria-hidden
+                        >
+                            sync
+                        </span>
+                        <p className="text-xs text-slate-300">
+                            {codeQuestProgress
+                                ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%)`
+                                : 'Progresso do CodeQuest não carregado.'}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => { void syncCodeQuestProgress(); }}
+                        disabled={isSyncingCodeQuest}
+                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase border border-primary/40 text-primary hover:bg-primary/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        <span
+                            className={`material-symbols-outlined ${isSyncingCodeQuest ? 'animate-spin' : ''}`}
+                            style={{ fontSize: '12px' }}
+                            aria-hidden
+                        >
+                            refresh
+                        </span>
+                        {isSyncingCodeQuest ? 'Sincronizando...' : 'Sincronizar'}
+                    </button>
                 </div>
             ) : null}
 
@@ -641,6 +736,19 @@ export default function JornadaBoard({
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
+                        onClick={() => {
+                            void syncFromCurseduca();
+                        }}
+                        disabled={isSyncing}
+                        className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                        <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                            {isSyncing ? 'autorenew' : 'sync'}
+                        </span>
+                        {isSyncing ? 'Sincronizando...' : 'Sincronizar Curseduca'}
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => scrollBoardBy(-340)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
                         aria-label="Rolar ranks para a esquerda"
@@ -719,6 +827,9 @@ export default function JornadaBoard({
                                     );
                                 }
 
+                                const sectionTitle = kind === 'aula' ? getCurseducaSectionTitleByTaskId(task.id) : null;
+                                const taskTitleLine = sectionTitle ? `${sectionTitle} - ${task.title}` : undefined;
+
                                 return (
                                     <RegularTaskButton
                                         key={task.id}
@@ -727,6 +838,7 @@ export default function JornadaBoard({
                                         status={status}
                                         isInteractive={isInteractive}
                                         statusLabel={statusLabel}
+                                        taskTitleLine={taskTitleLine}
                                         onToggle={() => {
                                             toggleTask(task.id);
                                         }}

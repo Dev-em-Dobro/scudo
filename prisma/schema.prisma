@@ -65,6 +65,10 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   officialStudentVerifiedAt DateTime?
+  curseducaMemberId Int?
+  curseducaMemberSlug String?
+  curseducaMemberUuid String?
+  curseducaSyncNeedsRetry Boolean @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

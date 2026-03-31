@@ -49,3 +49,7 @@ scraping-vagas-plano-tecnico.md
 copilot-instructions.md
 jornada-rank-level-estrategia-jobboard.md
 onboarding-inicial.md
+
+# Curseduca — catálogo gerado localmente (npm run curseduca:export-lessons); não versionar
+docs/curseduca-lessons-catalog.json
+docs/curseduca-mapping-all-ranks.generated.json

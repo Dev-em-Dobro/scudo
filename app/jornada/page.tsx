@@ -5,6 +5,7 @@ import JornadaBoard from '@/app/components/jornada/JornadaBoard';
 import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
 import { auth } from '@/app/lib/auth';
+import { syncCurseducaProgressForUser } from '@/app/lib/jornada/curseducaSync';
 import { getUserJornadaSnapshot, isOfficialStudentUser } from '@/app/lib/jornada/service';
 
 export default async function JornadaPage() {
@@ -17,6 +18,12 @@ export default async function JornadaPage() {
     const isOfficialStudent = await isOfficialStudentUser(session.user.id);
     if (!isOfficialStudent) {
         redirect('/');
+    }
+
+    try {
+        await syncCurseducaProgressForUser(session.user.id);
+    } catch (error) {
+        console.error('[jornada] Falha ao sincronizar progresso da Curseduca antes de exibir a página:', error);
     }
 
     const snapshot = await getUserJornadaSnapshot(session.user.id);
