@@ -762,7 +762,7 @@ export default function JornadaBoard({
                                 void syncExternalPlatforms();
                             }}
                             disabled={isSyncingExternal}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                            className="cursor-pointer inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-primary hover:border-primary/70 hover:bg-primary/25 hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             <span
                                 className={`material-symbols-outlined text-base ${isSyncingExternal ? 'animate-spin' : ''}`}
