@@ -247,7 +247,7 @@ export default function ResumeUploadCard() {
                             type="button"
                             onClick={() => setIsReadyModalOpen(false)}
                             aria-label="Fechar aviso"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 hover:border-primary/40 transition-colors"
+                            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 hover:border-primary/40 transition-colors"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: '18px' }} aria-hidden="true">
                                 close
@@ -259,7 +259,7 @@ export default function ResumeUploadCard() {
                         <button
                             type="button"
                             onClick={() => setIsReadyModalOpen(false)}
-                            className="inline-flex items-center px-3 py-2 text-xs font-bold rounded-lg border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 transition-colors uppercase tracking-wide"
+                            className="inline-flex cursor-pointer items-center px-3 py-2 text-xs font-bold rounded-lg border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 transition-colors uppercase tracking-wide"
                         >
                             Revisar depois
                         </button>
