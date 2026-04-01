@@ -34,6 +34,8 @@ export default async function LoginPage() {
                             src={logoComNome}
                             alt="Scudo"
                             className="h-auto w-full max-w-[260px] object-contain"
+                            sizes="(max-width: 1280px) 260px, 320px"
+                            unoptimized
                             priority
                         />
                         <div className="space-y-3">

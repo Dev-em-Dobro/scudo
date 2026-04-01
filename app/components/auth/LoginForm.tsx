@@ -81,6 +81,8 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
                     src={logoComNome}
                     alt="Scudo"
                     className="h-auto w-full max-w-[220px] object-contain"
+                    sizes="(max-width: 1024px) 220px, 260px"
+                    unoptimized
                     priority
                 />
             </div>

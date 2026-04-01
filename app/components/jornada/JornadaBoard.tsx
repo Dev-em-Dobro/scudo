@@ -1,11 +1,11 @@
 'use client';
 
-import { createPortal } from 'react-dom';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react';
 import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
 import type { CodeQuestProgress } from '@/app/lib/codequest/service';
 import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
+import ClampedHelpTooltip from '@/app/components/ui/ClampedHelpTooltip';
 
 interface JornadaBoardProps {
     stages: JornadaStage[];
@@ -127,131 +127,11 @@ function isInteractiveTarget(target: EventTarget | null) {
     return Boolean(target.closest('button, a, input, textarea, select, label'));
 }
 
-const TOOLTIP_MARGIN_PX = 10;
-const TOOLTIP_GAP_PX = 8;
-const TOOLTIP_MAX_WIDTH_PX = 18 * 16;
-
 function ExternalSyncHelpButton({ helpText }: Readonly<{ helpText: string }>) {
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const [open, setOpen] = useState(false);
-    const [layout, setLayout] = useState<{
-        arrowLeft: number;
-        left: number;
-        top: number;
-        width: number;
-    } | null>(null);
-
-    const clearHideTimer = useCallback(() => {
-        if (hideTimerRef.current !== null) {
-            clearTimeout(hideTimerRef.current);
-            hideTimerRef.current = null;
-        }
-    }, []);
-
-    const scheduleClose = useCallback(() => {
-        clearHideTimer();
-        hideTimerRef.current = setTimeout(() => {
-            setOpen(false);
-            hideTimerRef.current = null;
-        }, 220);
-    }, [clearHideTimer]);
-
-    const openTooltip = useCallback(() => {
-        clearHideTimer();
-        setOpen(true);
-    }, [clearHideTimer]);
-
-    const updateLayout = useCallback(() => {
-        const el = triggerRef.current;
-        if (!el) {
-            return;
-        }
-        const r = el.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const maxW = Math.min(TOOLTIP_MAX_WIDTH_PX, vw - 2 * TOOLTIP_MARGIN_PX);
-        const w = maxW;
-        let left = r.left + r.width / 2 - w / 2;
-        left = Math.max(TOOLTIP_MARGIN_PX, Math.min(left, vw - w - TOOLTIP_MARGIN_PX));
-        const top = r.top - TOOLTIP_GAP_PX;
-        const triggerCenter = r.left + r.width / 2;
-        const rawArrow = triggerCenter - left - 5;
-        const arrowLeft = Math.max(14, Math.min(w - 24, rawArrow));
-        setLayout({ left, top, width: w, arrowLeft });
-    }, []);
-
-    useLayoutEffect(() => {
-        if (!open) {
-            return;
-        }
-        updateLayout();
-        const onScrollOrResize = () => {
-            updateLayout();
-        };
-        window.addEventListener('scroll', onScrollOrResize, true);
-        window.addEventListener('resize', onScrollOrResize);
-        return () => {
-            window.removeEventListener('scroll', onScrollOrResize, true);
-            window.removeEventListener('resize', onScrollOrResize);
-        };
-    }, [open, updateLayout]);
-
-    useEffect(() => () => {
-        clearHideTimer();
-    }, [clearHideTimer]);
-
-    const tooltipNode =
-        open && layout ? (
-            <div
-                id="external-sync-tooltip"
-                role="tooltip"
-                style={{
-                    left: layout.left,
-                    position: 'fixed',
-                    top: layout.top,
-                    transform: 'translateY(-100%)',
-                    width: layout.width,
-                    zIndex: 9999,
-                }}
-                className="pointer-events-auto relative scale-100 rounded-xl border border-emerald-500/40 bg-gradient-to-b from-slate-800/98 to-slate-950/98 px-3.5 py-3 text-left text-[11px] leading-relaxed text-slate-100 opacity-100 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.65),0_0_0_1px_rgba(16,185,129,0.15)] ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-150 ease-out"
-                onMouseEnter={openTooltip}
-                onMouseLeave={scheduleClose}
-            >
-                <span className="block text-slate-200">{helpText}</span>
-                <span
-                    className="absolute top-full -mt-px h-2.5 w-2.5 rotate-45 border border-emerald-500/40 border-t-0 border-l-0 bg-slate-950 shadow-sm"
-                    style={{ left: layout.arrowLeft }}
-                    aria-hidden
-                />
-            </div>
-        ) : null;
-
     return (
-        <div className="relative inline-flex shrink-0">
-            <button
-                ref={triggerRef}
-                type="button"
-                aria-describedby={open ? 'external-sync-tooltip' : undefined}
-                aria-expanded={open}
-                aria-label={helpText}
-                className="inline-flex h-9 w-9 cursor-help items-center justify-center rounded-lg border border-emerald-500/35 text-emerald-400/90 transition-colors hover:border-emerald-400/70 hover:bg-emerald-500/10 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark"
-                onBlur={() => {
-                    scheduleClose();
-                }}
-                onFocus={openTooltip}
-                onMouseEnter={openTooltip}
-                onMouseLeave={scheduleClose}
-            >
-                <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '18px', fontVariationSettings: "'FILL' 0" }}
-                    aria-hidden
-                >
-                    help
-                </span>
-            </button>
-            {typeof document !== 'undefined' && tooltipNode ? createPortal(tooltipNode, document.body) : null}
-        </div>
+        <ClampedHelpTooltip ariaLabel={helpText} tooltipId="external-sync-tooltip" size="md">
+            {helpText}
+        </ClampedHelpTooltip>
     );
 }
 
