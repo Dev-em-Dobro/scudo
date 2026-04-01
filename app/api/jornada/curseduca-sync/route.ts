@@ -27,7 +27,7 @@ export async function POST() {
         const snapshot = await getUserJornadaSnapshot(session.user.id);
         return NextResponse.json({ ok: true, result, snapshot });
     } catch (error) {
-        console.error("[jornada/sync] Falha ao sincronizar progresso da Curseduca:", error);
+        console.error("[jornada/curseduca-sync] Falha ao sincronizar progresso da Curseduca:", error);
         return NextResponse.json(
             {
                 ok: false,
