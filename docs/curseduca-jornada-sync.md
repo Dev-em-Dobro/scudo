@@ -74,6 +74,7 @@ Tokens e chaves devem ser usados **somente no servidor**; não expor segredos ao
 - Modelo de progresso: `prisma/schema.prisma` → `UserJornadaTaskProgress`
 - Snapshot da jornada: `app/lib/jornada/service.ts`
 - API de toggle manual: `app/api/jornada/route.ts`
+- Sync Curseduca (botão / integração): `POST /api/jornada/curseduca-sync` → `app/api/jornada/curseduca-sync/route.ts`
 - Cadastro aluno oficial: `app/api/auth/student-access/route.ts`
 
 ---

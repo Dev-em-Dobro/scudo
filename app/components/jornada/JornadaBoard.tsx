@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react';
 import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
 import type { CodeQuestProgress } from '@/app/lib/codequest/service';
@@ -40,6 +41,9 @@ type JornadaSyncResponse = {
     error?: string;
     snapshot?: JornadaApiResponse;
 };
+
+const EXTERNAL_SYNC_HELP =
+    'Sincronize sua Scudo com as aulas concluídas na Curseduca e os exercícios concluídos do CodeQuest.';
 
 const TASK_KIND_LABEL: Record<JornadaTaskKind, string> = {
     aula: 'Aula',
@@ -121,6 +125,134 @@ function isInteractiveTarget(target: EventTarget | null) {
     }
 
     return Boolean(target.closest('button, a, input, textarea, select, label'));
+}
+
+const TOOLTIP_MARGIN_PX = 10;
+const TOOLTIP_GAP_PX = 8;
+const TOOLTIP_MAX_WIDTH_PX = 18 * 16;
+
+function ExternalSyncHelpButton({ helpText }: Readonly<{ helpText: string }>) {
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [open, setOpen] = useState(false);
+    const [layout, setLayout] = useState<{
+        arrowLeft: number;
+        left: number;
+        top: number;
+        width: number;
+    } | null>(null);
+
+    const clearHideTimer = useCallback(() => {
+        if (hideTimerRef.current !== null) {
+            clearTimeout(hideTimerRef.current);
+            hideTimerRef.current = null;
+        }
+    }, []);
+
+    const scheduleClose = useCallback(() => {
+        clearHideTimer();
+        hideTimerRef.current = setTimeout(() => {
+            setOpen(false);
+            hideTimerRef.current = null;
+        }, 220);
+    }, [clearHideTimer]);
+
+    const openTooltip = useCallback(() => {
+        clearHideTimer();
+        setOpen(true);
+    }, [clearHideTimer]);
+
+    const updateLayout = useCallback(() => {
+        const el = triggerRef.current;
+        if (!el) {
+            return;
+        }
+        const r = el.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const maxW = Math.min(TOOLTIP_MAX_WIDTH_PX, vw - 2 * TOOLTIP_MARGIN_PX);
+        const w = maxW;
+        let left = r.left + r.width / 2 - w / 2;
+        left = Math.max(TOOLTIP_MARGIN_PX, Math.min(left, vw - w - TOOLTIP_MARGIN_PX));
+        const top = r.top - TOOLTIP_GAP_PX;
+        const triggerCenter = r.left + r.width / 2;
+        const rawArrow = triggerCenter - left - 5;
+        const arrowLeft = Math.max(14, Math.min(w - 24, rawArrow));
+        setLayout({ left, top, width: w, arrowLeft });
+    }, []);
+
+    useLayoutEffect(() => {
+        if (!open) {
+            return;
+        }
+        updateLayout();
+        const onScrollOrResize = () => {
+            updateLayout();
+        };
+        window.addEventListener('scroll', onScrollOrResize, true);
+        window.addEventListener('resize', onScrollOrResize);
+        return () => {
+            window.removeEventListener('scroll', onScrollOrResize, true);
+            window.removeEventListener('resize', onScrollOrResize);
+        };
+    }, [open, updateLayout]);
+
+    useEffect(() => () => {
+        clearHideTimer();
+    }, [clearHideTimer]);
+
+    const tooltipNode =
+        open && layout ? (
+            <div
+                id="external-sync-tooltip"
+                role="tooltip"
+                style={{
+                    left: layout.left,
+                    position: 'fixed',
+                    top: layout.top,
+                    transform: 'translateY(-100%)',
+                    width: layout.width,
+                    zIndex: 9999,
+                }}
+                className="pointer-events-auto relative scale-100 rounded-xl border border-primary/35 bg-gradient-to-b from-slate-800/98 to-slate-950/98 px-3.5 py-3 text-left text-[11px] leading-relaxed text-slate-100 opacity-100 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.65),0_0_0_1px_rgba(168,85,247,0.12)] ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-150 ease-out"
+                onMouseEnter={openTooltip}
+                onMouseLeave={scheduleClose}
+            >
+                <span className="block text-slate-200">{helpText}</span>
+                <span
+                    className="absolute top-full -mt-px h-2.5 w-2.5 rotate-45 border border-primary/35 border-t-0 border-l-0 bg-slate-950 shadow-sm"
+                    style={{ left: layout.arrowLeft }}
+                    aria-hidden
+                />
+            </div>
+        ) : null;
+
+    return (
+        <div className="relative inline-flex shrink-0">
+            <button
+                ref={triggerRef}
+                type="button"
+                aria-describedby={open ? 'external-sync-tooltip' : undefined}
+                aria-expanded={open}
+                aria-label={helpText}
+                className="inline-flex h-9 w-9 cursor-help items-center justify-center rounded-lg border border-slate-600/60 text-slate-400 transition-colors hover:border-primary/40 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark"
+                onBlur={() => {
+                    scheduleClose();
+                }}
+                onFocus={openTooltip}
+                onMouseEnter={openTooltip}
+                onMouseLeave={scheduleClose}
+            >
+                <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '18px', fontVariationSettings: "'FILL' 0" }}
+                    aria-hidden
+                >
+                    help
+                </span>
+            </button>
+            {typeof document !== 'undefined' && tooltipNode ? createPortal(tooltipNode, document.body) : null}
+        </div>
+    );
 }
 
 function PraticaTaskCard({
@@ -308,9 +440,10 @@ export default function JornadaBoard({
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
     const [syncMessage, setSyncMessage] = useState<string | null>(null);
-    const [isSyncing, setIsSyncing] = useState(false);
+    const [isSyncingExternal, setIsSyncingExternal] = useState(false);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
     const [codeQuestProgress, setCodeQuestProgress] = useState<CodeQuestProgress | null>(initialCodeQuestProgress);
+    const externalSyncInFlightRef = useRef(false);
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
     const dragStartXRef = useRef(0);
     const dragStartScrollLeftRef = useRef(0);
@@ -354,27 +487,89 @@ export default function JornadaBoard({
         }));
     }, []);
 
-    const [isSyncingCodeQuest, setIsSyncingCodeQuest] = useState(false);
     const [syncCodeQuestError, setSyncCodeQuestError] = useState<string | null>(null);
 
-    const syncCodeQuestProgress = useCallback(async () => {
-        setIsSyncingCodeQuest(true);
-        setSyncCodeQuestError(null);
+    const runCodeQuestSync = useCallback(async (): Promise<boolean> => {
         try {
             const res = await fetch('/api/jornada/codequest-sync', { method: 'POST' });
             if (!res.ok) {
                 setSyncCodeQuestError('Não foi possível sincronizar o progresso do CodeQuest.');
-                return;
+                return false;
             }
             const data = await res.json() as JornadaApiResponse & { codeQuestProgress?: CodeQuestProgress | null };
             applyJornadaResponse(data);
+            return true;
         } catch (error) {
             console.error('Falha ao sincronizar progresso do CodeQuest no cliente.', error);
             setSyncCodeQuestError('Erro de rede ao sincronizar com o CodeQuest.');
-        } finally {
-            setIsSyncingCodeQuest(false);
+            return false;
         }
     }, [applyJornadaResponse]);
+
+    const runCurseducaSync = useCallback(async (): Promise<boolean> => {
+        try {
+            const response = await fetch('/api/jornada/curseduca-sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json() as JornadaSyncResponse;
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error ?? 'sync_failed');
+            }
+
+            if (data.snapshot) {
+                applyJornadaResponse(data.snapshot);
+            }
+            return true;
+        } catch {
+            setRequestError(
+                'Não foi possível sincronizar com as aulas concluídas agora. Tente novamente em instantes ou entre em contato com o suporte.',
+            );
+            return false;
+        }
+    }, [applyJornadaResponse]);
+
+    const syncExternalPlatforms = useCallback(async () => {
+        if (externalSyncInFlightRef.current) {
+            return;
+        }
+        externalSyncInFlightRef.current = true;
+        setIsSyncingExternal(true);
+        setSyncCodeQuestError(null);
+        setRequestError(null);
+        setSyncMessage(null);
+
+        try {
+            let codeQuestOk = !hasCodeQuestAccount;
+            if (hasCodeQuestAccount) {
+                codeQuestOk = await runCodeQuestSync();
+            }
+
+            const curseducaOk = await runCurseducaSync();
+
+            if (codeQuestOk && curseducaOk) {
+                setSyncMessage(
+                    hasCodeQuestAccount
+                        ? 'Exercícios (CodeQuest) e aulas (Curseduca) sincronizados com a Scudo.'
+                        : 'Aulas (Curseduca) sincronizadas com a Scudo.',
+                );
+            } else if (!codeQuestOk && curseducaOk) {
+                setSyncMessage(
+                    'Aulas (Curseduca) sincronizadas. O CodeQuest não pôde ser atualizado; veja o aviso acima.',
+                );
+            } else if (codeQuestOk && !curseducaOk && hasCodeQuestAccount) {
+                setSyncMessage(
+                    'CodeQuest sincronizado. As aulas (Curseduca) não puderam ser atualizadas; veja o aviso acima.',
+                );
+            }
+        } finally {
+            externalSyncInFlightRef.current = false;
+            setIsSyncingExternal(false);
+        }
+    }, [hasCodeQuestAccount, runCodeQuestSync, runCurseducaSync]);
 
     const toggleTask = useCallback((taskId: string) => {
         const targetTask = boardTasks.find((task) => task.id === taskId);
@@ -518,136 +713,86 @@ export default function JornadaBoard({
         setIsDraggingBoard(false);
     }, []);
 
-    const syncFromCurseduca = useCallback(async () => {
-        if (isSyncing) {
-            return;
-        }
-
-        setIsSyncing(true);
-        setRequestError(null);
-        setSyncMessage(null);
-
-        try {
-            const response = await fetch('/api/jornada/sync', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const data = await response.json() as JornadaSyncResponse;
-            if (!response.ok || !data.ok) {
-                throw new Error(data.error ?? 'sync_failed');
-            }
-
-            if (data.snapshot) {
-                applyJornadaResponse(data.snapshot);
-            }
-
-            setSyncMessage(
-                'Sincronização com as aulas concluídas na plataforma realizada com sucesso.',
-            );
-        } catch {
-            setRequestError(
-                'Não foi possível sincronizar com as aulas concluídas agora. Tente novamente em instantes ou entre em contato com o suporte.',
-            );
-        } finally {
-            setIsSyncing(false);
-        }
-    }, [applyJornadaResponse, isSyncing]);
-
     return (
         <div className="space-y-6">
-            {requestError ? (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-                    <p className="text-sm text-red-200">{requestError}</p>
-                </div>
-            ) : null}
-            {syncMessage ? (
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
-                    <p className="text-sm text-emerald-200">{syncMessage}</p>
-                </div>
-            ) : null}
-
-            {syncCodeQuestError ? (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-                    <p className="text-sm text-red-200">{syncCodeQuestError}</p>
-                </div>
-            ) : null}
-
-            {hasCodeQuestAccount ? (
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                        <span
-                            className="material-symbols-outlined text-primary shrink-0"
-                            style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
-                            aria-hidden
-                        >
-                            sync
-                        </span>
-                        <p className="text-xs text-slate-300">
-                            {codeQuestProgress
-                                ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%)`
-                                : 'Progresso do CodeQuest não carregado.'}
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="min-w-0 flex-1 space-y-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                            Progresso nas plataformas externas
                         </p>
+                        {hasCodeQuestAccount ? (
+                            <div className="flex items-start gap-2">
+                                <span
+                                    className="material-symbols-outlined shrink-0 text-primary mt-0.5"
+                                    style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}
+                                    aria-hidden
+                                >
+                                    code
+                                </span>
+                                <p className="text-xs text-slate-300">
+                                    {codeQuestProgress
+                                        ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%).`
+                                        : 'Progresso do CodeQuest ainda não carregado.'}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-xs text-slate-500">
+                                Conta CodeQuest não encontrada para seu e-mail — a sincronização de exercícios será ignorada até haver cadastro.
+                            </p>
+                        )}
+                        <div className="flex items-start gap-2">
+                            <span
+                                className="material-symbols-outlined shrink-0 text-primary mt-0.5"
+                                style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}
+                                aria-hidden
+                            >
+                                menu_book
+                            </span>
+                            <p className="text-xs text-slate-300">
+                                Curseduca: tarefas de aula refletem o que você concluiu na plataforma de aulas.
+                            </p>
+                        </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => { void syncCodeQuestProgress(); }}
-                        disabled={isSyncingCodeQuest}
-                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase border border-primary/40 text-primary hover:bg-primary/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        <span
-                            className={`material-symbols-outlined ${isSyncingCodeQuest ? 'animate-spin' : ''}`}
-                            style={{ fontSize: '12px' }}
-                            aria-hidden
-                        >
-                            refresh
-                        </span>
-                        {isSyncingCodeQuest ? 'Sincronizando...' : 'Sincronizar'}
-                    </button>
-                </div>
-            ) : null}
 
-            {syncCodeQuestError ? (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-                    <p className="text-sm text-red-200">{syncCodeQuestError}</p>
-                </div>
-            ) : null}
-
-            {hasCodeQuestAccount ? (
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                        <span
-                            className="material-symbols-outlined text-primary shrink-0"
-                            style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
-                            aria-hidden
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 self-start sm:pt-6">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                void syncExternalPlatforms();
+                            }}
+                            disabled={isSyncingExternal}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            sync
-                        </span>
-                        <p className="text-xs text-slate-300">
-                            {codeQuestProgress
-                                ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%)`
-                                : 'Progresso do CodeQuest não carregado.'}
-                        </p>
+                            <span
+                                className={`material-symbols-outlined text-base ${isSyncingExternal ? 'animate-spin' : ''}`}
+                                style={{ fontSize: '18px' }}
+                                aria-hidden
+                            >
+                                {isSyncingExternal ? 'autorenew' : 'sync'}
+                            </span>
+                            {isSyncingExternal ? 'Sincronizando...' : 'Sincronizar exercícios e aulas'}
+                        </button>
+                        <ExternalSyncHelpButton helpText={EXTERNAL_SYNC_HELP} />
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => { void syncCodeQuestProgress(); }}
-                        disabled={isSyncingCodeQuest}
-                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase border border-primary/40 text-primary hover:bg-primary/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        <span
-                            className={`material-symbols-outlined ${isSyncingCodeQuest ? 'animate-spin' : ''}`}
-                            style={{ fontSize: '12px' }}
-                            aria-hidden
-                        >
-                            refresh
-                        </span>
-                        {isSyncingCodeQuest ? 'Sincronizando...' : 'Sincronizar'}
-                    </button>
                 </div>
-            ) : null}
+
+                {syncCodeQuestError ? (
+                    <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2">
+                        <p className="text-xs text-red-200">{syncCodeQuestError}</p>
+                    </div>
+                ) : null}
+                {requestError ? (
+                    <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2">
+                        <p className="text-xs text-red-200">{requestError}</p>
+                    </div>
+                ) : null}
+                {syncMessage ? (
+                    <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+                        <p className="text-xs text-emerald-200">{syncMessage}</p>
+                    </div>
+                ) : null}
+            </div>
 
             {/* Ficha RPG do aluno */}
             <div className="rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 shadow-sm">
@@ -729,24 +874,11 @@ export default function JornadaBoard({
             </div>
 
             {/* Board de ranks */}
-            <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-slate-400 dark:text-slate-300">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-slate-400 dark:text-slate-300 min-w-[min(100%,16rem)]">
                     Dica: arraste para os lados, use Shift + scroll, ou as setas para navegar entre os ranks.
                 </p>
-                <div className="flex items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            void syncFromCurseduca();
-                        }}
-                        disabled={isSyncing}
-                        className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                        <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                            {isSyncing ? 'autorenew' : 'sync'}
-                        </span>
-                        {isSyncing ? 'Sincronizando...' : 'Sincronizar Curseduca'}
-                    </button>
+                <div className="flex items-center gap-2 shrink-0">
                     <button
                         type="button"
                         onClick={() => scrollBoardBy(-340)}
