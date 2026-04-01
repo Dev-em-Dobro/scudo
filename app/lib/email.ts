@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
+import { join } from "node:path";
 
 export interface StudentAccessEmailParams {
   to: string;
@@ -127,6 +128,24 @@ function buildTransactionalHeaders(): Record<string, string> {
   }
 
   return headers;
+}
+
+const ACCOUNT_RECOVERY_LOGO_CID = "scudo-logo";
+const ACCOUNT_RECOVERY_TITLE_CID = "scudo-title";
+
+function buildResetPasswordInlineAssets() {
+  return [
+    {
+      filename: "scudo-logo.png",
+      path: join(process.cwd(), "app", "assets", "scudo-logo.png"),
+      cid: ACCOUNT_RECOVERY_LOGO_CID,
+    },
+    {
+      filename: "scudo-titulo.png",
+      path: join(process.cwd(), "app", "assets", "scudo-titulo.png"),
+      cid: ACCOUNT_RECOVERY_TITLE_CID,
+    },
+  ];
 }
 
 function buildStudentAccessEmailHtml(params: {
@@ -314,6 +333,20 @@ function buildResetPasswordEmailHtml(params: {
       <td align="center">
         <table role="presentation" width="100%" style="max-width:560px;">
           <tr>
+            <td style="padding-bottom:24px;text-align:center;">
+              <table role="presentation" cellpadding="0" cellspacing="0" style="display:inline-table;margin:0 auto;">
+                <tr>
+                  <td style="vertical-align:middle;padding-right:12px;">
+                    <img src="cid:${ACCOUNT_RECOVERY_LOGO_CID}" alt="" width="56" height="56" style="display:block;width:56px;height:56px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <img src="cid:${ACCOUNT_RECOVERY_TITLE_CID}" alt="Scudo" width="200" height="50" style="display:block;width:200px;height:50px;" />
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
             <td style="background-color:#111827;border:1px solid #1f2937;border-radius:16px;padding:40px 36px;">
               <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#ffffff;line-height:1.3;">
                 Redefinição de senha
@@ -366,6 +399,7 @@ export async function sendResetPasswordEmail(params: ResetPasswordEmailParams): 
   const { transporter, from, replyTo } = createTransport();
   const normalizedRecipient = normalizeEmailAddress(params.to);
   const normalizedResetUrl = normalizeAbsoluteUrl(params.resetUrl);
+  const inlineAssets = buildResetPasswordInlineAssets();
 
   const html = buildResetPasswordEmailHtml({
     name: params.name,
@@ -384,5 +418,6 @@ export async function sendResetPasswordEmail(params: ResetPasswordEmailParams): 
     html,
     text,
     headers: buildTransactionalHeaders(),
+    attachments: inlineAssets,
   });
 }

@@ -1,5 +1,4 @@
-import { LOGO_TEXT } from "@/app/lib/constants";
-import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
+import BrandLogo from "@/app/components/layout/BrandLogo";
 
 function SkeletonBlock({ className }: Readonly<{ className?: string }>) {
     return (
@@ -21,13 +20,7 @@ export default function PageSkeleton({ contentSlot, headerTitle }: Readonly<Page
             <aside className="w-64 bg-surface-dark border-r border-border-dark shrink-0 hidden lg:flex flex-col">
                 {/* Logo */}
                 <div className="h-16 flex items-center px-5 border-b border-border-dark gap-3">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary">
-                        <ScudoShieldIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="font-bold text-base text-white tracking-tight">
-                        {LOGO_TEXT.main}
-                        <span className="text-primary">{LOGO_TEXT.accent}</span>
-                    </span>
+                    <BrandLogo logoClassName="h-9 w-auto" titleClassName="h-6 w-auto" />
                 </div>
 
                 {/* Nav items skeleton */}

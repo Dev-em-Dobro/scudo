@@ -1,10 +1,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
+import BrandLogo from "@/app/components/layout/BrandLogo";
 import LoginForm from "@/app/components/auth/LoginForm";
 import { auth } from "@/app/lib/auth";
-import { LOGO_TEXT } from "@/app/lib/constants";
 import { isStudentVerifiedAuthOnlyEnabled } from "@/app/lib/featureFlags";
 
 const FEATURES = [
@@ -34,15 +33,7 @@ export default async function LoginPage() {
                 <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
 
                 {/* Logo */}
-                <div className="relative flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary shadow-lg shadow-primary/30">
-                        <ScudoShieldIcon className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="font-bold text-lg text-white tracking-tight">
-                        {LOGO_TEXT.main}
-                        <span className="text-primary">{LOGO_TEXT.accent}</span>
-                    </span>
-                </div>
+                <BrandLogo className="relative" logoClassName="h-10 w-auto" titleClassName="h-7 w-auto" priority />
 
                 {/* Hero */}
                 <div className="relative space-y-6">

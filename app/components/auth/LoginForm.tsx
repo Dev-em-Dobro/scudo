@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
+import BrandLogo from "@/app/components/layout/BrandLogo";
 import { authClient } from "@/app/lib/auth-client";
 import { signInSchema, type SignInInput } from "@/app/lib/validations/auth";
 
@@ -75,14 +75,7 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
     return (
         <div className="w-full max-w-md">
             {/* Logo — visível apenas em mobile */}
-            <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-md shadow-primary/30">
-                    <ScudoShieldIcon className="h-6 w-6 text-white" />
-                </div>
-                <span className="font-bold text-base text-white tracking-tight">
-                    SCU<span className="text-primary">DO</span>
-                </span>
-            </div>
+            <BrandLogo className="mb-8 lg:hidden" logoClassName="h-9 w-auto" titleClassName="h-6 w-auto" />
 
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Bem-vindo de volta</h1>

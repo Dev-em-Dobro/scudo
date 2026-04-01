@@ -558,11 +558,6 @@ export default function JornadaBoard({
 
     return (
         <div className="space-y-6">
-            {requestError ? (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-                    <p className="text-sm text-red-200">{requestError}</p>
-                </div>
-            ) : null}
             {syncMessage ? (
                 <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
                     <p className="text-sm text-emerald-200">{syncMessage}</p>
@@ -693,36 +688,43 @@ export default function JornadaBoard({
                 <p className="text-xs text-slate-400 dark:text-slate-300">
                     Dica: arraste para os lados, use Shift + scroll, ou as setas para navegar entre os ranks.
                 </p>
-                <div className="flex items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            void syncFromCurseduca();
-                        }}
-                        disabled={isSyncing}
-                        className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                        <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                            {isSyncing ? 'autorenew' : 'sync'}
-                        </span>
-                        {isSyncing ? 'Sincronizando...' : 'Sincronizar Curseduca'}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => scrollBoardBy(-340)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
-                        aria-label="Rolar ranks para a esquerda"
-                    >
-                        <span className="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => scrollBoardBy(340)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
-                        aria-label="Rolar ranks para a direita"
-                    >
-                        <span className="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-                    </button>
+                <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                void syncFromCurseduca();
+                            }}
+                            disabled={isSyncing}
+                            className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                                {isSyncing ? 'autorenew' : 'sync'}
+                            </span>
+                            {isSyncing ? 'Sincronizando...' : 'Sincronizar Curseduca'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => scrollBoardBy(-340)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
+                            aria-label="Rolar ranks para a esquerda"
+                        >
+                            <span className="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => scrollBoardBy(340)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
+                            aria-label="Rolar ranks para a direita"
+                        >
+                            <span className="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+                        </button>
+                    </div>
+                    {requestError ? (
+                        <div className="max-w-sm rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2">
+                            <p className="text-xs text-red-200 text-right">{requestError}</p>
+                        </div>
+                    ) : null}
                 </div>
             </div>
 

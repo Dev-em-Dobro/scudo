@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
+import BrandLogo from "@/app/components/layout/BrandLogo";
 
 const emailSchema = z.object({
     email: z
@@ -260,14 +260,7 @@ export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<
     return (
         <div className="w-full max-w-md">
             {/* Logo mobile */}
-            <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-md shadow-primary/30">
-                    <ScudoShieldIcon className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-base text-white tracking-tight">
-                    SCU<span className="text-primary">DO</span>
-                </span>
-            </div>
+            <BrandLogo className="mb-8 lg:hidden" logoClassName="h-9 w-auto" titleClassName="h-6 w-auto" />
 
             {/* Badge Área de Alunos */}
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 mb-5">
