@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
+import BrandLogo from '@/app/components/layout/BrandLogo';
 import InitialOnboardingModal from '@/app/components/onboarding/InitialOnboardingModal';
-import ScudoShieldIcon from '@/app/components/layout/ScudoShieldIcon';
 import { authClient } from '@/app/lib/auth-client';
-import { NAV_ITEMS, LOGO_TEXT } from '@/app/lib/constants';
+import { NAV_ITEMS } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
 
 interface HeaderProps {
@@ -105,15 +105,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
             <InitialOnboardingModal />
             <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between px-6 shrink-0">
             {/* Logo — visível apenas em mobile/tablet (sidebar oculta abaixo de lg) */}
-            <div className="flex items-center gap-3 lg:hidden">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
-                    <ScudoShieldIcon className="h-4.5 w-4.5 text-white" />
-                </div>
-                <span className="font-bold text-sm text-white tracking-tight">
-                    {LOGO_TEXT.main}
-                    <span className="text-primary">{LOGO_TEXT.accent}</span>
-                </span>
-            </div>
+            <BrandLogo className="lg:hidden" logoClassName="h-6 w-auto" titleClassName="h-4 w-auto" />
 
             <h1 className="hidden lg:block text-xl font-bold text-white tracking-tight">{title}</h1>
 

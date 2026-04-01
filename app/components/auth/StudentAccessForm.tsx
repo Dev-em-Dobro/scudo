@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import ScudoShieldIcon from "@/app/components/layout/ScudoShieldIcon";
+import BrandLogo from "@/app/components/layout/BrandLogo";
 
 const emailSchema = z.object({
     email: z
@@ -31,6 +31,10 @@ interface ApiResponse {
     emailSent?: boolean;
     error?: string;
     warning?: string;
+}
+
+interface StudentAccessFormProps {
+    studentVerifiedAuthOnly: boolean;
 }
 
 // ─── Tela de sucesso ─────────────────────────────────────────────────────────
@@ -122,7 +126,9 @@ function ExistingUserScreen() {
 }
 
 // ─── Tela não é aluno ─────────────────────────────────────────────────────────
-function NotStudentScreen() {
+function NotStudentScreen({ studentVerifiedAuthOnly }: Readonly<StudentAccessFormProps>) {
+    const allowSelfSignup = !studentVerifiedAuthOnly;
+
     return (
         <div className="w-full max-w-md text-center space-y-5">
             <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-700/40 mx-auto">
@@ -136,18 +142,22 @@ function NotStudentScreen() {
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">E-mail não encontrado</h2>
                 <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
-                    Não encontramos esse e-mail na nossa plataforma de cursos. Você
-                    pode criar uma conta normalmente ou fazer login se já tiver cadastro.
+                    Não encontramos esse e-mail na nossa plataforma de cursos.
+                    {studentVerifiedAuthOnly
+                        ? " No momento, o acesso está disponível apenas para alunos verificados."
+                        : " Você pode criar uma conta normalmente ou fazer login se já tiver cadastro."}
                 </p>
             </div>
             <div className="space-y-3">
-                <Link
-                    href="/cadastro"
-                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-primary/20"
-                >
-                    <span className="material-symbols-outlined text-base" aria-hidden="true">person_add</span>
-                    {" "}Criar conta grátis
-                </Link>
+                {allowSelfSignup ? (
+                    <Link
+                        href="/cadastro"
+                        className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-primary/20"
+                    >
+                        <span className="material-symbols-outlined text-base" aria-hidden="true">person_add</span>
+                        {" "}Criar conta grátis
+                    </Link>
+                ) : null}
                 <Link
                     href="/login"
                     className="inline-flex items-center justify-center gap-2 w-full rounded-lg border border-border-dark bg-surface-dark hover:border-primary/50 px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all duration-150"
@@ -160,7 +170,8 @@ function NotStudentScreen() {
 }
 
 // ─── Formulário principal ─────────────────────────────────────────────────────
-export default function StudentAccessForm() {
+export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<StudentAccessFormProps>) {
+    const allowSelfSignup = !studentVerifiedAuthOnly;
     const [flowStatus, setFlowStatus] = useState<FlowStatus>("idle");
     const [warning, setWarning] = useState<string | null>(null);
 
@@ -213,7 +224,9 @@ export default function StudentAccessForm() {
     if (flowStatus === "created") return <SuccessScreen />;
     if (flowStatus === "created_no_email") return <CreatedNoEmailScreen warning={warning} />;
     if (flowStatus === "existing_user") return <ExistingUserScreen />;
-    if (flowStatus === "not_student") return <NotStudentScreen />;
+    if (flowStatus === "not_student") {
+        return <NotStudentScreen studentVerifiedAuthOnly={studentVerifiedAuthOnly} />;
+    }
 
     if (flowStatus === "error") {
         return (
@@ -247,14 +260,7 @@ export default function StudentAccessForm() {
     return (
         <div className="w-full max-w-md">
             {/* Logo mobile */}
-            <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary shadow-md shadow-primary/30">
-                    <ScudoShieldIcon className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-base text-white tracking-tight">
-                    SCU<span className="text-primary">DO</span>
-                </span>
-            </div>
+            <BrandLogo className="mb-8 lg:hidden" logoClassName="h-9 w-auto" titleClassName="h-6 w-auto" />
 
             {/* Badge Área de Alunos */}
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 mb-5">
@@ -344,7 +350,7 @@ export default function StudentAccessForm() {
 
             <div className="mt-8 pt-6 border-t border-border-dark space-y-3">
                 <p className="text-sm text-slate-500 text-center">
-                    Não é aluno ou já tem conta?
+                    {studentVerifiedAuthOnly ? "Já tem conta?" : "Não é aluno ou já tem conta?"}
                 </p>
                 <div className="flex gap-3">
                     <Link
@@ -353,12 +359,14 @@ export default function StudentAccessForm() {
                     >
                         Fazer login
                     </Link>
-                    <Link
-                        href="/cadastro"
-                        className="flex-1 text-center rounded-lg border border-border-dark bg-surface-dark hover:border-primary/50 hover:bg-primary/5 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all duration-150"
-                    >
-                        Criar conta
-                    </Link>
+                    {allowSelfSignup ? (
+                        <Link
+                            href="/cadastro"
+                            className="flex-1 text-center rounded-lg border border-border-dark bg-surface-dark hover:border-primary/50 hover:bg-primary/5 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all duration-150"
+                        >
+                            Criar conta
+                        </Link>
+                    ) : null}
                 </div>
             </div>
         </div>

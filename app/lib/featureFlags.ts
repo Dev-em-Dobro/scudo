@@ -13,3 +13,10 @@ export function isInitialOnboardingEnabled() {
 export function isGuidedOnboardingEnabled() {
   return parseBooleanFlag(process.env.ENABLE_GUIDED_ONBOARDING);
 }
+
+export function isStudentVerifiedAuthOnlyEnabled() {
+  return (
+    parseBooleanFlag(process.env.ENABLE_STUDENT_VERIFIED_AUTH_ONLY) ||
+    parseBooleanFlag(process.env.NEXT_PUBLIC_ENABLE_STUDENT_VERIFIED_AUTH_ONLY)
+  );
+}
