@@ -2,7 +2,7 @@
 
 import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
 import type { CodeQuestProgress } from '@/app/lib/codequest/service';
 import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
@@ -661,20 +661,6 @@ export default function JornadaBoard({
         });
     }, []);
 
-    const handleBoardWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
-        const container = boardScrollRef.current;
-        if (!container) {
-            return;
-        }
-
-        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
-            return;
-        }
-
-        event.preventDefault();
-        container.scrollLeft += event.deltaY;
-    }, []);
-
     const handleBoardPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
         if (event.pointerType !== 'mouse' || isInteractiveTarget(event.target)) {
             return;
@@ -685,6 +671,8 @@ export default function JornadaBoard({
             return;
         }
 
+        // Prevent native text selection while dragging the board.
+        event.preventDefault();
         container.setPointerCapture(event.pointerId);
         dragStartXRef.current = event.clientX;
         dragStartScrollLeftRef.current = container.scrollLeft;
@@ -876,7 +864,7 @@ export default function JornadaBoard({
             {/* Board de ranks */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-slate-400 dark:text-slate-300 min-w-[min(100%,16rem)]">
-                    Dica: arraste para os lados, use Shift + scroll, ou as setas para navegar entre os ranks.
+                    Dica: arraste para os lados, use Shift + scroll no desktop, ou as setas para navegar entre os ranks.
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
                     <button
@@ -900,12 +888,11 @@ export default function JornadaBoard({
 
             <div
                 ref={boardScrollRef}
-                onWheel={handleBoardWheel}
                 onPointerDown={handleBoardPointerDown}
                 onPointerMove={handleBoardPointerMove}
                 onPointerUp={stopBoardDragging}
                 onPointerCancel={stopBoardDragging}
-                className={`w-full max-w-full snap-x snap-mandatory overflow-x-scroll overflow-y-hidden scroll-smooth pb-4 scrollbar-modern ${isDraggingBoard ? 'cursor-grabbing' : 'cursor-grab'}`}
+                className={`w-full max-w-full snap-x snap-mandatory overflow-x-scroll overflow-y-hidden scroll-smooth pb-4 scrollbar-modern select-none ${isDraggingBoard ? 'cursor-grabbing' : 'cursor-grab'}`}
             >
                 <div className="flex w-max min-w-full gap-4 px-1">
                     {sortedStages.map((stage) => {
