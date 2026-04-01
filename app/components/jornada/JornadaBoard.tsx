@@ -213,13 +213,13 @@ function ExternalSyncHelpButton({ helpText }: Readonly<{ helpText: string }>) {
                     width: layout.width,
                     zIndex: 9999,
                 }}
-                className="pointer-events-auto relative scale-100 rounded-xl border border-primary/35 bg-gradient-to-b from-slate-800/98 to-slate-950/98 px-3.5 py-3 text-left text-[11px] leading-relaxed text-slate-100 opacity-100 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.65),0_0_0_1px_rgba(168,85,247,0.12)] ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-150 ease-out"
+                className="pointer-events-auto relative scale-100 rounded-xl border border-emerald-500/40 bg-gradient-to-b from-slate-800/98 to-slate-950/98 px-3.5 py-3 text-left text-[11px] leading-relaxed text-slate-100 opacity-100 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.65),0_0_0_1px_rgba(16,185,129,0.15)] ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-150 ease-out"
                 onMouseEnter={openTooltip}
                 onMouseLeave={scheduleClose}
             >
                 <span className="block text-slate-200">{helpText}</span>
                 <span
-                    className="absolute top-full -mt-px h-2.5 w-2.5 rotate-45 border border-primary/35 border-t-0 border-l-0 bg-slate-950 shadow-sm"
+                    className="absolute top-full -mt-px h-2.5 w-2.5 rotate-45 border border-emerald-500/40 border-t-0 border-l-0 bg-slate-950 shadow-sm"
                     style={{ left: layout.arrowLeft }}
                     aria-hidden
                 />
@@ -234,7 +234,7 @@ function ExternalSyncHelpButton({ helpText }: Readonly<{ helpText: string }>) {
                 aria-describedby={open ? 'external-sync-tooltip' : undefined}
                 aria-expanded={open}
                 aria-label={helpText}
-                className="inline-flex h-9 w-9 cursor-help items-center justify-center rounded-lg border border-slate-600/60 text-slate-400 transition-colors hover:border-primary/40 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark"
+                className="inline-flex h-9 w-9 cursor-help items-center justify-center rounded-lg border border-emerald-500/35 text-emerald-400/90 transition-colors hover:border-emerald-400/70 hover:bg-emerald-500/10 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark"
                 onBlur={() => {
                     scheduleClose();
                 }}
@@ -715,41 +715,41 @@ export default function JornadaBoard({
 
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">
+            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4 space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <div className="min-w-0 flex-1 space-y-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                             Progresso nas plataformas externas
                         </p>
                         {hasCodeQuestAccount ? (
-                            <div className="flex items-start gap-2">
+                            <div className="flex items-start gap-3">
                                 <span
-                                    className="material-symbols-outlined shrink-0 text-primary mt-0.5"
-                                    style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}
+                                    className="material-symbols-outlined mt-0.5 inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
+                                    style={{ fontVariationSettings: "'FILL' 1" }}
                                     aria-hidden
                                 >
                                     code
                                 </span>
-                                <p className="text-xs text-slate-300">
+                                <p className="min-w-0 flex-1 text-sm leading-snug text-slate-200">
                                     {codeQuestProgress
                                         ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%).`
                                         : 'Progresso do CodeQuest ainda não carregado.'}
                                 </p>
                             </div>
                         ) : (
-                            <p className="text-xs text-slate-500">
+                            <p className="text-sm leading-snug text-slate-500">
                                 Conta CodeQuest não encontrada para seu e-mail — a sincronização de exercícios será ignorada até haver cadastro.
                             </p>
                         )}
-                        <div className="flex items-start gap-2">
+                        <div className="flex items-start gap-3">
                             <span
-                                className="material-symbols-outlined shrink-0 text-primary mt-0.5"
-                                style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}
+                                className="material-symbols-outlined mt-0.5 inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
+                                style={{ fontVariationSettings: "'FILL' 1" }}
                                 aria-hidden
                             >
                                 menu_book
                             </span>
-                            <p className="text-xs text-slate-300">
+                            <p className="min-w-0 flex-1 text-sm leading-snug text-slate-200">
                                 Curseduca: tarefas de aula refletem o que você concluiu na plataforma de aulas.
                             </p>
                         </div>
@@ -762,7 +762,7 @@ export default function JornadaBoard({
                                 void syncExternalPlatforms();
                             }}
                             disabled={isSyncingExternal}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-primary hover:bg-primary/20 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/55 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             <span
                                 className={`material-symbols-outlined text-base ${isSyncingExternal ? 'animate-spin' : ''}`}

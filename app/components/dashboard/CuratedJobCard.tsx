@@ -247,7 +247,7 @@ export default function CuratedJobCard({
                     href={job.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-primary hover:text-primary/80 hover:underline transition-colors"
+                    className="text-sm font-semibold text-emerald-400 underline-offset-2 transition-colors hover:text-emerald-300 hover:underline"
                 >
                     Ver vaga completa
                 </a>
