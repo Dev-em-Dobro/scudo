@@ -128,12 +128,12 @@ export default function CuratedJobCard({
     const publishedDate = job.publishedAt ?? job.createdAt;
 
     return (
-        <article className="group bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-200">
+        <article className="group mb-3 last:mb-0 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md">
             {/* Top row: title + fit badge */}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-2 flex-wrap">
-                        <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors duration-150 line-clamp-2 min-w-0">
+                        <h3 className="text-base font-bold text-white line-clamp-2 min-w-0">
                             {job.title}
                         </h3>
                         <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${levelColor[job.level]}`}>

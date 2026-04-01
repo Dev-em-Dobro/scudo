@@ -67,12 +67,12 @@ export default function Sidebar() {
                             href={item.href}
                             data-onboarding-id={getOnboardingNavId(item.href)}
                             className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
-                                ? 'rounded-l-lg bg-primary/15 text-primary border-r-2 border-primary'
+                                ? 'rounded-l-lg bg-primary text-white border-r-2 border-primary'
                                 : 'rounded-lg text-slate-300 hover:bg-primary/10 hover:text-primary'
                                 }`}
                         >
                             <span
-                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-primary' : 'group-hover:text-primary'
+                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-primary'
                                     }`}
                                 style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
                             >
