@@ -5,13 +5,53 @@ import { PDFParse } from 'pdf-parse';
 import { getData } from 'pdf-parse/worker';
 
 import { auth } from '@/app/lib/auth';
+import {
+    getResumeAiConfidenceThreshold,
+    getResumeAiProviderOrder,
+    isResumeAiExtractionEnabled,
+    isResumeAiStrictPiiSanitizationEnabled,
+} from '@/app/lib/featureFlags';
 import { prisma } from '@/app/lib/prisma';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
 import { evaluateResumeExtractionQuality, extractResumeDataFromText, normalizeResumeInputText, type ResumeSourceHint } from '@/app/lib/resume/extractor';
+import { extractResumeDataWithAiFirst } from '@/app/lib/resume/resumeAi';
 
 export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const PROFILE_LIMITS = {
+    fullName: 120,
+    linkedinUrl: 500,
+    githubUrl: 500,
+    city: 100,
+    professionalSummary: 3000,
+    experiencesItem: 300,
+    knownTechnologiesItem: 80,
+    certificationsItem: 200,
+    languagesItem: 100,
+    projectsTitle: 200,
+    projectsShortDescription: 1000,
+    projectsTechnologyItem: 80,
+};
+
+function truncateText(value: string, maxLength: number) {
+    const trimmed = value.trim();
+    return trimmed.length <= maxLength ? trimmed : trimmed.slice(0, maxLength).trim();
+}
+
+function normalizeListWithLimit(value: string[], maxItemLength: number, maxItems: number) {
+    const unique = [...new Set(value.map((item) => truncateText(item, maxItemLength)).filter(Boolean))];
+    return unique.slice(0, maxItems);
+}
+
+function normalizeOptionalTextWithLimit(value: string | null, maxLength: number) {
+    if (!value) {
+        return null;
+    }
+
+    const truncated = truncateText(value, maxLength);
+    return truncated.length > 0 ? truncated : null;
+}
 
 PDFParse.setWorker(getData());
 
@@ -55,6 +95,41 @@ function detectPdfSourceHintFromInfo(rawInfo: unknown): ResumeSourceHint | undef
         || candidates.includes('curriculum vitae generated from profile');
 
     return isLinkedin ? 'linkedin-export' : undefined;
+}
+
+async function extractResumeWithConfiguredStrategy(normalizedText: string) {
+    const deterministicExtracted = extractResumeDataFromText(normalizedText);
+
+    if (!isResumeAiExtractionEnabled()) {
+        console.warn('[resume-upload] Extração AI desabilitada; usando extração determinística.');
+        return {
+            extracted: deterministicExtracted,
+            extractionStrategy: 'fallback' as const,
+            aiProviderUsed: null as 'openai' | 'gemini' | null,
+            aiFallbackReason: null as string | null,
+        };
+    }
+
+    const aiResult = await extractResumeDataWithAiFirst({
+        resumeText: normalizedText,
+        fallbackData: deterministicExtracted,
+        providers: getResumeAiProviderOrder(),
+        confidenceThreshold: getResumeAiConfidenceThreshold(),
+        strictPiiSanitization: isResumeAiStrictPiiSanitizationEnabled(),
+    });
+
+    if (aiResult.strategy === 'fallback') {
+        console.warn('[resume-upload] Falha no uso da IA; fallback determinístico aplicado.', {
+            fallbackReason: aiResult.fallbackReason,
+        });
+    }
+
+    return {
+        extracted: aiResult.data,
+        extractionStrategy: aiResult.strategy,
+        aiProviderUsed: aiResult.providerUsed,
+        aiFallbackReason: aiResult.fallbackReason,
+    };
 }
 
 export async function POST(request: Request) {
@@ -128,8 +203,37 @@ export async function POST(request: Request) {
         }
 
         const normalizedResume = normalizeResumeInputText(extractedText, sourceHintOverride);
-        const extracted = extractResumeDataFromText(normalizedResume.text);
+        const { extracted, extractionStrategy, aiProviderUsed, aiFallbackReason } =
+            await extractResumeWithConfiguredStrategy(normalizedResume.text);
+
         const extractionQuality = evaluateResumeExtractionQuality(extracted, normalizedResume.sourceHint);
+
+        const normalizedProjects = extracted.projects
+            .map((project) => {
+                const title = truncateText(project.title, PROFILE_LIMITS.projectsTitle);
+                if (!title) {
+                    return null;
+                }
+
+                return {
+                    title,
+                    shortDescription: normalizeOptionalTextWithLimit(project.shortDescription, PROFILE_LIMITS.projectsShortDescription),
+                    technologies: normalizeListWithLimit(project.technologies, PROFILE_LIMITS.projectsTechnologyItem, 30),
+                    deployUrl: project.deployUrl,
+                };
+            })
+            .filter((project): project is {
+                title: string;
+                shortDescription: string | null;
+                technologies: string[];
+                deployUrl: string | null;
+            } => project !== null)
+            .slice(0, 20);
+
+        const normalizedKnownTechnologies = normalizeListWithLimit(extracted.knownTechnologies, PROFILE_LIMITS.knownTechnologiesItem, 100);
+        const normalizedExperiences = normalizeListWithLimit(extracted.experiences, PROFILE_LIMITS.experiencesItem, 50);
+        const normalizedCertifications = normalizeListWithLimit(extracted.certifications, PROFILE_LIMITS.certificationsItem, 50);
+        const normalizedLanguages = normalizeListWithLimit(extracted.languages, PROFILE_LIMITS.languagesItem, 20);
 
         if (!extractionQuality.isReliable) {
             await prisma.userProfile.update({
@@ -147,6 +251,9 @@ export async function POST(request: Request) {
                     sourceHint: normalizedResume.sourceHint,
                     confidenceScore: extractionQuality.score,
                     missingFields: extractionQuality.missingFields,
+                    strategy: extractionStrategy,
+                    aiProviderUsed,
+                    aiFallbackReason,
                 },
             }, { status: 202 });
         }
@@ -165,9 +272,9 @@ export async function POST(request: Request) {
                 where: { userProfileId: profile.id },
             });
 
-            if (extracted.projects.length > 0) {
+            if (normalizedProjects.length > 0) {
                 await transaction.userProject.createMany({
-                    data: extracted.projects.map((project) => ({
+                    data: normalizedProjects.map((project) => ({
                         userProfileId: profile.id,
                         title: project.title,
                         shortDescription: project.shortDescription,
@@ -180,17 +287,23 @@ export async function POST(request: Request) {
             await transaction.userProfile.update({
                 where: { userId: session.user.id },
                 data: {
-                    fullName: extracted.fullName ?? existingProfile.fullName ?? session.user.name ?? session.user.email,
-                    linkedinUrl: extracted.linkedinUrl ?? existingProfile.linkedinUrl,
-                    githubUrl: extracted.githubUrl ?? existingProfile.githubUrl,
-                    city: extracted.city ?? existingProfile.city,
-                    professionalSummary: extracted.professionalSummary ?? existingProfile.professionalSummary,
-                    experiences: extracted.experiences.length > 0 ? extracted.experiences : existingProfile.experiences,
-                    knownTechnologies: extracted.knownTechnologies,
-                    certifications: extracted.certifications.length > 0
-                        ? extracted.certifications
+                    fullName: normalizeOptionalTextWithLimit(
+                        extracted.fullName ?? existingProfile.fullName ?? session.user.name ?? session.user.email,
+                        PROFILE_LIMITS.fullName,
+                    ),
+                    linkedinUrl: normalizeOptionalTextWithLimit(extracted.linkedinUrl ?? existingProfile.linkedinUrl, PROFILE_LIMITS.linkedinUrl),
+                    githubUrl: normalizeOptionalTextWithLimit(extracted.githubUrl ?? existingProfile.githubUrl, PROFILE_LIMITS.githubUrl),
+                    city: normalizeOptionalTextWithLimit(extracted.city ?? existingProfile.city, PROFILE_LIMITS.city),
+                    professionalSummary: normalizeOptionalTextWithLimit(
+                        extracted.professionalSummary ?? existingProfile.professionalSummary,
+                        PROFILE_LIMITS.professionalSummary,
+                    ),
+                    experiences: normalizedExperiences.length > 0 ? normalizedExperiences : existingProfile.experiences,
+                    knownTechnologies: normalizedKnownTechnologies,
+                    certifications: normalizedCertifications.length > 0
+                        ? normalizedCertifications
                         : existingProfile.certifications,
-                    languages: extracted.languages.length > 0 ? extracted.languages : existingProfile.languages,
+                    languages: normalizedLanguages.length > 0 ? normalizedLanguages : existingProfile.languages,
                     resumeFileName: safeFileName,
                     resumeSyncStatus: 'READY',
                     resumeUploadedAt: new Date(),
@@ -219,11 +332,16 @@ export async function POST(request: Request) {
                 sourceHint: normalizedResume.sourceHint,
                 confidenceScore: extractionQuality.score,
                 missingFields: extractionQuality.missingFields,
+                strategy: extractionStrategy,
+                aiProviderUsed,
+                aiFallbackReason,
             },
             profile: toClientProfile(updatedProfile),
         });
     } catch (error) {
-        console.error('[resume-upload] Falha ao processar currículo:', error);
+        console.error('[resume-upload] Falha ao processar currículo', {
+            error: error instanceof Error ? error.message : 'unknown_error',
+        });
 
         await prisma.userProfile.update({
             where: { userId: session.user.id },

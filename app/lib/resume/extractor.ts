@@ -29,7 +29,63 @@ const TECH_STACK_DICTIONARY = [
     'linux',
 ];
 
-const LANGUAGE_DICTIONARY = ['português', 'portugues', 'inglês', 'ingles', 'espanhol', 'francês', 'frances', 'alemão', 'alemao'];
+const LANGUAGE_CANONICAL_MAP: Record<string, string> = {
+    portugues: 'Português',
+    ingles: 'Inglês',
+    espanhol: 'Espanhol',
+    frances: 'Francês',
+    alemao: 'Alemão',
+};
+
+const LANGUAGE_KEYS = Object.keys(LANGUAGE_CANONICAL_MAP);
+
+const LANGUAGE_LEVEL_CANONICAL_MAP: Record<string, string> = {
+    nativo: 'Nativo',
+    fluent: 'Fluente',
+    fluente: 'Fluente',
+    avancado: 'Avançado',
+    advanced: 'Avançado',
+    intermediario: 'Intermediário',
+    intermediate: 'Intermediário',
+    basico: 'Básico',
+    basic: 'Básico',
+};
+
+const BRAZIL_STATE_CODES = new Set([
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS',
+    'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC',
+    'SP', 'SE', 'TO',
+]);
+
+const BRAZIL_STATE_NAME_TO_CODE: Record<string, string> = {
+    acre: 'AC',
+    alagoas: 'AL',
+    amapa: 'AP',
+    amazonas: 'AM',
+    bahia: 'BA',
+    ceara: 'CE',
+    'distrito federal': 'DF',
+    espirito_santo: 'ES',
+    goias: 'GO',
+    maranhao: 'MA',
+    mato_grosso: 'MT',
+    'mato grosso do sul': 'MS',
+    minas_gerais: 'MG',
+    para: 'PA',
+    paraiba: 'PB',
+    parana: 'PR',
+    pernambuco: 'PE',
+    piaui: 'PI',
+    rio_de_janeiro: 'RJ',
+    rio_grande_do_norte: 'RN',
+    rio_grande_do_sul: 'RS',
+    rondonia: 'RO',
+    roraima: 'RR',
+    santa_catarina: 'SC',
+    sao_paulo: 'SP',
+    sergipe: 'SE',
+    tocantins: 'TO',
+};
 
 const HEADING_TRANSLATIONS: Record<string, string> = {
     contact: 'contato',
@@ -46,8 +102,13 @@ const HEADING_TRANSLATIONS: Record<string, string> = {
     experiences: 'experiencia',
     'work experience': 'experiencia',
     'professional experience': 'experiencia',
+    'professional experiences': 'experiencia',
     experiência: 'experiencia',
+    'experiência profissional': 'experiencia',
     experiências: 'experiencia',
+    'experiências profissionais': 'experiencia',
+    'experiencia profissional': 'experiencia',
+    'experiencias profissionais': 'experiencia',
     skills: 'habilidades',
     'technical skills': 'habilidades',
     habilidades: 'habilidades',
@@ -97,6 +158,14 @@ function normalizeLine(line: string) {
     return line.trim().split(/\s+/).join(' ');
 }
 
+function normalizeAscii(value: string) {
+    return value
+        .normalize('NFD')
+        .replaceAll(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
 const PROJECT_STOP_SECTION_PATTERNS = [
     /^stacks?\s+conhecidas\b/i,
     /^skills?\b/i,
@@ -120,6 +189,10 @@ function normalizeHeadingToken(line: string) {
         .trim();
 
     return HEADING_TRANSLATIONS[cleaned] ?? cleaned;
+}
+
+function countWords(value: string) {
+    return normalizeLine(value).split(' ').filter(Boolean).length;
 }
 
 function isKnownSectionHeading(line: string) {
@@ -216,6 +289,44 @@ function normalizeTechnologyToken(token: string) {
     return cleaned;
 }
 
+function isProjectMetadataLine(line: string) {
+    const normalized = normalizeLine(line);
+    return /^(reposit[oó]rio|repository|github|deploy|demo|url|link)\s*:/i.test(normalized)
+        || /github\.com\//i.test(normalized)
+        || /vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev/i.test(normalized);
+}
+
+function sanitizeProjectUrl(value: string) {
+    return value.replaceAll(/[)\].,;]+$/g, '').trim();
+}
+
+function parseProjectMetadataLink(line: string) {
+    const match = /^(reposit[oó]rio|repository|github|deploy|demo|url|link)\s*:\s*(https?:\/\/\S+)/i.exec(line);
+    if (!match) {
+        return null;
+    }
+
+    const label = normalizeAscii(match[1] ?? '');
+    const url = sanitizeProjectUrl(match[2] ?? '');
+    return url ? { label, url } : null;
+}
+
+function parsePlainProjectUrl(line: string) {
+    const match = /^(https?:\/\/\S+)$/i.exec(line);
+    if (!match) {
+        return null;
+    }
+
+    const url = sanitizeProjectUrl(match[1] ?? '');
+    return url || null;
+}
+
+function isDeployLikeProjectLink(label: string, url: string) {
+    return /deploy|demo/.test(label)
+        || /vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev/i.test(url);
+}
+
+// SONAR: heurística de parsing textual com múltiplos formatos de currículo; refatorar para pipeline modular em tarefa dedicada.
 function extractProjects(lines: string[]) {
     const projectSectionIndex = lines.findIndex((line) => /^(projetos|projects?|portfolio)\b/i.test(line));
     if (projectSectionIndex < 0) {
@@ -247,6 +358,40 @@ function extractProjects(lines: string[]) {
     let currentTitle: string | null = null;
     let currentDescriptionParts: string[] = [];
     let currentTechnologies: string[] = [];
+    let currentDeployUrl: string | null = null;
+
+    const isLikelyProjectTitleLine = (line: string) => {
+        const normalized = normalizeLine(line).replace(/^[-•]\s*/, '');
+        if (!normalized) {
+            return false;
+        }
+
+        if (/^https?:\/\//i.test(normalized)) {
+            return false;
+        }
+
+        if (isProjectMetadataLine(normalized) || /https?:\/\//i.test(normalized)) {
+            return false;
+        }
+
+        if (/^tech\s*stacks?\s*:/i.test(normalized)) {
+            return false;
+        }
+
+        if (/^(projeto|project)\s*[:-]?\s*/i.test(normalized)) {
+            return true;
+        }
+
+        const words = countWords(normalized);
+        const hasSentencePunctuation = /[.!?]$/.test(normalized);
+        const hasComma = normalized.includes(',');
+
+        return words >= 1
+            && words <= 10
+            && normalized.length <= 90
+            && !hasSentencePunctuation
+            && !hasComma;
+    };
 
     const flushProject = () => {
         if (!currentTitle) {
@@ -263,15 +408,34 @@ function extractProjects(lines: string[]) {
             title: currentTitle,
             shortDescription,
             technologies: fallbackTechnologies,
-            deployUrl: null,
+            deployUrl: currentDeployUrl,
         });
 
         currentTitle = null;
         currentDescriptionParts = [];
         currentTechnologies = [];
+        currentDeployUrl = null;
     };
 
     for (const line of projectLines) {
+        const metadata = parseProjectMetadataLink(line);
+        if (metadata && currentTitle) {
+            if (isDeployLikeProjectLink(metadata.label, metadata.url)) {
+                currentDeployUrl = metadata.url;
+            }
+            currentDescriptionParts.push(line);
+            continue;
+        }
+
+        const plainUrl = parsePlainProjectUrl(line);
+        if (plainUrl && currentTitle) {
+            if (!currentDeployUrl) {
+                currentDeployUrl = plainUrl;
+            }
+            currentDescriptionParts.push(line);
+            continue;
+        }
+
         const techLineMatch = /^tech\s*stacks?\s*:\s*(.+)$/i.exec(line);
 
         if (techLineMatch) {
@@ -279,6 +443,9 @@ function extractProjects(lines: string[]) {
                 .split(',')
                 .map((item) => normalizeTechnologyToken(item))
                 .filter(Boolean);
+            if (currentTitle) {
+                flushProject();
+            }
             continue;
         }
 
@@ -287,7 +454,7 @@ function extractProjects(lines: string[]) {
             continue;
         }
 
-        if (currentTechnologies.length > 0) {
+        if (currentDescriptionParts.length > 0 && isLikelyProjectTitleLine(line)) {
             flushProject();
             currentTitle = line;
             continue;
@@ -306,36 +473,150 @@ function deriveKnownTechnologiesFromProjects(projects: { technologies: string[] 
 }
 
 function extractLanguages(text: string, sectionValues: string[]) {
-    const normalizedText = text.toLowerCase();
-    const fromText = LANGUAGE_DICTIONARY.filter((language) => normalizedText.includes(language));
+    const isInvalidLanguageEntry = (value: string) => {
+        const normalized = normalizeAscii(value);
+        return /experien|profission|projet|atividad|freelancer|empresa|resumo|habilidade|tecnolog|certifica|formacao/.test(normalized);
+    };
 
-    return uniqueList([...sectionValues, ...fromText]);
+    const canonicalizeLanguageEntry = (value: string) => {
+        const cleaned = normalizeLine(value).replace(/^[-•]\s*/, '');
+        if (!cleaned || isInvalidLanguageEntry(cleaned)) {
+            return null;
+        }
+
+        const normalized = normalizeAscii(cleaned);
+        const languageKey = LANGUAGE_KEYS.find((key) => new RegExp(String.raw`\b${key}\b`).exec(normalized));
+
+        if (!languageKey) {
+            return null;
+        }
+
+        const languageName = LANGUAGE_CANONICAL_MAP[languageKey];
+        const levelMatch = /\b(nativo|fluente|fluent|avancado|advanced|intermediario|intermediate|basico|basic)\b/.exec(normalized);
+
+        if (!levelMatch) {
+            return languageName;
+        }
+
+        const canonicalLevel = LANGUAGE_LEVEL_CANONICAL_MAP[levelMatch[1]];
+        return canonicalLevel ? `${languageName} - ${canonicalLevel}` : languageName;
+    };
+
+    const fromSection = sectionValues
+        .flatMap((value) => value.split(/[|;,]/))
+        .map((value) => canonicalizeLanguageEntry(value))
+        .filter((value): value is string => value !== null);
+
+    const fromText: string[] = [];
+    const normalizedLines = text
+        .split(/\r?\n/)
+        .map((line) => normalizeAscii(line))
+        .filter(Boolean);
+
+    for (const line of normalizedLines) {
+        if (isInvalidLanguageEntry(line)) {
+            continue;
+        }
+
+        const languageKey = LANGUAGE_KEYS.find((key) => new RegExp(String.raw`\b${key}\b`).exec(line));
+        if (!languageKey) {
+            continue;
+        }
+
+        const levelMatch = /\b(nativo|fluente|fluent|avancado|advanced|intermediario|intermediate|basico|basic)\b/.exec(line);
+        const level = levelMatch?.[1] ? LANGUAGE_LEVEL_CANONICAL_MAP[levelMatch[1]] : null;
+        const languageName = LANGUAGE_CANONICAL_MAP[languageKey];
+
+        fromText.push(level ? `${languageName} - ${level}` : languageName);
+    }
+
+    return uniqueList([...fromSection, ...fromText]);
 }
 
+// SONAR: heurística de extração de cidade contempla variações de layout e localização; modularizar em tarefa dedicada.
 function extractCity(lines: string[]) {
+    const hasInvalidCityToken = (value: string) => {
+        const lowered = value.toLowerCase();
+        return /desenvolvedor|developer|fullstack|frontend|backend|ux|ui|design|designer|software|react|node|typescript|javascript|engenheiro|tech|stack/.test(lowered);
+    };
+
+    const parseStateCode = (stateValue: string) => {
+        const upper = stateValue.toUpperCase().trim();
+        if (BRAZIL_STATE_CODES.has(upper)) {
+            return upper;
+        }
+
+        const normalized = normalizeAscii(stateValue)
+            .replaceAll('-', ' ')
+            .replaceAll(/\s+/g, '_');
+
+        return BRAZIL_STATE_NAME_TO_CODE[normalized] ?? null;
+    };
+
+    const sanitizeCityCandidate = (cityValue: string, stateValue: string) => {
+        const city = normalizeLine(cityValue);
+        const state = parseStateCode(stateValue ?? '');
+
+        if (!city || !state) {
+            return null;
+        }
+
+        if (city.length > 50 || /\d/.test(city) || hasInvalidCityToken(city)) {
+            return null;
+        }
+
+        return `${city} - ${state}`;
+    };
+
     const lineWithCityLabel = lines.find((line) => /^(cidade|localiza[cç][aã]o)\s*:/i.test(line));
     if (lineWithCityLabel) {
-        return normalizeLine(lineWithCityLabel.split(':').slice(1).join(':')) || null;
+        const afterLabel = normalizeLine(lineWithCityLabel.split(':').slice(1).join(':'));
+        if (!afterLabel || hasInvalidCityToken(afterLabel)) {
+            return null;
+        }
+
+        const cityWithStateMatch = /^(.*?)\s*[,\-/–]\s*([A-Za-zÀ-ÿ\s]{2,30})$/.exec(afterLabel);
+        if (cityWithStateMatch) {
+            const sanitizedLabeledCity = sanitizeCityCandidate(cityWithStateMatch[1] ?? '', cityWithStateMatch[2] ?? '');
+            if (sanitizedLabeledCity) {
+                return sanitizedLabeledCity;
+            }
+        }
+
+        return afterLabel;
     }
 
     const cityPatternCandidates = [
+        /([A-Za-zÀ-ÿ\s]{2,40})\s*,\s*([A-Za-zÀ-ÿ\s]{4,30})\s*$/,
+        /([A-Za-zÀ-ÿ\s]{2,40})\s*[-–]\s*([A-Za-zÀ-ÿ\s]{4,30})\s*$/,
+        /([A-Za-zÀ-ÿ\s]{2,40})\s*\/\s*([A-Za-zÀ-ÿ\s]{4,30})\s*$/,
+        /([A-Za-zÀ-ÿ\s]{2,40})\s*,\s*([A-Z]{2})\s*$/,
+        /([A-Za-zÀ-ÿ\s]{2,40})\s*[-–]\s*([A-Z]{2})\s*$/,
+        /([A-Za-zÀ-ÿ\s]{2,40})\s*\/\s*([A-Z]{2})\s*$/,
         /\b([A-Za-zÀ-ÿ\s]{2,40})\s*[-–]\s*([A-Z]{2})\b/,
         /\b([A-Za-zÀ-ÿ\s]{2,40})\s*\/\s*([A-Z]{2})\b/,
         /\b([A-Za-zÀ-ÿ\s]{2,40})\s*,\s*([A-Z]{2})\b/,
+        /\b([A-Za-zÀ-ÿ\s]{2,40})\s*[-–]\s*([A-Za-zÀ-ÿ\s]{4,30})\b/,
+        /\b([A-Za-zÀ-ÿ\s]{2,40})\s*\/\s*([A-Za-zÀ-ÿ\s]{4,30})\b/,
+        /\b([A-Za-zÀ-ÿ\s]{2,40})\s*,\s*([A-Za-zÀ-ÿ\s]{4,30})\b/,
     ];
 
-    for (const line of lines) {
+    const candidateLines = lines.slice(0, 20);
+
+    for (const line of candidateLines) {
+        if (line.split(',').length > 5) {
+            continue;
+        }
+
         for (const pattern of cityPatternCandidates) {
             const match = pattern.exec(line);
             if (!match) {
                 continue;
             }
 
-            const city = normalizeLine(match[1] ?? '');
-            const state = (match[2] ?? '').toUpperCase();
-
-            if (city && state) {
-                return `${city} - ${state}`;
+            const sanitizedCity = sanitizeCityCandidate(match[1] ?? '', match[2] ?? '');
+            if (sanitizedCity) {
+                return sanitizedCity;
             }
         }
     }
