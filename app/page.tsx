@@ -71,7 +71,7 @@ export default async function Home() {
                     {/* Intro */}
                     <div data-onboarding-id="painel-resumo">
                         <p className="text-sm text-slate-400 dark:text-slate-300">
-                            Aqui está um resumo do seu progresso na Scudo.
+                            Para a plataforma funcionar corretamente, siga os passos abaixo antes de explorar as vagas.
                         </p>
                     </div>
 

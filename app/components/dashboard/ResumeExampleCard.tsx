@@ -13,11 +13,14 @@ export default function ResumeExampleCard() {
                     </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h2 className="text-sm font-bold text-white">
-                        Modelo de Currículo
-                    </h2>
+                    <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold shrink-0">1</span>
+                        <h2 className="text-sm font-bold text-white">
+                            Baixe o modelo de currículo
+                        </h2>
+                    </div>
                     <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
-                        Não tem um currículo pronto? Use nosso modelo em PDF como base e facilite o upload.
+                        Use nosso modelo para preencher e garantir que a leitura automática funcione corretamente. Currículos com formatação complexa podem não ser lidos.
                     </p>
                     <div className="mt-3">
                         <a
@@ -27,7 +30,7 @@ export default function ResumeExampleCard() {
                             className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary bg-primary hover:bg-primary/90 text-white active:scale-95 transition-all duration-150 uppercase tracking-wide"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: "15px", fontVariationSettings: "'FILL' 1" }} aria-hidden="true">download</span>
-                            <span>Baixar Exemplo</span>
+                            <span>Baixar Modelo</span>
                         </a>
                     </div>
                 </div>
