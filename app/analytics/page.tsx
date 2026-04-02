@@ -135,6 +135,7 @@ function getAvgFitVisual(avgFit: number) {
 }
 
 const SPECIALIZATION_SKILLS = new Set(['frontend', 'back-end', 'backend', 'front-end', 'fullstack', 'full-stack', 'full stack', 'front end', 'back end']);
+const EXCLUDED_SKILLS = new Set(['cloud']);
 
 function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]): SkillDemandStats {
     const knownSet = new Set(knownTechnologies.map(normalize));
@@ -156,7 +157,7 @@ function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]
         }));
 
     const specializationDemand = allSkills.filter((item) => SPECIALIZATION_SKILLS.has(item.skill));
-    const demandedSkills = allSkills.filter((item) => !SPECIALIZATION_SKILLS.has(item.skill));
+    const demandedSkills = allSkills.filter((item) => !SPECIALIZATION_SKILLS.has(item.skill) && !EXCLUDED_SKILLS.has(item.skill));
 
     const topDemanded = demandedSkills.slice(0, 12);
     const topGaps = demandedSkills.filter((item) => !item.mastered).slice(0, 8);
