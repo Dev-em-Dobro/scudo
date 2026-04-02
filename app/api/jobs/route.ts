@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { JobLevel, JobSource, Prisma } from "@prisma/client";
 
 import { auth } from "@/app/lib/auth";
+import { buildRecentJobsWhere, JOB_LISTING_EXCLUDED_STACK_WHERE } from "@/app/lib/jobs/jobBoard";
 import { prisma } from "@/app/lib/prisma";
 
 export const runtime = "nodejs";
@@ -34,29 +35,36 @@ export async function GET(request: NextRequest) {
     const queryParam = searchParams.get("q")?.trim();
     const limit = parseLimit(searchParams.get("limit"));
 
-    const where: Prisma.JobWhereInput = {};
+    const andFilters: Prisma.JobWhereInput[] = [
+        buildRecentJobsWhere(),
+        JOB_LISTING_EXCLUDED_STACK_WHERE,
+    ];
 
     if (levelParam && allowedLevels.has(levelParam as JobLevel)) {
-        where.level = levelParam as JobLevel;
+        andFilters.push({ level: levelParam as JobLevel });
     }
 
     if (sourceParam && allowedSources.has(sourceParam as JobSource)) {
-        where.source = sourceParam as JobSource;
+        andFilters.push({ source: sourceParam as JobSource });
     }
 
     if (remoteParam === "true") {
-        where.isRemote = true;
+        andFilters.push({ isRemote: true });
     } else if (remoteParam === "false") {
-        where.isRemote = false;
+        andFilters.push({ isRemote: false });
     }
 
     if (queryParam) {
-        where.OR = [
-            { title: { contains: queryParam, mode: "insensitive" } },
-            { companyName: { contains: queryParam, mode: "insensitive" } },
-            { stack: { has: queryParam.toLowerCase() } },
-        ];
+        andFilters.push({
+            OR: [
+                { title: { contains: queryParam, mode: "insensitive" } },
+                { companyName: { contains: queryParam, mode: "insensitive" } },
+                { stack: { has: queryParam.toLowerCase() } },
+            ],
+        });
     }
+
+    const where: Prisma.JobWhereInput = { AND: andFilters };
 
     const jobs = await prisma.job.findMany({
         where,

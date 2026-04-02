@@ -1,6 +1,12 @@
+import type { Prisma } from '@prisma/client';
 import { JobLevel, JobSource } from '@prisma/client';
 
 import { prisma } from '@/app/lib/prisma';
+
+/** Vagas cuja stack inclui Python ou C não são listadas no board nem na API de vagas. */
+export const JOB_LISTING_EXCLUDED_STACK_WHERE: Prisma.JobWhereInput = {
+    AND: [{ NOT: { stack: { has: 'python' } } }, { NOT: { stack: { has: 'c' } } }],
+};
 
 const JOB_BOARD_STACK_FILTER = [
     'frontend',
@@ -8,7 +14,6 @@ const JOB_BOARD_STACK_FILTER = [
     'fullstack',
     'javascript',
     'typescript',
-    'python',
     'react',
     'next',
     'node',
@@ -39,7 +44,7 @@ const BASE_JOB_SELECT = {
     createdAt: true,
 } as const;
 
-const JOB_MAX_AGE_IN_MONTHS = 6;
+const JOB_MAX_AGE_IN_MONTHS = 2;
 
 function getPublishedCutoffDate() {
     const cutoff = new Date();
@@ -47,7 +52,8 @@ function getPublishedCutoffDate() {
     return cutoff;
 }
 
-function buildRecentJobsWhere() {
+/** Vagas com `publishedAt` ou `createdAt` dentro da janela (últimos N meses). */
+export function buildRecentJobsWhere() {
     const cutoff = getPublishedCutoffDate();
     return {
         OR: [
@@ -59,7 +65,10 @@ function buildRecentJobsWhere() {
 
 export async function getAllAvailableJobs() {
     return prisma.job.findMany({
-        where: buildRecentJobsWhere(),
+        where: {
+            ...buildRecentJobsWhere(),
+            ...JOB_LISTING_EXCLUDED_STACK_WHERE,
+        },
         orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
         select: BASE_JOB_SELECT,
     });
@@ -68,21 +77,26 @@ export async function getAllAvailableJobs() {
 export async function getJobBoardJobs() {
     return prisma.job.findMany({
         where: {
-            ...buildRecentJobsWhere(),
-            source: {
-                in: [JobSource.GUPY, JobSource.OTHER],
-            },
-            level: { in: [JobLevel.ESTAGIO, JobLevel.JUNIOR, JobLevel.PLENO, JobLevel.OUTRO] },
-            OR: [
+            AND: [
+                buildRecentJobsWhere(),
+                JOB_LISTING_EXCLUDED_STACK_WHERE,
                 {
-                    stack: {
-                        hasSome: JOB_BOARD_STACK_FILTER,
+                    source: {
+                        in: [JobSource.GUPY, JobSource.OTHER],
                     },
-                },
-                {
-                    stack: {
-                        isEmpty: true,
-                    },
+                    level: { in: [JobLevel.ESTAGIO, JobLevel.JUNIOR, JobLevel.PLENO, JobLevel.OUTRO] },
+                    OR: [
+                        {
+                            stack: {
+                                hasSome: JOB_BOARD_STACK_FILTER,
+                            },
+                        },
+                        {
+                            stack: {
+                                isEmpty: true,
+                            },
+                        },
+                    ],
                 },
             ],
         },

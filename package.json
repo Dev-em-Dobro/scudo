@@ -9,6 +9,7 @@
         "start": "next start",
         "lint": "eslint",
         "curseduca:export-lessons": "node scripts/export-curseduca-lessons.mjs",
+        "jobs:unpublish-excluded": "node scripts/unpublish-excluded-stack-jobs.mjs",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
         "prisma:studio": "prisma studio"

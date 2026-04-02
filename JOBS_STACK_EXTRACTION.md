@@ -128,7 +128,7 @@ Arquivos:
 
 Mudancas observadas:
 
-- Board limita recencia das vagas (janela de ~6 meses).
+- Board limita recência das vagas (janela de ~2 meses).
 - Filtro por fontes e stacks alvo mantido.
 - Quando stack vem vazio, UI tenta inferir skills pelo titulo para calcular compatibilidade.
 - Compatibilidade mostra estado estimado quando inferido por titulo.
