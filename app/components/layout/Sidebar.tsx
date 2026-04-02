@@ -50,7 +50,9 @@ export default function Sidebar() {
         <aside className="w-64 bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
             {/* Logo */}
             <div className="h-16 flex items-center px-5 border-b border-border-light dark:border-border-dark gap-3">
-                <BrandLogo logoClassName="h-7 w-auto" titleClassName="h-4 w-auto" />
+                <Link href="/" aria-label="Ir para o início">
+                    <BrandLogo logoClassName="h-7 w-auto" titleClassName="h-4 w-auto" />
+                </Link>
             </div>
 
             {/* Navigation */}

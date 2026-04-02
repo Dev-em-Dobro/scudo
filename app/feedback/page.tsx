@@ -41,7 +41,7 @@ export default async function FeedbackPage() {
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Escopo deste canal</h3>
 
               <div className="rounded-lg border border-primary/30 bg-primary/10 p-4">
-                <p className="text-sm font-semibold text-primary">O que reportar aqui</p>
+                <p className="text-sm font-semibold text-violet-400">O que reportar aqui</p>
                 <ul className="mt-2 space-y-1 text-sm text-slate-200 list-disc list-inside">
                   <li>Erros na plataforma (telas quebradas, ações que não funcionam).</li>
                   <li>Fluxos confusos ou com fricção durante o uso.</li>

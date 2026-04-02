@@ -295,7 +295,7 @@ function RegularTaskButton({
                     )}
                     {statusLabel ? (
                         <span
-                            className={`inline-block mt-2 text-[10px] font-medium uppercase tracking-wide ${status === 'done' ? 'text-primary' : 'text-slate-500 dark:text-slate-200'}`}
+                            className={`inline-block mt-2 ml-1 text-[10px] font-medium uppercase tracking-wide ${status === 'done' ? 'text-violet-400' : 'text-slate-500 dark:text-slate-200'}`}
                         >
                             {statusLabel}
                         </span>
@@ -590,9 +590,9 @@ export default function JornadaBoard({
                             Progresso nas plataformas externas
                         </p>
                         {hasCodeQuestAccount ? (
-                            <div className="flex items-start gap-3">
+                            <div className="flex items-center gap-3">
                                 <span
-                                    className="material-symbols-outlined mt-0.5 inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
+                                    className="material-symbols-outlined inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
                                     style={{ fontVariationSettings: "'FILL' 1" }}
                                     aria-hidden
                                 >
@@ -609,9 +609,9 @@ export default function JornadaBoard({
                                 Conta CodeQuest não encontrada para seu e-mail — a sincronização de exercícios será ignorada até haver cadastro.
                             </p>
                         )}
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-center gap-3">
                             <span
-                                className="material-symbols-outlined mt-0.5 inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
+                                className="material-symbols-outlined inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
                                 style={{ fontVariationSettings: "'FILL' 1" }}
                                 aria-hidden
                             >

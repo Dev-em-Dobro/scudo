@@ -222,7 +222,7 @@ export default function FeedbackForm() {
       ) : null}
 
       {successMessage ? (
-        <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">{successMessage}</p>
+        <p className="rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-sm text-violet-400">{successMessage}</p>
       ) : null}
 
       <button
