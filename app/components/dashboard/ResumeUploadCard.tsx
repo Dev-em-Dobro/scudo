@@ -133,9 +133,12 @@ export default function ResumeUploadCard() {
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-bold text-white">
-                            Currículo e Projetos
-                        </h2>
+                        <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold shrink-0">2</span>
+                            <h2 className="text-sm font-bold text-white">
+                                Envie o currículo preenchido
+                            </h2>
+                        </div>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border ${getSyncBadgeClass(isLoadingResumeState ? 'processing' : user.resumeSyncStatus)}`}>
                             <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "11px", fontVariationSettings: "'FILL' 1" }}>
                                 {getSyncIcon(isLoadingResumeState ? 'processing' : user.resumeSyncStatus)}
@@ -144,7 +147,7 @@ export default function ResumeUploadCard() {
                         </span>
                     </div>
                     <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
-                        Envie seu currículo (PDF ou DOCX) para extrair projetos e derivar automaticamente as habilidades do perfil.
+                        Envie o modelo preenchido (PDF ou DOCX) para extrair seus projetos e habilidades automaticamente. Use o modelo do passo 1 — arquivos com formatação complexa podem não ser lidos.
                     </p>
 
                     <div className="mt-3 flex items-center gap-3 flex-wrap">
