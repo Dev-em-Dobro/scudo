@@ -25,6 +25,27 @@ const JOB_BOARD_STACK_FILTER = [
     'langchain',
 ];
 
+const JOB_BOARD_LOW_LEVEL_STACK_EXCLUDE = [
+    'c',
+    'c++',
+    'rust',
+    'zig',
+    'assembly',
+    'firmware',
+    'embedded',
+    'microcontrolador',
+];
+
+const JOB_BOARD_LOW_LEVEL_TITLE_KEYWORDS = [
+    'c++',
+    'linguagem c',
+    'embedded',
+    'embarcado',
+    'firmware',
+    'microcontrolador',
+    'assembly',
+];
+
 const BASE_JOB_SELECT = {
     id: true,
     title: true,
@@ -73,6 +94,21 @@ export async function getJobBoardJobs() {
                 in: [JobSource.GUPY, JobSource.OTHER],
             },
             level: { in: [JobLevel.ESTAGIO, JobLevel.JUNIOR, JobLevel.PLENO, JobLevel.OUTRO] },
+            NOT: {
+                OR: [
+                    {
+                        stack: {
+                            hasSome: JOB_BOARD_LOW_LEVEL_STACK_EXCLUDE,
+                        },
+                    },
+                    ...JOB_BOARD_LOW_LEVEL_TITLE_KEYWORDS.map((keyword) => ({
+                        title: {
+                            contains: keyword,
+                            mode: 'insensitive' as const,
+                        },
+                    })),
+                ],
+            },
             OR: [
                 {
                     stack: {

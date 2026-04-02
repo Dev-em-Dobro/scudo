@@ -10,6 +10,27 @@ export const runtime = "nodejs";
 const allowedLevels = new Set<JobLevel>(["ESTAGIO", "JUNIOR", "PLENO", "SENIOR", "OUTRO"]);
 const allowedSources = new Set<JobSource>(["LINKEDIN", "GUPY", "COMPANY_SITE", "OTHER"]);
 
+const lowLevelStackExclude = [
+    "c",
+    "c++",
+    "rust",
+    "zig",
+    "assembly",
+    "firmware",
+    "embedded",
+    "microcontrolador",
+];
+
+const lowLevelTitleKeywords = [
+    "c++",
+    "linguagem c",
+    "embedded",
+    "embarcado",
+    "firmware",
+    "microcontrolador",
+    "assembly",
+];
+
 function parseLimit(value: string | null) {
     const raw = Number(value ?? "20");
     if (Number.isNaN(raw)) {
@@ -34,7 +55,23 @@ export async function GET(request: NextRequest) {
     const queryParam = searchParams.get("q")?.trim();
     const limit = parseLimit(searchParams.get("limit"));
 
-    const where: Prisma.JobWhereInput = {};
+    const where: Prisma.JobWhereInput = {
+        NOT: {
+            OR: [
+                {
+                    stack: {
+                        hasSome: lowLevelStackExclude,
+                    },
+                },
+                ...lowLevelTitleKeywords.map((keyword) => ({
+                    title: {
+                        contains: keyword,
+                        mode: "insensitive" as const,
+                    },
+                })),
+            ],
+        },
+    };
 
     if (levelParam && allowedLevels.has(levelParam as JobLevel)) {
         where.level = levelParam as JobLevel;
