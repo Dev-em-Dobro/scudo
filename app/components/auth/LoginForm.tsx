@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import BrandLogo from "@/app/components/layout/BrandLogo";
+import logoComNome from "@/app/assets/logo-com-nome.png";
 import { authClient } from "@/app/lib/auth-client";
 import { signInSchema, type SignInInput } from "@/app/lib/validations/auth";
 
@@ -74,8 +75,17 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
 
     return (
         <div className="w-full max-w-md">
-            {/* Logo — visível apenas em mobile */}
-            <BrandLogo className="mb-8 lg:hidden" logoClassName="h-9 w-auto" titleClassName="h-6 w-auto" />
+            {/* Logo com nome — visível apenas em mobile (painel esquerdo usa a mesma imagem) */}
+            <div className="mb-8 flex justify-center lg:hidden">
+                <Image
+                    src={logoComNome}
+                    alt="Scudo"
+                    className="h-auto w-full max-w-[220px] object-contain"
+                    sizes="(max-width: 1024px) 220px, 260px"
+                    unoptimized
+                    priority
+                />
+            </div>
 
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Bem-vindo de volta</h1>
@@ -84,8 +94,8 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
                 {/* Destaque para primeiro acesso de alunos */}
-                <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 md:p-5">
-                    <p className="text-lg font-semibold text-primary leading-snug">
+                <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/12 via-primary/5 to-emerald-500/10 p-4 md:p-5 shadow-[inset_0_1px_0_0_rgba(16,185,129,0.12)]">
+                    <p className="text-lg font-semibold text-emerald-400 leading-snug">
                         Aluno da formação? Comece por aqui.
                     </p>
                     <p className="mt-1.5 text-sm text-slate-200">
@@ -119,7 +129,7 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
                             type="email"
                             autoComplete="email"
                             placeholder="seu@email.com"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20"
                             {...register("email")}
                         />
                     </div>
@@ -140,7 +150,7 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
                             type={showPassword ? "text" : "password"}
                             autoComplete="current-password"
                             placeholder="••••••••"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20"
                             {...register("password")}
                         />
                         <button
@@ -160,14 +170,18 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
                     </div>
                     {errors.password ? <p className="text-xs text-red-400">{errors.password.message}</p> : null}
                     <p className="text-right">
-                        <Link href="/recuperar-senha" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                        <Link href="/recuperar-senha" className="text-xs font-medium text-white hover:text-slate-200 transition-colors">
                             Esqueci minha senha
                         </Link>
                     </p>
                 </div>
 
                 <label className="inline-flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
-                    <input type="checkbox" className="h-4 w-4 accent-primary" {...register("rememberMe")} />
+                    <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-600 accent-emerald-500 text-emerald-500 focus:ring-emerald-500/40"
+                        {...register("rememberMe")}
+                    />
                     <span>Manter sessão ativa</span>
                 </label>
 
@@ -176,7 +190,7 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
                 <button
                     type="submit"
                     disabled={busy}
-                    className="cursor-pointer w-full rounded-lg bg-primary hover:bg-primary/90 active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
+                    className="cursor-pointer w-full rounded-lg bg-primary shadow-md shadow-primary/25 ring-1 ring-emerald-500/25 hover:bg-primary/90 active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSubmitting ? "Entrando..." : "Entrar"}
                 </button>
@@ -185,9 +199,9 @@ export default function LoginForm({ studentVerifiedAuthOnly }: Readonly<LoginFor
             {allowSelfSignup ? (
                 <>
                     <div className="my-5 flex items-center gap-3">
-                        <div className="flex-1 h-px bg-border-dark" />
-                        <span className="text-xs text-slate-400 uppercase tracking-wide">ou continue com</span>
-                        <div className="flex-1 h-px bg-border-dark" />
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border-dark to-emerald-500/25" />
+                        <span className="text-xs uppercase tracking-wide text-slate-400">ou continue com</span>
+                        <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border-dark to-primary/25" />
                     </div>
 
                     <div className="space-y-3">

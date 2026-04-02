@@ -6,6 +6,7 @@ import Header from './components/layout/Header';
 import ResumeExampleCard from './components/dashboard/ResumeExampleCard';
 import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
+import AptJobsEmptyHint from './components/home/AptJobsEmptyHint';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
 import { auth } from './lib/auth';
 import { getJobBoardJobs } from './lib/jobs/jobBoard';
@@ -102,7 +103,7 @@ export default async function Home() {
                             ))}
                             {aptJobs.length === 0 && (
                                 <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 text-sm text-slate-400 dark:text-slate-300">
-                                    Nenhuma vaga apta no momento. Atualize suas habilidades para ampliar a compatibilidade.
+                                    <AptJobsEmptyHint />
                                 </div>
                             )}
                         </div>
