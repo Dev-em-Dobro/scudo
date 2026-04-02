@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { UserProject } from '@/app/types';
 
@@ -566,6 +566,13 @@ function mapDraftProjectsToProfileProjects(projects: EditableProjectForm[]): Edi
 export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditorProps>) {
     const [profileSnapshot, setProfileSnapshot] = useState(initialProfile);
     const [isEditing, setIsEditing] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (isEditing) {
+            formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [isEditing]);
 
     const [fullName, setFullName] = useState(profileSnapshot.fullName ?? '');
     const [linkedinUrl, setLinkedinUrl] = useState(profileSnapshot.linkedinUrl ?? '');
@@ -881,11 +888,15 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
             </div>
 
             {isEditing ? (
-                <form className="space-y-4 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-5 shadow-sm rounded-xl" onSubmit={handleSubmit}>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Editar Dados do Perfil</h3>
-                    <p className="text-xs text-slate-400 dark:text-slate-300">
-                        Limites por item: experiências até {FIELD_LIMITS.experiencesItem} caracteres, idiomas até {FIELD_LIMITS.languagesItem}, descrição de projeto até {FIELD_LIMITS.projectsShortDescription} e cidade até {FIELD_LIMITS.city}.
-                    </p>
+                <form ref={formRef} className="space-y-4 bg-white dark:bg-surface-dark border-2 border-primary shadow-xl shadow-primary/10 rounded-xl overflow-hidden" onSubmit={handleSubmit}>
+                    <div className="bg-primary/20 border-b border-primary/40 px-5 py-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>edit</span>
+                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">Editar Dados do Perfil</h3>
+                    </div>
+                    <div className="px-5 space-y-4 pb-5">
+                        <p className="text-xs text-slate-400 dark:text-slate-300">
+                            Limites por item: experiências até {FIELD_LIMITS.experiencesItem} caracteres, idiomas até {FIELD_LIMITS.languagesItem}, descrição de projeto até {FIELD_LIMITS.projectsShortDescription} e cidade até {FIELD_LIMITS.city}.
+                        </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
@@ -1152,6 +1163,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             {feedback}
                         </p>
                     )}
+                    </div>
                 </form>
             ) : null}
 
