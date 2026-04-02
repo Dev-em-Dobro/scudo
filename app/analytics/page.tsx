@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
 import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
@@ -11,19 +12,6 @@ function normalize(value: string) {
     return value.toLowerCase().trim();
 }
 
-function detectWorkModel(location: string | null, isRemote: boolean) {
-    const text = normalize(location ?? '');
-
-    if (isRemote || /remoto|remote|home\s?office/.test(text)) {
-        return 'Remoto';
-    }
-
-    if (/h[ií]brido|hybrid/.test(text)) {
-        return 'Híbrido';
-    }
-
-    return 'Presencial';
-}
 
 function SectionBlock({
     title,
@@ -72,18 +60,6 @@ type AnalyticsJob = Awaited<ReturnType<typeof getAllAvailableJobs>>[number];
 
 type GeneralStats = {
     totalJobs: number;
-    workModelCounts: {
-        Remoto: number;
-        Híbrido: number;
-        Presencial: number;
-    };
-    levelCounts: {
-        ESTAGIO: number;
-        JUNIOR: number;
-        PLENO: number;
-        SENIOR: number;
-        OUTRO: number;
-    };
 };
 
 type FitStats = {
@@ -95,41 +71,19 @@ type FitStats = {
     evaluableCount: number;
 };
 
+type SkillEntry = { skill: string; demand: number; mastered: boolean };
+
 type SkillDemandStats = {
-    demandedSkills: Array<{
-        skill: string;
-        demand: number;
-        mastered: boolean;
-    }>;
-    topDemanded: Array<{
-        skill: string;
-        demand: number;
-        mastered: boolean;
-    }>;
-    topGaps: Array<{
-        skill: string;
-        demand: number;
-        mastered: boolean;
-    }>;
+    demandedSkills: SkillEntry[];
+    topDemanded: SkillEntry[];
+    topGaps: SkillEntry[];
+    specializationDemand: SkillEntry[];
     coverage: number;
     maxDemand: number;
 };
 
 function buildGeneralStats(jobs: AnalyticsJob[]): GeneralStats {
-    const workModelCounts = { Remoto: 0, Híbrido: 0, Presencial: 0 };
-    const levelCounts = { ESTAGIO: 0, JUNIOR: 0, PLENO: 0, SENIOR: 0, OUTRO: 0 };
-
-    for (const job of jobs) {
-        const workModel = detectWorkModel(job.location, job.isRemote);
-        workModelCounts[workModel] += 1;
-        levelCounts[job.level] += 1;
-    }
-
-    return {
-        totalJobs: jobs.length,
-        workModelCounts,
-        levelCounts,
-    };
+    return { totalJobs: jobs.length };
 }
 
 function buildFitStats(jobs: AnalyticsJob[], knownTechnologies: string[]): FitStats {
@@ -180,6 +134,8 @@ function getAvgFitVisual(avgFit: number) {
     };
 }
 
+const SPECIALIZATION_SKILLS = new Set(['frontend', 'back-end', 'backend', 'front-end', 'fullstack', 'full-stack', 'full stack', 'front end', 'back end']);
+
 function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]): SkillDemandStats {
     const knownSet = new Set(knownTechnologies.map(normalize));
     const demandMap = new Map<string, number>();
@@ -191,13 +147,16 @@ function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]
         }
     }
 
-    const demandedSkills = [...demandMap.entries()]
+    const allSkills = [...demandMap.entries()]
         .sort((a, b) => b[1] - a[1])
         .map(([skill, demand]) => ({
             skill,
             demand,
             mastered: knownSet.has(skill),
         }));
+
+    const specializationDemand = allSkills.filter((item) => SPECIALIZATION_SKILLS.has(item.skill));
+    const demandedSkills = allSkills.filter((item) => !SPECIALIZATION_SKILLS.has(item.skill));
 
     const topDemanded = demandedSkills.slice(0, 12);
     const topGaps = demandedSkills.filter((item) => !item.mastered).slice(0, 8);
@@ -210,6 +169,7 @@ function buildSkillDemandStats(jobs: AnalyticsJob[], knownTechnologies: string[]
         demandedSkills,
         topDemanded,
         topGaps,
+        specializationDemand,
         coverage,
         maxDemand: topDemanded[0]?.demand ?? 1,
     };
@@ -248,6 +208,7 @@ export default async function AnalyticsPage() {
             icon: 'work',
             iconColor: 'text-blue-400',
             iconBg: 'bg-blue-500/10',
+            href: '/jobs',
         },
         {
             key: 'fit',
@@ -259,6 +220,7 @@ export default async function AnalyticsPage() {
             icon: 'target',
             iconColor: fitStats.hasSkills ? avgFitVisual.color : 'text-slate-400',
             iconBg: fitStats.hasSkills ? avgFitVisual.iconBg : 'bg-slate-500/10',
+            href: '/jobs',
         },
         {
             key: 'high',
@@ -268,6 +230,7 @@ export default async function AnalyticsPage() {
             icon: 'verified',
             iconColor: fitStats.hasSkills ? 'text-primary' : 'text-slate-400',
             iconBg: fitStats.hasSkills ? 'bg-primary/10' : 'bg-slate-500/10',
+            href: '/jobs',
         },
         {
             key: 'low',
@@ -309,26 +272,29 @@ export default async function AnalyticsPage() {
 
                     {/* Stat cards */}
                     <div data-onboarding-id="analytics-stats" className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {statCards.map((card) => (
-                            <div
-                                key={card.key}
-                                className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4"
-                            >
-                                <div className={`shrink-0 w-10 h-10 rounded-lg ${card.iconBg} flex items-center justify-center`}>
-                                    <span
-                                        className={`material-symbols-outlined ${card.iconColor}`}
-                                        style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
-                                    >
-                                        {card.icon}
-                                    </span>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">{card.title}</p>
-                                    <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
-                                    <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{card.description}</p>
-                                </div>
-                            </div>
-                        ))}
+                        {statCards.map((card) => {
+                            const cardClass = `bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4${'href' in card ? ' hover:border-primary/40 transition-colors cursor-pointer' : ''}`;
+                            const inner = (
+                                <>
+                                    <div className={`shrink-0 w-10 h-10 rounded-lg ${card.iconBg} flex items-center justify-center`}>
+                                        <span
+                                            className={`material-symbols-outlined ${card.iconColor}`}
+                                            style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
+                                        >
+                                            {card.icon}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">{card.title}</p>
+                                        <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
+                                        <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{card.description}</p>
+                                    </div>
+                                </>
+                            );
+                            return 'href' in card
+                                ? <Link key={card.key} href={card.href!} className={cardClass}>{inner}</Link>
+                                : <div key={card.key} className={cardClass}>{inner}</div>;
+                        })}
                     </div>
 
                     <div data-onboarding-id="analytics-skill-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
@@ -350,7 +316,7 @@ export default async function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div data-onboarding-id="analytics-skill-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div data-onboarding-id="analytics-skill-stats" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div data-onboarding-id="analytics-skill-coverage" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
                             <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <span className="material-symbols-outlined text-primary" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
@@ -361,18 +327,6 @@ export default async function AnalyticsPage() {
                                 <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Cobertura de Habilidades</p>
                                 <p className="text-2xl font-bold text-white mt-0.5">{`${skillDemandStats.coverage}%`}</p>
                                 <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Habilidades demandadas já dominadas no perfil.</p>
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
-                            <div className="shrink-0 w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-blue-400" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
-                                    psychology
-                                </span>
-                            </div>
-                            <div>
-                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Habilidades Demandadas</p>
-                                <p className="text-2xl font-bold text-white mt-0.5">{String(skillDemandStats.demandedSkills.length)}</p>
-                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Competências identificadas nas vagas atuais.</p>
                             </div>
                         </div>
                         <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
@@ -479,8 +433,42 @@ export default async function AnalyticsPage() {
                         </div>
                     </div>
 
-                    {/* Distribuição por Compatibilidade e Modelo de Trabalho */}
-                    <div data-onboarding-id="analytics-fit-model" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Foco de Especialização */}
+                    {skillDemandStats.specializationDemand.length > 0 && (
+                        <SectionBlock title="Foco de Especialização" icon="fork_right" iconColor="text-purple-400">
+                            <div className="space-y-3">
+                                {skillDemandStats.specializationDemand.map((item) => {
+                                    const labelMap: Record<string, string> = {
+                                        frontend: 'Frontend',
+                                        'front-end': 'Frontend',
+                                        'front end': 'Frontend',
+                                        backend: 'Backend',
+                                        'back-end': 'Backend',
+                                        'back end': 'Backend',
+                                        fullstack: 'Fullstack',
+                                        'full-stack': 'Fullstack',
+                                        'full stack': 'Fullstack',
+                                    };
+                                    return (
+                                        <DistributionBar
+                                            key={item.skill}
+                                            label={labelMap[item.skill] ?? item.skill}
+                                            value={item.demand}
+                                            total={skillDemandStats.specializationDemand.reduce((acc, s) => acc + s.demand, 0)}
+                                            colorClass="text-purple-400"
+                                            bgClass="bg-purple-400"
+                                        />
+                                    );
+                                })}
+                                <p className="pt-1 text-xs text-slate-400 dark:text-slate-300">
+                                    Direção de especialização mais mencionada nas vagas do recorte atual.
+                                </p>
+                            </div>
+                        </SectionBlock>
+                    )}
+
+                    {/* Distribuição por Compatibilidade */}
+                    <div data-onboarding-id="analytics-fit-model">
                         <SectionBlock title="Distribuição por Compatibilidade" icon="donut_large" iconColor="text-primary">
                             {fitStats.hasSkills ? (
                                 <div className="space-y-3">
@@ -515,46 +503,8 @@ export default async function AnalyticsPage() {
                                 </p>
                             )}
                         </SectionBlock>
-
-                        <SectionBlock title="Modelo de Trabalho" icon="location_on" iconColor="text-blue-400">
-                            <div className="space-y-3">
-                                <DistributionBar
-                                    label="Remoto"
-                                    value={generalStats.workModelCounts.Remoto}
-                                    total={generalStats.totalJobs}
-                                    colorClass="text-primary"
-                                    bgClass="bg-primary"
-                                />
-                                <DistributionBar
-                                    label="Híbrido"
-                                    value={generalStats.workModelCounts.Híbrido}
-                                    total={generalStats.totalJobs}
-                                    colorClass="text-blue-400"
-                                    bgClass="bg-blue-400"
-                                />
-                                <DistributionBar
-                                    label="Presencial"
-                                    value={generalStats.workModelCounts.Presencial}
-                                    total={generalStats.totalJobs}
-                                    colorClass="text-slate-400"
-                                    bgClass="bg-slate-400"
-                                />
-                            </div>
-                        </SectionBlock>
                     </div>
 
-                    {/* Distribuição por Senioridade */}
-                    <div data-onboarding-id="analytics-seniority">
-                        <SectionBlock title="Distribuição por Senioridade" icon="signal_cellular_alt" iconColor="text-amber-400">
-                            <div className="space-y-3">
-                                <DistributionBar label="Estágio" value={generalStats.levelCounts.ESTAGIO} total={generalStats.totalJobs} colorClass="text-primary" bgClass="bg-primary" />
-                                <DistributionBar label="Júnior" value={generalStats.levelCounts.JUNIOR} total={generalStats.totalJobs} colorClass="text-blue-400" bgClass="bg-blue-400" />
-                                <DistributionBar label="Pleno" value={generalStats.levelCounts.PLENO} total={generalStats.totalJobs} colorClass="text-amber-400" bgClass="bg-amber-400" />
-                                <DistributionBar label="Sênior" value={generalStats.levelCounts.SENIOR} total={generalStats.totalJobs} colorClass="text-purple-400" bgClass="bg-purple-400" />
-                                <DistributionBar label="Outro" value={generalStats.levelCounts.OUTRO} total={generalStats.totalJobs} colorClass="text-slate-400" bgClass="bg-slate-400" />
-                            </div>
-                        </SectionBlock>
-                    </div>
 
                 </div>
             </main>
