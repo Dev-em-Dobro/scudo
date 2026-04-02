@@ -26,6 +26,7 @@ const securityHeaders = [
       isDev
         ? "connect-src 'self' https: wss: ws://localhost:* ws://127.0.0.1:*"
         : "connect-src 'self' https: wss:",
+      "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
