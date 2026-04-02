@@ -37,6 +37,118 @@ interface ProfileEditorProps {
     readonly initialProfile: EditableProfile;
 }
 
+type ValidationIssue = {
+    path?: Array<string | number>;
+    message?: string;
+};
+
+const LANGUAGE_CANONICAL_MAP: Record<string, string> = {
+    portugues: 'Português',
+    ingles: 'Inglês',
+    espanhol: 'Espanhol',
+    frances: 'Francês',
+    alemao: 'Alemão',
+};
+
+const LANGUAGE_LEVEL_CANONICAL_MAP: Record<string, string> = {
+    nativo: 'Nativo',
+    fluente: 'Fluente',
+    avancado: 'Avançado',
+    intermediario: 'Intermediário',
+    basico: 'Básico',
+};
+
+const FIELD_LIMITS = {
+    fullName: 120,
+    city: 100,
+    linkedinUrl: 500,
+    githubUrl: 500,
+    professionalSummary: 3000,
+    experiencesItem: 300,
+    knownTechnologiesItem: 80,
+    softSkillsItem: 100,
+    certificationsItem: 200,
+    languagesItem: 100,
+    projectsTitle: 200,
+    projectsShortDescription: 1000,
+    projectsTechnologyItem: 80,
+    projectsDeployUrl: 500,
+};
+
+function getFieldClass(hasError: boolean) {
+    const base = 'w-full px-3 py-2 border rounded dark:bg-background-dark dark:text-white';
+    return hasError
+        ? `${base} border-red-500/80 focus:outline-none focus:ring-2 focus:ring-red-500/40`
+        : `${base} border-slate-300 dark:border-border-dark`;
+}
+
+function addFieldError(target: Record<string, string>, key: string, message: string) {
+    if (!target[key]) {
+        target[key] = message;
+    }
+}
+
+function addLengthErrorsForList(
+    target: Record<string, string>,
+    values: string[],
+    fieldKey: string,
+    maxLength: number,
+    itemLabel: string,
+) {
+    values.forEach((value, index) => {
+        if (value.length > maxLength) {
+            addFieldError(target, `${fieldKey}.${index}`, `${itemLabel} ${index + 1} excede ${maxLength} caracteres.`);
+        }
+    });
+}
+
+function addProjectLengthErrors(target: Record<string, string>, projects: Array<{
+    title: string;
+    shortDescription: string | null;
+    technologies: string[];
+    deployUrl: string | null;
+}>) {
+    projects.forEach((project, projectIndex) => {
+        if (project.title.length > FIELD_LIMITS.projectsTitle) {
+            addFieldError(target, `projects.${projectIndex}.title`, `O título do projeto ${projectIndex + 1} excede ${FIELD_LIMITS.projectsTitle} caracteres.`);
+        }
+
+        if ((project.shortDescription ?? '').length > FIELD_LIMITS.projectsShortDescription) {
+            addFieldError(target, `projects.${projectIndex}.shortDescription`, `A descrição do projeto ${projectIndex + 1} excede ${FIELD_LIMITS.projectsShortDescription} caracteres.`);
+        }
+
+        if ((project.deployUrl ?? '').length > FIELD_LIMITS.projectsDeployUrl) {
+            addFieldError(target, `projects.${projectIndex}.deployUrl`, `O link de deploy do projeto ${projectIndex + 1} excede ${FIELD_LIMITS.projectsDeployUrl} caracteres.`);
+        }
+
+        project.technologies.forEach((technology, techIndex) => {
+            if (technology.length > FIELD_LIMITS.projectsTechnologyItem) {
+                addFieldError(target, `projects.${projectIndex}.technologies.${techIndex}`, `Uma tecnologia do projeto ${projectIndex + 1} excede ${FIELD_LIMITS.projectsTechnologyItem} caracteres.`);
+            }
+        });
+    });
+}
+
+function parseApiValidationErrors(issues: ValidationIssue[] | undefined) {
+    const nextErrors: Record<string, string> = {};
+    if (!Array.isArray(issues)) {
+        return nextErrors;
+    }
+
+    for (const issue of issues) {
+        const key = Array.isArray(issue.path) ? issue.path.join('.') : 'form';
+        const message = issue.message ?? 'Valor inválido.';
+        addFieldError(nextErrors, key, message);
+
+        const firstPath = issue.path?.[0];
+        if (typeof firstPath === 'string') {
+            addFieldError(nextErrors, firstPath, message);
+        }
+    }
+
+    return nextErrors;
+}
+
 function toTextAreaValue(values: string[]) {
     return values.join('\n');
 }
@@ -46,6 +158,47 @@ function fromTextAreaValue(value: string) {
         .split('\n')
         .map((item) => item.trim())
         .filter(Boolean);
+}
+
+function normalizeAscii(value: string) {
+    return value
+        .normalize('NFD')
+        .replaceAll(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
+function normalizeLanguageEntry(value: string) {
+    const cleaned = value.trim();
+    if (!cleaned) {
+        return null;
+    }
+
+    const normalized = normalizeAscii(cleaned);
+    if (/experien|profission|projet|atividad|freelancer|empresa|resumo|habilidade|tecnolog|certifica|formacao/.test(normalized)) {
+        return null;
+    }
+
+    const languageKey = Object.keys(LANGUAGE_CANONICAL_MAP).find((key) => new RegExp(String.raw`\b${key}\b`).exec(normalized));
+    if (!languageKey) {
+        return null;
+    }
+
+    const language = LANGUAGE_CANONICAL_MAP[languageKey];
+    const levelMatch = /\b(nativo|fluente|avancado|intermediario|basico)\b/.exec(normalized);
+    if (!levelMatch?.[1]) {
+        return language;
+    }
+
+    const level = LANGUAGE_LEVEL_CANONICAL_MAP[levelMatch[1]];
+    return level ? `${language} - ${level}` : language;
+}
+
+function normalizeLanguageList(values: string[]) {
+    return [...new Set(values
+        .flatMap((value) => value.split(/[|;,]/))
+        .map((value) => normalizeLanguageEntry(value))
+        .filter((value): value is string => value !== null))];
 }
 
 function createProjectLocalId() {
@@ -172,26 +325,195 @@ function TagList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel
     );
 }
 
+type ExperienceDisplayItem = {
+    id: string;
+    headline: string;
+    subheadline: string | null;
+    period: string | null;
+    descriptions: string[];
+};
+
+function parseExperienceDisplayItems(experiences: string[]): ExperienceDisplayItem[] {
+    const items: ExperienceDisplayItem[] = [];
+    let current: ExperienceDisplayItem | null = null;
+
+    const buildItem = (headlineRaw: string, index: number): ExperienceDisplayItem => {
+        const normalized = headlineRaw.trim();
+        const periodInParentheses = /\(([^)]+)\)\s*$/.exec(normalized)?.[1]?.trim() ?? null;
+        const headline = periodInParentheses
+            ? normalized.replace(/\(([^)]+)\)\s*$/, '').trim().replace(/[\s\-–]+$/, '')
+            : normalized;
+
+        return {
+            id: `exp-${index}`,
+            headline,
+            subheadline: null,
+            period: periodInParentheses,
+            descriptions: [],
+        };
+    };
+
+    const isActivityLine = (value: string) => {
+        return /^atividades?\s*:/i.test(value)
+            || /^[-•·]\s+/.test(value)
+            || /^(desenvolvimento|implementa[cç][aã]o|lideran[cç]a|redu[cç][aã]o|manuten[cç][aã]o|integra[cç][aã]o|participa[cç][aã]o|respons[aá]vel)/i.test(value);
+    };
+
+    const stripActivityPrefix = (value: string) => {
+        return value
+            .replace(/^atividades?\s*:\s*/i, '')
+            .replace(/^[-•·]\s+/, '')
+            .trim();
+    };
+
+    const isPeriodLine = (value: string) => {
+        const normalized = normalizeAscii(value);
+        const hasMonthToken = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+            .some((token) => normalized.includes(token));
+
+        return hasMonthToken
+            || /\b(presente|atual|current)\b/.test(normalized)
+            || /^\d{4}\s*[-–]\s*\d{4}$/.test(value)
+            || /^\d{2}\/\d{4}\s*[-–]\s*\d{2}\/\d{4}$/i.test(value);
+    };
+
+    const isCompanyLine = (value: string) => {
+        const normalized = normalizeAscii(value);
+        return /\b(ltda|s\.a|sa|me|eireli|company|tech|solucoes|digital|studio|instituto)\b/.test(normalized)
+            || /\b[A-Z]{2}\b/.test(value)
+            || /,\s*[A-Z]{2}\b/.test(value)
+            || /\s[-–]\s/.test(value);
+    };
+
+    experiences.forEach((line, index) => {
+        const normalized = line.trim();
+        if (!normalized) {
+            return;
+        }
+
+        if (isActivityLine(normalized)) {
+            if (!current) {
+                current = buildItem('Experiência', index);
+                items.push(current);
+            }
+            const description = stripActivityPrefix(normalized);
+            if (description) {
+                current.descriptions.push(description);
+            }
+            return;
+        }
+
+        if (current && !current.subheadline && isCompanyLine(normalized)) {
+            current.subheadline = normalized;
+            return;
+        }
+
+        if (current && !current.period && isPeriodLine(normalized)) {
+            current.period = normalized;
+            return;
+        }
+
+        current = buildItem(normalized, index);
+        items.push(current);
+    });
+
+    return items;
+}
+
 function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
+    const extractProjectDisplayData = (sourceProject: UserProject) => {
+        const sanitizeUrl = (url: string) => url.replaceAll(/[).,;]+$/g, '').trim();
+        const repoRegex = /https?:\/\/(?:www\.)?github\.com\/[^\s)]+/i;
+        const deployRegex = /https?:\/\/(?:www\.)?[^\s)]*(?:vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev)[^\s)]*/i;
+
+        let cleanedDescription = sourceProject.shortDescription ?? '';
+        let repositoryUrl: string | null = null;
+        let deployUrl: string | null = sourceProject.deployUrl ?? null;
+
+        cleanedDescription = cleanedDescription.replaceAll(
+            /(reposit[oó]rio|repository|github|deploy|demo)\s*:\s*(https?:\/\/[^\s)]+)/gi,
+            (_fullMatch, rawLabel, rawUrl) => {
+                const label = String(rawLabel).toLowerCase();
+                const url = sanitizeUrl(String(rawUrl));
+
+                if (!repositoryUrl && /reposit[oó]rio|repository|github/.test(label)) {
+                    repositoryUrl = url;
+                }
+
+                if (!deployUrl && /deploy|demo/.test(label)) {
+                    deployUrl = url;
+                }
+
+                return '';
+            },
+        );
+
+        if (!repositoryUrl) {
+            const repoMatch = repoRegex.exec(cleanedDescription);
+            if (repoMatch?.[0]) {
+                repositoryUrl = sanitizeUrl(repoMatch[0]);
+                cleanedDescription = cleanedDescription.replaceAll(repoMatch[0], '');
+            }
+        }
+
+        if (!deployUrl) {
+            const deployMatch = deployRegex.exec(cleanedDescription);
+            if (deployMatch?.[0]) {
+                deployUrl = sanitizeUrl(deployMatch[0]);
+                cleanedDescription = cleanedDescription.replaceAll(deployMatch[0], '');
+            }
+        }
+
+        const normalizedDescription = cleanedDescription
+            .replaceAll(/\s{2,}/g, ' ')
+            .replaceAll(/\s+([.,;:!?])/g, '$1')
+            .trim();
+
+        return {
+            repositoryUrl,
+            deployUrl,
+            cleanedDescription: normalizedDescription.length > 0 ? normalizedDescription : null,
+        };
+    };
+
+    const projectDisplay = extractProjectDisplayData(project);
+
     return (
         <article className="border border-border-light dark:border-border-dark rounded-xl p-4 bg-slate-50 dark:bg-background-dark space-y-3 hover:border-primary/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-bold text-white">{project.title}</p>
-                {project.deployUrl ? (
-                    <a
-                        href={project.deployUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="cursor-pointer shrink-0 inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors"
-                    >
-                        <span
-                            className="material-symbols-outlined"
-                            style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}
-                        >
-                            open_in_new
-                        </span>
-                        {' '}Deploy
-                    </a>
+                {projectDisplay.repositoryUrl || projectDisplay.deployUrl ? (
+                    <div className="flex shrink-0 items-center gap-2">
+                        {projectDisplay.repositoryUrl ? (
+                            <a
+                                href={projectDisplay.repositoryUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-slate-100 border border-border-dark rounded-lg hover:bg-white/10 transition-colors"
+                            >
+                                <span className="material-symbols-outlined" style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}>
+                                    code
+                                </span>
+                                {' '}
+                                Repositório
+                            </a>
+                        ) : null}
+
+                        {projectDisplay.deployUrl ? (
+                            <a
+                                href={projectDisplay.deployUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors"
+                            >
+                                <span className="material-symbols-outlined" style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}>
+                                    open_in_new
+                                </span>
+                                {' '}
+                                Deploy
+                            </a>
+                        ) : null}
+                    </div>
                 ) : (
                     <span className="shrink-0 inline-flex items-center px-2 py-0.5 text-xs font-medium text-slate-200 border border-border-dark rounded-lg">
                         Sem deploy
@@ -199,8 +521,8 @@ function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
                 )}
             </div>
 
-            {project.shortDescription ? (
-                <p className="text-xs text-slate-100 leading-relaxed">{project.shortDescription}</p>
+            {projectDisplay.cleanedDescription ? (
+                <p className="text-xs text-slate-100 leading-relaxed">{projectDisplay.cleanedDescription}</p>
             ) : null}
 
             {project.technologies.length > 0 ? (
@@ -240,6 +562,7 @@ function mapDraftProjectsToProfileProjects(projects: EditableProjectForm[]): Edi
     return mapped;
 }
 
+// SONAR: componente consolidado de edição/preview; refatoração completa para subcomponentes ficará para tarefa dedicada.
 export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditorProps>) {
     const [profileSnapshot, setProfileSnapshot] = useState(initialProfile);
     const [isEditing, setIsEditing] = useState(false);
@@ -260,6 +583,11 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
     const [isSaving, setIsSaving] = useState(false);
     const [feedback, setFeedback] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const experienceDisplayItems = useMemo(
+        () => parseExperienceDisplayItems(profileSnapshot.experiences),
+        [profileSnapshot.experiences],
+    );
 
     const parsedPreview = useMemo(() => {
         const parsedProjects = projects
@@ -281,7 +609,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
             knownTechnologies,
             softSkills: normalizeSkillList(softSkillsText),
             certifications: fromTextAreaValue(certificationsText),
-            languages: fromTextAreaValue(languagesText),
+            languages: normalizeLanguageList(fromTextAreaValue(languagesText)),
         };
     }, [certificationsText, experiencesText, knownTechnologiesText, languagesText, projects, softSkillsText]);
 
@@ -318,6 +646,29 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
         setProjects((current) => current.map((project) => (project.localId === localId ? { ...project, ...changes } : project)));
     }
 
+    function getFieldError(fieldKey: string) {
+        if (fieldErrors[fieldKey]) {
+            return fieldErrors[fieldKey];
+        }
+
+        const prefixedEntry = Object.entries(fieldErrors).find(([key]) => key.startsWith(`${fieldKey}.`));
+        return prefixedEntry?.[1] ?? null;
+    }
+
+    function validateBeforeSubmit() {
+        const nextErrors: Record<string, string> = {};
+
+        addLengthErrorsForList(nextErrors, parsedPreview.experiences, 'experiences', FIELD_LIMITS.experiencesItem, 'A experiência');
+        addLengthErrorsForList(nextErrors, parsedPreview.languages, 'languages', FIELD_LIMITS.languagesItem, 'O idioma');
+        addLengthErrorsForList(nextErrors, parsedPreview.certifications, 'certifications', FIELD_LIMITS.certificationsItem, 'A certificação');
+        addLengthErrorsForList(nextErrors, parsedPreview.softSkills, 'softSkills', FIELD_LIMITS.softSkillsItem, 'A habilidade');
+        addLengthErrorsForList(nextErrors, parsedPreview.knownTechnologies, 'knownTechnologies', FIELD_LIMITS.knownTechnologiesItem, 'A tecnologia');
+        addProjectLengthErrors(nextErrors, parsedPreview.projects);
+
+        setFieldErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
+    }
+
     function removeProject(localId: string) {
         setProjects((current) => current.filter((project) => project.localId !== localId));
     }
@@ -349,20 +700,28 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
     function handleOpenEditor() {
         syncDraftFromProfile(profileSnapshot);
+        setFieldErrors({});
         setFeedback(null);
         setIsEditing(true);
     }
 
     function handleCancelEdit() {
         syncDraftFromProfile(profileSnapshot);
+        setFieldErrors({});
         setFeedback(null);
         setIsEditing(false);
     }
 
     async function handleSubmit(event: { preventDefault: () => void }) {
         event.preventDefault();
+        if (!validateBeforeSubmit()) {
+            setFeedback('Revise os campos destacados em vermelho antes de salvar.');
+            return;
+        }
+
         setIsSaving(true);
         setFeedback(null);
+        setFieldErrors({});
 
         try {
             const response = await fetch('/api/profile', {
@@ -389,9 +748,14 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                 message?: string;
                 error?: string;
                 profile?: EditableProfile;
+                details?: ValidationIssue[];
             };
 
             if (!response.ok) {
+                if (Array.isArray(payload.details)) {
+                    const nextErrors = parseApiValidationErrors(payload.details);
+                    setFieldErrors(nextErrors);
+                }
                 setFeedback(payload.error ?? 'Não foi possível salvar o perfil.');
                 return;
             }
@@ -468,22 +832,41 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
             </SectionBlock>
 
             <SectionBlock title="Experiências" icon="history_edu" iconColor="text-blue-400">
-                {profileSnapshot.experiences.length === 0 ? (
+                {experienceDisplayItems.length === 0 ? (
                     <p className="text-sm text-slate-200">Sem experiências cadastradas.</p>
                 ) : (
-                    <ul className="space-y-2">
-                        {profileSnapshot.experiences.map((experience) => (
-                            <li key={experience} className="flex items-start gap-2.5 text-sm text-slate-100">
-                                <span
-                                    className="material-symbols-outlined text-primary shrink-0 mt-0.5"
-                                    style={{ fontSize: '14px', fontVariationSettings: "'FILL' 1" }}
-                                >
-                                    chevron_right
-                                </span>
-                                {experience}
-                            </li>
+                    <div className="space-y-3">
+                        {experienceDisplayItems.map((experience) => (
+                            <article
+                                key={experience.id}
+                                className="rounded-xl border border-border-light dark:border-border-dark bg-slate-50 dark:bg-background-dark p-4"
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-sm font-bold text-white leading-snug">{experience.headline}</p>
+                                        {experience.subheadline ? (
+                                            <p className="mt-1 text-sm italic text-slate-300">{experience.subheadline}</p>
+                                        ) : null}
+                                    </div>
+                                    {experience.period ? (
+                                        <span className="inline-flex shrink-0 items-center rounded-lg border border-border-dark px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-300">
+                                            {experience.period}
+                                        </span>
+                                    ) : null}
+                                </div>
+
+                                {experience.descriptions.length > 0 ? (
+                                    <div className="mt-3 space-y-2">
+                                        {experience.descriptions.map((description, index) => (
+                                            <p key={`${experience.id}-desc-${index}`} className="text-sm text-slate-200 leading-relaxed">
+                                                {description}
+                                            </p>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </article>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </SectionBlock>
 
@@ -493,110 +876,133 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                 </SectionBlock>
 
                 <SectionBlock title="Idiomas" icon="translate" iconColor="text-blue-400">
-                    <TagList values={profileSnapshot.languages} emptyLabel="Sem idiomas cadastrados." />
+                    <TagList values={normalizeLanguageList(profileSnapshot.languages)} emptyLabel="Sem idiomas cadastrados." />
                 </SectionBlock>
             </div>
 
             {isEditing ? (
                 <form className="space-y-4 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-5 shadow-sm rounded-xl" onSubmit={handleSubmit}>
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider">Editar Dados do Perfil</h3>
+                    <p className="text-xs text-slate-400 dark:text-slate-300">
+                        Limites por item: experiências até {FIELD_LIMITS.experiencesItem} caracteres, idiomas até {FIELD_LIMITS.languagesItem}, descrição de projeto até {FIELD_LIMITS.projectsShortDescription} e cidade até {FIELD_LIMITS.city}.
+                    </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                             <span>Nome</span>
                             <input
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                className={getFieldClass(Boolean(getFieldError('fullName')))}
                                 value={fullName}
                                 maxLength={120}
+                                aria-invalid={Boolean(getFieldError('fullName'))}
                                 onChange={(event) => setFullName(event.target.value)}
                             />
+                            {getFieldError('fullName') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('fullName')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                             <span>Cidade</span>
                             <input
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                className={getFieldClass(Boolean(getFieldError('city')))}
                                 value={city}
                                 maxLength={100}
+                                aria-invalid={Boolean(getFieldError('city'))}
                                 onChange={(event) => setCity(event.target.value)}
                             />
+                            {getFieldError('city') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('city')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                             <span>LinkedIn</span>
                             <input
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                className={getFieldClass(Boolean(getFieldError('linkedinUrl')))}
                                 value={linkedinUrl}
                                 maxLength={500}
+                                aria-invalid={Boolean(getFieldError('linkedinUrl'))}
                                 onChange={(event) => setLinkedinUrl(event.target.value)}
                             />
+                            {getFieldError('linkedinUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('linkedinUrl')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
                             <span>GitHub</span>
                             <input
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                className={getFieldClass(Boolean(getFieldError('githubUrl')))}
                                 value={githubUrl}
                                 maxLength={500}
+                                aria-invalid={Boolean(getFieldError('githubUrl'))}
                                 onChange={(event) => setGithubUrl(event.target.value)}
                             />
+                            {getFieldError('githubUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('githubUrl')}</span> : null}
                         </label>
                     </div>
 
                     <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                         <span>Resumo Profissional</span>
                         <textarea
-                            className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
+                            className={`${getFieldClass(Boolean(getFieldError('professionalSummary')))} min-h-24`}
                             value={professionalSummary}
                             maxLength={3000}
+                            aria-invalid={Boolean(getFieldError('professionalSummary'))}
                             onChange={(event) => setProfessionalSummary(event.target.value)}
                         />
+                        {getFieldError('professionalSummary') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('professionalSummary')}</span> : null}
                     </label>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                             <span>Experiências (uma por linha)</span>
                             <textarea
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
+                                className={`${getFieldClass(Boolean(getFieldError('experiences')))} min-h-24`}
                                 value={experiencesText}
+                                aria-invalid={Boolean(getFieldError('experiences'))}
                                 onChange={(event) => setExperiencesText(event.target.value)}
                             />
+                            {getFieldError('experiences') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('experiences')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                             <span>Competências Técnicas (uma por linha ou vírgula)</span>
                             <textarea
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
+                                className={`${getFieldClass(Boolean(getFieldError('knownTechnologies')))} min-h-24`}
                                 value={knownTechnologiesText}
+                                aria-invalid={Boolean(getFieldError('knownTechnologies'))}
                                 onChange={(event) => setKnownTechnologiesText(event.target.value)}
                             />
+                            {getFieldError('knownTechnologies') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('knownTechnologies')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                             <span>Habilidades comportamentais (uma por linha)</span>
                             <textarea
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
+                                className={`${getFieldClass(Boolean(getFieldError('softSkills')))} min-h-24`}
                                 value={softSkillsText}
+                                aria-invalid={Boolean(getFieldError('softSkills'))}
                                 onChange={(event) => setSoftSkillsText(event.target.value)}
                             />
+                            {getFieldError('softSkills') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('softSkills')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                             <span>Certificações (uma por linha)</span>
                             <textarea
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
+                                className={`${getFieldClass(Boolean(getFieldError('certifications')))} min-h-24`}
                                 value={certificationsText}
+                                aria-invalid={Boolean(getFieldError('certifications'))}
                                 onChange={(event) => setCertificationsText(event.target.value)}
                             />
+                            {getFieldError('certifications') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('certifications')}</span> : null}
                         </label>
 
                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                             <span>Idiomas (uma por linha)</span>
                             <textarea
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-24"
+                                className={`${getFieldClass(Boolean(getFieldError('languages')))} min-h-24`}
                                 value={languagesText}
+                                aria-invalid={Boolean(getFieldError('languages'))}
                                 onChange={(event) => setLanguagesText(event.target.value)}
                             />
+                            {getFieldError('languages') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('languages')}</span> : null}
                         </label>
                     </div>
 
@@ -682,37 +1088,45 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                             <span>Título</span>
                                             <input
-                                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.title`)))}
                                                 value={project.title}
+                                                aria-invalid={Boolean(getFieldError(`projects.${index}.title`))}
                                                 onChange={(event) => updateProject(project.localId, { title: event.target.value })}
                                             />
+                                            {getFieldError(`projects.${index}.title`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.title`)}</span> : null}
                                         </label>
 
                                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                             <span>Descrição breve</span>
                                             <textarea
-                                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
+                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.shortDescription`))) + ' min-h-20'}
                                                 value={project.shortDescription}
+                                                aria-invalid={Boolean(getFieldError(`projects.${index}.shortDescription`))}
                                                 onChange={(event) => updateProject(project.localId, { shortDescription: event.target.value })}
                                             />
+                                            {getFieldError(`projects.${index}.shortDescription`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.shortDescription`)}</span> : null}
                                         </label>
 
                                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                             <span>Tecnologias (separadas por vírgula)</span>
                                             <textarea
-                                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
+                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.technologies`))) + ' min-h-20'}
                                                 value={project.technologiesText}
+                                                aria-invalid={Boolean(getFieldError(`projects.${index}.technologies`))}
                                                 onChange={(event) => updateProject(project.localId, { technologiesText: event.target.value })}
                                             />
+                                            {getFieldError(`projects.${index}.technologies`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.technologies`)}</span> : null}
                                         </label>
 
                                         <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
                                             <span>Link de deploy (opcional)</span>
                                             <input
-                                                className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.deployUrl`)))}
                                                 value={project.deployUrl}
+                                                aria-invalid={Boolean(getFieldError(`projects.${index}.deployUrl`))}
                                                 onChange={(event) => updateProject(project.localId, { deployUrl: event.target.value })}
                                             />
+                                            {getFieldError(`projects.${index}.deployUrl`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.deployUrl`)}</span> : null}
                                         </label>
                                     </article>
                                 ))}
