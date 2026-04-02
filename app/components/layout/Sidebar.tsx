@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import BrandLogo from '@/app/components/layout/BrandLogo';
 import { NAV_ITEMS } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
+import { useTutorial } from '@/app/providers/TutorialProvider';
 
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
@@ -38,6 +39,7 @@ function getInitials(name: string) {
 export default function Sidebar() {
     const { user } = useAuth();
     const pathname = usePathname();
+    const { openTutorial } = useTutorial();
     const visibleNavItems = NAV_ITEMS;
 
     return (
@@ -50,34 +52,37 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 pl-3 pr-0 py-5 space-y-1">
-                {visibleNavItems.map((item) => {
-                    const isActive = item.href === '/'
-                        ? pathname === '/'
-                        : pathname.startsWith(item.href);
-                    const icon = NAV_ICONS[item.label] ?? item.icon;
+            <nav className="flex-1 pl-3 pr-0 py-5 flex flex-col justify-between">
+                <div className="space-y-1">
+                    {visibleNavItems.map((item) => {
+                        const isActive = item.href === '/'
+                            ? pathname === '/'
+                            : pathname.startsWith(item.href);
+                        const icon = NAV_ICONS[item.label] ?? item.icon;
 
-                    return (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            data-onboarding-id={getOnboardingNavId(item.href)}
-                            className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
-                                ? 'rounded-l-lg bg-primary text-white border-r-2 border-primary'
-                                : 'rounded-lg text-slate-300 hover:bg-primary/10 hover:text-primary'
-                                }`}
-                        >
-                            <span
-                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-violet-400'
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                data-onboarding-id={getOnboardingNavId(item.href)}
+                                className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
+                                    ? 'rounded-l-lg bg-primary text-white border-r-2 border-primary'
+                                    : 'rounded-lg text-slate-300 hover:bg-primary/10 hover:text-primary'
                                     }`}
-                                style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
                             >
-                                {icon}
-                            </span>
-                            <span>{item.label}</span>
-                        </Link>
-                    );
-                })}
+                                <span
+                                    className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-violet-400'
+                                        }`}
+                                    style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                                >
+                                    {icon}
+                                </span>
+                                <span>{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+
             </nav>
 
             {/* User Profile */}
@@ -87,7 +92,7 @@ export default function Sidebar() {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                             alt={`${user.name} Avatar`}
-                            className="h-9 w-9 rounded-lg object-cover"
+                            className="h-9 w-9 rounded-lg object-cover shrink-0"
                             src={user.avatar}
                             referrerPolicy="no-referrer"
                         />
@@ -96,7 +101,7 @@ export default function Sidebar() {
                             <span className="text-sm font-bold text-primary">{getInitials(user.name)}</span>
                         </div>
                     )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                         <p className="text-xs text-slate-400 dark:text-slate-300 truncate">{user.role}</p>
                     </div>
