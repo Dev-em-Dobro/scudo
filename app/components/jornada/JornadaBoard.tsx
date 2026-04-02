@@ -590,7 +590,7 @@ export default function JornadaBoard({
                             Progresso nas plataformas externas
                         </p>
                         {hasCodeQuestAccount ? (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
                                 <span
                                     className="material-symbols-outlined inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
                                     style={{ fontVariationSettings: "'FILL' 1" }}
@@ -609,7 +609,7 @@ export default function JornadaBoard({
                                 Conta CodeQuest não encontrada para seu e-mail — a sincronização de exercícios será ignorada até haver cadastro.
                             </p>
                         )}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
                             <span
                                 className="material-symbols-outlined inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
                                 style={{ fontVariationSettings: "'FILL' 1" }}

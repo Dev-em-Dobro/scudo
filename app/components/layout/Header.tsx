@@ -9,6 +9,7 @@ import InitialOnboardingModal from '@/app/components/onboarding/InitialOnboardin
 import { authClient } from '@/app/lib/auth-client';
 import { NAV_ITEMS } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
+import { useTutorial } from '@/app/providers/TutorialProvider';
 
 interface HeaderProps {
     readonly title?: string;
@@ -69,6 +70,7 @@ async function clearClientAuthState() {
 
 export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) {
     const { user } = useAuth();
+    const { openTutorial } = useTutorial();
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
@@ -109,32 +111,46 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
 
             <h1 className="hidden lg:block text-xl font-bold text-white tracking-tight">{title}</h1>
 
-            {/* Avatar + dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            {/* Tutorial + avatar dropdown */}
+            <div className="flex items-center gap-2">
                 <button
                     type="button"
-                    aria-haspopup="true"
-                    aria-expanded={open}
-                    onClick={() => setOpen((prev) => !prev)}
-                    className="cursor-pointer focus:outline-none"
+                    onClick={openTutorial}
+                    aria-label="Assistir tutorial"
+                    title="Assistir tutorial"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-violet-400 hover:border-violet-400/40 transition-colors cursor-pointer"
                 >
-                    {user.avatar ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                            alt={`${user.name} Avatar`}
-                            className="h-9 w-9 rounded-xl object-cover ring-2 ring-primary/30 hover:ring-primary transition-all duration-150"
-                            src={user.avatar}
-                            referrerPolicy="no-referrer"
-                        />
-                    ) : (
-                        <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/30 hover:border-emerald-500 flex items-center justify-center transition-all duration-150">
-                            <span className="text-sm font-bold text-emerald-400">{getInitials(user.name)}</span>
-                        </div>
-                    )}
+                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>
+                        play_circle
+                    </span>
+                    <span className="text-xs font-medium whitespace-nowrap">Assistir tutorial</span>
                 </button>
 
-                {open && (
-                    <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
+                <div className="relative" ref={dropdownRef}>
+                    <button
+                        type="button"
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        onClick={() => setOpen((prev) => !prev)}
+                        className="cursor-pointer focus:outline-none"
+                    >
+                        {user.avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                alt={`${user.name} Avatar`}
+                                className="h-9 w-9 rounded-xl object-cover ring-2 ring-primary/30 hover:ring-primary transition-all duration-150"
+                                src={user.avatar}
+                                referrerPolicy="no-referrer"
+                            />
+                        ) : (
+                            <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/30 hover:border-emerald-500 flex items-center justify-center transition-all duration-150">
+                                <span className="text-sm font-bold text-emerald-400">{getInitials(user.name)}</span>
+                            </div>
+                        )}
+                    </button>
+
+                    {open && (
+                        <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
                         {/* Cabeçalho do menu */}
                         <div className="px-4 py-3 border-b border-border-light dark:border-border-dark">
                             <p className="text-sm font-semibold text-white truncate">{user.name}</p>
@@ -188,8 +204,9 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                 {loggingOut ? 'Saindo...' : 'Sair da conta'}
                             </button>
                         </div>
-                    </div>
-                )}
+                        </div>
+                    )}
+                </div>
             </div>
             </header>
         </>
