@@ -10,18 +10,46 @@ export const runtime = "nodejs";
 const allowedLevels = new Set<JobLevel>(["ESTAGIO", "JUNIOR", "PLENO", "SENIOR", "OUTRO"]);
 const allowedSources = new Set<JobSource>(["LINKEDIN", "GUPY", "COMPANY_SITE", "OTHER"]);
 
-const lowLevelStackExclude = [
+const nonTargetStackExclude = [
     "c",
     "c++",
+    "python",
+    "go",
+    "golang",
     "rust",
     "zig",
     "assembly",
     "firmware",
     "embedded",
     "microcontrolador",
+    "data-science",
+    "machine-learning",
+    "deep-learning",
+    "data-engineering",
+    "data-analytics",
+    "analytics",
+    "pandas",
+    "numpy",
+    "pytorch",
+    "tensorflow",
+    "spark",
+    "databricks",
 ];
 
-const lowLevelTitleKeywords = [
+const nonTargetTitleKeywords = [
+    "python",
+    "golang",
+    "linguagem go",
+    "data science",
+    "ciência de dados",
+    "cientista de dados",
+    "machine learning",
+    "deep learning",
+    "ml engineer",
+    "engenheiro de dados",
+    "data engineer",
+    "data analytics",
+    "analista de dados",
     "c++",
     "linguagem c",
     "embedded",
@@ -60,10 +88,10 @@ export async function GET(request: NextRequest) {
             OR: [
                 {
                     stack: {
-                        hasSome: lowLevelStackExclude,
+                        hasSome: nonTargetStackExclude,
                     },
                 },
-                ...lowLevelTitleKeywords.map((keyword) => ({
+                ...nonTargetTitleKeywords.map((keyword) => ({
                     title: {
                         contains: keyword,
                         mode: "insensitive" as const,

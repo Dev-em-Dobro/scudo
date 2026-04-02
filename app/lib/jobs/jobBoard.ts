@@ -8,7 +8,6 @@ const JOB_BOARD_STACK_FILTER = [
     'fullstack',
     'javascript',
     'typescript',
-    'python',
     'react',
     'next',
     'node',
@@ -25,18 +24,46 @@ const JOB_BOARD_STACK_FILTER = [
     'langchain',
 ];
 
-const JOB_BOARD_LOW_LEVEL_STACK_EXCLUDE = [
+const JOB_BOARD_NON_TARGET_STACK_EXCLUDE = [
     'c',
     'c++',
+    'python',
+    'go',
+    'golang',
     'rust',
     'zig',
     'assembly',
     'firmware',
     'embedded',
     'microcontrolador',
+    'data-science',
+    'machine-learning',
+    'deep-learning',
+    'data-engineering',
+    'data-analytics',
+    'analytics',
+    'pandas',
+    'numpy',
+    'pytorch',
+    'tensorflow',
+    'spark',
+    'databricks',
 ];
 
-const JOB_BOARD_LOW_LEVEL_TITLE_KEYWORDS = [
+const JOB_BOARD_NON_TARGET_TITLE_KEYWORDS = [
+    'python',
+    'golang',
+    'linguagem go',
+    'data science',
+    'ciência de dados',
+    'cientista de dados',
+    'machine learning',
+    'deep learning',
+    'ml engineer',
+    'engenheiro de dados',
+    'data engineer',
+    'data analytics',
+    'analista de dados',
     'c++',
     'linguagem c',
     'embedded',
@@ -98,10 +125,10 @@ export async function getJobBoardJobs() {
                 OR: [
                     {
                         stack: {
-                            hasSome: JOB_BOARD_LOW_LEVEL_STACK_EXCLUDE,
+                            hasSome: JOB_BOARD_NON_TARGET_STACK_EXCLUDE,
                         },
                     },
-                    ...JOB_BOARD_LOW_LEVEL_TITLE_KEYWORDS.map((keyword) => ({
+                    ...JOB_BOARD_NON_TARGET_TITLE_KEYWORDS.map((keyword) => ({
                         title: {
                             contains: keyword,
                             mode: 'insensitive' as const,
