@@ -367,7 +367,7 @@ export default async function AnalyticsPage() {
                                                         <div className="flex items-center gap-2 shrink-0 ml-3">
                                                             <span className="text-xs text-slate-400 dark:text-slate-300">{item.demand} vagas</span>
                                                             {item.mastered ? (
-                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-violet-500/10 text-violet-400 border border-violet-500/30">
                                                                     <span className="material-symbols-outlined" style={{ fontSize: '11px', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                                                                     {' '}Dominada
                                                                 </span>
@@ -476,8 +476,8 @@ export default async function AnalyticsPage() {
                                         label="Alta (≥70%)"
                                         value={fitStats.highFitJobs}
                                         total={fitStats.evaluableCount}
-                                        colorClass="text-primary"
-                                        bgClass="bg-primary"
+                                        colorClass="text-violet-400"
+                                        bgClass="bg-violet-400"
                                     />
                                     <DistributionBar
                                         label="Média (50–69%)"

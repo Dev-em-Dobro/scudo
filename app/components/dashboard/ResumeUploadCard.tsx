@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
 
 function getSyncBadgeClass(status: string) {
-    if (status === 'ready') return 'bg-primary/10 text-primary border-primary/30';
+    if (status === 'ready') return 'bg-violet-500/10 text-violet-400 border-violet-500/30';
     if (status === 'processing' || status === 'uploaded') return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
     return 'bg-slate-500/10 text-slate-400 border-slate-500/30';
 }

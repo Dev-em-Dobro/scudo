@@ -15,18 +15,19 @@ export default async function JornadaPage() {
         redirect('/login');
     }
 
-    const isOfficialStudent = await isOfficialStudentUser(session.user.id);
+    // Sync da Curseduca em background — não bloqueia o carregamento da página
+    syncCurseducaProgressForUser(session.user.id).catch((error) => {
+        console.error('[jornada] Falha ao sincronizar progresso da Curseduca em background:', error);
+    });
+
+    const [isOfficialStudent, snapshot] = await Promise.all([
+        isOfficialStudentUser(session.user.id),
+        getUserJornadaSnapshot(session.user.id),
+    ]);
+
     if (!isOfficialStudent) {
         redirect('/');
     }
-
-    try {
-        await syncCurseducaProgressForUser(session.user.id);
-    } catch (error) {
-        console.error('[jornada] Falha ao sincronizar progresso da Curseduca antes de exibir a página:', error);
-    }
-
-    const snapshot = await getUserJornadaSnapshot(session.user.id);
 
     return (
         <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">

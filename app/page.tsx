@@ -94,7 +94,7 @@ export default async function Home() {
                         <div className="space-y-4" data-onboarding-id="painel-vagas-aptas">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-sm font-bold text-white">Vagas Aptas para Você</h2>
-                                <a href="/jobs" className="text-xs font-medium text-primary hover:text-primary/80 hover:underline transition-colors">
+                                <a href="/jobs" className="text-xs font-medium text-violet-400 hover:text-violet-300 hover:underline transition-colors">
                                     Ver todas
                                 </a>
                             </div>

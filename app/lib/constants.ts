@@ -2,17 +2,17 @@ import { NavItem } from '../types';
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    label: 'Jornada do aluno',
-    icon: 'route',
-    href: '/jornada',
-  },
-  {
     label: 'Meu Painel',
     icon: 'grid_view',
     href: '/',
   },
   {
-    label: 'Vagas para Você',
+    label: 'Jornada do aluno',
+    icon: 'route',
+    href: '/jornada',
+  },
+  {
+    label: 'Vagas Aptas para Você',
     icon: 'work_outline',
     href: '/jobs',
   },

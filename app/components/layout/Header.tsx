@@ -127,8 +127,8 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                             referrerPolicy="no-referrer"
                         />
                     ) : (
-                        <div className="h-9 w-9 rounded-xl bg-primary/20 border-2 border-primary/30 hover:border-primary flex items-center justify-center transition-all duration-150">
-                            <span className="text-sm font-bold text-primary">{getInitials(user.name)}</span>
+                        <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/30 hover:border-emerald-500 flex items-center justify-center transition-all duration-150">
+                            <span className="text-sm font-bold text-emerald-400">{getInitials(user.name)}</span>
                         </div>
                     )}
                 </button>
