@@ -3,10 +3,7 @@
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useTutorial } from '@/app/providers/TutorialProvider';
 
-// Substitua pela URL de embed do YouTube ou Panda Video
-// YouTube: https://www.youtube.com/embed/SEU_VIDEO_ID?autoplay=0&rel=0
-// Panda:   https://player-vz-XXXXX.tv.pandavideo.com.br/embed/?v=SEU_VIDEO_ID
-const TUTORIAL_VIDEO_URL = 'https://www.youtube.com/embed/SEU_VIDEO_ID?autoplay=0&rel=0';
+const TUTORIAL_VIDEO_URL = 'https://www.youtube.com/embed/uX3gHJZLWZA?rel=0';
 
 export default function TutorialVideoModal() {
     const { isAuthenticated } = useAuth();
