@@ -22,7 +22,7 @@ export default function BrandLogo({
 }: Readonly<BrandLogoProps>) {
     return (
         <div
-            className={joinClasses("flex items-center", className)}
+            className={joinClasses("flex items-center gap-0", className)}
             role="img"
             aria-label="Scudo"
         >
@@ -30,14 +30,18 @@ export default function BrandLogo({
                 src={scudoLogo}
                 alt=""
                 aria-hidden="true"
-                className={joinClasses("h-12 w-12 object-contain", logoClassName)}
+                className={joinClasses("h-12 w-12 shrink-0 object-contain object-left", logoClassName)}
                 priority={priority}
             />
+            {/* Margem negativa compensa padding transparente nos PNGs (logo + título) */}
             <Image
                 src={scudoTitle}
                 alt=""
                 aria-hidden="true"
-                className={joinClasses("h-5 w-auto", titleClassName)}
+                className={joinClasses(
+                    "-ml-2 h-5 w-auto shrink-0 object-left sm:-ml-3 lg:-ml-3.5",
+                    titleClassName,
+                )}
                 priority={priority}
             />
         </div>

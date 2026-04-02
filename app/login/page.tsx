@@ -1,17 +1,11 @@
+import Image from "next/image";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import BrandLogo from "@/app/components/layout/BrandLogo";
+import logoComNome from "@/app/assets/logo-com-nome.png";
 import LoginForm from "@/app/components/auth/LoginForm";
 import { auth } from "@/app/lib/auth";
 import { isStudentVerifiedAuthOnlyEnabled } from "@/app/lib/featureFlags";
-
-const FEATURES = [
-    { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
-    { icon: "work_outline", label: "Vagas selecionadas para você todo dia" },
-    { icon: "bar_chart", label: "Métricas do mercado em tempo real" },
-    { icon: "psychology", label: "Teste suas habilidades e veja onde se destacar" },
-];
 
 export default async function LoginPage() {
     const studentVerifiedAuthOnly = isStudentVerifiedAuthOnlyEnabled();
@@ -26,52 +20,56 @@ export default async function LoginPage() {
 
     return (
         <main className="min-h-screen bg-background-dark flex">
-            {/* Painel de marca — oculto em mobile */}
-            <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col justify-between p-12 border-r border-border-dark relative overflow-hidden">
-                <div className="absolute inset-0 bg-linear-to-br from-emerald-950/60 via-background-dark to-background-dark pointer-events-none" />
-                <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+            {/* Painel de marca — oculto em mobile; roxo + verde em equilíbrio */}
+            <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col min-h-screen p-12 border-r border-border-dark relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/55 via-background-dark to-background-dark pointer-events-none" />
+                <div className="absolute -top-28 -left-28 w-[22rem] h-[22rem] rounded-full bg-primary/12 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -right-16 w-80 h-80 rounded-full bg-emerald-500/18 blur-3xl pointer-events-none" />
+                <div className="absolute top-1/2 -right-24 w-64 h-64 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
 
-                {/* Logo */}
-                <BrandLogo className="relative" logoClassName="h-10 w-auto" titleClassName="h-7 w-auto" priority />
-
-                {/* Hero */}
-                <div className="relative space-y-6">
-                    <div className="space-y-3">
-                        <h2 className="text-3xl font-bold text-white leading-snug">
-                            Sua carreira em <span className="text-primary">modo turbo</span>
-                        </h2>
-                        <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
-                            Conectamos seu perfil técnico às vagas certas com precisão — sem desperdício de tempo.
-                        </p>
-                    </div>
-
-                    <ul className="space-y-3">
-                        {FEATURES.map((f) => (
-                            <li key={f.label} className="flex items-center gap-3">
-                                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 shrink-0">
-                                    <span
-                                        className="material-symbols-outlined text-primary text-base"
-                                        style={{ fontVariationSettings: "'FILL' 1" }}
-                                    >
-                                        {f.icon}
-                                    </span>
+                {/* Logo + texto centralizados na área útil; rodapé fixo embaixo */}
+                <div className="relative z-10 flex flex-1 flex-col justify-center items-center min-h-0">
+                    <div className="flex w-full max-w-sm flex-col items-center gap-8 text-center">
+                        <Image
+                            src={logoComNome}
+                            alt="Scudo"
+                            className="h-auto w-full max-w-[260px] object-contain"
+                            sizes="(max-width: 1280px) 260px, 320px"
+                            unoptimized
+                            priority
+                        />
+                        <div className="space-y-3">
+                            <h2 className="text-3xl font-bold leading-snug text-white">
+                                Proteja sua{" "}
+                                <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+                                    evolução
                                 </span>
-                                <span className="text-sm text-slate-200">{f.label}</span>
-                            </li>
-                        ))}
-                    </ul>
+                            </h2>
+                            <p className="text-sm leading-relaxed text-slate-300/95">
+                                Conectamos seu perfil técnico às vagas certas com precisão — sem desperdício de tempo.
+                            </p>
+                            <div
+                                className="mx-auto h-px w-16 max-w-full bg-gradient-to-r from-transparent via-emerald-500/45 to-transparent"
+                                aria-hidden
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                {/* Rodapé */}
-                <p className="relative text-xs text-slate-400">
+                <p className="relative z-10 shrink-0 pt-8 text-center text-xs text-slate-400">
                     © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
                 </p>
             </div>
 
-            {/* Painel do formulário */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <LoginForm studentVerifiedAuthOnly={studentVerifiedAuthOnly} />
+            {/* Painel do formulário — leve atmosfera verde + roxo */}
+            <div className="relative flex flex-1 items-center justify-center overflow-hidden px-6 py-12">
+                <div
+                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_90%_20%,rgba(101,40,211,0.09),transparent_55%),radial-gradient(ellipse_70%_50%_at_10%_80%,rgba(16,185,129,0.08),transparent_50%)]"
+                    aria-hidden
+                />
+                <div className="relative z-10 w-full flex justify-center">
+                    <LoginForm studentVerifiedAuthOnly={studentVerifiedAuthOnly} />
+                </div>
             </div>
         </main>
     );
