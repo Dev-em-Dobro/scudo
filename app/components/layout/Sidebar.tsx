@@ -8,7 +8,7 @@ import { useAuth } from '@/app/providers/AuthProvider';
 
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
-    'Vagas para Você': 'work_outline',
+    'Vagas Aptas para Você': 'work_outline',
     Avaliações: 'psychology',
     'Jornada do aluno': 'route',
     'Radar de Mercado': 'bar_chart',
@@ -38,13 +38,7 @@ function getInitials(name: string) {
 export default function Sidebar() {
     const { user } = useAuth();
     const pathname = usePathname();
-    const visibleNavItems = NAV_ITEMS.filter((item) => {
-        if (item.href !== '/jornada') {
-            return true;
-        }
-
-        return user.isOfficialStudent;
-    });
+    const visibleNavItems = NAV_ITEMS;
 
     return (
         <aside className="w-64 bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
@@ -74,7 +68,7 @@ export default function Sidebar() {
                                 }`}
                         >
                             <span
-                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-primary'
+                                className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-violet-400'
                                     }`}
                                 style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
                             >
