@@ -3,7 +3,8 @@
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useTutorial } from '@/app/providers/TutorialProvider';
 
-const TUTORIAL_VIDEO_URL = 'https://www.youtube.com/embed/uX3gHJZLWZA?rel=0';
+const TUTORIAL_VIDEO_URL =
+    process.env.NEXT_PUBLIC_TUTORIAL_VIDEO_URL ?? 'https://www.youtube.com/embed/uX3gHJZLWZA?rel=0';
 
 export default function TutorialVideoModal() {
     const { isAuthenticated } = useAuth();
