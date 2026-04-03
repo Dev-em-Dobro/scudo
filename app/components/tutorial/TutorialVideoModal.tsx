@@ -22,7 +22,7 @@ export default function TutorialVideoModal() {
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
                             <span className="material-symbols-outlined text-violet-400 text-2xl shrink-0 mt-0.5">
-                                play_circle
+                                smart_display
                             </span>
                             <div className="space-y-1">
                                 <h2 className="text-base font-bold text-white">

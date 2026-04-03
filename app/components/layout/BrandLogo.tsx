@@ -8,6 +8,8 @@ interface BrandLogoProps {
     logoClassName?: string;
     titleClassName?: string;
     priority?: boolean;
+    /** Só o escudo, sem o texto SCUDO (ex.: header mobile). */
+    compact?: boolean;
 }
 
 function joinClasses(...classes: Array<string | undefined>) {
@@ -19,6 +21,7 @@ export default function BrandLogo({
     logoClassName,
     titleClassName,
     priority = false,
+    compact = false,
 }: Readonly<BrandLogoProps>) {
     return (
         <div
@@ -33,17 +36,18 @@ export default function BrandLogo({
                 className={joinClasses("h-12 w-12 shrink-0 object-contain object-left", logoClassName)}
                 priority={priority}
             />
-            {/* Margem negativa compensa padding transparente nos PNGs (logo + título) */}
-            <Image
-                src={scudoTitle}
-                alt=""
-                aria-hidden="true"
-                className={joinClasses(
-                    "-ml-2 h-5 w-auto shrink-0 object-left sm:-ml-3 lg:-ml-3.5",
-                    titleClassName,
-                )}
-                priority={priority}
-            />
+            {!compact && (
+                <Image
+                    src={scudoTitle}
+                    alt=""
+                    aria-hidden="true"
+                    className={joinClasses(
+                        "-ml-3 h-5 w-auto shrink-0 object-left sm:-ml-4 lg:-ml-4",
+                        titleClassName,
+                    )}
+                    priority={priority}
+                />
+            )}
         </div>
     );
 }

@@ -17,8 +17,8 @@ interface HeaderProps {
 
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
-    'Vagas para Você': 'work_outline',
-    'Avaliações': 'psychology',
+    'Vagas Aptas para Você': 'work_outline',
+    Avaliações: 'psychology',
     'Jornada do aluno': 'route',
     'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
@@ -73,6 +73,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     const { openTutorial } = useTutorial();
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +91,21 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     // Fecha ao mudar de rota
     useEffect(() => {
         setOpen(false);
+        setMobileNavOpen(false);
     }, [pathname]);
+
+    useEffect(() => {
+        if (!mobileNavOpen) {
+            return;
+        }
+        function onKeyDown(e: KeyboardEvent) {
+            if (e.key === 'Escape') {
+                setMobileNavOpen(false);
+            }
+        }
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [mobileNavOpen]);
 
     async function handleLogout() {
         setLoggingOut(true);
@@ -105,20 +120,37 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     return (
         <>
             <InitialOnboardingModal />
-            <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between px-6 shrink-0">
-            {/* Logo — visível apenas em mobile/tablet (sidebar oculta abaixo de lg) */}
-            <BrandLogo className="lg:hidden" logoClassName="h-6 w-auto" titleClassName="h-4 w-auto" />
+            <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between gap-3 px-4 sm:px-6 shrink-0 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1 lg:hidden">
+                    <Link href="/" className="min-w-0 shrink" aria-label="Ir para o início">
+                        <BrandLogo className="min-w-0" logoClassName="h-8 w-8 sm:h-9 sm:w-9" titleClassName="h-4 w-auto" />
+                    </Link>
+                </div>
 
-            <h1 className="hidden lg:block text-xl font-bold text-white tracking-tight">{title}</h1>
+                <h1 className="hidden lg:block flex-1 text-xl font-bold text-white tracking-tight truncate min-w-0 text-left">
+                    {title}
+                </h1>
 
-            {/* Tutorial + avatar dropdown */}
-            <div className="flex items-center gap-2">
+            {/* Mobile: hambúrguer no lugar do antigo atalho do tutorial | Desktop: tutorial em texto */}
+            <div className="flex items-center gap-2 shrink-0">
+                <button
+                    type="button"
+                    className="lg:hidden shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-light/60 dark:border-border-dark text-slate-300 hover:text-white hover:border-violet-400/40 transition-colors cursor-pointer"
+                    aria-label="Abrir menu"
+                    aria-expanded={mobileNavOpen}
+                    onClick={() => setMobileNavOpen(true)}
+                >
+                    <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 0" }}>
+                        menu
+                    </span>
+                </button>
+
                 <button
                     type="button"
                     onClick={openTutorial}
                     aria-label="Assistir tutorial"
                     title="Assistir tutorial"
-                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-violet-400 hover:border-violet-400/40 transition-colors cursor-pointer"
+                    className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-violet-400 hover:border-violet-400/40 transition-colors cursor-pointer"
                 >
                     <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>
                         play_circle
@@ -157,39 +189,6 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                             <p className="text-xs text-slate-400 dark:text-slate-300 truncate mt-0.5">{user.email}</p>
                         </div>
 
-                        {/* Navegação — visível apenas em mobile/tablet */}
-                        <nav className="lg:hidden py-1.5 border-b border-border-light dark:border-border-dark">
-                            <p className="px-4 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-400">
-                                Navegação
-                            </p>
-                            {NAV_ITEMS.map((item) => {
-                                const isActive = item.href === '/'
-                                    ? pathname === '/'
-                                    : pathname.startsWith(item.href);
-                                const icon = NAV_ICONS[item.label] ?? item.icon;
-
-                                return (
-                                    <Link
-                                        key={item.label}
-                                        href={item.href}
-                                        data-onboarding-id={getOnboardingNavId(item.href)}
-                                        className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${isActive
-                                            ? 'text-primary bg-primary/15'
-                                            : 'text-slate-300 hover:bg-primary/10 hover:text-primary'
-                                            }`}
-                                    >
-                                        <span
-                                            className="material-symbols-outlined text-[18px] shrink-0"
-                                            style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-                                        >
-                                            {icon}
-                                        </span>
-                                        {item.label}
-                                    </Link>
-                                );
-                            })}
-                        </nav>
-
                         {/* Ações */}
                         <div className="py-1.5">
                             <button
@@ -209,6 +208,78 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                 </div>
             </div>
             </header>
+
+            {/* Drawer de navegação — mobile / tablet */}
+            {mobileNavOpen ? (
+                <div className="lg:hidden fixed inset-0 z-[60]">
+                    <button
+                        type="button"
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
+                        aria-label="Fechar menu"
+                        onClick={() => setMobileNavOpen(false)}
+                    />
+                    <nav
+                        className="absolute left-0 top-0 bottom-0 w-[min(20rem,92vw)] bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shadow-2xl flex flex-col"
+                        aria-label="Menu principal"
+                    >
+                        <div className="flex items-center justify-between h-16 px-4 border-b border-border-light dark:border-border-dark shrink-0">
+                            <span className="text-sm font-bold text-white tracking-tight">Menu</span>
+                            <button
+                                type="button"
+                                className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 cursor-pointer"
+                                aria-label="Fechar menu"
+                                onClick={() => setMobileNavOpen(false)}
+                            >
+                                <span className="material-symbols-outlined text-[22px]">close</span>
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto py-2">
+                            {NAV_ITEMS.map((item) => {
+                                const isActive =
+                                    item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                                const icon = NAV_ICONS[item.label] ?? item.icon;
+
+                                return (
+                                    <Link
+                                        key={item.label}
+                                        href={item.href}
+                                        data-onboarding-id={getOnboardingNavId(item.href)}
+                                        onClick={() => setMobileNavOpen(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${isActive
+                                            ? 'text-primary bg-primary/15 border-l-2 border-primary'
+                                            : 'text-slate-300 hover:bg-primary/10 hover:text-primary border-l-2 border-transparent'
+                                            }`}
+                                    >
+                                        <span
+                                            className="material-symbols-outlined text-[20px] shrink-0"
+                                            style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                                        >
+                                            {icon}
+                                        </span>
+                                        {item.label}
+                                    </Link>
+                                );
+                            })}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setMobileNavOpen(false);
+                                    openTutorial();
+                                }}
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-300 hover:bg-primary/10 hover:text-primary border-l-2 border-transparent transition-colors"
+                            >
+                                <span
+                                    className="material-symbols-outlined text-[20px] shrink-0 text-violet-400"
+                                    style={{ fontVariationSettings: "'FILL' 0" }}
+                                >
+                                    smart_display
+                                </span>
+                                Assistir tutorial
+                            </button>
+                        </div>
+                    </nav>
+                </div>
+            ) : null}
         </>
     );
 }
