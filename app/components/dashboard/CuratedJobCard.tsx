@@ -127,55 +127,71 @@ export default function CuratedJobCard({
 
     const publishedDate = job.publishedAt ?? job.createdAt;
 
+    const fitBadge =
+        fit.fitPercentage === null ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 dark:bg-slate-900 text-slate-500 border border-slate-600/40 border-dashed">
+                <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
+                    {"help"}
+                </span>
+                {"? compatibilidade"}
+            </div>
+        ) : (
+            <div
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}
+            >
+                <span
+                    className={`material-symbols-outlined ${getFitIconClass(fit.fitPercentage, fit.isEstimated)}`}
+                    style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}
+                >
+                    {getFitIcon(fit.fitPercentage, fit.isEstimated)}
+                </span>
+                {`${fit.isEstimated ? "~" : ""}${fit.fitPercentage}% compatibilidade`}
+            </div>
+        );
+
     return (
         <article className="group mb-3 last:mb-0 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md">
-            {/* Top row: title + fit badge */}
-            <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 flex-wrap">
-                        <h3 className="text-base font-bold text-white line-clamp-2 min-w-0">
-                            {job.title}
-                        </h3>
-                        <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${levelColor[job.level]}`}>
-                            {levelLabel[job.level].toUpperCase()}
-                        </span>
-                    </div>
-                    <p className="text-sm text-slate-400 dark:text-slate-300 mt-1.5 flex items-center gap-1 flex-wrap">
-                        <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>business</span>
-                        <span>{job.companyName}</span>
-                        {job.location && (
-                            <>
-                                <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
-                                <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>location_on</span>
-                                <span>{job.location}</span>
-                            </>
-                        )}
-                        {job.isRemote && !job.location && (
-                            <>
-                                <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
-                                <span>Remoto</span>
-                            </>
-                        )}
-                    </p>
+            {/*
+              Mobile: 1ª linha = compatibilidade à esquerda; depois título+nível e empresa.
+              sm+: título+nível | compatibilidade (topo); empresa abaixo à esquerda.
+            */}
+            <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-4 sm:gap-y-1.5">
+                <div className="col-start-1 row-start-1 flex justify-start sm:col-start-2 sm:row-start-1 sm:justify-self-end sm:self-start">
+                    {fitBadge}
                 </div>
 
-                {/* Fit badge — dark pill */}
-                {fit.fitPercentage === null ? (
-                    <div className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 dark:bg-slate-900 text-slate-500 border border-slate-600/40 border-dashed">
-                        <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>{"help"}</span>
-                        {"? compatibilidade"}
-                    </div>
-                ) : (
-                    <div className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}>
-                        <span
-                            className={`material-symbols-outlined ${getFitIconClass(fit.fitPercentage, fit.isEstimated)}`}
-                            style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}
-                        >
-                            {getFitIcon(fit.fitPercentage, fit.isEstimated)}
-                        </span>
-                        {`${fit.isEstimated ? '~' : ''}${fit.fitPercentage}% compatibilidade`}
-                    </div>
-                )}
+                <div className="col-start-1 row-start-2 flex min-w-0 flex-wrap items-start gap-2 sm:col-start-1 sm:row-start-1">
+                    <h3 className="min-w-0 flex-1 text-base font-bold text-white line-clamp-3 sm:line-clamp-2">
+                        {job.title}
+                    </h3>
+                    <span
+                        className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${levelColor[job.level]}`}
+                    >
+                        {levelLabel[job.level].toUpperCase()}
+                    </span>
+                </div>
+
+                <p className="col-start-1 row-start-3 text-sm text-slate-400 dark:text-slate-300 sm:row-start-2 sm:col-start-1 flex items-center gap-1 flex-wrap">
+                    <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>
+                        business
+                    </span>
+                    <span>{job.companyName}</span>
+                    {job.location && (
+                        <>
+                            <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
+                            <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>
+                                location_on
+                            </span>
+                            <span>{job.location}</span>
+                        </>
+                    )}
+                    {job.isRemote && !job.location && (
+                        <>
+                            <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
+                            <span>Remoto</span>
+                        </>
+                    )}
+                </p>
             </div>
 
             {/* Meta row */}
