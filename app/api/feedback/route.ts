@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { auth } from '@/app/lib/auth';
-import { prisma } from '@/app/lib/prisma';
+import { withRlsUserContext } from '@/app/lib/rls';
 import { productFeedbackSchema } from '@/app/lib/validations/feedback';
 
 export const runtime = 'nodejs';
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const recentFeedback = await prisma.productFeedback.findFirst({
+    const recentFeedback = await withRlsUserContext(session.user.id, async (transaction) => transaction.productFeedback.findFirst({
       where: {
         userId: session.user.id,
         createdAt: {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       select: {
         id: true,
       },
-    });
+    }));
 
     if (recentFeedback) {
       return NextResponse.json(
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const created = await prisma.productFeedback.create({
+    const created = await withRlsUserContext(session.user.id, async (transaction) => transaction.productFeedback.create({
       data: {
         userId: session.user.id,
         category: payload.category,
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
         id: true,
         createdAt: true,
       },
-    });
+    }));
 
     return NextResponse.json({
       ok: true,

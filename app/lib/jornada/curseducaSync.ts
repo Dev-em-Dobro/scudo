@@ -1,6 +1,7 @@
 import { prisma } from "@/app/lib/prisma";
 import { getCatalogTaskById } from "@/app/lib/jornada/service";
 import { resolveTaskIdFromClassId } from "@/app/lib/jornada/curseducaLessonTaskMap";
+import { withRlsUserContext } from "@/app/lib/rls";
 
 type CurseducaProgressItem = {
     finishedAt?: string | null;
@@ -261,7 +262,11 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
         }
 
         if (upsertOps.length > 0) {
-            await prisma.$transaction(upsertOps.map((args) => prisma.userJornadaTaskProgress.upsert(args)));
+            await withRlsUserContext(userId, async (transaction) => {
+                for (const args of upsertOps) {
+                    await transaction.userJornadaTaskProgress.upsert(args);
+                }
+            });
             upsertedTasks = upsertOps.length;
         }
 

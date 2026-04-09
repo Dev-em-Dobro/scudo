@@ -11,8 +11,8 @@ import {
     isResumeAiExtractionEnabled,
     isResumeAiStrictPiiSanitizationEnabled,
 } from '@/app/lib/featureFlags';
-import { prisma } from '@/app/lib/prisma';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
+import { withRlsUserContext } from '@/app/lib/rls';
 import { evaluateResumeExtractionQuality, extractResumeDataFromText, normalizeResumeInputText, type ResumeSourceHint } from '@/app/lib/resume/extractor';
 import { extractResumeDataWithAiFirst } from '@/app/lib/resume/resumeAi';
 
@@ -177,14 +177,14 @@ export async function POST(request: Request) {
 
     const safeFileName = file.name.replaceAll(/[^a-zA-Z0-9._\- ]/g, '_').slice(0, 255);
 
-    await prisma.userProfile.update({
+    await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.update({
         where: { userId: session.user.id },
         data: {
             resumeFileName: safeFileName,
             resumeSyncStatus: 'PROCESSING',
             resumeUploadedAt: new Date(),
         },
-    });
+    }));
 
     try {
         let extractedText = '';
@@ -236,14 +236,14 @@ export async function POST(request: Request) {
         const normalizedLanguages = normalizeListWithLimit(extracted.languages, PROFILE_LIMITS.languagesItem, 20);
 
         if (!extractionQuality.isReliable) {
-            await prisma.userProfile.update({
+            await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.update({
                 where: { userId: session.user.id },
                 data: {
                     resumeSyncStatus: 'UPLOADED',
                     resumeFileName: safeFileName,
                     resumeUploadedAt: new Date(),
                 },
-            });
+            }));
 
             return NextResponse.json({
                 message: 'Arquivo recebido, mas não foi possível extrair dados com confiança. Revise manualmente no perfil.',
@@ -258,7 +258,7 @@ export async function POST(request: Request) {
             }, { status: 202 });
         }
 
-        await prisma.$transaction(async (transaction) => {
+        await withRlsUserContext(session.user.id, async (transaction) => {
             const profile = await transaction.userProfile.findUnique({
                 where: { userId: session.user.id },
                 select: { id: true },
@@ -311,7 +311,7 @@ export async function POST(request: Request) {
             });
         });
 
-        const updatedProfile = await prisma.userProfile.findUnique({
+        const updatedProfile = await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.findUnique({
             where: { userId: session.user.id },
             include: {
                 projects: {
@@ -320,7 +320,7 @@ export async function POST(request: Request) {
                     },
                 },
             },
-        });
+        }));
 
         if (!updatedProfile) {
             throw new Error('Perfil não encontrado após processamento de currículo.');
@@ -343,14 +343,14 @@ export async function POST(request: Request) {
             error: error instanceof Error ? error.message : 'unknown_error',
         });
 
-        await prisma.userProfile.update({
+        await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.update({
             where: { userId: session.user.id },
             data: {
                 resumeSyncStatus: 'UPLOADED',
                 resumeFileName: safeFileName,
                 resumeUploadedAt: new Date(),
             },
-        });
+        }));
 
         return NextResponse.json({
             error: 'Não foi possível processar o conteúdo do arquivo.',

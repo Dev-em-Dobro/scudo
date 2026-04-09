@@ -1,6 +1,6 @@
 import { OnboardingStatus } from '@prisma/client';
 
-import { prisma } from '@/app/lib/prisma';
+import { withRlsUserContext } from '@/app/lib/rls';
 import type { OnboardingTutorial } from '@/app/lib/onboarding/tutorials';
 
 export interface TutorialProgressView {
@@ -17,7 +17,7 @@ function clampStep(step: number, maxIndex: number) {
 }
 
 export async function getTutorialProgress(userId: string, tutorial: OnboardingTutorial): Promise<TutorialProgressView> {
-  const existing = await prisma.userOnboardingProgress.findUnique({
+  const existing = await withRlsUserContext(userId, async (transaction) => transaction.userOnboardingProgress.findUnique({
     where: {
       userId_tutorialKey_tutorialVersion: {
         userId,
@@ -29,7 +29,7 @@ export async function getTutorialProgress(userId: string, tutorial: OnboardingTu
       status: true,
       currentStep: true,
     },
-  });
+  }));
 
   if (!existing) {
     return {
@@ -45,7 +45,7 @@ export async function getTutorialProgress(userId: string, tutorial: OnboardingTu
 }
 
 export async function startTutorial(userId: string, tutorial: OnboardingTutorial) {
-  await prisma.userOnboardingProgress.upsert({
+  await withRlsUserContext(userId, async (transaction) => transaction.userOnboardingProgress.upsert({
     where: {
       userId_tutorialKey_tutorialVersion: {
         userId,
@@ -68,13 +68,13 @@ export async function startTutorial(userId: string, tutorial: OnboardingTutorial
       startedAt: new Date(),
       currentStep: 0,
     },
-  });
+  }));
 }
 
 export async function setTutorialStep(userId: string, tutorial: OnboardingTutorial, step: number) {
   const safeStep = clampStep(step, Math.max(0, tutorial.steps.length - 1));
 
-  await prisma.userOnboardingProgress.upsert({
+  await withRlsUserContext(userId, async (transaction) => transaction.userOnboardingProgress.upsert({
     where: {
       userId_tutorialKey_tutorialVersion: {
         userId,
@@ -96,11 +96,11 @@ export async function setTutorialStep(userId: string, tutorial: OnboardingTutori
       currentStep: safeStep,
       startedAt: new Date(),
     },
-  });
+  }));
 }
 
 export async function completeTutorial(userId: string, tutorial: OnboardingTutorial) {
-  await prisma.userOnboardingProgress.upsert({
+  await withRlsUserContext(userId, async (transaction) => transaction.userOnboardingProgress.upsert({
     where: {
       userId_tutorialKey_tutorialVersion: {
         userId,
@@ -122,11 +122,11 @@ export async function completeTutorial(userId: string, tutorial: OnboardingTutor
       completedAt: new Date(),
       currentStep: Math.max(0, tutorial.steps.length - 1),
     },
-  });
+  }));
 }
 
 export async function skipTutorial(userId: string, tutorial: OnboardingTutorial) {
-  await prisma.userOnboardingProgress.upsert({
+  await withRlsUserContext(userId, async (transaction) => transaction.userOnboardingProgress.upsert({
     where: {
       userId_tutorialKey_tutorialVersion: {
         userId,
@@ -146,5 +146,5 @@ export async function skipTutorial(userId: string, tutorial: OnboardingTutorial)
       skippedAt: new Date(),
       currentStep: 0,
     },
-  });
+  }));
 }

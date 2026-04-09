@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { auth } from '@/app/lib/auth';
-import { prisma } from '@/app/lib/prisma';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
+import { withRlsUserContext } from '@/app/lib/rls';
 
 export const runtime = 'nodejs';
 
@@ -206,7 +206,7 @@ export async function PATCH(request: Request) {
     const knownTechnologies = [...new Set([...manualKnownTechnologies, ...projectKnownTechnologies])];
     const softSkills = normalizeStringList(payload.softSkills);
 
-    await prisma.$transaction(async (transaction) => {
+    await withRlsUserContext(session.user.id, async (transaction) => {
         const profile = await transaction.userProfile.findUnique({
             where: { userId: session.user.id },
             select: { id: true },
@@ -249,7 +249,7 @@ export async function PATCH(request: Request) {
         });
     });
 
-    const updatedProfile = await prisma.userProfile.findUnique({
+    const updatedProfile = await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.findUnique({
         where: { userId: session.user.id },
         include: {
             projects: {
@@ -258,7 +258,7 @@ export async function PATCH(request: Request) {
                 },
             },
         },
-    });
+    }));
 
     if (!updatedProfile) {
         return NextResponse.json({ error: 'Não foi possível encontrar o perfil atualizado.' }, { status: 404 });
@@ -285,7 +285,7 @@ export async function DELETE() {
         email: session.user.email,
     });
 
-    const clearedProfile = await prisma.userProfile.update({
+    const clearedProfile = await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.update({
         where: { userId: session.user.id },
         data: {
             fullName: null,
@@ -312,7 +312,7 @@ export async function DELETE() {
                 },
             },
         },
-    });
+    }));
 
     return NextResponse.json({
         message: 'Dados pessoais do perfil removidos com sucesso.',

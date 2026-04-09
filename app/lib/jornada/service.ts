@@ -3,6 +3,7 @@ import type { JornadaStage, JornadaTask } from '@/app/types';
 
 import { fetchCodeQuestProgressByEmail, type CodeQuestProgress } from '@/app/lib/codequest/service';
 import { MOCK_STAGES, MOCK_TASKS } from '@/app/lib/jornada/mockJornada';
+import { withRlsUserContext } from '@/app/lib/rls';
 
 const taskById = new Map<string, JornadaTask>(MOCK_TASKS.map((task) => [task.id, task]));
 
@@ -92,10 +93,10 @@ export async function isOfficialStudentUser(userId: string) {
 }
 
 export async function autoSyncPraticaTasksForUser(userId: string) {
-    const existing = await prisma.userJornadaTaskProgress.findMany({
+    const existing = await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.findMany({
         where: { userId },
         select: { taskId: true },
-    });
+    }));
     const completedTaskIds = new Set(existing.map((e) => e.taskId));
     const praticaIds = [...PRATICA_TASK_IDS];
     const missing = praticaIds.filter((id) => !completedTaskIds.has(id));
@@ -105,14 +106,14 @@ export async function autoSyncPraticaTasksForUser(userId: string) {
     }
 
     const now = new Date();
-    await prisma.userJornadaTaskProgress.createMany({
+    await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.createMany({
         data: missing.map((taskId) => ({
             userId,
             taskId,
             completedAt: now,
         })),
         skipDuplicates: true,
-    });
+    }));
 }
 
 const CODEQUEST_CATEGORY_TASK_IDS: Record<string, string[]> = {
@@ -251,14 +252,14 @@ async function autoSyncSpecificTasks(
     }
 
     const now = new Date();
-    await prisma.userJornadaTaskProgress.createMany({
+    await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.createMany({
         data: missing.map((taskId) => ({
             userId,
             taskId,
             completedAt: now,
         })),
         skipDuplicates: true,
-    });
+    }));
 
     for (const id of missing) {
         completedTaskIds.add(id);
@@ -267,10 +268,10 @@ async function autoSyncSpecificTasks(
 
 export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSnapshot> {
     const [progress, user] = await Promise.all([
-        prisma.userJornadaTaskProgress.findMany({
+        withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.findMany({
             where: { userId },
             select: { taskId: true },
-        }),
+        })),
         prisma.user.findUnique({
             where: { id: userId },
             select: { email: true },
@@ -320,7 +321,7 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
 
 export async function setTaskDoneForUser(userId: string, taskId: string, done: boolean) {
     if (done) {
-        await prisma.userJornadaTaskProgress.upsert({
+        await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.upsert({
             where: {
                 userId_taskId: {
                     userId,
@@ -335,14 +336,14 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
                 taskId,
                 completedAt: new Date(),
             },
-        });
+        }));
         return;
     }
 
-    await prisma.userJornadaTaskProgress.deleteMany({
+    await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.deleteMany({
         where: {
             userId,
             taskId,
         },
-    });
+    }));
 }

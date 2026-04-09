@@ -1,6 +1,6 @@
 import { Prisma, ResumeSyncStatus } from '@prisma/client';
 
-import { prisma } from '@/app/lib/prisma';
+import { withRlsUserContext } from '@/app/lib/rls';
 
 export type ClientProfile = {
     fullName: string | null;
@@ -78,7 +78,7 @@ export function toClientProfile(profile: PrismaUserProfileWithProjects): ClientP
 }
 
 export async function getOrCreateUserProfile(user: SessionUser) {
-    return prisma.userProfile.upsert({
+    return withRlsUserContext(user.id, async (transaction) => transaction.userProfile.upsert({
         where: { userId: user.id },
         update: {},
         create: {
@@ -103,5 +103,5 @@ export async function getOrCreateUserProfile(user: SessionUser) {
                 },
             },
         },
-    });
+    }));
 }
