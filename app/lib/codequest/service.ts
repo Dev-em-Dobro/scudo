@@ -96,7 +96,9 @@ export async function fetchCodeQuestProgressByEmail(email: string): Promise<Code
             completedExerciseIds,
         };
     } catch (error) {
-        console.error('Falha ao buscar progresso do CodeQuest.', error);
+        console.error('Falha ao buscar progresso do CodeQuest.', {
+            error: error instanceof Error ? error.message : 'unknown_error',
+        });
         return null;
     }
 }

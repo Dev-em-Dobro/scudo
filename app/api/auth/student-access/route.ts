@@ -8,6 +8,23 @@ import { syncCurseducaProgressForUser } from "@/app/lib/jornada/curseducaSync";
 
 export const runtime = "nodejs";
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 5;
+
+type RateLimitEntry = {
+    count: number;
+    resetAt: number;
+};
+
+const globalRateLimitStore = globalThis as unknown as {
+    studentAccessRateLimit?: Map<string, RateLimitEntry>;
+};
+
+const studentAccessRateLimit =
+    globalRateLimitStore.studentAccessRateLimit ?? new Map<string, RateLimitEntry>();
+
+globalRateLimitStore.studentAccessRateLimit ??= studentAccessRateLimit;
+
 interface CurseducaMemberByEmail {
     uuid: string;
     id: number;
@@ -23,6 +40,46 @@ interface CurseducaMemberDetails {
     uuid: string;
     email: string;
     slug: string;
+}
+
+function getClientIp(request: NextRequest) {
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    if (forwardedFor) {
+        return forwardedFor.split(",")[0]?.trim() ?? "unknown";
+    }
+
+    return request.headers.get("x-real-ip")?.trim() ?? "unknown";
+}
+
+function canProceedWithRateLimit(key: string) {
+    const now = Date.now();
+    const current = studentAccessRateLimit.get(key);
+
+    if (!current || now >= current.resetAt) {
+        studentAccessRateLimit.set(key, {
+            count: 1,
+            resetAt: now + RATE_LIMIT_WINDOW_MS,
+        });
+        return true;
+    }
+
+    if (current.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return false;
+    }
+
+    studentAccessRateLimit.set(key, {
+        ...current,
+        count: current.count + 1,
+    });
+
+    return true;
+}
+
+function logStudentAccessError(event: string, error: unknown, metadata?: Record<string, unknown>) {
+    console.error(`[student-access] ${event}`, {
+        error: error instanceof Error ? error.message : "unknown_error",
+        ...metadata,
+    });
 }
 
 function getCurseducaAuthConfig() {
@@ -149,9 +206,20 @@ export async function POST(request: NextRequest) {
             ? ((body as Record<string, unknown>).email as string).trim().toLowerCase()
             : null;
 
+    const clientIp = getClientIp(request);
+
     // --- Validação básica do e-mail ---
     if (!rawEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
         return NextResponse.json({ error: "E-mail inválido." }, { status: 400 });
+    }
+
+    // Best-effort anti-abuse guard. In serverless, this is per instance.
+    const rateLimitKey = `${clientIp}:${rawEmail}`;
+    if (!canProceedWithRateLimit(rateLimitKey)) {
+        return NextResponse.json(
+            { error: "Muitas tentativas. Aguarde um minuto antes de tentar novamente." },
+            { status: 429 }
+        );
     }
 
     // --- 1. Validar contra API externa ---
@@ -159,7 +227,7 @@ export async function POST(request: NextRequest) {
     try {
         studentData = await validateStudentEmail(rawEmail);
     } catch (err) {
-        console.error("[student-access] Erro na validação externa:", err);
+        logStudentAccessError("Erro na validação externa", err);
         return NextResponse.json(
             {
                 error: "Não foi possível validar o e-mail no momento. Tente novamente mais tarde.",
@@ -170,7 +238,7 @@ export async function POST(request: NextRequest) {
 
     // --- 2. E-mail não encontrado na plataforma de aulas ---
     if (!studentData) {
-        return NextResponse.json({ status: "not_student" });
+        return NextResponse.json({ status: "processed" });
     }
 
     // --- 3. Verificar se o aluno já possui conta no Scudo ---
@@ -180,15 +248,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-        return NextResponse.json({ status: "existing_user" });
+        return NextResponse.json({ status: "processed" });
     }
 
     // --- 4. Gerar senha e criar conta via Better Auth ---
     const generatedPassword = generateSecurePassword();
     const authBaseUrl =
-    process.env.BETTER_AUTH_URL ??
-    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
-    "http://localhost:3000";
+        process.env.BETTER_AUTH_URL ??
+        process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
+        "http://localhost:3000";
 
     let memberDetails: CurseducaMemberDetails | null = null;
     let memberDetailsError = false;
@@ -197,7 +265,7 @@ export async function POST(request: NextRequest) {
         memberDetails = await fetchMemberDetailsById(studentData.id);
     } catch (err) {
         memberDetailsError = true;
-        console.error("[student-access] Falha ao buscar detalhes do membro:", err);
+        logStudentAccessError("Falha ao buscar detalhes do membro", err);
     }
 
     try {
@@ -226,7 +294,7 @@ export async function POST(request: NextRequest) {
             console.error("[student-access] Falha no sync inicial da Curseduca:", syncError);
         });
     } catch (err) {
-        console.error("[student-access] Falha ao criar conta:", err);
+        logStudentAccessError("Falha ao criar conta", err);
         return NextResponse.json(
             { error: "Não foi possível criar sua conta. Tente novamente." },
             { status: 500 }
@@ -235,7 +303,7 @@ export async function POST(request: NextRequest) {
 
     // --- 5. Enviar e-mail com link seguro para definição de senha ---
     const resetPasswordRedirect = `${authBaseUrl}/redefinir-senha`;
-    
+
     try {
         await auth.api.requestPasswordReset({
             body: {
@@ -244,10 +312,10 @@ export async function POST(request: NextRequest) {
             },
         });
     } catch (err) {
-        console.error("[student-access] Falha ao enviar e-mail:", err);
+        logStudentAccessError("Falha ao enviar e-mail", err);
         // A conta foi criada com sucesso — não falha o fluxo, apenas avisa
         return NextResponse.json({
-            status: "created",
+            status: "processed",
             emailSent: false,
             warning:
                 "Sua conta foi criada, mas não foi possível enviar o e-mail para definir a senha. Entre em contato com o suporte.",
@@ -255,7 +323,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-        status: "created",
+        status: "processed",
         emailSent: true,
         curseducaSyncReady: !memberDetailsError && Boolean(memberDetails?.slug),
         warning:
