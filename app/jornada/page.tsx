@@ -17,7 +17,9 @@ export default async function JornadaPage() {
 
     // Sync da Curseduca em background — não bloqueia o carregamento da página
     syncCurseducaProgressForUser(session.user.id).catch((error) => {
-        console.error('[jornada] Falha ao sincronizar progresso da Curseduca em background:', error);
+        console.error('[jornada] Falha ao sincronizar progresso da Curseduca em background.', {
+            error: error instanceof Error ? error.message : 'unknown_error',
+        });
     });
 
     const [isOfficialStudent, snapshot] = await Promise.all([
