@@ -262,11 +262,21 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
         }
 
         if (upsertOps.length > 0) {
-            await withRlsUserContext(userId, async (transaction) => {
-                for (const args of upsertOps) {
-                    await transaction.userJornadaTaskProgress.upsert(args);
-                }
-            });
+            const UPSERT_BATCH_SIZE = 40;
+
+            for (let offset = 0; offset < upsertOps.length; offset += UPSERT_BATCH_SIZE) {
+                const batch = upsertOps.slice(offset, offset + UPSERT_BATCH_SIZE);
+
+                await withRlsUserContext(userId, async (transaction) => {
+                    for (const args of batch) {
+                        await transaction.userJornadaTaskProgress.upsert(args);
+                    }
+                }, {
+                    maxWait: 10_000,
+                    timeout: 25_000,
+                });
+            }
+
             upsertedTasks = upsertOps.length;
         }
 
