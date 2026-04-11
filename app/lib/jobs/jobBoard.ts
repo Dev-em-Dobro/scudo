@@ -118,7 +118,7 @@ export async function getJobBoardJobs() {
         where: {
             ...buildRecentJobsWhere(),
             source: {
-                in: [JobSource.GUPY, JobSource.OTHER],
+                in: [JobSource.GUPY, JobSource.LINKEDIN, JobSource.OTHER],
             },
             level: { in: [JobLevel.ESTAGIO, JobLevel.JUNIOR, JobLevel.PLENO, JobLevel.OUTRO] },
             NOT: {
