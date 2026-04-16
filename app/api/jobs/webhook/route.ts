@@ -5,7 +5,8 @@ import { z } from 'zod';
 import { buildJobFingerprint } from '@/app/lib/jobs/dedupe';
 import { normalizeLocation } from '@/app/lib/jobs/normalizers';
 import { curateJobData } from '@/app/lib/jobs/curation';
-import { prisma } from '@/app/lib/prisma';
+import { withRlsUserContext } from '@/app/lib/rls';
+import { JOBS_INGESTION_RLS_USER_ID } from '@/app/lib/jobs/ingestionRls';
 
 export const runtime = 'nodejs';
 
@@ -100,89 +101,97 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
     }
 
-    let insertedCount = 0;
-    let updatedCount = 0;
-    let skippedCount = 0;
+    const { insertedCount, updatedCount, skippedCount } = await withRlsUserContext(
+        JOBS_INGESTION_RLS_USER_ID,
+        async (transaction) => {
+            let insertedCount = 0;
+            let updatedCount = 0;
+            let skippedCount = 0;
 
-    for (const item of parsed.data.jobs) {
-        const sourceUrl = normalizeSourceUrl(item.sourceUrl);
+            for (const item of parsed.data.jobs) {
+                const sourceUrl = normalizeSourceUrl(item.sourceUrl);
 
-        if (!sourceUrl) {
-            skippedCount += 1;
-            continue;
-        }
+                if (!sourceUrl) {
+                    skippedCount += 1;
+                    continue;
+                }
 
-        const source = toJobSource(item.source);
-        const { location, isRemote } = normalizeLocation(item.location);
-        const { normalizedStack, normalizedLevel } = await curateJobData({
-            title: item.title,
-            level: item.level,
-            stack: item.stack,
-            description: item.description,
-        });
-        const fingerprint = buildJobFingerprint({
-            title: item.title,
-            companyName: item.companyName,
-            sourceUrl,
-        });
+                const source = toJobSource(item.source);
+                const { location, isRemote } = normalizeLocation(item.location);
+                const { normalizedStack, normalizedLevel } = await curateJobData({
+                    title: item.title,
+                    level: item.level,
+                    stack: item.stack,
+                    description: item.description,
+                });
+                const fingerprint = buildJobFingerprint({
+                    title: item.title,
+                    companyName: item.companyName,
+                    sourceUrl,
+                });
 
-        const existingByExternal = item.externalId
-            ? await prisma.job.findFirst({
-                where: {
+                const existingByExternal = item.externalId
+                    ? await transaction.job.findFirst({
+                        where: {
+                            source,
+                            externalId: item.externalId,
+                        },
+                        select: { id: true },
+                    })
+                    : null;
+
+                const data: Prisma.JobUncheckedCreateInput = {
+                    title: item.title,
+                    companyName: item.companyName,
+                    level: normalizedLevel,
+                    stack: normalizedStack,
+                    location,
+                    isRemote,
+                    publishedAt: parsePublishedAt(item.publishedAt),
                     source,
-                    externalId: item.externalId,
-                },
-                select: { id: true },
-            })
-            : null;
+                    sourceUrl,
+                    externalId: item.externalId ?? null,
+                    fingerprint,
+                    lastSeenAt: new Date(),
+                };
 
-        const data: Prisma.JobUncheckedCreateInput = {
-            title: item.title,
-            companyName: item.companyName,
-            level: normalizedLevel,
-            stack: normalizedStack,
-            location,
-            isRemote,
-            publishedAt: parsePublishedAt(item.publishedAt),
-            source,
-            sourceUrl,
-            externalId: item.externalId ?? null,
-            fingerprint,
-            lastSeenAt: new Date(),
-        };
+                if (existingByExternal) {
+                    await transaction.job.update({
+                        where: { id: existingByExternal.id },
+                        data: {
+                            ...data,
+                            updatedAt: new Date(),
+                        },
+                    });
+                    updatedCount += 1;
+                    continue;
+                }
 
-        if (existingByExternal) {
-            await prisma.job.update({
-                where: { id: existingByExternal.id },
-                data: {
-                    ...data,
-                    updatedAt: new Date(),
-                },
-            });
-            updatedCount += 1;
-            continue;
-        }
+                const existingByFingerprint = await transaction.job.findUnique({
+                    where: { fingerprint },
+                    select: { id: true },
+                });
 
-        const existingByFingerprint = await prisma.job.findUnique({
-            where: { fingerprint },
-            select: { id: true },
-        });
+                await transaction.job.upsert({
+                    where: { fingerprint },
+                    create: data,
+                    update: {
+                        ...data,
+                        updatedAt: new Date(),
+                    },
+                });
 
-        await prisma.job.upsert({
-            where: { fingerprint },
-            create: data,
-            update: {
-                ...data,
-                updatedAt: new Date(),
-            },
-        });
+                if (existingByFingerprint) {
+                    updatedCount += 1;
+                } else {
+                    insertedCount += 1;
+                }
+            }
 
-        if (existingByFingerprint) {
-            updatedCount += 1;
-        } else {
-            insertedCount += 1;
-        }
-    }
+            return { insertedCount, updatedCount, skippedCount };
+        },
+        { timeout: 120_000, maxWait: 10_000 },
+    );
 
     return NextResponse.json({
         message: 'Webhook processado com sucesso.',

@@ -173,6 +173,11 @@ Em `app/lib/jobs/normalizers.ts`:
 | `JOBS_CONNECTOR_PROGRAMATHOR` | `false` | Habilita Programathor |
 | `JOBS_CONNECTOR_TRAMPOS` | `false` | Habilita Trampos |
 | `JOBS_CONNECTOR_ADZUNA` | `false` | Habilita Adzuna |
+| `JOBS_CONNECTOR_LINKEDIN` | `false` | Habilita LinkedIn guest jobs |
+| `JOBS_LINKEDIN_LOCATION` | `Brazil` | País usado na busca do LinkedIn |
+| `JOBS_LINKEDIN_TPR` | `r2592000` | Janela base no LinkedIn (24h/7d/30d) |
+| `JOBS_LINKEDIN_LOOKBACK_DAYS` | `15` | Filtro local final em dias para manter vagas recentes |
+| `JOBS_LINKEDIN_MAX_PAGES` | `2` | Páginas por query do conector LinkedIn |
 | `JOBS_PROGRAMATHOR_BACKFILL` | `false` | Reprocessa stacks antigas de Programathor |
 
 ### Adzuna
