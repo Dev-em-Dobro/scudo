@@ -4,14 +4,21 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
+        "dev:local": "DATABASE_URL=$LOCAL_DATABASE_URL next dev",
         "prebuild": "prisma generate",
         "build": "next build",
         "start": "next start",
         "lint": "eslint",
+        "db:local:up": "docker compose up -d postgres",
+        "db:local:down": "docker compose down",
+        "db:local:logs": "docker compose logs -f postgres",
         "curseduca:export-lessons": "node scripts/export-curseduca-lessons.mjs",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
-        "prisma:studio": "prisma studio"
+        "prisma:migrate:local": "DATABASE_URL=$LOCAL_DATABASE_URL prisma migrate deploy",
+        "prisma:migrate:deploy": "prisma migrate deploy",
+        "prisma:studio": "prisma studio",
+        "prisma:studio:local": "DATABASE_URL=$LOCAL_DATABASE_URL prisma studio"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.2.2",

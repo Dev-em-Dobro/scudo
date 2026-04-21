@@ -14,6 +14,7 @@ interface JornadaBoardProps {
     initialCurrentRankLetter: string;
     initialCodeQuestProgress: CodeQuestProgress | null;
     hasCodeQuestAccount: boolean;
+    initialStreak: JornadaStreak;
 }
 
 function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
@@ -29,11 +30,40 @@ function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
     return map;
 }
 
+type JornadaStreakBadge = {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+    icon: string | null;
+    requiredDays: number;
+    isActive: boolean;
+    earnedAt: string | null;
+};
+
+type JornadaStreak = {
+    currentStreakDays: number;
+    longestStreakDays: number;
+    streakPoints: number;
+    hasCompletedTaskToday: boolean;
+    badges: JornadaStreakBadge[];
+    nextBadge: {
+        id: string;
+        name: string;
+        icon: string | null;
+        requiredDays: number;
+        daysRemaining: number;
+    } | null;
+};
+
 type JornadaApiResponse = {
     tasks: JornadaTask[];
     editableStageId?: string;
     currentRankLetter?: string;
     codeQuestProgress?: CodeQuestProgress | null;
+    streak?: JornadaStreak;
+    streakAwardedToday?: boolean;
+    newlyUnlockedBadges?: JornadaStreakBadge[];
 };
 
 type JornadaSyncResponse = {
@@ -125,6 +155,14 @@ function isInteractiveTarget(target: EventTarget | null) {
     }
 
     return Boolean(target.closest('button, a, input, textarea, select, label'));
+}
+
+function isMaterialSymbolIcon(icon: string | null): icon is string {
+    if (!icon) {
+        return false;
+    }
+
+    return /^[a-z0-9_]+$/i.test(icon);
 }
 
 function ExternalSyncHelpButton({ helpText }: Readonly<{ helpText: string }>) {
@@ -306,6 +344,7 @@ function RegularTaskButton({
     );
 }
 
+// SONAR: Este componente concentra estados e efeitos acoplados ao board; a quebra em hooks/subcomponentes sera feita em PR dedicado para evitar regressao de UX.
 export default function JornadaBoard({
     stages,
     tasks,
@@ -313,6 +352,7 @@ export default function JornadaBoard({
     initialCurrentRankLetter,
     initialCodeQuestProgress,
     hasCodeQuestAccount,
+    initialStreak,
 }: Readonly<JornadaBoardProps>) {
     const [boardTasks, setBoardTasks] = useState<JornadaTask[]>(tasks);
     const [currentEditableStageId, setCurrentEditableStageId] = useState(editableStageId);
@@ -320,9 +360,12 @@ export default function JornadaBoard({
     const [updatingTaskIds, setUpdatingTaskIds] = useState<Record<string, boolean>>({});
     const [requestError, setRequestError] = useState<string | null>(null);
     const [syncMessage, setSyncMessage] = useState<string | null>(null);
+    const [streakMessage, setStreakMessage] = useState<string | null>(null);
+    const [isDailyStreakNoticeDismissed, setIsDailyStreakNoticeDismissed] = useState(false);
     const [isSyncingExternal, setIsSyncingExternal] = useState(false);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
     const [codeQuestProgress, setCodeQuestProgress] = useState<CodeQuestProgress | null>(initialCodeQuestProgress);
+    const [streak, setStreak] = useState<JornadaStreak>(initialStreak);
     const externalSyncInFlightRef = useRef(false);
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
     const dragStartXRef = useRef(0);
@@ -351,6 +394,24 @@ export default function JornadaBoard({
         }
         if ('codeQuestProgress' in data) {
             setCodeQuestProgress(data.codeQuestProgress ?? null);
+        }
+
+        if (data.streak) {
+            setStreak(data.streak);
+        }
+
+        if (Array.isArray(data.newlyUnlockedBadges) && data.newlyUnlockedBadges.length > 0) {
+            const unlockedNames = data.newlyUnlockedBadges.map((badge) => badge.name);
+            setStreakMessage(
+                unlockedNames.length === 1
+                    ? `Nova badge desbloqueada: ${unlockedNames[0]}.`
+                    : `Novas badges desbloqueadas: ${unlockedNames.join(', ')}.`,
+            );
+            return;
+        }
+
+        if (data.streakAwardedToday) {
+            setStreakMessage('Ponto diário de streak garantido hoje. Continue assim.');
         }
     }, []);
 
@@ -534,6 +595,20 @@ export default function JornadaBoard({
 
     const formatTaskCount = (count: number) => `${count} ${count === 1 ? 'tarefa' : 'tarefas'}`;
 
+    const streakBadges = useMemo(
+        () => [...streak.badges].sort((left, right) => left.requiredDays - right.requiredDays),
+        [streak.badges],
+    );
+
+    const nextBadgeProgressPercent = useMemo(() => {
+        if (!streak.nextBadge) {
+            return 100;
+        }
+
+        return Math.min(100, Math.max(0, Math.round((streak.currentStreakDays / streak.nextBadge.requiredDays) * 100)));
+    }, [streak.currentStreakDays, streak.nextBadge]);
+    const isDailyStreakNoticeVisible = !isDailyStreakNoticeDismissed;
+
     const scrollBoardBy = useCallback((delta: number) => {
         boardScrollRef.current?.scrollBy({
             left: delta,
@@ -583,7 +658,7 @@ export default function JornadaBoard({
 
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4 space-y-4">
+            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/6 p-4 space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <div className="min-w-0 flex-1 space-y-3">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
@@ -658,6 +733,131 @@ export default function JornadaBoard({
                 {syncMessage ? (
                     <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
                         <p className="text-xs text-emerald-200">{syncMessage}</p>
+                    </div>
+                ) : null}
+            </div>
+
+            <div className="rounded-xl border border-orange-500/25 bg-linear-to-r from-orange-500/10 via-amber-500/8 to-yellow-500/10 p-5 space-y-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0 flex-1 space-y-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
+                            Sistema de streak diário
+                        </p>
+                        <h2 className="text-lg font-bold text-white leading-tight">
+                            Ganhe +1 ponto por dia ao acessar e concluir ao menos 1 tarefa da jornada
+                        </h2>
+                        <p className="text-sm text-orange-100/80 leading-snug max-w-2xl">
+                            Sua consistência vira progresso: cada dia válido aumenta seu streak e desbloqueia badges em marcos como 7, 30, 60 e 100 dias.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 w-full max-w-sm">
+                        <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2">
+                            <p className="text-[10px] uppercase tracking-wide text-orange-200/80">Streak atual</p>
+                            <p className="text-xl font-bold text-white mt-1">{streak.currentStreakDays} dias</p>
+                        </div>
+                        <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2">
+                            <p className="text-[10px] uppercase tracking-wide text-orange-200/80">Maior streak</p>
+                            <p className="text-xl font-bold text-white mt-1">{streak.longestStreakDays} dias</p>
+                        </div>
+                        <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2 col-span-2">
+                            <p className="text-[10px] uppercase tracking-wide text-orange-200/80">Pontos acumulados</p>
+                            <p className="text-xl font-bold text-white mt-1">{streak.streakPoints} pontos</p>
+                        </div>
+                    </div>
+                </div>
+
+                {isDailyStreakNoticeVisible ? (
+                    <div className={`rounded-lg border px-3 py-2 ${streak.hasCompletedTaskToday ? 'border-emerald-500/40 bg-emerald-500/15' : 'border-amber-500/40 bg-amber-500/15'}`}>
+                        <div className="flex items-start justify-between gap-2">
+                            <p className={`text-sm ${streak.hasCompletedTaskToday ? 'text-emerald-200' : 'text-amber-100'}`}>
+                                {streak.hasCompletedTaskToday
+                                    ? 'Hoje você já garantiu seu ponto diário de streak.'
+                                    : 'Hoje ainda não conta para o streak. Conclua 1 tarefa para ganhar +1 ponto.'}
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsDailyStreakNoticeDismissed(true);
+                                }}
+                                className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md cursor-pointer text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                                aria-label="Fechar mensagem diária de streak"
+                            >
+                                <span className="material-symbols-outlined text-sm" aria-hidden>close</span>
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
+
+                {streak.nextBadge ? (
+                    <div className="space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-orange-100/80">
+                            <span>
+                                Próxima badge: {streak.nextBadge.name}
+                            </span>
+                            <span>
+                                Faltam {streak.nextBadge.daysRemaining} dias
+                            </span>
+                        </div>
+                        <div className="h-2.5 rounded-full bg-orange-950/60 overflow-hidden">
+                            <div
+                                className="h-full rounded-full bg-orange-400 transition-all duration-300"
+                                style={{ width: `${nextBadgeProgressPercent}%` }}
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+                        <p className="text-sm text-emerald-200">
+                            Todas as badges ativas de streak já foram conquistadas.
+                        </p>
+                    </div>
+                )}
+
+                <div className="space-y-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
+                        Badges do streak
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {streakBadges.map((badge) => {
+                            const isEarned = badge.earnedAt !== null;
+
+                            return (
+                                <div
+                                    key={badge.id}
+                                    className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] ${isEarned ? 'border-emerald-400/45 bg-emerald-500/20 text-emerald-100' : 'border-orange-400/25 bg-orange-500/10 text-orange-100/80'}`}
+                                    title={badge.description}
+                                >
+                                    {isMaterialSymbolIcon(badge.icon) ? (
+                                        <span className="material-symbols-outlined text-sm leading-none" aria-hidden>
+                                            {badge.icon}
+                                        </span>
+                                    ) : (
+                                        <span className="text-[10px] font-bold uppercase">{badge.icon ?? 'badge'}</span>
+                                    )}
+                                    <span className="font-semibold">{badge.name}</span>
+                                    <span className="opacity-80">{badge.requiredDays}d</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {streakMessage ? (
+                    <div className="rounded-md border border-emerald-500/35 bg-emerald-500/15 px-3 py-2">
+                        <div className="flex items-start justify-between gap-2">
+                            <p className="text-xs text-emerald-100">{streakMessage}</p>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setStreakMessage(null);
+                                }}
+                                className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md cursor-pointer text-emerald-200 hover:text-white hover:bg-white/10 transition-colors"
+                                aria-label="Fechar mensagem final de streak"
+                            >
+                                <span className="material-symbols-outlined text-sm" aria-hidden>close</span>
+                            </button>
+                        </div>
                     </div>
                 ) : null}
             </div>

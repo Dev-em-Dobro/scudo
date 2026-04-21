@@ -54,3 +54,8 @@ rls-prisma-neon-playbook.md
 # Curseduca — catálogo gerado localmente (npm run curseduca:export-lessons); não versionar
 docs/curseduca-lessons-catalog.json
 docs/curseduca-mapping-all-ranks.generated.json
+
+# Seeds locais (não versionar)
+prisma/seed.mjs
+scripts/db/export-user-seed.mjs
+prisma/seed-data/*.json

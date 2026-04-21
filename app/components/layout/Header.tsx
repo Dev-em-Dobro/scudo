@@ -15,6 +15,28 @@ interface HeaderProps {
     readonly title?: string;
 }
 
+type JornadaStreakSummary = {
+    currentStreakDays: number;
+    hasCompletedTaskToday: boolean;
+};
+
+type JornadaStreakSummaryResponse = {
+    streak: JornadaStreakSummary;
+};
+
+function getStreakInfoTitle(summary: JornadaStreakSummary | null) {
+    if (!summary) {
+        return 'Streak diário: conclua ao menos uma tarefa da jornada por dia para acumular pontos.';
+    }
+
+    const dayLabel = summary.currentStreakDays === 1 ? 'dia' : 'dias';
+    const todayMessage = summary.hasCompletedTaskToday
+        ? 'Você já pontuou hoje.'
+        : 'Conclua uma tarefa da jornada hoje para manter a sequência.';
+
+    return `Streak atual: ${summary.currentStreakDays} ${dayLabel}. ${todayMessage}`;
+}
+
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
     'Vagas Aptas para Você': 'work_outline',
@@ -75,7 +97,11 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     const [open, setOpen] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
+    const [streakSummary, setStreakSummary] = useState<JornadaStreakSummary | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const streakInfoTitle = getStreakInfoTitle(streakSummary);
+    const streakDaysLabel = streakSummary ? `${streakSummary.currentStreakDays}d` : '--';
 
     // Fecha ao clicar fora
     useEffect(() => {
@@ -107,6 +133,53 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
         return () => document.removeEventListener('keydown', onKeyDown);
     }, [mobileNavOpen]);
 
+    useEffect(() => {
+        let isActive = true;
+
+        async function loadStreakSummary() {
+            if (!user.isOfficialStudent) {
+                if (isActive) {
+                    setStreakSummary(null);
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/jornada/streak', {
+                    method: 'GET',
+                    cache: 'no-store',
+                    credentials: 'include',
+                });
+
+                if (!isActive) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    setStreakSummary(null);
+                    return;
+                }
+
+                const data = await response.json() as JornadaStreakSummaryResponse;
+                if (!isActive) {
+                    return;
+                }
+
+                setStreakSummary(data.streak);
+            } catch {
+                if (isActive) {
+                    setStreakSummary(null);
+                }
+            }
+        }
+
+        void loadStreakSummary();
+
+        return () => {
+            isActive = false;
+        };
+    }, [user.isOfficialStudent]);
+
     async function handleLogout() {
         setLoggingOut(true);
         try {
@@ -131,87 +204,103 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                     {title}
                 </h1>
 
-            {/* Mobile: hambúrguer no lugar do antigo atalho do tutorial | Desktop: tutorial em texto */}
-            <div className="flex items-center gap-2 shrink-0">
-                <button
-                    type="button"
-                    className="lg:hidden shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-light/60 dark:border-border-dark text-slate-300 hover:text-white hover:border-violet-400/40 transition-colors cursor-pointer"
-                    aria-label="Abrir menu"
-                    aria-expanded={mobileNavOpen}
-                    onClick={() => setMobileNavOpen(true)}
-                >
-                    <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 0" }}>
-                        menu
-                    </span>
-                </button>
-
-                <button
-                    type="button"
-                    onClick={openTutorial}
-                    aria-label="Assistir tutorial"
-                    title="Assistir tutorial"
-                    className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-violet-400 hover:border-violet-400/40 transition-colors cursor-pointer"
-                >
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>
-                        play_circle
-                    </span>
-                    <span className="text-xs font-medium whitespace-nowrap">Assistir tutorial</span>
-                </button>
-
-                <div className="relative" ref={dropdownRef}>
+                {/* Mobile: hambúrguer no lugar do antigo atalho do tutorial | Desktop: tutorial em texto */}
+                <div className="flex items-center gap-2 shrink-0">
                     <button
                         type="button"
-                        aria-haspopup="true"
-                        aria-expanded={open}
-                        onClick={() => setOpen((prev) => !prev)}
-                        className="cursor-pointer focus:outline-none"
+                        className="lg:hidden shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-light/60 dark:border-border-dark text-slate-300 hover:text-white hover:border-violet-400/40 transition-colors cursor-pointer"
+                        aria-label="Abrir menu"
+                        aria-expanded={mobileNavOpen}
+                        onClick={() => setMobileNavOpen(true)}
                     >
-                        {user.avatar ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                alt={`${user.name} Avatar`}
-                                className="h-9 w-9 rounded-xl object-cover ring-2 ring-primary/30 hover:ring-primary transition-all duration-150"
-                                src={user.avatar}
-                                referrerPolicy="no-referrer"
-                            />
-                        ) : (
-                            <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/30 hover:border-emerald-500 flex items-center justify-center transition-all duration-150">
-                                <span className="text-sm font-bold text-emerald-400">{getInitials(user.name)}</span>
-                            </div>
-                        )}
+                        <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 0" }}>
+                            menu
+                        </span>
                     </button>
 
-                    {open && (
-                        <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
-                        {/* Cabeçalho do menu */}
-                        <div className="px-4 py-3 border-b border-border-light dark:border-border-dark">
-                            <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-300 truncate mt-0.5">{user.email}</p>
-                        </div>
+                    {user.isOfficialStudent ? (
+                        <Link
+                            href="/jornada"
+                            className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-orange-300 hover:border-orange-400/40 transition-colors cursor-pointer"
+                            aria-label="Abrir Jornada do aluno"
+                            title={`${streakInfoTitle} Clique para abrir a Jornada do aluno.`}
+                        >
+                            <span className="material-symbols-outlined text-[18px] text-orange-400" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                local_fire_department
+                            </span>
+                            <span className="text-xs font-semibold whitespace-nowrap tabular-nums">
+                                {streakDaysLabel}
+                            </span>
+                        </Link>
+                    ) : null}
 
-                        {/* Ações */}
-                        <div className="py-1.5">
-                            <button
-                                type="button"
-                                disabled={loggingOut}
-                                onClick={() => void handleLogout()}
-                                className="cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <span className="material-symbols-outlined text-[18px] shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                    logout
-                                </span>
-                                {loggingOut ? 'Saindo...' : 'Sair da conta'}
-                            </button>
-                        </div>
-                        </div>
-                    )}
+                    <button
+                        type="button"
+                        onClick={openTutorial}
+                        aria-label="Assistir tutorial"
+                        title="Assistir tutorial"
+                        className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-violet-400 hover:border-violet-400/40 transition-colors cursor-pointer"
+                    >
+                        <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>
+                            play_circle
+                        </span>
+                        <span className="text-xs font-medium whitespace-nowrap">Assistir tutorial</span>
+                    </button>
+
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            type="button"
+                            aria-haspopup="true"
+                            aria-expanded={open}
+                            onClick={() => setOpen((prev) => !prev)}
+                            className="cursor-pointer focus:outline-none"
+                        >
+                            {user.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    alt={`${user.name} Avatar`}
+                                    className="h-9 w-9 rounded-xl object-cover ring-2 ring-primary/30 hover:ring-primary transition-all duration-150"
+                                    src={user.avatar}
+                                    referrerPolicy="no-referrer"
+                                />
+                            ) : (
+                                <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/30 hover:border-emerald-500 flex items-center justify-center transition-all duration-150">
+                                    <span className="text-sm font-bold text-emerald-400">{getInitials(user.name)}</span>
+                                </div>
+                            )}
+                        </button>
+
+                        {open && (
+                            <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
+                                {/* Cabeçalho do menu */}
+                                <div className="px-4 py-3 border-b border-border-light dark:border-border-dark">
+                                    <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-300 truncate mt-0.5">{user.email}</p>
+                                </div>
+
+                                {/* Ações */}
+                                <div className="py-1.5">
+                                    <button
+                                        type="button"
+                                        disabled={loggingOut}
+                                        onClick={() => void handleLogout()}
+                                        className="cursor-pointer w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px] shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                            logout
+                                        </span>
+                                        {loggingOut ? 'Saindo...' : 'Sair da conta'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
             </header>
 
             {/* Drawer de navegação — mobile / tablet */}
             {mobileNavOpen ? (
-                <div className="lg:hidden fixed inset-0 z-[60]">
+                <div className="lg:hidden fixed inset-0 z-60">
                     <button
                         type="button"
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
@@ -274,7 +363,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                 >
                                     smart_display
                                 </span>
-                                Assistir tutorial
+                                <span>Assistir tutorial</span>
                             </button>
                         </div>
                     </nav>

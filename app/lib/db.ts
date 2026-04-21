@@ -5,7 +5,7 @@ declare global {
     var _neonPool: Pool | undefined;
 }
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.LOCAL_DATABASE_URL || process.env.DATABASE_URL;
 
 if (!connectionString) {
     throw new Error("DATABASE_URL não está definido no .env");

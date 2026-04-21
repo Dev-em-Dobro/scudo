@@ -154,6 +154,10 @@ NEXT_PUBLIC_ENABLE_STUDENT_VERIFIED_AUTH_ONLY="false"
 ENABLE_INITIAL_ONBOARDING="true"
 ENABLE_GUIDED_ONBOARDING="false"
 
+# URL recomendada para desenvolvimento local com Docker
+# (usar em DATABASE_URL durante migrations e testes locais)
+LOCAL_DATABASE_URL="postgresql://carrer_quest@localhost:5433/carrer_quest_local"
+
 # Social login (opcional)
 GOOGLE_CLIENT_ID="..."
 GOOGLE_CLIENT_SECRET="..."
@@ -164,14 +168,42 @@ LINKEDIN_CLIENT_SECRET="..."
 3. Preparar banco:
 
 ```bash
+npm run db:local:up
 npm run prisma:generate
-npm run prisma:migrate
+npm run prisma:migrate:local
 ```
 
-4. Subir app:
+4. Subir app apontando para banco local:
 
 ```bash
-npm run dev
+npm run dev:local
+```
+
+## Fluxo de migration local-first (sem tocar produção)
+
+1. Ajustar o `schema.prisma` e gerar SQL da migration a partir do diff local:
+
+```bash
+mkdir -p prisma/migrations/AAAAmmddHHMMSS_nome_da_migration
+npx prisma migrate diff \
+    --from-migrations prisma/migrations \
+    --to-schema-datamodel prisma/schema.prisma \
+    --script > prisma/migrations/AAAAmmddHHMMSS_nome_da_migration/migration.sql
+```
+
+2. Aplicar a migration no banco local Docker:
+
+```bash
+npm run db:local:up
+npm run prisma:migrate:local
+```
+
+3. Validar localmente antes de qualquer deploy: lint, typecheck, testes e verificação funcional.
+
+4. Aplicar no banco principal apenas após validação completa, usando deploy de migration (sem `migrate dev` no principal):
+
+```bash
+DATABASE_URL="<url_do_banco_principal>" npm run prisma:migrate:deploy
 ```
 
 ## Comandos úteis
@@ -215,6 +247,50 @@ npm run curseduca:export-lessons
 ```bash
 npm run prisma:studio
 ```
+
+- Ver Prisma Studio apontando para banco local:
+
+```bash
+npm run prisma:studio:local
+```
+
+- Derrubar banco local Docker:
+
+```bash
+npm run db:local:down
+```
+
+## pgAdmin 4 com banco Docker
+
+### Opção 1: pgAdmin 4 instalado localmente
+
+Crie um novo Server no pgAdmin com os dados abaixo:
+
+- Host: `localhost`
+- Port: `5433`
+- Database: `carrer_quest_local`
+- Username: `carrer_quest`
+- Password: qualquer valor (o Postgres local está com `POSTGRES_HOST_AUTH_METHOD=trust`)
+
+### Opção 2: pgAdmin no Docker Compose
+
+Suba o serviço opcional de pgAdmin:
+
+```bash
+export PGADMIN_DEFAULT_EMAIL="admin@local.dev"
+export PGADMIN_DEFAULT_PASSWORD="troque-essa-senha"
+docker compose --profile tools up -d
+```
+
+Depois acesse `http://localhost:5050` e faça login com esse e-mail/senha.
+
+No pgAdmin do container, crie o Server com:
+
+- Host: `postgres`
+- Port: `5432`
+- Database: `carrer_quest_local`
+- Username: `carrer_quest`
+- Password: qualquer valor (trust)
 
 ## Troubleshooting
 

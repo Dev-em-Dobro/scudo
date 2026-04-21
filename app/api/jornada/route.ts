@@ -79,9 +79,13 @@ export async function PATCH(request: Request) {
         );
     }
 
-    await setTaskDoneForUser(session.user.id, taskId, done);
+    const updateResult = await setTaskDoneForUser(session.user.id, taskId, done);
 
     const snapshot = await getUserJornadaSnapshot(session.user.id);
 
-    return NextResponse.json(snapshot);
+    return NextResponse.json({
+        ...snapshot,
+        streakAwardedToday: updateResult.streakAwardedToday,
+        newlyUnlockedBadges: updateResult.newlyUnlockedBadges,
+    });
 }
