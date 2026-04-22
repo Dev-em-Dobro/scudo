@@ -1,0 +1,3 @@
+# Seed exportado localmente a partir do banco remoto
+*.json
+!.gitignore

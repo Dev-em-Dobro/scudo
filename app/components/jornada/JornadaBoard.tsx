@@ -306,6 +306,7 @@ function RegularTaskButton({
     );
 }
 
+// SONAR: Este componente concentra estados e efeitos acoplados ao board; a quebra em hooks/subcomponentes sera feita em PR dedicado para evitar regressao de UX.
 export default function JornadaBoard({
     stages,
     tasks,
@@ -583,7 +584,7 @@ export default function JornadaBoard({
 
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4 space-y-4">
+            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/6 p-4 space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <div className="min-w-0 flex-1 space-y-3">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">

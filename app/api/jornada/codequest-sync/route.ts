@@ -36,6 +36,7 @@ export async function POST() {
             completedTaskIds: snapshot.completedTaskIds,
             editableStageId: snapshot.editableStageId,
             currentRankLetter: snapshot.currentRankLetter,
+            streak: snapshot.streak,
         });
     } catch (error) {
         console.error('Falha ao sincronizar progresso CodeQuest.', error);

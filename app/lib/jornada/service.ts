@@ -3,6 +3,13 @@ import type { JornadaStage, JornadaTask } from '@/app/types';
 
 import { fetchCodeQuestProgressByEmail, type CodeQuestProgress } from '@/app/lib/codequest/service';
 import { MOCK_STAGES, MOCK_TASKS } from '@/app/lib/jornada/mockJornada';
+import {
+    awardDailyStreakForTask,
+    getUserStreakViewInTransaction,
+    type DailyStreakAwardResult,
+    type JornadaStreakBadgeView,
+    type JornadaStreakView,
+} from '@/app/lib/jornada/streak';
 import { withRlsUserContext } from '@/app/lib/rls';
 
 const taskById = new Map<string, JornadaTask>(MOCK_TASKS.map((task) => [task.id, task]));
@@ -25,6 +32,12 @@ export type JornadaSnapshot = {
     editableStageId: string;
     codeQuestProgress: CodeQuestProgress | null;
     hasCodeQuestAccount: boolean;
+    streak: JornadaStreakView;
+};
+
+export type SetTaskDoneForUserResult = {
+    streakAwardedToday: boolean;
+    newlyUnlockedBadges: JornadaStreakBadgeView[];
 };
 
 function withPersistedStatuses(completedTaskIds: Set<string>) {
@@ -267,18 +280,26 @@ async function autoSyncSpecificTasks(
 }
 
 export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSnapshot> {
-    const [progress, user] = await Promise.all([
-        withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.findMany({
-            where: { userId },
-            select: { taskId: true },
-        })),
+    const [rlsData, user] = await Promise.all([
+        withRlsUserContext(userId, async (transaction) => {
+            const progress = await transaction.userJornadaTaskProgress.findMany({
+                where: { userId },
+                select: { taskId: true },
+            });
+            const streak = await getUserStreakViewInTransaction(transaction, userId);
+
+            return {
+                progress,
+                streak,
+            };
+        }),
         prisma.user.findUnique({
             where: { id: userId },
             select: { email: true },
         }),
     ]);
 
-    const completedTaskIds = new Set<string>(progress.map((item) => item.taskId));
+    const completedTaskIds = new Set<string>(rlsData.progress.map((item) => item.taskId));
     const email = user?.email ?? null;
 
     let codeQuestProgress: CodeQuestProgress | null = null;
@@ -316,28 +337,74 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
         editableStageId,
         codeQuestProgress,
         hasCodeQuestAccount: codeQuestProgress !== null,
+        streak: rlsData.streak,
     };
 }
 
-export async function setTaskDoneForUser(userId: string, taskId: string, done: boolean) {
+export async function setTaskDoneForUser(userId: string, taskId: string, done: boolean): Promise<SetTaskDoneForUserResult> {
     if (done) {
-        await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.upsert({
-            where: {
-                userId_taskId: {
+        const completedAt = new Date();
+        let streakResult: DailyStreakAwardResult = {
+            awardedToday: false,
+            newlyUnlockedBadgeIds: [],
+        };
+        let newlyUnlockedBadges: JornadaStreakBadgeView[] = [];
+
+        await withRlsUserContext(userId, async (transaction) => {
+            await transaction.userJornadaTaskProgress.upsert({
+                where: {
+                    userId_taskId: {
+                        userId,
+                        taskId,
+                    },
+                },
+                update: {
+                    completedAt,
+                },
+                create: {
                     userId,
                     taskId,
+                    completedAt,
                 },
-            },
-            update: {
-                completedAt: new Date(),
-            },
-            create: {
-                userId,
-                taskId,
-                completedAt: new Date(),
-            },
-        }));
-        return;
+            });
+
+            streakResult = await awardDailyStreakForTask(transaction, userId, completedAt);
+
+            if (streakResult.newlyUnlockedBadgeIds.length > 0) {
+                const unlockedBadges = await transaction.streakBadge.findMany({
+                    where: {
+                        id: {
+                            in: streakResult.newlyUnlockedBadgeIds,
+                        },
+                    },
+                    select: {
+                        id: true,
+                        slug: true,
+                        name: true,
+                        description: true,
+                        icon: true,
+                        requiredDays: true,
+                        isActive: true,
+                    },
+                });
+
+                newlyUnlockedBadges = unlockedBadges.map((badge) => ({
+                    id: badge.id,
+                    slug: badge.slug,
+                    name: badge.name,
+                    description: badge.description,
+                    icon: badge.icon,
+                    requiredDays: badge.requiredDays,
+                    isActive: badge.isActive,
+                    earnedAt: completedAt.toISOString(),
+                }));
+            }
+        });
+
+        return {
+            streakAwardedToday: streakResult.awardedToday,
+            newlyUnlockedBadges,
+        };
     }
 
     await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.deleteMany({
@@ -346,4 +413,9 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
             taskId,
         },
     }));
+
+    return {
+        streakAwardedToday: false,
+        newlyUnlockedBadges: [],
+    };
 }

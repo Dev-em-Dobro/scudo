@@ -60,24 +60,27 @@ enum ProductFeedbackStatus {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  id                        String                    @id @default(cuid())
+  name                      String
+  email                     String                    @unique
+  emailVerified             Boolean                   @default(false)
   officialStudentVerifiedAt DateTime?
-  curseducaMemberId Int?
-  curseducaMemberSlug String?
-  curseducaMemberUuid String?
-  curseducaSyncNeedsRetry Boolean @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  profile       UserProfile?
-  sessions      Session[]
-  accounts      Account[]
-  jornadaTaskProgress UserJornadaTaskProgress[]
-  onboardingProgress UserOnboardingProgress[]
-  productFeedbacks ProductFeedback[]
+  curseducaMemberId         Int?
+  curseducaMemberSlug       String?
+  curseducaMemberUuid       String?
+  curseducaSyncNeedsRetry   Boolean                   @default(false)
+  image                     String?
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  profile                   UserProfile?
+  sessions                  Session[]
+  accounts                  Account[]
+  jornadaTaskProgress       UserJornadaTaskProgress[]
+  streak                    UserStreak?
+  streakBadges              UserStreakBadge[]
+  streakDailyActivities     UserStreakDailyActivity[]
+  onboardingProgress        UserOnboardingProgress[]
+  productFeedbacks          ProductFeedback[]
 }
 
 model ProductFeedback {
@@ -130,6 +133,69 @@ model UserJornadaTaskProgress {
   @@unique([userId, taskId])
   @@index([userId])
   @@index([taskId])
+}
+
+model UserStreak {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  currentStreakDays   Int      @default(0)
+  longestStreakDays   Int      @default(0)
+  streakPoints        Int      @default(0)
+  lastQualifiedDay    String?
+  lastTaskCompletedAt DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([currentStreakDays])
+}
+
+model UserStreakDailyActivity {
+  id          String   @id @default(cuid())
+  userId      String
+  dayKey      String
+  completedAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dayKey])
+  @@index([userId])
+  @@index([dayKey])
+}
+
+model StreakBadge {
+  id           String            @id @default(cuid())
+  slug         String            @unique
+  name         String
+  description  String
+  icon         String?
+  requiredDays Int               @unique
+  sortOrder    Int               @default(0)
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  users        UserStreakBadge[]
+
+  @@index([sortOrder])
+  @@index([isActive])
+}
+
+model UserStreakBadge {
+  id        String     @id @default(cuid())
+  userId    String
+  badgeId   String
+  awardedAt DateTime   @default(now())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     StreakBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+  @@index([awardedAt])
 }
 
 model UserProfile {
@@ -198,8 +264,8 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  @@index([userId])
   @@unique([providerId, accountId])
+  @@index([userId])
 }
 
 model Verification {
@@ -230,11 +296,11 @@ model Job {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  @@unique([source, externalId])
   @@index([source])
   @@index([level])
   @@index([publishedAt])
   @@index([companyName])
-  @@unique([source, externalId])
 }
 
 model JobIngestionLog {
