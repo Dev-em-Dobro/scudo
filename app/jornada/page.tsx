@@ -59,7 +59,6 @@ export default async function JornadaPage() {
                             initialCurrentRankLetter={snapshot.currentRankLetter}
                             initialCodeQuestProgress={snapshot.codeQuestProgress}
                             hasCodeQuestAccount={snapshot.hasCodeQuestAccount}
-                            initialStreak={snapshot.streak}
                         />
                     </div>
                 </div>

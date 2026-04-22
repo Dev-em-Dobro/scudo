@@ -2,10 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BrandLogo from '@/app/components/layout/BrandLogo';
 import InitialOnboardingModal from '@/app/components/onboarding/InitialOnboardingModal';
+import StreakModal, {
+    type JornadaStreakCalendar,
+    type JornadaStreakDetails,
+} from '@/app/components/layout/StreakModal';
 import { authClient } from '@/app/lib/auth-client';
 import { NAV_ITEMS } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
@@ -15,16 +19,12 @@ interface HeaderProps {
     readonly title?: string;
 }
 
-type JornadaStreakSummary = {
-    currentStreakDays: number;
-    hasCompletedTaskToday: boolean;
-};
-
 type JornadaStreakSummaryResponse = {
-    streak: JornadaStreakSummary;
+    streak: JornadaStreakDetails;
+    calendar?: JornadaStreakCalendar;
 };
 
-function getStreakInfoTitle(summary: JornadaStreakSummary | null) {
+function getStreakInfoTitle(summary: JornadaStreakDetails | null) {
     if (!summary) {
         return 'Streak diário: conclua ao menos uma tarefa da jornada por dia para acumular pontos.';
     }
@@ -96,12 +96,51 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
+    const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
+    const [streakModalSessionId, setStreakModalSessionId] = useState(0);
     const [loggingOut, setLoggingOut] = useState(false);
-    const [streakSummary, setStreakSummary] = useState<JornadaStreakSummary | null>(null);
+    const [streakSummary, setStreakSummary] = useState<JornadaStreakDetails | null>(null);
+    const [streakCalendar, setStreakCalendar] = useState<JornadaStreakCalendar | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const streakInfoTitle = getStreakInfoTitle(streakSummary);
     const streakDaysLabel = streakSummary ? `${streakSummary.currentStreakDays}d` : '--';
+
+    const refreshStreakSummary = useCallback(async () => {
+        if (!user.isOfficialStudent) {
+            setStreakSummary(null);
+            setStreakCalendar(null);
+            setIsStreakModalOpen(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/jornada/streak', {
+                method: 'GET',
+                cache: 'no-store',
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                setStreakSummary(null);
+                setStreakCalendar(null);
+                return;
+            }
+
+            const data = await response.json() as JornadaStreakSummaryResponse;
+            setStreakSummary(data.streak);
+            setStreakCalendar(data.calendar ?? null);
+        } catch {
+            setStreakSummary(null);
+            setStreakCalendar(null);
+        }
+    }, [user.isOfficialStudent]);
+
+    const openStreakModal = () => {
+        setStreakModalSessionId((current) => current + 1);
+        setIsStreakModalOpen(true);
+        void refreshStreakSummary();
+    };
 
     // Fecha ao clicar fora
     useEffect(() => {
@@ -118,6 +157,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     useEffect(() => {
         setOpen(false);
         setMobileNavOpen(false);
+        setIsStreakModalOpen(false);
     }, [pathname]);
 
     useEffect(() => {
@@ -134,51 +174,8 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     }, [mobileNavOpen]);
 
     useEffect(() => {
-        let isActive = true;
-
-        async function loadStreakSummary() {
-            if (!user.isOfficialStudent) {
-                if (isActive) {
-                    setStreakSummary(null);
-                }
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/jornada/streak', {
-                    method: 'GET',
-                    cache: 'no-store',
-                    credentials: 'include',
-                });
-
-                if (!isActive) {
-                    return;
-                }
-
-                if (!response.ok) {
-                    setStreakSummary(null);
-                    return;
-                }
-
-                const data = await response.json() as JornadaStreakSummaryResponse;
-                if (!isActive) {
-                    return;
-                }
-
-                setStreakSummary(data.streak);
-            } catch {
-                if (isActive) {
-                    setStreakSummary(null);
-                }
-            }
-        }
-
-        void loadStreakSummary();
-
-        return () => {
-            isActive = false;
-        };
-    }, [user.isOfficialStudent]);
+        void refreshStreakSummary();
+    }, [refreshStreakSummary]);
 
     async function handleLogout() {
         setLoggingOut(true);
@@ -219,11 +216,12 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                     </button>
 
                     {user.isOfficialStudent ? (
-                        <Link
-                            href="/jornada"
-                            className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-orange-300 hover:border-orange-400/40 transition-colors cursor-pointer"
-                            aria-label="Abrir Jornada do aluno"
-                            title={`${streakInfoTitle} Clique para abrir a Jornada do aluno.`}
+                        <button
+                            type="button"
+                            onClick={openStreakModal}
+                            className="hidden md:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-orange-300 hover:border-orange-400/40 transition-colors cursor-pointer"
+                            aria-label="Abrir modal de streak diário"
+                            title={`${streakInfoTitle} Clique para abrir os detalhes do streak.`}
                         >
                             <span className="material-symbols-outlined text-[18px] text-orange-400" style={{ fontVariationSettings: "'FILL' 1" }}>
                                 local_fire_department
@@ -231,7 +229,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                             <span className="text-xs font-semibold whitespace-nowrap tabular-nums">
                                 {streakDaysLabel}
                             </span>
-                        </Link>
+                        </button>
                     ) : null}
 
                     <button
@@ -349,6 +347,26 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                     </Link>
                                 );
                             })}
+                            {user.isOfficialStudent ? (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setMobileNavOpen(false);
+                                        openStreakModal();
+                                    }}
+                                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-300 hover:bg-primary/10 hover:text-primary border-l-2 border-transparent transition-colors"
+                                >
+                                    <span
+                                        className="material-symbols-outlined text-[20px] shrink-0 text-orange-400"
+                                        style={{ fontVariationSettings: "'FILL' 1" }}
+                                    >
+                                        local_fire_department
+                                    </span>
+                                    <span>
+                                        Streak diário {streakSummary ? `(${streakSummary.currentStreakDays}d)` : ''}
+                                    </span>
+                                </button>
+                            ) : null}
                             <button
                                 type="button"
                                 onClick={() => {
@@ -369,6 +387,14 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                     </nav>
                 </div>
             ) : null}
+
+            <StreakModal
+                key={streakModalSessionId}
+                isOpen={isStreakModalOpen}
+                onClose={() => setIsStreakModalOpen(false)}
+                streak={streakSummary}
+                calendar={streakCalendar}
+            />
         </>
     );
 }
