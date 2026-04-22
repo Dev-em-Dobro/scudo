@@ -54,12 +54,17 @@ function toDayKey(year: number, month: number, day: number) {
     return `${year}-${paddedMonth}-${paddedDay}`;
 }
 
+function createMonthAnchorDate(year: number, month: number, day = 1) {
+    // Usa meio-dia UTC para evitar voltar para o mês anterior ao formatar em UTC-3.
+    return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+}
+
 function getMonthLabel(year: number, month: number) {
     return new Intl.DateTimeFormat('pt-BR', {
         month: 'long',
         year: 'numeric',
         timeZone: STREAK_TIME_ZONE,
-    }).format(new Date(Date.UTC(year, month - 1, 1)));
+    }).format(createMonthAnchorDate(year, month));
 }
 
 function getTodayDayKeyInTimeZone(date = new Date()) {
@@ -103,9 +108,10 @@ function StreakCalendar({ calendar, todayDayKey }: Readonly<StreakCalendarProps>
     }
 
     const monthLabel = getMonthLabel(calendar.year, calendar.month);
-    const firstDayWeekday = new Date(Date.UTC(calendar.year, calendar.month - 1, 1)).getUTCDay();
+    const firstDayWeekday = createMonthAnchorDate(calendar.year, calendar.month).getUTCDay();
     const daysInMonth = new Date(Date.UTC(calendar.year, calendar.month, 0)).getUTCDate();
-    const streakDaySet = new Set(calendar.dayKeys);
+    const monthPrefix = `${calendar.year}-${String(calendar.month).padStart(2, '0')}-`;
+    const streakDaySet = new Set(calendar.dayKeys.filter((dayKey) => dayKey.startsWith(monthPrefix)));
 
     const leadingEmptyCells = Array.from({ length: firstDayWeekday }, (_, offset) => ({
         key: `empty-${calendar.year}-${calendar.month}-${offset + 1}`,
@@ -125,9 +131,9 @@ function StreakCalendar({ calendar, todayDayKey }: Readonly<StreakCalendarProps>
     return (
         <div className="rounded-lg border border-orange-400/25 bg-orange-500/8 p-3 space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-semibold text-orange-100 capitalize">{monthLabel}</p>
-                <p className="text-[11px] text-orange-100/75">
-                    {calendar.dayKeys.length} {calendar.dayKeys.length === 1 ? 'dia com streak' : 'dias com streak'}
+                <p className="text-xs sm:text-sm font-semibold text-orange-100 capitalize">{monthLabel}</p>
+                <p className="text-[10px] sm:text-[11px] text-orange-100/75">
+                    {streakDaySet.size} {streakDaySet.size === 1 ? 'dia com streak' : 'dias com streak'}
                 </p>
             </div>
 
@@ -135,7 +141,7 @@ function StreakCalendar({ calendar, todayDayKey }: Readonly<StreakCalendarProps>
                 {WEEKDAY_LABELS.map((weekday) => (
                     <div
                         key={weekday}
-                        className="text-center text-[10px] font-semibold uppercase text-orange-100/70 py-1"
+                        className="text-center text-[9px] sm:text-[10px] font-semibold uppercase text-orange-100/70 py-1"
                         role="columnheader"
                     >
                         {weekday}
@@ -147,7 +153,7 @@ function StreakCalendar({ calendar, todayDayKey }: Readonly<StreakCalendarProps>
                         return (
                             <div
                                 key={cell.key}
-                                className="h-10 rounded-md border border-transparent"
+                                className="h-8 sm:h-10 rounded-md border border-transparent"
                                 aria-hidden
                             />
                         );
@@ -162,14 +168,14 @@ function StreakCalendar({ calendar, todayDayKey }: Readonly<StreakCalendarProps>
                             key={cell.key}
                             role="gridcell"
                             aria-label={hasStreak ? `Dia ${cell.day} com streak` : `Dia ${cell.day} sem streak`}
-                            className={`relative h-10 rounded-md border px-1 ${hasStreak ? 'border-orange-300/60 bg-orange-500/25' : 'border-orange-500/20 bg-orange-950/30'} ${isToday ? 'ring-1 ring-emerald-400/70' : ''}`}
+                            className={`relative h-8 sm:h-10 rounded-md border px-1 ${hasStreak ? 'border-orange-300/60 bg-orange-500/25' : 'border-orange-500/20 bg-orange-950/30'} ${isToday ? 'ring-1 ring-emerald-400/70' : ''}`}
                         >
-                            <span className="absolute left-1.5 top-1 text-[10px] font-semibold text-white/90">
+                            <span className="absolute left-1.5 top-1 text-[9px] sm:text-[10px] font-semibold text-white/90">
                                 {cell.day}
                             </span>
                             {hasStreak ? (
                                 <span className="absolute right-1 bottom-1 inline-flex items-center justify-center text-orange-200" aria-hidden>
-                                    <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                    <span className="material-symbols-outlined text-[14px] sm:text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                                         local_fire_department
                                     </span>
                                 </span>
@@ -238,14 +244,14 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
             <dialog
                 open
                 aria-labelledby="streak-modal-title"
-                className="relative z-10 w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-xl border border-orange-500/30 bg-background-dark shadow-2xl"
+                className="relative z-10 flex w-full max-w-5xl max-h-[88dvh] sm:max-h-[92vh] flex-col overflow-hidden rounded-xl border border-orange-500/30 bg-background-dark shadow-2xl"
             >
                 <div className="flex items-center justify-between gap-3 border-b border-orange-500/20 px-4 py-3 sm:px-5">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
+                        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
                             Sistema de streak diário
                         </p>
-                        <h2 id="streak-modal-title" className="text-base sm:text-lg font-bold text-white">
+                        <h2 id="streak-modal-title" className="text-sm sm:text-lg font-bold text-white">
                             Progresso diário da Jornada
                         </h2>
                     </div>
@@ -259,31 +265,31 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
                     </button>
                 </div>
 
-                <div className="overflow-y-auto p-4 sm:p-5">
+                <div className="min-h-0 overflow-y-auto p-3 sm:p-5">
                     {streak ? (
-                        <div className="space-y-4">
-                            <div className="flex flex-col items-center gap-4 text-center">
-                                <div className="w-full max-w-3xl space-y-2">
-                                    <h3 className="text-lg font-bold text-white leading-tight">
+                        <div className="space-y-3 sm:space-y-4">
+                            <div className="flex flex-col items-center gap-3 sm:gap-4 text-center">
+                                <div className="w-full max-w-3xl space-y-1.5 sm:space-y-2">
+                                    <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
                                         Ganhe +1 ponto por dia ao concluir pelo menos 1 tarefa da jornada
                                     </h3>
-                                    <p className="text-sm text-orange-100/80 leading-snug">
+                                    <p className="text-xs sm:text-sm text-orange-100/80 leading-snug">
                                         Cada dia concluído fortalece seu streak e libera badges em marcos como 7, 30, 60 e 100 dias.
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full max-w-4xl">
                                     <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2">
-                                        <p className="text-[10px] uppercase tracking-wide text-orange-200/80">Streak atual</p>
-                                        <p className="text-xl font-bold text-white mt-1">{streak.currentStreakDays} dias</p>
+                                        <p className="text-[9px] sm:text-[10px] uppercase tracking-wide text-orange-200/80">Streak atual</p>
+                                        <p className="text-lg sm:text-xl font-bold text-white mt-1">{streak.currentStreakDays} dias</p>
                                     </div>
                                     <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2">
-                                        <p className="text-[10px] uppercase tracking-wide text-orange-200/80">Maior streak</p>
-                                        <p className="text-xl font-bold text-white mt-1">{streak.longestStreakDays} dias</p>
+                                        <p className="text-[9px] sm:text-[10px] uppercase tracking-wide text-orange-200/80">Maior streak</p>
+                                        <p className="text-lg sm:text-xl font-bold text-white mt-1">{streak.longestStreakDays} dias</p>
                                     </div>
                                     <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2 sm:col-span-2 lg:col-span-1">
-                                        <p className="text-[10px] uppercase tracking-wide text-orange-200/80">Pontos acumulados</p>
-                                        <p className="text-xl font-bold text-white mt-1">{streak.streakPoints} pontos</p>
+                                        <p className="text-[9px] sm:text-[10px] uppercase tracking-wide text-orange-200/80">Pontos acumulados</p>
+                                        <p className="text-lg sm:text-xl font-bold text-white mt-1">{streak.streakPoints} pontos</p>
                                     </div>
                                 </div>
                             </div>
@@ -291,7 +297,7 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
                             {isDailyNoticeDismissed ? null : (
                                 <div className={`rounded-lg border px-3 py-2 ${streak.hasCompletedTaskToday ? 'border-emerald-500/40 bg-emerald-500/15' : 'border-amber-500/40 bg-amber-500/15'}`}>
                                     <div className="flex items-start justify-between gap-2">
-                                        <p className={`text-sm ${streak.hasCompletedTaskToday ? 'text-emerald-200' : 'text-amber-100'}`}>
+                                        <p className={`text-xs sm:text-sm ${streak.hasCompletedTaskToday ? 'text-emerald-200' : 'text-amber-100'}`}>
                                             {streak.hasCompletedTaskToday
                                                 ? 'Hoje você já garantiu seu ponto diário de streak.'
                                                 : 'Hoje ainda não conta para o streak. Conclua 1 tarefa para ganhar +1 ponto.'}
@@ -312,7 +318,7 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
 
                             {streak.nextBadge ? (
                                 <div className="space-y-2">
-                                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-orange-100/80">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs text-orange-100/80">
                                         <span>Próxima badge: {streak.nextBadge.name}</span>
                                         <span>Faltam {streak.nextBadge.daysRemaining} dias</span>
                                     </div>
@@ -325,21 +331,21 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
                                 </div>
                             ) : (
                                 <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
-                                    <p className="text-sm text-emerald-200">
+                                    <p className="text-xs sm:text-sm text-emerald-200">
                                         Todas as badges ativas de streak já foram conquistadas.
                                     </p>
                                 </div>
                             )}
 
                             <div className="space-y-2">
-                                <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
+                                <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
                                     Calendário de streak
                                 </p>
                                 <StreakCalendar calendar={calendar} todayDayKey={todayDayKey} />
                             </div>
 
                             <div className="space-y-2">
-                                <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
+                                <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-orange-200/90">
                                     Badges do streak
                                 </p>
                                 <div className="flex flex-wrap gap-2">
@@ -349,15 +355,15 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
                                         return (
                                             <div
                                                 key={badge.id}
-                                                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] ${isEarned ? 'border-emerald-400/45 bg-emerald-500/20 text-emerald-100' : 'border-orange-400/25 bg-orange-500/10 text-orange-100/80'}`}
+                                                className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[10px] sm:text-[11px] ${isEarned ? 'border-emerald-400/45 bg-emerald-500/20 text-emerald-100' : 'border-orange-400/25 bg-orange-500/10 text-orange-100/80'}`}
                                                 title={badge.description}
                                             >
                                                 {isMaterialSymbolIcon(badge.icon) ? (
-                                                    <span className="material-symbols-outlined text-sm leading-none" aria-hidden>
+                                                    <span className="material-symbols-outlined text-[13px] sm:text-sm leading-none" aria-hidden>
                                                         {badge.icon}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-[10px] font-bold uppercase">{badge.icon ?? 'badge'}</span>
+                                                    <span className="text-[9px] sm:text-[10px] font-bold uppercase">{badge.icon ?? 'badge'}</span>
                                                 )}
                                                 <span className="font-semibold">{badge.name}</span>
                                                 <span className="opacity-80">{badge.requiredDays}d</span>
@@ -369,7 +375,7 @@ export default function StreakModal({ isOpen, onClose, streak, calendar }: Reado
                         </div>
                     ) : (
                         <div className="rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2">
-                            <p className="text-sm text-amber-100">
+                            <p className="text-xs sm:text-sm text-amber-100">
                                 Não foi possível carregar os detalhes do streak agora. Tente novamente em instantes.
                             </p>
                         </div>
