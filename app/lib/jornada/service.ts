@@ -16,7 +16,13 @@ const taskById = new Map<string, JornadaTask>(MOCK_TASKS.map((task) => [task.id,
 
 export const PRATICA_TASK_IDS = new Set(
     MOCK_TASKS
-        .filter((t) => t.kind === 'pratica' || t.title.toLowerCase().includes('exercício'))
+        .filter((t) => {
+            if (t.kind) {
+                return t.kind === 'pratica';
+            }
+
+            return t.title.toLowerCase().includes('exercício');
+        })
         .map((t) => t.id),
 );
 
