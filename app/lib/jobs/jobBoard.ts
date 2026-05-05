@@ -87,15 +87,26 @@ const BASE_JOB_SELECT = {
     createdAt: true,
 } as const;
 
-const JOB_MAX_AGE_IN_MONTHS = 6;
+const JOB_MAX_AGE_IN_MONTHS_DEFAULT = 1;
+
+function getJobMaxAgeInMonths() {
+    const parsed = Number(process.env.JOBS_MAX_AGE_IN_MONTHS ?? JOB_MAX_AGE_IN_MONTHS_DEFAULT);
+    const normalized = Math.floor(parsed);
+
+    if (Number.isNaN(normalized) || normalized < 1) {
+        return JOB_MAX_AGE_IN_MONTHS_DEFAULT;
+    }
+
+    return Math.min(normalized, 12);
+}
 
 function getPublishedCutoffDate() {
     const cutoff = new Date();
-    cutoff.setMonth(cutoff.getMonth() - JOB_MAX_AGE_IN_MONTHS);
+    cutoff.setMonth(cutoff.getMonth() - getJobMaxAgeInMonths());
     return cutoff;
 }
 
-function buildRecentJobsWhere() {
+export function buildRecentJobsWhere() {
     const cutoff = getPublishedCutoffDate();
     return {
         OR: [
