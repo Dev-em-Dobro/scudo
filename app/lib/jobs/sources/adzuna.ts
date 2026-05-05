@@ -94,16 +94,16 @@ function extractStack(text: string): string[] {
 function normalizeLevel(text: string): string | null {
     const value = text.toLowerCase();
 
-    if (value.includes('estágio') || value.includes('estagi') || value.includes('intern')) {
+    if (/\best[aá]gi(?:o|[áa]ri[oa]s?)\b|\bintern(?:ship)?\b|\btrainee\b/i.test(value)) {
         return 'Estágio';
     }
-    if (value.includes('júnior') || value.includes('junior') || value.includes('jr')) {
+    if (/\bj[uú]nior\b|\bjunior\b|\bjr\b/i.test(value)) {
         return 'Júnior';
     }
-    if (value.includes('pleno') || value.includes('mid')) {
+    if (/\bpleno\b|\bmid\b|\bmiddle\b/i.test(value)) {
         return 'Pleno';
     }
-    if (value.includes('sênior') || value.includes('senior') || value.includes('sr')) {
+    if (/\bs[eê]nior\b|\bsenior\b|\bsr\b/i.test(value)) {
         return 'Sênior';
     }
 
@@ -169,10 +169,12 @@ export async function fetchFromAdzuna(limit = 120): Promise<RawSourceJob[]> {
             .slice(0, limit)
             .map((job) => {
                 const searchableText = `${job.title ?? ''} ${job.category?.label ?? ''} ${job.description ?? ''}`;
+                const titleLevel = normalizeLevel(job.title ?? '');
+                const fullTextLevel = normalizeLevel(searchableText);
                 return {
                     title: job.title ?? 'Vaga sem título',
                     companyName: job.company?.display_name ?? 'Empresa não informada',
-                    level: normalizeLevel(searchableText),
+                    level: titleLevel ?? fullTextLevel,
                     stack: extractStack(searchableText),
                     description: job.description ? normalizeDescriptionText(job.description) : null,
                     location: job.location?.display_name ?? null,

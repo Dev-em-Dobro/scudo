@@ -18,7 +18,7 @@ type CurateJobResult = {
 
 function inferLevelByYearsRule(text: string): JobLevel | null {
     // Matches patterns like "3+ years", "mínimo 2 anos", "at least 5 years".
-    const yearRegex = /(?:at\s+least\s+|minimum\s+|m[ií]nimo\s+de?\s*)?(\d{1,2})\s*\+?\s*(?:years?|anos?)/gi;
+    const yearRegex = /(\d{1,2})\s*\+?\s*(?:years?|anos?)/gi;
 
     let minYears: number | null = null;
     let match: RegExpExecArray | null;
@@ -40,15 +40,18 @@ function inferLevelByYearsRule(text: string): JobLevel | null {
 function inferLevelByRoleKeywords(text: string): JobLevel | null {
     const lower = text.toLowerCase();
 
-    if (/intern|est[aá]gio|trainee/.test(lower)) return 'ESTAGIO';
-    if (/j[uú]nior|junior|\bjr\b|associate|entry[-\s]?level/.test(lower)) return 'JUNIOR';
-    if (/pleno|mid|middle|\bii\b/.test(lower)) return 'PLENO';
-    if (/s[eê]nior|senior|\bsr\b|lead|staff|principal|\biii\b/.test(lower)) return 'SENIOR';
+    if (/\best[aá]gi(?:o|[áa]ri[oa]s?)\b|\bintern(?:ship)?\b|\btrainee\b/.test(lower)) return 'ESTAGIO';
+    if (/\bj[uú]nior\b|\bjunior\b|\bjr\b|\bassociate\b|\bentry[-\s]?level\b/.test(lower)) return 'JUNIOR';
+    if (/\bpleno\b|\bmid\b|\bmiddle\b|\bii\b/.test(lower)) return 'PLENO';
+    if (/\bs[eê]nior\b|\bsenior\b|\bsr\b|\blead\b|\bstaff\b|\bprincipal\b|\biii\b/.test(lower)) return 'SENIOR';
 
     return null;
 }
 
 function inferLevelByRules(input: CurateJobInput): JobLevel | null {
+    const byTitle = inferLevelByRoleKeywords(input.title ?? '');
+    if (byTitle) return byTitle;
+
     const joined = `${input.title} ${input.level ?? ''} ${input.description ?? ''}`.trim();
     if (!joined) return null;
 

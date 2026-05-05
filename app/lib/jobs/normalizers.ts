@@ -1,10 +1,10 @@
 import type { JobLevel } from "@prisma/client";
 
 const levelMap: Array<{ regex: RegExp; level: JobLevel }> = [
-    { regex: /estag|intern/i, level: "ESTAGIO" },
-    { regex: /junior|júnior|jr\b/i, level: "JUNIOR" },
-    { regex: /pleno|mid|middle/i, level: "PLENO" },
-    { regex: /senior|sênior|sr\b/i, level: "SENIOR" },
+    { regex: /\best[aá]gi(?:o|[áa]ri[oa]s?)\b|\bintern(?:ship)?\b|\btrainee\b/i, level: "ESTAGIO" },
+    { regex: /\bj[uú]nior\b|\bjunior\b|\bjr\b/i, level: "JUNIOR" },
+    { regex: /\bpleno\b|\bmid\b|\bmiddle\b/i, level: "PLENO" },
+    { regex: /\bs[eê]nior\b|\bsenior\b|\bsr\b/i, level: "SENIOR" },
 ];
 
 export function normalizeLevel(input?: string | null): JobLevel {
@@ -159,8 +159,8 @@ const TITLE_TECH_PATTERNS: Array<{ regex: RegExp; canonical: string }> = [
     { regex: /\bgraphql\b/i, canonical: 'graphql' },
     { regex: /\brest\b|\brestful\b/i, canonical: 'rest' },
     { regex: /\bcrud\b/i, canonical: 'crud' },
-    { regex: /\bauthentication\b|autentica(?:ç|c)[aã]o/i, canonical: 'autenticacao' },
-    { regex: /\bauthorization\b|autoriza(?:ç|c)[aã]o/i, canonical: 'autorizacao' },
+    { regex: /\bauthentication\b|autentica[cç][aã]o/i, canonical: 'autenticacao' },
+    { regex: /\bauthorization\b|autoriza[cç][aã]o/i, canonical: 'autorizacao' },
     { regex: /\boauth2?\b|\boauth 2(?:\\.0)?\b/i, canonical: 'oauth' },
     { regex: /\bopenid(?: connect)?\b|\boidc\b/i, canonical: 'oidc' },
     { regex: /\bjwt\b/i, canonical: 'jwt' },
