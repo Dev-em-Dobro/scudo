@@ -116,7 +116,12 @@ EMAIL_DELIVERY_DOMAIN="seudominio.com"
 
 JOBS_BOOTSTRAP_SECRET="seu-segredo-bootstrap"
 JOBS_WEBHOOK_SECRET="seu-segredo-webhook"
+JOBS_MAINTENANCE_SECRET="seu-segredo-manutencao"
 CRON_SECRET="seu-segredo-cron"
+JOBS_SOFT_INACTIVATION_ENABLED="true"
+JOBS_SOFT_INACTIVATION_DAYS="30"
+JOBS_SOFT_INACTIVATION_BATCH_SIZE="500"
+JOBS_SOFT_INACTIVATION_DRY_RUN="false"
 
 # Conectores opcionais
 JOBS_CONNECTOR_GUPY="true"
@@ -234,6 +239,13 @@ curl -X POST http://localhost:3000/api/jobs/webhook \
     -H "Content-Type: application/json" \
     -H "x-webhook-secret: $JOBS_WEBHOOK_SECRET" \
     -d '{"jobs":[{"title":"Dev Junior","companyName":"Empresa X","sourceUrl":"https://example.com/job/1"}]}'
+```
+
+- Rodar soft inativação de vagas (manual):
+
+```bash
+curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?dryRun=true" \
+    -H "Authorization: Bearer $JOBS_MAINTENANCE_SECRET"
 ```
 
 - Exportar aulas da Curseduca para apoio operacional:

@@ -17,6 +17,7 @@ const PUBLIC_API_PREFIXES = [
     '/api/health',          // Monitoramento
     '/api/jobs/webhook',    // Autenticado via JOBS_WEBHOOK_SECRET
     '/api/jobs/bootstrap',  // Autenticado via JOBS_BOOTSTRAP_SECRET + cron Vercel
+    '/api/jobs/maintenance', // Autenticado via secret de manutenção + cron
 ];
 
 /** Nomes do cookie de sessão do Better Auth (HTTP e HTTPS). */

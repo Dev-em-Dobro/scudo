@@ -247,6 +247,9 @@ async function persistPreparedJob(transaction: RlsTransaction, prepared: Prepare
                     sourceUrl,
                     externalId,
                     lastSeenAt: new Date(),
+                    isActive: true,
+                    inactivatedAt: null,
+                    inactivationReason: null,
                 },
             });
 
@@ -274,6 +277,9 @@ async function persistPreparedJob(transaction: RlsTransaction, prepared: Prepare
             externalId,
             fingerprint,
             lastSeenAt: new Date(),
+            isActive: true,
+            inactivatedAt: null,
+            inactivationReason: null,
         },
         update: {
             title,
@@ -287,6 +293,9 @@ async function persistPreparedJob(transaction: RlsTransaction, prepared: Prepare
             sourceUrl,
             externalId,
             lastSeenAt: new Date(),
+            isActive: true,
+            inactivatedAt: null,
+            inactivationReason: null,
         },
     });
 

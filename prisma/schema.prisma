@@ -287,18 +287,22 @@ model Job {
   stack       String[]
   location    String?
   isRemote    Boolean   @default(false)
+  isActive    Boolean   @default(true)
   publishedAt DateTime?
   source      JobSource
   sourceUrl   String
   externalId  String?
   fingerprint String    @unique
   lastSeenAt  DateTime  @default(now())
+  inactivatedAt DateTime?
+  inactivationReason String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@unique([source, externalId])
   @@index([source])
   @@index([level])
+  @@index([isActive, lastSeenAt])
   @@index([publishedAt])
   @@index([companyName])
 }

@@ -1,4 +1,4 @@
-import { JobLevel, JobSource } from '@prisma/client';
+import { JobLevel, JobSource, Prisma } from '@prisma/client';
 
 import { prisma } from '@/app/lib/prisma';
 
@@ -106,12 +106,17 @@ function getPublishedCutoffDate() {
     return cutoff;
 }
 
-export function buildRecentJobsWhere() {
+export function buildRecentJobsWhere(): Prisma.JobWhereInput {
     const cutoff = getPublishedCutoffDate();
     return {
-        OR: [
-            { publishedAt: { gte: cutoff } },
-            { publishedAt: null, createdAt: { gte: cutoff } },
+        AND: [
+            { isActive: true },
+            {
+                OR: [
+                    { publishedAt: { gte: cutoff } },
+                    { publishedAt: null, createdAt: { gte: cutoff } },
+                ],
+            },
         ],
     };
 }
@@ -127,36 +132,40 @@ export async function getAllAvailableJobs() {
 export async function getJobBoardJobs() {
     return prisma.job.findMany({
         where: {
-            ...buildRecentJobsWhere(),
-            source: {
-                in: [JobSource.GUPY, JobSource.LINKEDIN, JobSource.OTHER],
-            },
-            level: { in: [JobLevel.ESTAGIO, JobLevel.JUNIOR, JobLevel.PLENO, JobLevel.OUTRO] },
-            NOT: {
-                OR: [
-                    {
-                        stack: {
-                            hasSome: JOB_BOARD_NON_TARGET_STACK_EXCLUDE,
-                        },
-                    },
-                    ...JOB_BOARD_NON_TARGET_TITLE_KEYWORDS.map((keyword) => ({
-                        title: {
-                            contains: keyword,
-                            mode: 'insensitive' as const,
-                        },
-                    })),
-                ],
-            },
-            OR: [
+            AND: [
+                buildRecentJobsWhere(),
                 {
-                    stack: {
-                        hasSome: JOB_BOARD_STACK_FILTER,
+                    source: {
+                        in: [JobSource.GUPY, JobSource.LINKEDIN, JobSource.OTHER],
                     },
-                },
-                {
-                    stack: {
-                        isEmpty: true,
+                    level: { in: [JobLevel.ESTAGIO, JobLevel.JUNIOR, JobLevel.PLENO, JobLevel.OUTRO] },
+                    NOT: {
+                        OR: [
+                            {
+                                stack: {
+                                    hasSome: JOB_BOARD_NON_TARGET_STACK_EXCLUDE,
+                                },
+                            },
+                            ...JOB_BOARD_NON_TARGET_TITLE_KEYWORDS.map((keyword) => ({
+                                title: {
+                                    contains: keyword,
+                                    mode: 'insensitive' as const,
+                                },
+                            })),
+                        ],
                     },
+                    OR: [
+                        {
+                            stack: {
+                                hasSome: JOB_BOARD_STACK_FILTER,
+                            },
+                        },
+                        {
+                            stack: {
+                                isEmpty: true,
+                            },
+                        },
+                    ],
                 },
             ],
         },

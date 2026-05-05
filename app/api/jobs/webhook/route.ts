@@ -153,6 +153,9 @@ export async function POST(request: NextRequest) {
                     externalId: item.externalId ?? null,
                     fingerprint,
                     lastSeenAt: new Date(),
+                    isActive: true,
+                    inactivatedAt: null,
+                    inactivationReason: null,
                 };
 
                 if (existingByExternal) {
