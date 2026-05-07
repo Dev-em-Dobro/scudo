@@ -8,6 +8,7 @@ Objetivos:
 
 - reduzir exibição de vagas indisponíveis;
 - evitar impacto no usuário final;
+- reduzir casos de links que abrem vagas já encerradas/finalizadas no destino;
 - manter possibilidade de reativação automática quando a vaga reaparecer na ingestão.
 
 ## O que foi implementado
@@ -54,7 +55,7 @@ Arquivos:
 - `app/lib/jobs/bootstrap.ts`
 - `app/api/jobs/webhook/route.ts`
 
-### 4. Endpoint de manutenção (soft inativação)
+### 4. Endpoint de manutenção (soft inativação + varredura ativa)
 
 Rota criada:
 
@@ -71,6 +72,10 @@ Comportamento:
 - processa em lote (`batchSize`);
 - suporta `dryRun` sem escrita no banco;
 - em execução normal, atualiza para inativa com motivo `stale_last_seen`.
+- varre URLs de vagas ativas com fetch server-side controlado por `timeout` e `concorrência`;
+- evita URLs inseguras (localhost/IPs privadas) para reduzir risco de SSRF;
+- inativa por indisponibilidade quando encontra `404/410/451` com motivo `source_unavailable_http`;
+- inativa por conteúdo quando identifica sinais de vaga encerrada (PT/EN) com motivo `source_unavailable_content`.
 
 ### 5. Segurança e acesso da rota de manutenção
 
@@ -105,6 +110,17 @@ Novas variáveis recomendadas:
 - `JOBS_SOFT_INACTIVATION_DAYS` (default: `30`)
 - `JOBS_SOFT_INACTIVATION_BATCH_SIZE` (default: `500`)
 - `JOBS_SOFT_INACTIVATION_DRY_RUN` (default: `false`)
+- `JOBS_UNAVAILABILITY_SWEEP_ENABLED` (default lógico: `false`)
+- `JOBS_UNAVAILABILITY_SWEEP_BATCH_SIZE` (default: `120`)
+- `JOBS_UNAVAILABILITY_SWEEP_TIMEOUT_MS` (default: `8000`)
+- `JOBS_UNAVAILABILITY_SWEEP_CONCURRENCY` (default: `6`)
+- `JOBS_UNAVAILABILITY_SWEEP_DRY_RUN` (default: `false`)
+
+Rollout recomendado da varredura ativa:
+
+1. habilitar com `JOBS_UNAVAILABILITY_SWEEP_ENABLED=true` e `JOBS_UNAVAILABILITY_SWEEP_DRY_RUN=true` por 1 ciclo;
+2. revisar o payload de `sampledUnavailable`;
+3. desativar dry-run para aplicar inativação automática.
 
 ## Como executar manualmente
 
@@ -124,14 +140,26 @@ curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate" \
 
 Ajuste de parâmetros na chamada:
 
+- `softInactivation` (`true|false`)
+- `unavailabilitySweep` (`true|false`)
 - `staleDays` (ex.: `30`)
 - `batchSize` (ex.: `500`)
+- `sweepBatchSize` (ex.: `120`)
+- `sweepTimeoutMs` (ex.: `8000`)
+- `sweepConcurrency` (ex.: `6`)
 - `dryRun` (`true|false`)
 
-Exemplo:
+Exemplo (ambos ativos):
 
 ```bash
-curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?staleDays=30&batchSize=300&dryRun=false" \
+curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?softInactivation=true&unavailabilitySweep=true&staleDays=30&batchSize=300&sweepBatchSize=120&sweepTimeoutMs=8000&sweepConcurrency=6&dryRun=false" \
+  -H "Authorization: Bearer $JOBS_MAINTENANCE_SECRET"
+```
+
+Exemplo (somente varredura ativa):
+
+```bash
+curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?softInactivation=false&unavailabilitySweep=true&dryRun=true" \
   -H "Authorization: Bearer $JOBS_MAINTENANCE_SECRET"
 ```
 
@@ -140,8 +168,9 @@ curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?staleDa
 Sem rollback de schema:
 
 1. Definir `JOBS_SOFT_INACTIVATION_ENABLED=false`.
-2. Remover cron em `vercel.json` se necessário.
-3. Reprocessar ingestão para reativar vagas reencontradas automaticamente.
+2. Definir `JOBS_UNAVAILABILITY_SWEEP_ENABLED=false`.
+3. Remover cron em `vercel.json` se necessário.
+4. Reprocessar ingestão para reativar vagas reencontradas automaticamente.
 
 Com rollback de comportamento de leitura:
 

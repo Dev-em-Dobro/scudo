@@ -12,6 +12,7 @@ const MAX_BATCH_SIZE = 2_000;
 const CANDIDATE_SAMPLE_SIZE = 20;
 
 type SoftInactivationRunOptions = {
+    enabled?: boolean;
     dryRun?: boolean;
     staleDays?: number;
     batchSize?: number;
@@ -82,7 +83,7 @@ function parseBoundedInteger(
 }
 
 function resolveSoftInactivationConfig(options: SoftInactivationRunOptions) {
-    const enabled = parseBooleanValue(process.env.JOBS_SOFT_INACTIVATION_ENABLED, true);
+    const envEnabled = parseBooleanValue(process.env.JOBS_SOFT_INACTIVATION_ENABLED, true);
     const envDryRun = parseBooleanValue(process.env.JOBS_SOFT_INACTIVATION_DRY_RUN, false);
 
     const staleDays = parseBoundedInteger(
@@ -102,7 +103,7 @@ function resolveSoftInactivationConfig(options: SoftInactivationRunOptions) {
     const dryRun = options.dryRun ?? envDryRun;
 
     return {
-        enabled,
+        enabled: options.enabled ?? envEnabled,
         dryRun,
         staleDays,
         batchSize,

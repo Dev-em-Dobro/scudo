@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { runSoftInactivation } from '@/app/lib/jobs/softInactivation';
+import { runUnavailabilitySweep } from '@/app/lib/jobs/unavailabilitySweep';
 
 export const runtime = 'nodejs';
 
@@ -73,26 +74,42 @@ async function handleSoftInactivation(request: NextRequest) {
     }
 
     try {
+        const softInactivation = parseBooleanParam(request.nextUrl.searchParams.get('softInactivation'));
         const dryRun = parseBooleanParam(request.nextUrl.searchParams.get('dryRun'));
         const staleDays = parseIntegerParam(request.nextUrl.searchParams.get('staleDays'));
         const batchSize = parseIntegerParam(request.nextUrl.searchParams.get('batchSize'));
+        const unavailabilitySweep = parseBooleanParam(
+            request.nextUrl.searchParams.get('unavailabilitySweep'),
+        );
+        const sweepBatchSize = parseIntegerParam(request.nextUrl.searchParams.get('sweepBatchSize'));
+        const sweepTimeoutMs = parseIntegerParam(request.nextUrl.searchParams.get('sweepTimeoutMs'));
+        const sweepConcurrency = parseIntegerParam(request.nextUrl.searchParams.get('sweepConcurrency'));
 
-        const result = await runSoftInactivation({
+        const softInactivationResult = await runSoftInactivation({
+            enabled: softInactivation,
             dryRun,
             staleDays,
             batchSize,
         });
+        const unavailabilitySweepResult = await runUnavailabilitySweep({
+            enabled: unavailabilitySweep,
+            dryRun,
+            batchSize: sweepBatchSize,
+            timeoutMs: sweepTimeoutMs,
+            concurrency: sweepConcurrency,
+        });
 
         return NextResponse.json({
-            message: result.dryRun
-                ? 'Dry-run de soft inativação executado com sucesso.'
-                : 'Soft inativação executada com sucesso.',
-            ...result,
+            message: softInactivationResult.dryRun
+                ? 'Dry-run da manutenção de vagas executado com sucesso.'
+                : 'Manutenção de vagas executada com sucesso.',
+            softInactivation: softInactivationResult,
+            unavailabilitySweep: unavailabilitySweepResult,
         });
     } catch (error) {
-        console.error('Erro ao executar soft inativação de vagas.', error);
+        console.error('Erro ao executar manutenção de vagas.', error);
         return NextResponse.json(
-            { error: 'Falha ao executar soft inativação de vagas.' },
+            { error: 'Falha ao executar manutenção de vagas.' },
             { status: 500 },
         );
     }

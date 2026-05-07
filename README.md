@@ -122,6 +122,11 @@ JOBS_SOFT_INACTIVATION_ENABLED="true"
 JOBS_SOFT_INACTIVATION_DAYS="30"
 JOBS_SOFT_INACTIVATION_BATCH_SIZE="500"
 JOBS_SOFT_INACTIVATION_DRY_RUN="false"
+JOBS_UNAVAILABILITY_SWEEP_ENABLED="false"
+JOBS_UNAVAILABILITY_SWEEP_BATCH_SIZE="120"
+JOBS_UNAVAILABILITY_SWEEP_TIMEOUT_MS="8000"
+JOBS_UNAVAILABILITY_SWEEP_CONCURRENCY="6"
+JOBS_UNAVAILABILITY_SWEEP_DRY_RUN="false"
 
 # Conectores opcionais
 JOBS_CONNECTOR_GUPY="true"
@@ -241,10 +246,17 @@ curl -X POST http://localhost:3000/api/jobs/webhook \
     -d '{"jobs":[{"title":"Dev Junior","companyName":"Empresa X","sourceUrl":"https://example.com/job/1"}]}'
 ```
 
-- Rodar soft inativação de vagas (manual):
+- Rodar manutenção de vagas (soft inativação + varredura de indisponibilidade):
 
 ```bash
 curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?dryRun=true" \
+    -H "Authorization: Bearer $JOBS_MAINTENANCE_SECRET"
+```
+
+- Rodar somente a varredura ativa de indisponibilidade:
+
+```bash
+curl -X POST "http://localhost:3000/api/jobs/maintenance/soft-inactivate?softInactivation=false&unavailabilitySweep=true&dryRun=true" \
     -H "Authorization: Bearer $JOBS_MAINTENANCE_SECRET"
 ```
 
