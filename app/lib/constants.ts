@@ -31,6 +31,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'feedback',
     href: '/feedback',
   },
+  {
+    label: 'Indique e Ganhe',
+    icon: 'redeem',
+    href: '/indique-e-ganhe',
+  },
 ];
 
 export const LOGO_TEXT = {

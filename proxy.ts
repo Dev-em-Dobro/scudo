@@ -18,6 +18,8 @@ const PUBLIC_API_PREFIXES = [
     '/api/jobs/webhook',    // Autenticado via JOBS_WEBHOOK_SECRET
     '/api/jobs/bootstrap',  // Autenticado via JOBS_BOOTSTRAP_SECRET + cron Vercel
     '/api/jobs/maintenance', // Autenticado via secret de manutenção + cron
+    '/api/referrals/hubla-webhook', // MGM: autenticado via HUBLA_WEBHOOK_SECRET
+    '/api/cron',            // MGM: Vercel Cron (sem cookie) — auth via CRON_SECRET
 ];
 
 /** Nomes do cookie de sessão do Better Auth (HTTP e HTTPS). */

@@ -15,6 +15,7 @@ const NAV_ICONS: Record<string, string> = {
     'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
     'Feedbacks de melhorias': 'feedback',
+    'Indique e Ganhe': 'redeem',
 };
 
 function getOnboardingNavId(href: string) {
