@@ -4,6 +4,7 @@ import { Martian_Mono, Orbitron, Ubuntu } from 'next/font/google';
 
 import { auth } from '@/app/lib/auth';
 import { AuthProvider } from '@/app/providers/AuthProvider';
+import { SidebarProvider } from '@/app/providers/SidebarProvider';
 import DailyStreakAnnouncementModal from '@/app/components/tutorial/DailyStreakAnnouncementModal';
 import TutorialVideoModal from '@/app/components/tutorial/TutorialVideoModal';
 import { TutorialProvider } from '@/app/providers/TutorialProvider';
@@ -57,11 +58,13 @@ export default async function RootLayout({
         <html lang="pt-BR" className="dark">
             <body className={`${ubuntu.variable} ${martianMono.variable} ${orbitron.variable} antialiased`}>
                 <AuthProvider initialSession={initialSession}>
-                    <TutorialProvider>
-                        {children}
-                        <TutorialVideoModal />
-                        <DailyStreakAnnouncementModal />
-                    </TutorialProvider>
+                    <SidebarProvider>
+                        <TutorialProvider>
+                            {children}
+                            <TutorialVideoModal />
+                            <DailyStreakAnnouncementModal />
+                        </TutorialProvider>
+                    </SidebarProvider>
                 </AuthProvider>
             </body>
         </html>

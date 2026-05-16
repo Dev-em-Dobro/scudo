@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import BrandLogo from '@/app/components/layout/BrandLogo';
 import { NAV_ITEMS } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
-import { useTutorial } from '@/app/providers/TutorialProvider';
+import { useSidebar } from '@/app/providers/SidebarProvider';
 
 const NAV_ICONS: Record<string, string> = {
     'Meu Painel': 'grid_view',
@@ -39,20 +39,32 @@ function getInitials(name: string) {
 export default function Sidebar() {
     const { user } = useAuth();
     const pathname = usePathname();
-    const { openTutorial } = useTutorial();
+    const { isCollapsed, toggleSidebar } = useSidebar();
     const visibleNavItems = NAV_ITEMS;
 
     return (
-        <aside className="w-64 bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
+        <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col transition-[width] duration-200`}>
             {/* Logo */}
-            <div className="h-16 flex items-center px-5 border-b border-border-light dark:border-border-dark gap-3">
+            <div className={`h-16 flex items-center border-b border-border-light dark:border-border-dark gap-3 ${isCollapsed ? 'justify-center px-3' : 'justify-between px-5'}`}>
                 <Link href="/" aria-label="Ir para o início">
-                    <BrandLogo logoClassName="h-7 w-auto" titleClassName="h-4 w-auto" />
+                    <BrandLogo logoClassName="h-7 w-auto" titleClassName={isCollapsed ? 'hidden' : 'h-4 w-auto'} />
                 </Link>
+
+                <button
+                    type="button"
+                    onClick={toggleSidebar}
+                    aria-label={isCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+                    title={isCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+                    className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-light/80 dark:border-border-dark text-slate-400 hover:text-white hover:border-violet-400/40 transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                        {isCollapsed ? 'chevron_right' : 'chevron_left'}
+                    </span>
+                </button>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 pl-3 pr-0 py-5 flex flex-col justify-between">
+            <nav className={`flex-1 py-5 flex flex-col justify-between ${isCollapsed ? 'px-2' : 'pl-3 pr-0'}`}>
                 <div className="space-y-1">
                     {visibleNavItems.map((item) => {
                         const isActive = item.href === '/'
@@ -65,10 +77,11 @@ export default function Sidebar() {
                                 key={item.label}
                                 href={item.href}
                                 data-onboarding-id={getOnboardingNavId(item.href)}
+                                title={isCollapsed ? item.label : undefined}
                                 className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
                                     ? 'rounded-l-lg bg-primary text-white border-r-2 border-primary'
                                     : 'rounded-lg text-slate-300 hover:bg-primary/10 hover:text-primary'
-                                    }`}
+                                    } ${isCollapsed ? 'justify-center px-0 rounded-lg border-r-0' : ''}`}
                             >
                                 <span
                                     className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-violet-400'
@@ -77,7 +90,7 @@ export default function Sidebar() {
                                 >
                                     {icon}
                                 </span>
-                                <span>{item.label}</span>
+                                {isCollapsed ? null : <span>{item.label}</span>}
                             </Link>
                         );
                     })}
@@ -87,7 +100,7 @@ export default function Sidebar() {
 
             {/* User Profile */}
             <div className="p-4 border-t border-border-light dark:border-border-dark">
-                <div className="flex items-center gap-3">
+                <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
                     {user.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -101,10 +114,12 @@ export default function Sidebar() {
                             <span className="text-sm font-bold text-primary">{getInitials(user.name)}</span>
                         </div>
                     )}
-                    <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-300 truncate">{user.role}</p>
-                    </div>
+                    {isCollapsed ? null : (
+                        <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-300 truncate">{user.role}</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </aside>
