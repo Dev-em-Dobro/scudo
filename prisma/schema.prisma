@@ -7,80 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum JobLevel {
-  ESTAGIO
-  JUNIOR
-  PLENO
-  SENIOR
-  OUTRO
-}
-
-enum JobSource {
-  LINKEDIN
-  GUPY
-  COMPANY_SITE
-  OTHER
-}
-
-enum JobIngestionStatus {
-  SUCCESS
-  PARTIAL
-  FAILED
-}
-
-enum ResumeSyncStatus {
-  NOT_UPLOADED
-  UPLOADED
-  PROCESSING
-  READY
-}
-
-enum OnboardingStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
-  SKIPPED
-}
-
-enum ProductFeedbackCategory {
-  BUG
-  UX
-  FEATURE
-  CONTENT
-  OTHER
-}
-
-enum ProductFeedbackStatus {
-  RECEIVED
-  UNDER_REVIEW
-  PLANNED
-  IN_PROGRESS
-  DONE
-  DECLINED
-}
-
 model User {
   id                        String                    @id @default(cuid())
   name                      String
   email                     String                    @unique
   emailVerified             Boolean                   @default(false)
+  image                     String?
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
   officialStudentVerifiedAt DateTime?
   curseducaMemberId         Int?
   curseducaMemberSlug       String?
   curseducaMemberUuid       String?
   curseducaSyncNeedsRetry   Boolean                   @default(false)
-  image                     String?
-  createdAt                 DateTime                  @default(now())
-  updatedAt                 DateTime                  @updatedAt
-  profile                   UserProfile?
-  sessions                  Session[]
   accounts                  Account[]
+  productFeedbacks          ProductFeedback[]
+  sessions                  Session[]
   jornadaTaskProgress       UserJornadaTaskProgress[]
+  onboardingProgress        UserOnboardingProgress[]
+  profile                   UserProfile?
   streak                    UserStreak?
   streakBadges              UserStreakBadge[]
   streakDailyActivities     UserStreakDailyActivity[]
-  onboardingProgress        UserOnboardingProgress[]
-  productFeedbacks          ProductFeedback[]
+  jobReports                JobReport[]
 }
 
 model ProductFeedback {
@@ -136,16 +85,16 @@ model UserJornadaTaskProgress {
 }
 
 model UserStreak {
-  id                  String   @id @default(cuid())
-  userId              String   @unique
-  currentStreakDays   Int      @default(0)
-  longestStreakDays   Int      @default(0)
-  streakPoints        Int      @default(0)
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  currentStreakDays   Int       @default(0)
+  longestStreakDays   Int       @default(0)
+  streakPoints        Int       @default(0)
   lastQualifiedDay    String?
   lastTaskCompletedAt DateTime?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([currentStreakDays])
@@ -183,14 +132,14 @@ model StreakBadge {
 }
 
 model UserStreakBadge {
-  id        String     @id @default(cuid())
+  id        String      @id @default(cuid())
   userId    String
   badgeId   String
-  awardedAt DateTime   @default(now())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  awardedAt DateTime    @default(now())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   badge     StreakBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])
   @@index([userId])
@@ -201,7 +150,6 @@ model UserStreakBadge {
 model UserProfile {
   id                  String           @id @default(cuid())
   userId              String           @unique
-  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   fullName            String?
   linkedinUrl         String?
   githubUrl           String?
@@ -209,27 +157,28 @@ model UserProfile {
   professionalSummary String?
   experiences         String[]         @default([])
   knownTechnologies   String[]         @default([])
-  softSkills          String[]         @default([])
   certifications      String[]         @default([])
   languages           String[]         @default([])
-  projects            UserProject[]
   resumeFileName      String?
   resumeSyncStatus    ResumeSyncStatus @default(NOT_UPLOADED)
   resumeUploadedAt    DateTime?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
+  softSkills          String[]         @default([])
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects            UserProject[]
 }
 
 model UserProject {
   id               String      @id @default(cuid())
   userProfileId    String
-  userProfile      UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
   title            String
   shortDescription String?
   technologies     String[]    @default([])
   deployUrl        String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
+  userProfile      UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
 
   @@index([userProfileId])
 }
@@ -253,7 +202,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -263,6 +211,7 @@ model Account {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
   @@index([userId])
@@ -280,24 +229,25 @@ model Verification {
 }
 
 model Job {
-  id          String    @id @default(cuid())
-  title       String
-  companyName String
-  level       JobLevel  @default(OUTRO)
-  stack       String[]
-  location    String?
-  isRemote    Boolean   @default(false)
-  isActive    Boolean   @default(true)
-  publishedAt DateTime?
-  source      JobSource
-  sourceUrl   String
-  externalId  String?
-  fingerprint String    @unique
-  lastSeenAt  DateTime  @default(now())
-  inactivatedAt DateTime?
+  id                 String      @id @default(cuid())
+  title              String
+  companyName        String
+  level              JobLevel    @default(OUTRO)
+  stack              String[]
+  location           String?
+  isRemote           Boolean     @default(false)
+  publishedAt        DateTime?
+  source             JobSource
+  sourceUrl          String
+  externalId         String?
+  fingerprint        String      @unique
+  lastSeenAt         DateTime    @default(now())
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  isActive           Boolean     @default(true)
+  inactivatedAt      DateTime?
   inactivationReason String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  reports            JobReport[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -319,4 +269,92 @@ model JobIngestionLog {
   status        JobIngestionStatus
   errorSummary  String?
   createdAt     DateTime           @default(now())
+}
+
+model JobReport {
+  id            String          @id @default(cuid())
+  userId        String
+  jobId         String
+  reason        JobReportReason
+  status        JobReportStatus @default(PENDING)
+  reviewAfterAt DateTime
+  reviewedAt    DateTime?
+  inactivatedAt DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job           Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([status, reviewAfterAt])
+  @@index([jobId, status, reviewAfterAt])
+  @@index([userId, createdAt])
+}
+
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model prisma_migrations {
+// @@map("_prisma_migrations")
+// }
+
+enum JobLevel {
+  ESTAGIO
+  JUNIOR
+  PLENO
+  SENIOR
+  OUTRO
+}
+
+enum JobSource {
+  LINKEDIN
+  GUPY
+  COMPANY_SITE
+  OTHER
+}
+
+enum JobReportReason {
+  EXPIRED
+  UNAVAILABLE
+  CANCELLED
+}
+
+enum JobReportStatus {
+  PENDING
+  INACTIVATED
+  REVIEWED
+}
+
+enum JobIngestionStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+enum ResumeSyncStatus {
+  NOT_UPLOADED
+  UPLOADED
+  PROCESSING
+  READY
+}
+
+enum OnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum ProductFeedbackCategory {
+  BUG
+  UX
+  FEATURE
+  CONTENT
+  OTHER
+}
+
+enum ProductFeedbackStatus {
+  RECEIVED
+  UNDER_REVIEW
+  PLANNED
+  IN_PROGRESS
+  DONE
+  DECLINED
 }

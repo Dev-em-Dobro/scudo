@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { runSoftInactivation } from '@/app/lib/jobs/softInactivation';
+import { reviewQueuedJobReports } from '@/app/lib/jobs/reportQueue';
 import { runUnavailabilitySweep } from '@/app/lib/jobs/unavailabilitySweep';
 
 export const runtime = 'nodejs';
@@ -98,6 +99,9 @@ async function handleSoftInactivation(request: NextRequest) {
             timeoutMs: sweepTimeoutMs,
             concurrency: sweepConcurrency,
         });
+        const jobReportReviewResult = await reviewQueuedJobReports({
+            dryRun: softInactivationResult.dryRun,
+        });
 
         return NextResponse.json({
             message: softInactivationResult.dryRun
@@ -105,6 +109,7 @@ async function handleSoftInactivation(request: NextRequest) {
                 : 'Manutenção de vagas executada com sucesso.',
             softInactivation: softInactivationResult,
             unavailabilitySweep: unavailabilitySweepResult,
+            jobReportReview: jobReportReviewResult,
         });
     } catch (error) {
         console.error('Erro ao executar manutenção de vagas.', error);
