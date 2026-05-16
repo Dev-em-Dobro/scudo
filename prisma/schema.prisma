@@ -81,6 +81,8 @@ model User {
   streakDailyActivities     UserStreakDailyActivity[]
   onboardingProgress        UserOnboardingProgress[]
   productFeedbacks          ProductFeedback[]
+  mgmReferralCode           String?                   @unique // MGM: gerado lazy na 1ª visita a /indique-e-ganhe
+  mgmReferralsMade          MgmReferral[]             @relation("ReferrerUser")
 }
 
 model ProductFeedback {
@@ -136,16 +138,16 @@ model UserJornadaTaskProgress {
 }
 
 model UserStreak {
-  id                  String   @id @default(cuid())
-  userId              String   @unique
-  currentStreakDays   Int      @default(0)
-  longestStreakDays   Int      @default(0)
-  streakPoints        Int      @default(0)
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  currentStreakDays   Int       @default(0)
+  longestStreakDays   Int       @default(0)
+  streakPoints        Int       @default(0)
   lastQualifiedDay    String?
   lastTaskCompletedAt DateTime?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([currentStreakDays])
@@ -183,13 +185,13 @@ model StreakBadge {
 }
 
 model UserStreakBadge {
-  id        String     @id @default(cuid())
+  id        String      @id @default(cuid())
   userId    String
   badgeId   String
-  awardedAt DateTime   @default(now())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  awardedAt DateTime    @default(now())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   badge     StreakBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])
@@ -280,24 +282,24 @@ model Verification {
 }
 
 model Job {
-  id          String    @id @default(cuid())
-  title       String
-  companyName String
-  level       JobLevel  @default(OUTRO)
-  stack       String[]
-  location    String?
-  isRemote    Boolean   @default(false)
-  isActive    Boolean   @default(true)
-  publishedAt DateTime?
-  source      JobSource
-  sourceUrl   String
-  externalId  String?
-  fingerprint String    @unique
-  lastSeenAt  DateTime  @default(now())
-  inactivatedAt DateTime?
+  id                 String    @id @default(cuid())
+  title              String
+  companyName        String
+  level              JobLevel  @default(OUTRO)
+  stack              String[]
+  location           String?
+  isRemote           Boolean   @default(false)
+  isActive           Boolean   @default(true)
+  publishedAt        DateTime?
+  source             JobSource
+  sourceUrl          String
+  externalId         String?
+  fingerprint        String    @unique
+  lastSeenAt         DateTime  @default(now())
+  inactivatedAt      DateTime?
   inactivationReason String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@unique([source, externalId])
   @@index([source])
@@ -319,4 +321,54 @@ model JobIngestionLog {
   status        JobIngestionStatus
   errorSummary  String?
   createdAt     DateTime           @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// MGM (Member-Get-Member) — Fase 0. Ver docs/member-get-member/spec-fase-0-rota-scudo.md
+// RLS/GRANT das tabelas abaixo: migration hand-authored (default privileges revogados).
+// ─────────────────────────────────────────────────────────────
+
+enum MgmReferralStatus {
+  pending // dentro da garantia 7d
+  valid // garantia passou, conta pra ranking
+  invalid // falhou validação (motivo em invalidReason)
+  reverted // reembolsado pós-garantia, ponto debitado
+}
+
+model MgmReferral {
+  id               String            @id @default(cuid())
+  referrerUserId   String // FK pra User (aluno indicador), resolvido via mgmReferralCode
+  referralCodeUsed String // o ?ref= que veio na URL (denormalizado pra auditoria)
+  referredEmail    String // e-mail do amigo que comprou (do payload Hubla)
+  referredPhone    String?
+  referredName     String?
+  saleAmount       Decimal           @db.Decimal(10, 2)
+  hublaOrderId     String            @unique // ID do pedido na Hubla — idempotência
+  pointsBase       Int // 40 (configurável)
+  pointsMultiplier Decimal           @db.Decimal(3, 1) // 3.0 em janela LI-26; 1.0 perpétuo
+  pointsEarned     Int // pointsBase × pointsMultiplier (denormalizado p/ ranking rápido)
+  status           MgmReferralStatus @default(pending)
+  invalidReason    String? // self_referral | duplicate | existing_student | disposable_domain | manual_disqualify
+  guaranteeUntil   DateTime // signedUpAt + 7d
+  signedUpAt       DateTime          @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  referrerUser     User              @relation("ReferrerUser", fields: [referrerUserId], references: [id], onDelete: Cascade)
+
+  @@index([referrerUserId, status])
+  @@index([referredEmail])
+  @@index([referralCodeUsed])
+}
+
+model MgmClick {
+  id            String   @id @default(cuid())
+  referralCode  String
+  referredEmail String? // se a rota intermediária /i/[code] capturar
+  ip            String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([referralCode])
+  @@index([referredEmail])
+  @@index([createdAt])
 }
