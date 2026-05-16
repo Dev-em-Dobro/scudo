@@ -293,37 +293,63 @@ function isProjectMetadataLine(line: string) {
     const normalized = normalizeLine(line);
     return /^(reposit[oó]rio|repository|github|deploy|demo|url|link)\s*:/i.test(normalized)
         || /github\.com\//i.test(normalized)
-        || /vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev/i.test(normalized);
+        || /vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev|github\.io|pages\.dev|firebaseapp\.com/i.test(normalized);
 }
 
 function sanitizeProjectUrl(value: string) {
-    return value.replaceAll(/[)\].,;]+$/g, '').trim();
+    return value.replaceAll(/[)\].,;"']+$/g, '').trim();
+}
+
+function normalizeProjectUrl(url: string) {
+    const sanitized = sanitizeProjectUrl(url);
+    if (!sanitized) {
+        return null;
+    }
+
+    const withProtocol = /^https?:\/\//i.test(sanitized) ? sanitized : `https://${sanitized}`;
+
+    try {
+        const parsed = new URL(withProtocol);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            return null;
+        }
+
+        return parsed.toString();
+    } catch {
+        return null;
+    }
 }
 
 function parseProjectMetadataLink(line: string) {
-    const match = /^(reposit[oó]rio|repository|github|deploy|demo|url|link)\s*:\s*(https?:\/\/\S+)/i.exec(line);
+    const match = /^(reposit[oó]rio|repository|github|deploy|demo|url|link)\s*:\s*([^\s]+)/i.exec(line);
     if (!match) {
         return null;
     }
 
     const label = normalizeAscii(match[1] ?? '');
-    const url = sanitizeProjectUrl(match[2] ?? '');
+    const url = normalizeProjectUrl(match[2] ?? '');
     return url ? { label, url } : null;
 }
 
 function parsePlainProjectUrl(line: string) {
-    const match = /^(https?:\/\/\S+)$/i.exec(line);
+    const match = /^(?:https?:\/\/)?(?:www\.)?[a-z0-9.-]+\.[a-z]{2,}(?:[\/#?][^\s]*)?$/i.exec(line);
     if (!match) {
         return null;
     }
 
-    const url = sanitizeProjectUrl(match[1] ?? '');
-    return url || null;
+    const url = normalizeProjectUrl(match[0] ?? '');
+    return url;
 }
 
 function isDeployLikeProjectLink(label: string, url: string) {
-    return /deploy|demo/.test(label)
-        || /vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev/i.test(url);
+    const isDeployLabel = /deploy|demo/.test(label);
+    const isGenericLinkLabel = /url|link/.test(label);
+    const isKnownDeployHost = /vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev|github\.io|pages\.dev|firebaseapp\.com/i.test(url);
+    const isRepositoryHost = /github\.com\//i.test(url);
+
+    return isDeployLabel
+        || isKnownDeployHost
+        || (isGenericLinkLabel && !isRepositoryHost);
 }
 
 // SONAR: heurística de parsing textual com múltiplos formatos de currículo; refatorar para pipeline modular em tarefa dedicada.
@@ -417,6 +443,7 @@ function extractProjects(lines: string[]) {
         currentDeployUrl = null;
     };
 
+
     for (const line of projectLines) {
         const metadata = parseProjectMetadataLink(line);
         if (metadata && currentTitle) {
@@ -437,7 +464,6 @@ function extractProjects(lines: string[]) {
         }
 
         const techLineMatch = /^tech\s*stacks?\s*:\s*(.+)$/i.exec(line);
-
         if (techLineMatch) {
             currentTechnologies = techLineMatch[1]
                 .split(',')
@@ -449,17 +475,20 @@ function extractProjects(lines: string[]) {
             continue;
         }
 
+        // Se não temos título ainda, qualquer linha vira título inicial
         if (!currentTitle) {
             currentTitle = line;
             continue;
         }
 
-        if (currentDescriptionParts.length > 0 && isLikelyProjectTitleLine(line)) {
+        // Se a linha parece claramente um novo título de projeto, fecha o anterior e inicia novo
+        if (isLikelyProjectTitleLine(line) && currentDescriptionParts.length > 0) {
             flushProject();
             currentTitle = line;
             continue;
         }
 
+        // Caso contrário, sempre acumula na descrição
         currentDescriptionParts.push(line);
     }
 
