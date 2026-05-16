@@ -32,8 +32,31 @@ Deploy: `npm run prisma:migrate:deploy` no pipeline (Neon).
 | `MGM_BOOST_STARTS_AT` | Não | — | ISO. Início da janela de boost (ex.: `2026-06-01T00:00:00-03:00`) |
 | `MGM_BOOST_ENDS_AT` | Não | — | ISO. Fim da janela de boost |
 | `MGM_BOOST_MULTIPLIER` | Não | `3.0` | Multiplicador de pontos na janela |
-| `MGM_POINTS_BASE` | Não | `40` | Pontos-base por indicação válida |
+| `MGM_POINTS_BASE` | Não | `100` | Pontos-base por indicação válida |
+| `MGM_GUARANTEE_DAYS` | Não | `15` | Período de garantia (dias) antes de `pending`→`valid` |
 | `MGM_APP_URL` | Não | `BETTER_AUTH_URL` | Base usada em `buildShareLink` (`/i/<code>`) |
+
+## Go-live: ligar o MGM em produção
+
+Feature flag default **OFF** — nada do MGM aparece até concluir os passos, **nesta ordem**:
+
+1. **Migration aplicada na Neon** — `npm run prisma:migrate:deploy` no pipeline (testar local antes; ver seção da migration). Sem isso, ligar a flag quebra (tabelas/RLS ausentes).
+2. **Envs de produção setadas na Vercel** — `HUBLA_WEBHOOK_SECRET`, `MGM_CHECKOUT_URL` (URL real do checkout Hubla); opcional `MGM_BOOST_*`. `CRON_SECRET` já existe.
+3. **Ligar a flag — setar AS DUAS na Vercel (Production):**
+   - `ENABLE_MGM=true` → server (página, webhook, cron, `/i/[code]`)
+   - `NEXT_PUBLIC_ENABLE_MGM=true` → client (item "Indique e Ganhe" no menu)
+4. **Redeploy obrigatório** — `NEXT_PUBLIC_*` é inlinado no build. Salvar a env **não basta**: disparar um novo deploy da branch pra valer.
+5. **Validar em prod** — item aparece no menu, `/indique-e-ganhe` abre pra aluno oficial, webhook responde sem `skipped: mgm_disabled`.
+
+**Desligar (kill-switch / rollback imediato):** setar as duas envs para `false` (ou remover) + redeploy. Volta a ficar 100% inerte. Não há migration reversa — as tabelas ficam, só param de ser usadas.
+
+**Rodar local com a flag ligada** (senão a página redireciona pra `/` e o item some — default é OFF). No PowerShell, antes do `npx next dev`:
+
+```
+$env:ENABLE_MGM="true"; $env:NEXT_PUBLIC_ENABLE_MGM="true"
+```
+
+> Deploy/push/PR e setar envs em prod = `@github-devops` / stakeholder. `@dev` não tem autoridade de deploy.
 
 ## Componentes
 
