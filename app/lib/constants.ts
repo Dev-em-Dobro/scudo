@@ -1,4 +1,5 @@
 import { NavItem } from '../types';
+import { isMgmEnabled } from '@/app/lib/featureFlags';
 
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -42,3 +43,14 @@ export const LOGO_TEXT = {
   main: 'SCU',
   accent: 'DO',
 };
+
+/**
+ * Itens de nav visíveis. Esconde "Indique e Ganhe" enquanto a feature flag
+ * MGM estiver OFF (default) — assim o item não aparece em prod até o launch.
+ */
+export function getVisibleNavItems(): NavItem[] {
+  const mgmOn = isMgmEnabled();
+  return NAV_ITEMS.filter(
+    (item) => item.href !== '/indique-e-ganhe' || mgmOn,
+  );
+}

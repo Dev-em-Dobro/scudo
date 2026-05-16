@@ -21,6 +21,19 @@ export function isStudentVerifiedAuthOnlyEnabled() {
   );
 }
 
+/**
+ * Member-Get-Member (Indique e Ganhe). Default OFF — a feature só aparece
+ * em prod quando ENABLE_MGM (server) ou NEXT_PUBLIC_ENABLE_MGM (client/nav)
+ * for ligado. Gateia: página /indique-e-ganhe, item de nav, rota /i/[code],
+ * webhook Hubla e cron de validação.
+ */
+export function isMgmEnabled() {
+  return (
+    parseBooleanFlag(process.env.ENABLE_MGM) ||
+    parseBooleanFlag(process.env.NEXT_PUBLIC_ENABLE_MGM)
+  );
+}
+
 export function isResumeAiExtractionEnabled() {
   return parseBooleanFlag(process.env.RESUME_AI_EXTRACTION_ENABLED);
 }

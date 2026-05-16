@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/app/components/layout/BrandLogo';
-import { NAV_ITEMS } from '@/app/lib/constants';
+import { getVisibleNavItems } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useTutorial } from '@/app/providers/TutorialProvider';
 
@@ -41,7 +41,7 @@ export default function Sidebar() {
     const { user } = useAuth();
     const pathname = usePathname();
     const { openTutorial } = useTutorial();
-    const visibleNavItems = NAV_ITEMS;
+    const visibleNavItems = getVisibleNavItems();
 
     return (
         <aside className="w-64 bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col">
