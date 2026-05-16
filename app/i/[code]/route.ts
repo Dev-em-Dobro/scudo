@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/app/lib/prisma';
 import { withRlsUserContext } from '@/app/lib/rls';
+import { isMgmEnabled } from '@/app/lib/featureFlags';
 import { MGM_TRACKING_RLS_USER_ID } from '@/app/lib/mgm/rlsContext';
 
 export const runtime = 'nodejs';
@@ -56,6 +57,11 @@ export async function GET(
     request: NextRequest,
     ctx: { params: Promise<{ code: string }> },
 ) {
+    // Feature flag (default OFF): sem tracking nem redirect MGM até o launch.
+    if (!isMgmEnabled()) {
+        return NextResponse.redirect(new URL('/', request.url).toString(), 302);
+    }
+
     const { code: rawCode } = await ctx.params;
     const code = rawCode?.trim() ?? '';
 

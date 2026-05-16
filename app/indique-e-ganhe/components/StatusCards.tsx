@@ -1,58 +1,83 @@
 import type { MgmStatusCards } from '@/app/lib/mgm/service';
+import { getGuaranteeDays } from '@/app/lib/mgm/boost';
+import { MGM_PURPLE, PANEL_SHADOW } from '@/app/indique-e-ganhe/components/theme';
 
 interface StatusCardsProps {
     readonly data: MgmStatusCards;
 }
 
-interface CardProps {
+interface SegmentProps {
     readonly icon: string;
-    readonly iconColor: string;
+    readonly iconClass?: string;
+    readonly iconColor?: string;
     readonly label: string;
     readonly value: number;
+    readonly valueColor?: string;
     readonly hint: string;
 }
 
-function Card({ icon, iconColor, label, value, hint }: CardProps) {
+function Segment({
+    icon,
+    iconClass,
+    iconColor,
+    label,
+    value,
+    valueColor,
+    hint,
+}: SegmentProps) {
     return (
-        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
-            <span
-                className={`material-symbols-outlined text-2xl shrink-0 ${iconColor}`}
-                style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-                {icon}
-            </span>
-            <div className="min-w-0">
-                <p className="text-2xl font-bold text-white tabular-nums">{value}</p>
-                <p className="text-sm font-semibold text-slate-200">{label}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{hint}</p>
+        <div className="flex-1 px-5 py-5 sm:px-6">
+            <div className="flex items-center gap-2">
+                <span
+                    className={`material-symbols-outlined text-[20px] ${iconClass ?? ''}`}
+                    style={{ fontVariationSettings: "'FILL' 1", color: iconColor }}
+                >
+                    {icon}
+                </span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    {label}
+                </span>
             </div>
+            <p
+                className="mt-3 text-3xl font-bold tabular-nums leading-none"
+                style={{ color: valueColor ?? '#ffffff' }}
+            >
+                {value}
+            </p>
+            <p className="mt-2 text-xs text-slate-500">{hint}</p>
         </div>
     );
 }
 
 export default function StatusCards({ data }: StatusCardsProps) {
+    const guaranteeDays = getGuaranteeDays();
+
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card
+        <div
+            className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-border-light dark:divide-border-dark"
+            style={{ boxShadow: PANEL_SHADOW }}
+        >
+            <Segment
                 icon="hourglass_top"
-                iconColor="text-amber-400"
+                iconClass="text-amber-400"
                 label="Pendentes"
                 value={data.pendingCount}
-                hint={`${data.pointsPending} pts em garantia (7 dias)`}
+                hint={`${data.pointsPending} pts em garantia · ${guaranteeDays} dias`}
             />
-            <Card
+            <Segment
                 icon="verified"
-                iconColor="text-emerald-400"
+                iconColor={MGM_PURPLE}
                 label="Disponíveis"
                 value={data.validCount}
-                hint={`${data.pointsAvailable} pts validados`}
+                valueColor={MGM_PURPLE}
+                hint={`${data.pointsAvailable} pts prontos pra resgatar`}
             />
-            <Card
+            <Segment
                 icon="redeem"
-                iconColor="text-violet-400"
+                iconClass="text-slate-400"
                 label="Resgatados"
                 value={data.redeemedCount}
-                hint="Resgate disponível ao fim do LI-26"
+                hint="Resgate abre ao fim desta ação"
             />
         </div>
     );

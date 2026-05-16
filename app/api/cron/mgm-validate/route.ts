@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { withRlsUserContext } from '@/app/lib/rls';
+import { isMgmEnabled } from '@/app/lib/featureFlags';
 import { MGM_CRON_RLS_USER_ID } from '@/app/lib/mgm/rlsContext';
 
 export const runtime = 'nodejs';
@@ -42,6 +43,11 @@ async function handleValidate(request: NextRequest) {
     const auth = isAuthorized(request);
     if (!auth.ok) {
         return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
+
+    // Feature flag (default OFF): cron inerte em prod até o launch do MGM.
+    if (!isMgmEnabled()) {
+        return NextResponse.json({ ok: true, skipped: 'mgm_disabled' });
     }
 
     const validated = await withRlsUserContext(

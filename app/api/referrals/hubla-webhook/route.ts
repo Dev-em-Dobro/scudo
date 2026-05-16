@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { withRlsUserContext, type RlsTransaction } from '@/app/lib/rls';
-import { getPointsBase, getPointsMultiplier } from '@/app/lib/mgm/boost';
+import { isMgmEnabled } from '@/app/lib/featureFlags';
+import { getPointsBase, getPointsMultiplier, getGuaranteeDays } from '@/app/lib/mgm/boost';
 import { MGM_WEBHOOK_RLS_USER_ID } from '@/app/lib/mgm/rlsContext';
 
 export const runtime = 'nodejs';
@@ -20,7 +21,6 @@ export const runtime = 'nodejs';
  * mandar centavos, ajustar só aqui — apuração da Fase 0 é manual de qualquer forma.
  */
 
-const GUARANTEE_DAYS = 7;
 const CLICK_MATCH_WINDOW_DAYS = 14;
 
 const DISPOSABLE_EMAIL_DOMAINS = new Set([
@@ -202,6 +202,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: auth.message }, { status: auth.status });
     }
 
+    // Feature flag (default OFF): webhook inerte em prod até o launch do MGM.
+    if (!isMgmEnabled()) {
+        return NextResponse.json({ ok: true, skipped: 'mgm_disabled' });
+    }
+
     const body = await request.json().catch(() => null);
     const parsed = HublaWebhookSchema.safeParse(body);
 
@@ -225,6 +230,7 @@ export async function POST(request: NextRequest) {
     const pointsBase = getPointsBase();
     const multiplier = getPointsMultiplier(eventDate);
     const pointsEarned = Math.round(pointsBase * multiplier);
+    const guaranteeDays = getGuaranteeDays();
 
     const result = await withRlsUserContext(
         MGM_WEBHOOK_RLS_USER_ID,
@@ -275,7 +281,7 @@ export async function POST(request: NextRequest) {
                     pointsEarned,
                     status: invalidReason ? 'invalid' : 'pending',
                     invalidReason,
-                    guaranteeUntil: addDays(eventDate, GUARANTEE_DAYS),
+                    guaranteeUntil: addDays(eventDate, guaranteeDays),
                     signedUpAt: eventDate,
                 },
             });

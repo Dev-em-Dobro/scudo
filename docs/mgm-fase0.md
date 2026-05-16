@@ -25,6 +25,7 @@ Deploy: `npm run prisma:migrate:deploy` no pipeline (Neon).
 
 | Var | Obrigatória | Default | Descrição |
 |---|---|---|---|
+| `ENABLE_MGM` / `NEXT_PUBLIC_ENABLE_MGM` | **Sim p/ ligar** | **OFF** | **Feature flag (kill-switch).** Default OFF → página, nav, `/i/[code]`, webhook e cron ficam inertes. Setar `true` nas duas (server + client/nav) pra liberar. `isMgmEnabled()` em `featureFlags.ts` |
 | `HUBLA_WEBHOOK_SECRET` | Sim (webhook) | — | Bearer/`x-webhook-secret` do `POST /api/referrals/hubla-webhook` |
 | `MGM_CHECKOUT_URL` | Sim (deploy) | fallback `/` | URL do checkout DevQuest na Hubla. **Pendência stakeholder.** Sem ela, `/i/[code]` redireciona pra `/` |
 | `CRON_SECRET` | Sim | — | **Já existe** (reusado do cron de jobs). Auth do `/api/cron/mgm-validate` |

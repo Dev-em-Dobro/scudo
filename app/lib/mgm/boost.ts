@@ -3,12 +3,24 @@
  * Pontuação base e multiplicador centralizados aqui — webhook e UI importam daqui.
  */
 
-const DEFAULT_POINTS_BASE = 40;
+const DEFAULT_POINTS_BASE = 100;
 const DEFAULT_BOOST_MULTIPLIER = 3.0;
+const DEFAULT_GUARANTEE_DAYS = 15;
 
 export function getPointsBase(): number {
     const raw = Number(process.env.MGM_POINTS_BASE);
     return Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : DEFAULT_POINTS_BASE;
+}
+
+/**
+ * Período de garantia (dias). Indicação fica `pending` até passar; reembolso
+ * dentro disso invalida o ponto. Garantia DevQuest = 15 dias (decisão
+ * stakeholder 2026-05-16; era 7d na v0.2 da spec). Fonte única — webhook,
+ * cron, UI e FAQ leem daqui.
+ */
+export function getGuaranteeDays(): number {
+    const raw = Number(process.env.MGM_GUARANTEE_DAYS);
+    return Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : DEFAULT_GUARANTEE_DAYS;
 }
 
 export function isBoostActive(now: Date = new Date()): boolean {

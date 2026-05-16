@@ -6,6 +6,7 @@ import type { MgmReferralView } from '@/app/lib/mgm/service';
 import IndicacaoTab from '@/app/indique-e-ganhe/components/IndicacaoTab';
 import PremiosTab from '@/app/indique-e-ganhe/components/PremiosTab';
 import RankingTab from '@/app/indique-e-ganhe/components/RankingTab';
+import { MGM_PURPLE } from '@/app/indique-e-ganhe/components/theme';
 
 interface IndiqueGanheTabsProps {
     readonly code: string;
@@ -31,11 +32,11 @@ export default function IndiqueGanheTabs({
     const [active, setActive] = useState<TabId>('indicacao');
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-5">
             <div
                 role="tablist"
                 aria-label="Seções do programa Indique e Ganhe"
-                className="flex gap-1 border-b border-border-light dark:border-border-dark"
+                className="flex gap-6 border-b border-border-light dark:border-border-dark"
             >
                 {TABS.map((tab) => {
                     const isActive = tab.id === active;
@@ -46,15 +47,22 @@ export default function IndiqueGanheTabs({
                             role="tab"
                             aria-selected={isActive}
                             onClick={() => setActive(tab.id)}
-                            className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors cursor-pointer ${
+                            style={
                                 isActive
-                                    ? 'border-primary text-primary'
-                                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                                    ? { color: MGM_PURPLE, borderColor: MGM_PURPLE }
+                                    : undefined
+                            }
+                            className={`group inline-flex items-center gap-2 pb-3 -mb-px border-b-2 text-sm font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] ${
+                                isActive
+                                    ? ''
+                                    : 'border-transparent text-slate-500 hover:text-slate-200'
                             }`}
                         >
                             <span
-                                className="material-symbols-outlined text-[18px]"
-                                style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                                className="material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:-translate-y-px"
+                                style={{
+                                    fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
+                                }}
                             >
                                 {tab.icon}
                             </span>
