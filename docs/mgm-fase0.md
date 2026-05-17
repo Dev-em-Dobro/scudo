@@ -58,6 +58,25 @@ $env:ENABLE_MGM="true"; $env:NEXT_PUBLIC_ENABLE_MGM="true"
 
 > Deploy/push/PR e setar envs em prod = `@github-devops` / stakeholder. `@dev` não tem autoridade de deploy.
 
+### Configurar o webhook NA Hubla (pré-requisito — não é código)
+
+O endpoint `POST /api/referrals/hubla-webhook` é só o **receptor**. Pra ele
+disparar, **a Hubla precisa ser configurada** (painel/admin ou API da Hubla,
+por quem tem acesso à conta — ops/stakeholder, não `@dev`) para enviar webhook
+de **compra aprovada** e **reembolso** para:
+
+- **URL:** `https://scudo.devemdobro.com/api/referrals/hubla-webhook`
+- **Auth:** header `x-webhook-secret: <HUBLA_WEBHOOK_SECRET>` **ou**
+  `Authorization: Bearer <HUBLA_WEBHOOK_SECRET>` (o handler aceita os dois).
+  Se a Hubla só assinar com esquema próprio, ajustar só a auth do handler
+  (mudança isolada) — não rearquiteta o resto.
+
+**Não é bloqueante (resiliência §4.7):** sem webhook útil da Hubla, **P2**
+(casar e-mail do comprador com `MgmClick` — basta qualquer webhook com o
+e-mail) e **P3** (reconciliação por export CSV de vendas, zero webhook)
+garantem a atribuição. Mas o crédito em **tempo real (P1)** exige este passo.
+Confirmar os campos do payload = item G.
+
 ## Componentes
 
 - `prisma/schema.prisma` — `User.mgmReferralCode`, `MgmReferral`, `MgmClick`, enum `MgmReferralStatus`
@@ -77,6 +96,7 @@ P3 (reconciliação CSV) é script à parte na semana da apuração.
 
 ## Pendências externas (não bloqueiam o build)
 
+- **Webhook configurado NA Hubla** (URL + secret) — pré-requisito do crédito em tempo real (P1); sem ele cai pra P2/P3. Quem configura: acesso admin Hubla (ops/stakeholder), não é código.
 - `MGM_CHECKOUT_URL` real (stakeholder) — sem ela `/i/[code]` cai pra `/`.
 - Comportamento real da Hubla (item G): só decide qual caminho P1/P2 fica ativo;
   ajuste isolado em `extractRef()`. Mecanismo do 10% off é config da Hubla.
