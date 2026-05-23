@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { prisma } from '@/app/lib/prisma';
 import { withRlsUserContext } from '@/app/lib/rls';
+import { computeBalanceWithinTx } from '@/app/lib/mgm/balance';
 
 import { generateReferralCode } from './referral-code';
 
@@ -16,10 +17,12 @@ import { generateReferralCode } from './referral-code';
 export interface MgmStatusCards {
     pendingCount: number;
     validCount: number;
-    /** Resgate é fora de escopo na Fase 0 — sempre 0 (placeholder de UI). */
+    /** Resgates já entregues (delivered) — Fase 1. */
     redeemedCount: number;
+    /** Pontos disponíveis pra resgate (valid − spent). */
     pointsAvailable: number;
     pointsPending: number;
+    pointsSpent: number;
 }
 
 export interface MgmReferralView {
@@ -103,30 +106,32 @@ export async function getOrCreateReferralCode(
 
 export async function getStatusCards(userId: string): Promise<MgmStatusCards> {
     return withRlsUserContext(userId, async (tx) => {
-        const grouped = await tx.mgmReferral.groupBy({
-            by: ['status'],
-            where: { referrerUserId: userId },
-            _count: { _all: true },
-            _sum: { pointsEarned: true },
-        });
+        const [grouped, balance, deliveredCount] = await Promise.all([
+            tx.mgmReferral.groupBy({
+                by: ['status'],
+                where: { referrerUserId: userId },
+                _count: { _all: true },
+            }),
+            computeBalanceWithinTx(tx, userId),
+            tx.mgmRedemption.count({
+                where: { userId, status: 'delivered' },
+            }),
+        ]);
 
         const cards: MgmStatusCards = {
             pendingCount: 0,
             validCount: 0,
-            redeemedCount: 0,
-            pointsAvailable: 0,
-            pointsPending: 0,
+            redeemedCount: deliveredCount,
+            pointsAvailable: balance.pointsAvailable,
+            pointsPending: balance.pointsPending,
+            pointsSpent: balance.pointsSpent,
         };
 
         for (const row of grouped) {
-            const count = row._count._all;
-            const points = row._sum.pointsEarned ?? 0;
             if (row.status === 'pending') {
-                cards.pendingCount = count;
-                cards.pointsPending = points;
+                cards.pendingCount = row._count._all;
             } else if (row.status === 'valid') {
-                cards.validCount = count;
-                cards.pointsAvailable = points;
+                cards.validCount = row._count._all;
             }
         }
 

@@ -3,6 +3,9 @@
 import { useState } from 'react';
 
 import type { MgmReferralView } from '@/app/lib/mgm/service';
+import type { MgmRewardView } from '@/app/lib/mgm/rewards';
+import type { MgmRedemptionView, ShippingInfo } from '@/app/lib/mgm/redemptions';
+import type { RankingResult } from '@/app/lib/mgm/ranking';
 import IndicacaoTab from '@/app/indique-e-ganhe/components/IndicacaoTab';
 import PremiosTab from '@/app/indique-e-ganhe/components/PremiosTab';
 import RankingTab from '@/app/indique-e-ganhe/components/RankingTab';
@@ -13,6 +16,13 @@ interface IndiqueGanheTabsProps {
     readonly shareLink: string;
     readonly referrals: readonly MgmReferralView[];
     readonly boostActive: boolean;
+    readonly rewards: readonly MgmRewardView[];
+    readonly redemptions: readonly MgmRedemptionView[];
+    readonly pointsAvailable: number;
+    readonly savedAddress: ShippingInfo | null;
+    readonly rankingAllTime: RankingResult;
+    readonly rankingSeason: RankingResult | null;
+    readonly viewerOptIn: boolean;
 }
 
 type TabId = 'indicacao' | 'premios' | 'ranking';
@@ -28,6 +38,13 @@ export default function IndiqueGanheTabs({
     shareLink,
     referrals,
     boostActive,
+    rewards,
+    redemptions,
+    pointsAvailable,
+    savedAddress,
+    rankingAllTime,
+    rankingSeason,
+    viewerOptIn,
 }: IndiqueGanheTabsProps) {
     const [active, setActive] = useState<TabId>('indicacao');
 
@@ -81,8 +98,21 @@ export default function IndiqueGanheTabs({
                         boostActive={boostActive}
                     />
                 ) : null}
-                {active === 'premios' ? <PremiosTab /> : null}
-                {active === 'ranking' ? <RankingTab /> : null}
+                {active === 'premios' ? (
+                    <PremiosTab
+                        rewards={rewards}
+                        redemptions={redemptions}
+                        pointsAvailable={pointsAvailable}
+                        savedAddress={savedAddress}
+                    />
+                ) : null}
+                {active === 'ranking' ? (
+                    <RankingTab
+                        rankingAllTime={rankingAllTime}
+                        rankingSeason={rankingSeason}
+                        viewerOptIn={viewerOptIn}
+                    />
+                ) : null}
             </div>
         </div>
     );

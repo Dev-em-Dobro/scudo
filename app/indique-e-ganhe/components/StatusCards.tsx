@@ -1,5 +1,5 @@
 import type { MgmStatusCards } from '@/app/lib/mgm/service';
-import { getGuaranteeDays } from '@/app/lib/mgm/boost';
+import { getGuaranteeDays } from '@/app/lib/mgm/seasons';
 import { MGM_PURPLE, PANEL_SHADOW } from '@/app/indique-e-ganhe/components/theme';
 
 interface StatusCardsProps {
@@ -77,7 +77,11 @@ export default function StatusCards({ data }: StatusCardsProps) {
                 iconClass="text-slate-400"
                 label="Resgatados"
                 value={data.redeemedCount}
-                hint="Resgate abre ao fim desta ação"
+                hint={
+                    data.pointsSpent > 0
+                        ? `${data.pointsSpent} pts gastos em prêmios`
+                        : 'Troque seus pontos na aba Prêmios'
+                }
             />
         </div>
     );

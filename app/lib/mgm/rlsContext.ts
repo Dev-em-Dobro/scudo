@@ -9,3 +9,5 @@
 export const MGM_WEBHOOK_RLS_USER_ID = 'system:mgm-webhook';
 export const MGM_CRON_RLS_USER_ID = 'system:mgm-cron';
 export const MGM_TRACKING_RLS_USER_ID = 'system:mgm-tracking';
+export const MGM_ADMIN_RLS_USER_ID = 'system:mgm-admin'; // v0.4: seed do catálogo + admin de resgates
+export const MGM_RANKING_RLS_USER_ID = 'system:mgm-ranking'; // v0.4: agregação cross-user pro leaderboard

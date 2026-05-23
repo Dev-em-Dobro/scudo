@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
 import { auth } from '@/app/lib/auth';
+import { prisma } from '@/app/lib/prisma';
 import { isMgmEnabled } from '@/app/lib/featureFlags';
 import { isOfficialStudentUser } from '@/app/lib/jornada/service';
 import {
@@ -16,8 +17,12 @@ import {
     getGuaranteeDays,
     getPointsBase,
     getPointsMultiplier,
-    isBoostActive,
-} from '@/app/lib/mgm/boost';
+    getSeasonName,
+    isSeasonActive,
+} from '@/app/lib/mgm/seasons';
+import { listActiveRewards } from '@/app/lib/mgm/rewards';
+import { listRedemptions, type ShippingInfo } from '@/app/lib/mgm/redemptions';
+import { getRanking } from '@/app/lib/mgm/ranking';
 import StatusCards from '@/app/indique-e-ganhe/components/StatusCards';
 import IndiqueGanheTabs from '@/app/indique-e-ganhe/components/IndiqueGanheTabs';
 import FaqSection from '@/app/indique-e-ganhe/components/FaqSection';
@@ -44,19 +49,39 @@ export default async function IndiqueGanhePage() {
 
     const isOfficial = await isOfficialStudentUser(session.user.id);
     if (!isOfficial) {
-        // C-G (spec v0.3): consistente com app/jornada/page.tsx — sem NotEligiblePage.
         redirect('/');
     }
 
     const code = await getOrCreateReferralCode(session.user.id, session.user.name);
-    const [statusCards, referrals] = await Promise.all([
-        getStatusCards(session.user.id),
-        listReferrals(session.user.id, { limit: 10 }),
-    ]);
 
     const now = new Date();
-    const boostActive = isBoostActive(now);
+    const boostActive = isSeasonActive(now);
+    const seasonName = getSeasonName();
     const shareLink = buildShareLink(code);
+
+    const [statusCards, referrals, rewards, redemptions, rankingAllTime, rankingSeason, profile] =
+        await Promise.all([
+            getStatusCards(session.user.id),
+            listReferrals(session.user.id, { limit: 10 }),
+            listActiveRewards(session.user.id),
+            listRedemptions(session.user.id, { limit: 20 }),
+            getRanking(session.user.id, { scope: 'all-time', limit: 10 }),
+            boostActive
+                ? getRanking(session.user.id, { scope: 'season', limit: 10 })
+                : Promise.resolve(null),
+            prisma.userProfile.findUnique({
+                where: { userId: session.user.id },
+                select: { mgmShippingAddress: true },
+            }),
+        ]);
+
+    // Opt-in do user (default true). Lê direto — User não tem RLS.
+    const userMeta = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { mgmRankingOptIn: true },
+    });
+    const viewerOptIn = userMeta?.mgmRankingOptIn ?? true;
+    const savedAddress = (profile?.mgmShippingAddress as unknown as ShippingInfo | null) ?? null;
 
     return (
         <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
@@ -88,7 +113,7 @@ export default async function IndiqueGanhePage() {
                                     </h2>
                                     <p className="mt-2.5 text-sm md:text-base text-slate-400 leading-relaxed max-w-[54ch]">
                                         Compartilhe seu link. Quando alguém compra pelo seu link,
-                                        você pontua e a pessoa ganha 10% de desconto.
+                                        você pontua e troca os pontos por prêmios.
                                     </p>
 
                                     <div className="mt-5">
@@ -101,8 +126,8 @@ export default async function IndiqueGanhePage() {
                                                     local_fire_department
                                                 </span>
                                                 <span className="text-xs font-semibold text-amber-300">
-                                                    Turbo ativo: {getPointsMultiplier(now)}x pontos
-                                                    por indicação
+                                                    {seasonName ? `${seasonName} — ` : 'Temporada ativa: '}
+                                                    {getPointsMultiplier(now)}x pontos por indicação
                                                 </span>
                                             </span>
                                         ) : (
@@ -155,6 +180,13 @@ export default async function IndiqueGanhePage() {
                             shareLink={shareLink}
                             referrals={referrals}
                             boostActive={boostActive}
+                            rewards={rewards}
+                            redemptions={redemptions}
+                            pointsAvailable={statusCards.pointsAvailable}
+                            savedAddress={savedAddress}
+                            rankingAllTime={rankingAllTime}
+                            rankingSeason={rankingSeason}
+                            viewerOptIn={viewerOptIn}
                         />
 
                         <FaqSection
