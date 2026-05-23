@@ -11,7 +11,7 @@ import StreakModal, {
     type JornadaStreakDetails,
 } from '@/app/components/layout/StreakModal';
 import { authClient } from '@/app/lib/auth-client';
-import { NAV_ITEMS } from '@/app/lib/constants';
+import { getVisibleNavItems } from '@/app/lib/constants';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useTutorial } from '@/app/providers/TutorialProvider';
 
@@ -45,6 +45,7 @@ const NAV_ICONS: Record<string, string> = {
     'Radar de Mercado': 'bar_chart',
     'Meu Perfil': 'person_outline',
     'Feedbacks de melhorias': 'feedback',
+    'Indique e Ganhe': 'redeem',
 };
 
 function getOnboardingNavId(href: string) {
@@ -321,7 +322,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto py-2">
-                            {NAV_ITEMS.map((item) => {
+                            {getVisibleNavItems().map((item) => {
                                 const isActive =
                                     item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                                 const icon = NAV_ICONS[item.label] ?? item.icon;
