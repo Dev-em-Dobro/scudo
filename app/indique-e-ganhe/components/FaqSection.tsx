@@ -27,7 +27,7 @@ function buildFaq(pointsBase: number, guaranteeDays: number): QA[] {
         },
         {
             q: 'Quantos pontos vale uma indicação?',
-            a: `Cada indicação válida vale ${pointsBase} pontos. Em janelas especiais os pontos são multiplicados — então é a melhor hora pra indicar. Quanto mais você indica, mais acumula.`,
+            a: `Cada indicação válida vale ${pointsBase} pontos. Em temporadas especiais os pontos são multiplicados — então é a melhor hora pra indicar. Quanto mais você indica, mais acumula.`,
         },
         {
             q: 'Quem pode indicar e ser indicado?',
@@ -47,7 +47,7 @@ function buildFaq(pointsBase: number, guaranteeDays: number): QA[] {
         },
         {
             q: 'Como faço o resgate dos pontos?',
-            a: 'O resgate abre ao fim desta ação. Você solicita o resgate e a equipe de Sucesso do Aluno da Dobro providencia o seu prêmio.',
+            a: 'Vá na aba Prêmios e escolha o que quer trocar. Você pode resgatar uma camiseta, um livro e um desconto na renovação — mas os descontos de renovação não são acumulativos (escolhe um só entre 30%, 40%, 50% ou 1 ano grátis). A equipe da Dobro processa o pedido em até alguns dias úteis.',
         },
     ];
 }

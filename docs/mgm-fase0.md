@@ -1,8 +1,16 @@
-# MGM Fase 0 — Indique e Ganhe (deploy & env)
+# MGM — Indique e Ganhe (deploy & env)
 
 Implementação da rota `/indique-e-ganhe` (Member-Get-Member pra alunos DevQuest).
-Spec/contrato: `dobro-company-agents/docs/member-get-member/spec-fase-0-rota-scudo.md` v0.3
-+ `plano-build-fase-0-recon.md`.
+Spec/contrato: `dobro-company-agents/docs/member-get-member/spec-fase-0-rota-scudo.md` v0.4
+(Fase 0 + Fase 1) + `plano-build-fase-0-recon.md`.
+
+**Fases:**
+- **Fase 0** (mergeada 2026-05-16, branch `feat/mgm-fase0`): rota `/indique-e-ganhe`,
+  schema MGM, webhook Hubla, atribuição P1/P2/P3, garantia, FAQ + Regulamento,
+  feature flag. Vide commits `feat(mgm):*` Fase 0.
+- **Fase 1** (branch `feat/mgm-fase1`, 2026-05-23): catálogo de prêmios + resgate,
+  ranking ao vivo, admin de aprovação, multi-gateway (Hubla + Asaas), temporadas
+  (renomeado de "LI-26").
 
 ## ⚠️ Migration — NÃO aplicar vanilla
 
@@ -19,22 +27,26 @@ npm run prisma:migrate:local      # aplica em LOCAL_DATABASE_URL (NUNCA prod dir
 
 Deploy: `npm run prisma:migrate:deploy` no pipeline (Neon).
 
-## Variáveis de ambiente novas
+## Variáveis de ambiente
 
 `.env*` é gitignored — setar direto no `.env` local e nas envs da Vercel.
 
 | Var | Obrigatória | Default | Descrição |
 |---|---|---|---|
 | `ENABLE_MGM` / `NEXT_PUBLIC_ENABLE_MGM` | **Sim p/ ligar** | **OFF** | **Feature flag (kill-switch).** Default OFF → página, nav, `/i/[code]`, webhook e cron ficam inertes. Setar `true` nas duas (server + client/nav) pra liberar. `isMgmEnabled()` em `featureFlags.ts` |
-| `HUBLA_WEBHOOK_SECRET` | Sim (webhook) | — | Bearer/`x-webhook-secret` do `POST /api/referrals/hubla-webhook` |
-| `MGM_CHECKOUT_URL` | Sim (deploy) | fallback `/` | URL do checkout DevQuest na Hubla. **Pendência stakeholder.** Sem ela, `/i/[code]` redireciona pra `/` |
-| `CRON_SECRET` | Sim | — | **Já existe** (reusado do cron de jobs). Auth do `/api/cron/mgm-validate` |
-| `MGM_BOOST_STARTS_AT` | Não | — | ISO. Início da janela de boost (ex.: `2026-06-01T00:00:00-03:00`) |
-| `MGM_BOOST_ENDS_AT` | Não | — | ISO. Fim da janela de boost |
-| `MGM_BOOST_MULTIPLIER` | Não | `3.0` | Multiplicador de pontos na janela |
+| `HUBLA_WEBHOOK_SECRET` | Sim (Hubla) | — | Bearer/`x-webhook-secret` do `POST /api/referrals/hubla-webhook` |
+| `ASAAS_WEBHOOK_SECRET` | Sim (Asaas) | — | Header `asaas-access-token` do `POST /api/referrals/asaas-webhook` (Fase 1) |
+| `MGM_CHECKOUT_URL` | Sim (deploy) | fallback `/` | URL do checkout DevQuest na Hubla. Sem ela, `/i/[code]` redireciona pra `/` |
+| `MGM_RENEWAL_PRICE_CENTS` | Não | — | Preço da renovação anual em centavos (ex.: `129700` = R$ 1.297). Sem env, vitrine de prêmios mostra só o `%` sem ancorar preço |
+| `MGM_ADMIN_EMAILS` | Sim (admin) | — | CSV de e-mails com acesso a `/admin/mgm-redemptions` (Fase 1) |
+| `MGM_SEASON_NAME` | Não | — | Nome da temporada ativa exibido na UI (ex.: "Temporada Copa do Mundo") |
+| `MGM_BOOST_STARTS_AT` | Não | — | ISO. Início da temporada com boost |
+| `MGM_BOOST_ENDS_AT` | Não | — | ISO. Fim da temporada |
+| `MGM_BOOST_MULTIPLIER` | Não | **`2.0`** (Fase 1; era 3.0 na Fase 0) | Multiplicador da temporada — 1.5, 2.0, 2.5, 3.0 |
 | `MGM_POINTS_BASE` | Não | `100` | Pontos-base por indicação válida |
 | `MGM_GUARANTEE_DAYS` | Não | `15` | Período de garantia (dias) antes de `pending`→`valid` |
 | `MGM_APP_URL` | Não | `BETTER_AUTH_URL` | Base usada em `buildShareLink` (`/i/<code>`) |
+| `CRON_SECRET` | Sim | — | **Já existe** (reusado do cron de jobs). Auth do `/api/cron/mgm-validate` |
 
 ## Go-live: ligar o MGM em produção
 
@@ -79,13 +91,31 @@ Confirmar os campos do payload = item G.
 
 ## Componentes
 
+**Fase 0:**
 - `prisma/schema.prisma` — `User.mgmReferralCode`, `MgmReferral`, `MgmClick`, enum `MgmReferralStatus`
-- `app/lib/mgm/` — `service.ts`, `referral-code.ts`, `share-link.ts`, `boost.ts`, `rlsContext.ts`
-- `app/api/referrals/hubla-webhook/route.ts` — atribuição (P1 + P2)
+- `app/lib/mgm/` — `service.ts`, `referral-code.ts`, `share-link.ts`, `rlsContext.ts`
+- `app/api/referrals/hubla-webhook/route.ts` — adapter Hubla (refatorado em Fase 1 — agora chama `recordReferral`)
 - `app/i/[code]/route.ts` — rota intermediária de tracking (P2)
 - `app/api/cron/mgm-validate/route.ts` — cron diário `pending`→`valid`
-- `app/indique-e-ganhe/` — página + componentes (aba Indicação funcional; Prêmios/Ranking placeholder)
+- `app/indique-e-ganhe/` — página + componentes
 - `proxy.ts` / `vercel.json` / `app/lib/constants.ts` / `Sidebar.tsx` / `Header.tsx` — wiring
+
+**Fase 1 (novos):**
+- `prisma/schema.prisma` — `MgmReward`, `MgmRedemption`, `User.mgmRankingOptIn`, `UserProfile.mgmShippingAddress`, `MgmReferral.gateway` + rename `hublaOrderId`→`gatewayOrderId`, enums `PaymentGateway`, `MgmRewardType`, `MgmRedemptionStatus`
+- `app/lib/mgm/seasons.ts` — substitui `boost.ts`. Adiciona `getSeasonName`, `getCurrentSeason`, multiplicador default 2.0
+- `app/lib/mgm/recordReferral.ts` — **handler central gateway-agnóstico**. Hubla e Asaas são adapters finos sobre ele
+- `app/lib/mgm/balance.ts` — saldo on-demand (valid − spent)
+- `app/lib/mgm/rewards.ts` — catálogo (`listActiveRewards`, `upsertReward`)
+- `app/lib/mgm/redemptions.ts` — resgate, cancelar, listar; ações de admin (approve/deliver/reject) com txn + regra de família
+- `app/lib/mgm/ranking.ts` — leaderboard com toggle temporada/all-time + opt-in
+- `app/lib/mgm/adminAuth.ts` — gate `isMgmAdmin(email)` via `MGM_ADMIN_EMAILS`
+- `app/api/referrals/asaas-webhook/route.ts` — adapter Asaas (espelha Hubla)
+- `app/api/mgm/redemptions/` — POST request + cancel
+- `app/api/mgm/ranking-opt-in/route.ts` — toggle opt-in
+- `app/api/admin/mgm-redemptions/[id]/` — approve, deliver, reject (gated)
+- `app/admin/mgm-redemptions/` — página admin (lista + ações)
+- `app/indique-e-ganhe/components/` — `PremiosTab`, `RankingTab` reescritos; novos: `RewardRedeemModal`, `rewardFormatting.ts`
+- `scripts/seed-mgm-rewards.mjs` — seed dos 6 prêmios iniciais
 
 ## Atribuição (resiliência §4.7)
 
@@ -96,8 +126,25 @@ P3 (reconciliação CSV) é script à parte na semana da apuração.
 
 ## Pendências externas (não bloqueiam o build)
 
-- **Webhook configurado NA Hubla** (URL + secret) — pré-requisito do crédito em tempo real (P1); sem ele cai pra P2/P3. Quem configura: acesso admin Hubla (ops/stakeholder), não é código.
+- **Webhook Hubla configurado NA Hubla** (URL + secret) — pré-requisito do crédito em tempo real (P1); sem ele cai pra P2/P3. Quem configura: acesso admin Hubla (ops/stakeholder), não é código.
+- **Webhook Asaas configurado NA Asaas** (Fase 1) — opcional, só se receber pagamentos por Asaas. Settings → Integrações → Webhooks → URL `/api/referrals/asaas-webhook`, header `asaas-access-token: $ASAAS_WEBHOOK_SECRET`, eventos `PAYMENT_CONFIRMED` e `PAYMENT_REFUNDED`.
 - `MGM_CHECKOUT_URL` real (stakeholder) — sem ela `/i/[code]` cai pra `/`.
-- Comportamento real da Hubla (item G): só decide qual caminho P1/P2 fica ativo;
-  ajuste isolado em `extractRef()`. Mecanismo do 10% off é config da Hubla.
+- Comportamento real da Hubla (item G): só decide qual caminho P1/P2 fica ativo; ajuste isolado em `extractRef()`. Mecanismo do 10% off é config da Hubla.
 - Nome do programa: usando "Indique e Ganhe" (default).
+
+## Operação do admin (Fase 1)
+
+- `MGM_ADMIN_EMAILS=devemdobro@gmail.com,beto@...` (CSV).
+- Bookmark: `https://scudo.devemdobro.com/admin/mgm-redemptions`.
+- **Sem item no sidebar** — admin é raro; o link fica fora pra não poluir nav. Compartilhar URL com quem precisa.
+- Fluxo PHYSICAL (camiseta/livro): `Aprovar` → produzir/comprar sob demanda → `Marcar entregue` (sem cupom).
+- Fluxo DIGITAL (descontos/voucher renovação): clicar `Gerar cupom` direto → modal pede o `couponCode` gerado manualmente na Hubla → salva e marca `delivered`.
+- Rejeitar: pede motivo, estorna pontos.
+
+## Seed do catálogo
+
+Após aplicar a migration da Fase 1, rodar 1 vez (idempotente):
+```
+node scripts/seed-mgm-rewards.mjs
+```
+Cria/atualiza os 6 prêmios: camiseta (100), livro Clean Code (200), descontos renovação 30/40/50% (300/400/500) e 1 ano grátis (800).

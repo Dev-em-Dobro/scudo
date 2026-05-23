@@ -25,7 +25,7 @@ function buildSecoes(pointsBase: number, guaranteeDays: number): Secao[] {
         },
         {
             titulo: 'Ganho de pontos',
-            corpo: `Você ganha pontos a cada indicação bem-sucedida — quando uma nova pessoa compra o DevQuest pelo seu link de indicação e mantém a compra após o período de garantia. Cada indicação válida vale ${pointsBase} pontos (sujeito a multiplicador em janelas especiais).`,
+            corpo: `Você ganha pontos a cada indicação bem-sucedida — quando uma nova pessoa compra o DevQuest pelo seu link de indicação e mantém a compra após o período de garantia. Cada indicação válida vale ${pointsBase} pontos (sujeito a multiplicador em temporadas especiais).`,
         },
         {
             titulo: 'Indicação válida',
@@ -48,17 +48,27 @@ function buildSecoes(pointsBase: number, guaranteeDays: number): Secao[] {
         {
             titulo: 'Troca de pontos por prêmios',
             corpo:
-                'Os pontos podem ser trocados por prêmios na seção de Prêmios da área de indicações, desde que você tenha o saldo necessário. Nesta ação, o resgate abre ao final. Prêmios estão sujeitos à disponibilidade e podem ser alterados sem aviso prévio.',
+                'Os pontos podem ser trocados por prêmios na aba Prêmios, desde que você tenha o saldo necessário. Itens físicos (camiseta, livro) são produzidos sob demanda e enviados pra você. Descontos de renovação são entregues como cupom aplicável na próxima renovação do DevQuest. Prêmios podem ser alterados sem aviso prévio.',
+        },
+        {
+            titulo: 'Famílias de prêmios e exclusividade',
+            corpo:
+                'Os prêmios são agrupados em três famílias: Camiseta, Livro e Renovação. Você pode resgatar no máximo um prêmio de cada família. Os descontos de renovação (30%, 40%, 50% e 1 ano grátis) pertencem à mesma família e NÃO são acumulativos — você escolhe um só. Resgates rejeitados ou cancelados liberam novamente a família.',
+        },
+        {
+            titulo: 'Cancelamento de resgate',
+            corpo:
+                'Enquanto o resgate estiver no status "Solicitado" (antes da nossa equipe processar), você pode cancelar a qualquer momento na própria aba Prêmios e os pontos voltam pro seu saldo. Após a aprovação, o cancelamento depende de aprovação da equipe.',
+        },
+        {
+            titulo: 'Ranking',
+            corpo:
+                'A aba Ranking mostra um leaderboard público dos alunos indicadores. Você pode optar por não aparecer (toggle "Aparecer no ranking público" na própria aba Ranking) — ainda assim continua acumulando pontos normalmente.',
         },
         {
             titulo: 'Restrições de uso dos pontos',
             corpo:
                 'Pontos não podem ser transferidos entre contas, trocados por dinheiro ou usados para qualquer finalidade além das previstas no programa.',
-        },
-        {
-            titulo: 'Premiação desta ação',
-            corpo:
-                'Quem ficar em 1º lugar em pontos ganha o kit DevQuest (camiseta + caneca). Em caso de empate, vence quem alcançou a pontuação primeiro.',
         },
         {
             titulo: 'Modificações no programa',
