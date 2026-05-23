@@ -26,6 +26,41 @@ const STATUS_META: Record<
     },
 };
 
+/**
+ * Traduz `invalidReason` (códigos internos do webhook) pra mensagem amigável.
+ * Códigos novos: adicionar aqui + ajustar `validateReferral` em `recordReferral.ts`.
+ */
+function translateInvalidReason(reason: string | null): string | null {
+    if (!reason) return null;
+    switch (reason) {
+        case 'self_referral':
+            return 'Você indicou seu próprio e-mail ou telefone';
+        case 'duplicate':
+            return 'Esse amigo já foi indicado por outra pessoa';
+        case 'existing_student':
+            return 'Esse amigo já é aluno DevQuest';
+        case 'disposable_domain':
+            return 'O e-mail usado é de domínio temporário (não aceito)';
+        case 'manual_disqualify':
+            return 'Desqualificada pela equipe DevQuest';
+        default:
+            return `Motivo: ${reason}`;
+    }
+}
+
+function reasonForStatus(referral: MgmReferralView): string | null {
+    if (referral.status === 'invalid') {
+        return translateInvalidReason(referral.invalidReason);
+    }
+    if (referral.status === 'reverted') {
+        return 'O amigo solicitou reembolso — os pontos foram retirados do saldo';
+    }
+    if (referral.status === 'pending') {
+        return `Conta pra ranking, mas só vira saldo após o fim da garantia (${new Date(referral.guaranteeUntil).toLocaleDateString('pt-BR')})`;
+    }
+    return null;
+}
+
 function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('pt-BR', {
         day: '2-digit',
@@ -71,6 +106,7 @@ export default function ReferralHistory({ referrals }: ReferralHistoryProps) {
                 <tbody className="divide-y divide-border-light/60 dark:divide-border-dark/60">
                     {referrals.map((referral) => {
                         const meta = STATUS_META[referral.status];
+                        const reason = reasonForStatus(referral);
                         return (
                             <tr
                                 key={referral.id}
@@ -93,16 +129,18 @@ export default function ReferralHistory({ referrals }: ReferralHistoryProps) {
                                     {referral.pointsEarned}
                                 </td>
                                 <td className="py-3.5 pr-4">
-                                    <span
-                                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${meta.className}`}
-                                        title={
-                                            referral.status === 'invalid' && referral.invalidReason
-                                                ? `Motivo: ${referral.invalidReason}`
-                                                : undefined
-                                        }
-                                    >
-                                        {meta.label}
-                                    </span>
+                                    <div className="flex flex-col items-start gap-1">
+                                        <span
+                                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${meta.className}`}
+                                        >
+                                            {meta.label}
+                                        </span>
+                                        {reason && (
+                                            <span className="text-[11px] text-slate-500 leading-tight max-w-[28ch]">
+                                                {reason}
+                                            </span>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         );

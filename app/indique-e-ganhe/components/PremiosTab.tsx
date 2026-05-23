@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { MgmRewardView } from '@/app/lib/mgm/rewards';
 import type { MgmRedemptionView, ShippingInfo } from '@/app/lib/mgm/redemptions';
 import RewardRedeemModal from '@/app/indique-e-ganhe/components/RewardRedeemModal';
+import ShippingAddressModal from '@/app/indique-e-ganhe/components/ShippingAddressModal';
 import {
     MGM_PURPLE,
     MGM_PURPLE_SOFT,
@@ -39,6 +40,7 @@ export default function PremiosTab({
 }: PremiosTabProps) {
     const router = useRouter();
     const [selected, setSelected] = useState<MgmRewardView | null>(null);
+    const [editingAddress, setEditingAddress] = useState(false);
 
     // Famílias com resgate ativo — pra desabilitar e mostrar tooltip.
     const blockedFamilies = useMemo(() => {
@@ -76,7 +78,10 @@ export default function PremiosTab({
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                             Saldo disponível
                         </p>
-                        <p className="mt-2 text-3xl font-bold tabular-nums" style={{ color: MGM_PURPLE }}>
+                        <p
+                            className="mt-2 text-3xl font-bold tabular-nums"
+                            style={{ color: pointsAvailable < 0 ? '#f87171' : MGM_PURPLE }}
+                        >
                             {pointsAvailable} pts
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
@@ -94,6 +99,54 @@ export default function PremiosTab({
                             account_balance_wallet
                         </span>
                     </span>
+                </div>
+
+                {pointsAvailable < 0 && (
+                    <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
+                        <p className="text-sm font-semibold text-red-300 flex items-center gap-2">
+                            <span
+                                className="material-symbols-outlined text-[18px]"
+                                style={{ fontVariationSettings: "'FILL' 1" }}
+                            >
+                                info
+                            </span>
+                            Saldo abaixo de zero
+                        </p>
+                        <p className="text-xs text-red-200/85 mt-1.5 leading-relaxed">
+                            Uma indicação anterior foi <strong>reembolsada</strong> e os pontos
+                            dela voltaram, deixando seu saldo negativo em{' '}
+                            <strong>{Math.abs(pointsAvailable)} pts</strong>. Os prêmios já
+                            resgatados ficam com você — nada é cobrado de volta. Pra voltar a
+                            resgatar, basta acumular novas indicações até o saldo subir acima de
+                            zero.
+                        </p>
+                    </div>
+                )}
+
+                {/* Endereço de entrega (Gap 1) */}
+                <div className="mt-4 pt-4 border-t border-border-light/40 dark:border-border-dark/40 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            Endereço de entrega
+                        </p>
+                        {savedAddress ? (
+                            <p className="text-xs text-slate-400 mt-1 truncate">
+                                {savedAddress.name} · {savedAddress.city}/{savedAddress.state} · CEP {savedAddress.zip}
+                            </p>
+                        ) : (
+                            <p className="text-xs text-slate-500 mt-1">
+                                Nenhum endereço cadastrado — pediremos no próximo resgate físico.
+                            </p>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setEditingAddress(true)}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-colors hover:opacity-90"
+                        style={{ color: MGM_PURPLE, backgroundColor: MGM_PURPLE_SOFT }}
+                    >
+                        {savedAddress ? 'Editar endereço' : 'Cadastrar endereço'}
+                    </button>
                 </div>
             </div>
 
@@ -195,6 +248,12 @@ export default function PremiosTab({
                     pointsAvailable={pointsAvailable}
                     savedAddress={savedAddress}
                     onClose={() => setSelected(null)}
+                />
+            )}
+            {editingAddress && (
+                <ShippingAddressModal
+                    current={savedAddress}
+                    onClose={() => setEditingAddress(false)}
                 />
             )}
         </div>

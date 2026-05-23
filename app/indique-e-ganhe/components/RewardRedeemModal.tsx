@@ -10,6 +10,9 @@ import {
     formatRenewalReward,
     iconForFamily,
 } from '@/app/indique-e-ganhe/components/rewardFormatting';
+import ShippingForm, {
+    isShippingFormValid,
+} from '@/app/indique-e-ganhe/components/ShippingForm';
 
 interface RewardRedeemModalProps {
     readonly reward: MgmRewardView;
@@ -90,13 +93,7 @@ export default function RewardRedeemModal({
             ? formatRenewalReward(reward.type, reward.metadata)
             : null;
 
-    const isFormValid =
-        !isPhysical ||
-        (shipping.name.trim() &&
-            shipping.address.trim() &&
-            shipping.city.trim() &&
-            shipping.state.trim() &&
-            shipping.zip.trim());
+    const isFormValid = !isPhysical || isShippingFormValid(shipping);
 
     return (
         <div
@@ -194,54 +191,12 @@ export default function RewardRedeemModal({
                                 Pode editar antes de confirmar.
                             </p>
                         )}
-                        <div className="grid gap-3">
-                            <ShippingInput
-                                label="Nome completo"
-                                value={shipping.name}
-                                onChange={(v) => setShipping((s) => ({ ...s, name: v }))}
-                                required
-                            />
-                            <ShippingInput
-                                label="Telefone (com DDD)"
-                                value={shipping.phone ?? ''}
-                                onChange={(v) => setShipping((s) => ({ ...s, phone: v }))}
-                            />
-                            <ShippingInput
-                                label="Endereço (rua, número, complemento)"
-                                value={shipping.address}
-                                onChange={(v) => setShipping((s) => ({ ...s, address: v }))}
-                                required
-                            />
-                            <div className="grid grid-cols-2 gap-3">
-                                <ShippingInput
-                                    label="Cidade"
-                                    value={shipping.city}
-                                    onChange={(v) => setShipping((s) => ({ ...s, city: v }))}
-                                    required
-                                />
-                                <ShippingInput
-                                    label="UF"
-                                    value={shipping.state}
-                                    onChange={(v) =>
-                                        setShipping((s) => ({ ...s, state: v.toUpperCase() }))
-                                    }
-                                    required
-                                />
-                            </div>
-                            <ShippingInput
-                                label="CEP"
-                                value={shipping.zip}
-                                onChange={(v) => setShipping((s) => ({ ...s, zip: v }))}
-                                required
-                            />
-                            {reward.rewardFamily === 'merch-camiseta' && (
-                                <ShippingInput
-                                    label="Tamanho da camiseta (P/M/G/GG)"
-                                    value={shipping.notes ?? ''}
-                                    onChange={(v) => setShipping((s) => ({ ...s, notes: v }))}
-                                />
-                            )}
-                        </div>
+                        <ShippingForm
+                            value={shipping}
+                            onChange={setShipping}
+                            showNotes={reward.rewardFamily === 'merch-camiseta'}
+                            notesLabel="Tamanho da camiseta (P/M/G/GG)"
+                        />
                     </div>
                 )}
 
@@ -275,27 +230,3 @@ export default function RewardRedeemModal({
     );
 }
 
-interface ShippingInputProps {
-    readonly label: string;
-    readonly value: string;
-    readonly onChange: (value: string) => void;
-    readonly required?: boolean;
-}
-
-function ShippingInput({ label, value, onChange, required }: ShippingInputProps) {
-    return (
-        <label className="block">
-            <span className="text-xs font-semibold text-slate-400">
-                {label}
-                {required && <span className="text-red-400 ml-0.5">*</span>}
-            </span>
-            <input
-                type="text"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                required={required}
-                className="mt-1 w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-        </label>
-    );
-}
