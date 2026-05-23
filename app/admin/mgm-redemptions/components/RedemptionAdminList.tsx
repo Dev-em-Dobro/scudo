@@ -3,7 +3,11 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { MgmRedemptionAdminView } from '@/app/lib/mgm/redemptions';
+import type { MgmRedemptionAdminView, ShippingInfo } from '@/app/lib/mgm/redemptions';
+import ShippingForm, {
+    emptyShippingInfo,
+    isShippingFormValid,
+} from '@/app/indique-e-ganhe/components/ShippingForm';
 
 interface Props {
     readonly pending: readonly MgmRedemptionAdminView[];
@@ -19,11 +23,19 @@ const FAMILY_OPTIONS: ReadonlyArray<{ id: FamilyFilter; label: string }> = [
     { id: 'renovacao', label: 'Renovação' },
 ];
 
+const SHIPPING_EDITABLE_STATUSES = new Set<MgmRedemptionAdminView['status']>([
+    'requested',
+    'approved',
+]);
+
 export default function RedemptionAdminList({ pending, recent }: Props) {
     const router = useRouter();
     const [filter, setFilter] = useState<FamilyFilter>('all');
     const [deliveringId, setDeliveringId] = useState<string | null>(null);
     const [couponCode, setCouponCode] = useState('');
+    const [editingShippingRow, setEditingShippingRow] =
+        useState<MgmRedemptionAdminView | null>(null);
+    const [shippingDraft, setShippingDraft] = useState<ShippingInfo>(emptyShippingInfo());
     const [busy, setBusy] = useState(false);
 
     const filteredPending = useMemo(
@@ -34,11 +46,11 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
         [pending, filter],
     );
 
-    async function callAction(url: string, body?: object) {
+    async function callAction(url: string, method: string, body?: object) {
         setBusy(true);
         try {
             const response = await fetch(url, {
-                method: 'POST',
+                method,
                 headers: body ? { 'Content-Type': 'application/json' } : undefined,
                 body: body ? JSON.stringify(body) : undefined,
             });
@@ -59,7 +71,7 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
     }
 
     async function approve(id: string) {
-        await callAction(`/api/admin/mgm-redemptions/${id}/approve`);
+        await callAction(`/api/admin/mgm-redemptions/${id}/approve`, 'POST');
     }
 
     async function deliver(id: string) {
@@ -72,16 +84,18 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
             return;
         }
         if (!confirm(`Marcar "${r.rewardName}" como entregue?`)) return;
-        await callAction(`/api/admin/mgm-redemptions/${id}/deliver`, {
+        await callAction(`/api/admin/mgm-redemptions/${id}/deliver`, 'POST', {
             deliveryInfo: { deliveredVia: 'manual' },
         });
     }
 
     async function confirmDeliverDigital() {
         if (!deliveringId || !couponCode.trim()) return;
-        const ok = await callAction(`/api/admin/mgm-redemptions/${deliveringId}/deliver`, {
-            deliveryInfo: { couponCode: couponCode.trim(), deliveredVia: 'hubla-coupon' },
-        });
+        const ok = await callAction(
+            `/api/admin/mgm-redemptions/${deliveringId}/deliver`,
+            'POST',
+            { deliveryInfo: { couponCode: couponCode.trim(), deliveredVia: 'hubla-coupon' } },
+        );
         if (ok) {
             setDeliveringId(null);
             setCouponCode('');
@@ -91,7 +105,34 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
     async function reject(id: string) {
         const reason = prompt('Motivo da rejeição:');
         if (!reason || !reason.trim()) return;
-        await callAction(`/api/admin/mgm-redemptions/${id}/reject`, { reason: reason.trim() });
+        await callAction(`/api/admin/mgm-redemptions/${id}/reject`, 'POST', {
+            reason: reason.trim(),
+        });
+    }
+
+    function startEditShipping(row: MgmRedemptionAdminView) {
+        setEditingShippingRow(row);
+        setShippingDraft({
+            name: row.shippingInfo?.name ?? '',
+            phone: row.shippingInfo?.phone ?? '',
+            address: row.shippingInfo?.address ?? '',
+            city: row.shippingInfo?.city ?? '',
+            state: row.shippingInfo?.state ?? '',
+            zip: row.shippingInfo?.zip ?? '',
+            notes: row.shippingInfo?.notes ?? '',
+        });
+    }
+
+    async function confirmEditShipping() {
+        if (!editingShippingRow || !isShippingFormValid(shippingDraft)) return;
+        const ok = await callAction(
+            `/api/admin/mgm-redemptions/${editingShippingRow.id}/shipping`,
+            'PATCH',
+            shippingDraft,
+        );
+        if (ok) {
+            setEditingShippingRow(null);
+        }
     }
 
     return (
@@ -123,6 +164,7 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                 onApprove={approve}
                 onDeliver={deliver}
                 onReject={reject}
+                onEditShipping={startEditShipping}
                 busy={busy}
             />
 
@@ -137,6 +179,7 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                 </details>
             )}
 
+            {/* Modal: gerar cupom digital */}
             {deliveringId && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
@@ -177,6 +220,55 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                     </div>
                 </div>
             )}
+
+            {/* Modal: editar endereço de resgate (Gap 2) */}
+            {editingShippingRow && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) setEditingShippingRow(null);
+                    }}
+                >
+                    <div className="w-full max-w-lg rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern">
+                        <h3 className="text-lg font-bold text-white">
+                            Editar endereço — {editingShippingRow.rewardName}
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-1">
+                            Aluno: {editingShippingRow.userName} · {editingShippingRow.userEmail}
+                        </p>
+                        <div className="mt-5">
+                            <ShippingForm
+                                value={shippingDraft}
+                                onChange={setShippingDraft}
+                                showNotes={editingShippingRow.rewardFamily === 'merch-camiseta'}
+                                notesLabel={
+                                    editingShippingRow.rewardFamily === 'merch-camiseta'
+                                        ? 'Tamanho da camiseta'
+                                        : 'Observação'
+                                }
+                            />
+                        </div>
+                        <div className="mt-6 flex gap-2 justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setEditingShippingRow(null)}
+                                disabled={busy}
+                                className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white cursor-pointer disabled:opacity-50"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmEditShipping}
+                                disabled={busy || !isShippingFormValid(shippingDraft)}
+                                className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-violet-600 hover:bg-violet-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {busy ? 'Salvando…' : 'Salvar endereço'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -186,6 +278,7 @@ interface RedemptionTableProps {
     readonly onApprove?: (id: string) => void;
     readonly onDeliver?: (id: string) => void;
     readonly onReject?: (id: string) => void;
+    readonly onEditShipping?: (row: MgmRedemptionAdminView) => void;
     readonly busy?: boolean;
     readonly historical?: boolean;
 }
@@ -195,6 +288,7 @@ function RedemptionTable({
     onApprove,
     onDeliver,
     onReject,
+    onEditShipping,
     busy,
     historical,
 }: RedemptionTableProps) {
@@ -211,98 +305,124 @@ function RedemptionTable({
     return (
         <div className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden">
             <ul className="divide-y divide-border-light dark:divide-border-dark">
-                {rows.map((row) => (
-                    <li key={row.id} className="px-5 py-4">
-                        <div className="flex items-start justify-between gap-4 flex-wrap">
-                            <div className="min-w-0 flex-1">
-                                <p className="text-sm font-semibold text-white">
-                                    {row.rewardName}
-                                    <span className="ml-2 text-xs font-normal text-slate-500">
-                                        · {row.costSnapshot} pts
-                                    </span>
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                    {row.userName} · {row.userEmail}
-                                </p>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Solicitado: {new Date(row.requestedAt).toLocaleString('pt-BR')}
-                                </p>
-                                {row.shippingInfo && (
-                                    <div className="mt-2 text-xs text-slate-400 bg-slate-800/30 rounded px-3 py-2">
-                                        <p className="font-semibold text-slate-300">
-                                            {row.shippingInfo.name}{' '}
-                                            {row.shippingInfo.phone &&
-                                                `· ${row.shippingInfo.phone}`}
-                                        </p>
-                                        <p>
-                                            {row.shippingInfo.address}, {row.shippingInfo.city}/
-                                            {row.shippingInfo.state} — CEP {row.shippingInfo.zip}
-                                        </p>
-                                        {row.shippingInfo.notes && (
-                                            <p className="text-slate-500 mt-1">
-                                                Obs: {row.shippingInfo.notes}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                                {row.deliveryInfo?.couponCode && (
-                                    <p className="text-xs text-emerald-300 mt-1 font-mono">
-                                        Cupom entregue: {row.deliveryInfo.couponCode}
+                {rows.map((row) => {
+                    const canEditShipping =
+                        !historical &&
+                        row.shippingInfo &&
+                        SHIPPING_EDITABLE_STATUSES.has(row.status) &&
+                        onEditShipping;
+                    return (
+                        <li key={row.id} className="px-5 py-4">
+                            <div className="flex items-start justify-between gap-4 flex-wrap">
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-semibold text-white">
+                                        {row.rewardName}
+                                        <span className="ml-2 text-xs font-normal text-slate-500">
+                                            · {row.costSnapshot} pts
+                                        </span>
                                     </p>
-                                )}
-                                {row.rejectedReason && (
-                                    <p className="text-xs text-red-300 mt-1">
-                                        Rejeitado: {row.rejectedReason}
+                                    <p className="text-xs text-slate-400 mt-1">
+                                        {row.userName} · {row.userEmail}
                                     </p>
-                                )}
-                            </div>
+                                    <p className="text-xs text-slate-500 mt-0.5">
+                                        Solicitado:{' '}
+                                        {new Date(row.requestedAt).toLocaleString('pt-BR')}
+                                    </p>
+                                    {row.shippingInfo && (
+                                        <div className="mt-2 text-xs text-slate-400 bg-slate-800/30 rounded px-3 py-2">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="font-semibold text-slate-300">
+                                                        {row.shippingInfo.name}{' '}
+                                                        {row.shippingInfo.phone &&
+                                                            `· ${row.shippingInfo.phone}`}
+                                                    </p>
+                                                    <p>
+                                                        {row.shippingInfo.address},{' '}
+                                                        {row.shippingInfo.city}/
+                                                        {row.shippingInfo.state} — CEP{' '}
+                                                        {row.shippingInfo.zip}
+                                                    </p>
+                                                    {row.shippingInfo.notes && (
+                                                        <p className="text-slate-500 mt-1">
+                                                            Obs: {row.shippingInfo.notes}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                {canEditShipping && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onEditShipping!(row)}
+                                                        disabled={busy}
+                                                        className="text-[11px] font-semibold text-violet-300 hover:text-violet-200 underline-offset-2 hover:underline cursor-pointer shrink-0 disabled:opacity-50"
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {row.deliveryInfo?.couponCode && (
+                                        <p className="text-xs text-emerald-300 mt-1 font-mono">
+                                            Cupom entregue: {row.deliveryInfo.couponCode}
+                                        </p>
+                                    )}
+                                    {row.rejectedReason && (
+                                        <p className="text-xs text-red-300 mt-1">
+                                            Rejeitado: {row.rejectedReason}
+                                        </p>
+                                    )}
+                                </div>
 
-                            <div className="flex items-center gap-2 shrink-0">
-                                <StatusBadge status={row.status} />
-                                {!historical && row.status === 'requested' && onApprove && (
-                                    <>
-                                        {row.rewardType === 'PHYSICAL' && (
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <StatusBadge status={row.status} />
+                                    {!historical && row.status === 'requested' && onApprove && (
+                                        <>
+                                            {row.rewardType === 'PHYSICAL' && (
+                                                <button
+                                                    type="button"
+                                                    disabled={busy}
+                                                    onClick={() => onApprove(row.id)}
+                                                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 cursor-pointer disabled:opacity-50"
+                                                >
+                                                    Aprovar
+                                                </button>
+                                            )}
                                             <button
                                                 type="button"
                                                 disabled={busy}
-                                                onClick={() => onApprove(row.id)}
-                                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 cursor-pointer disabled:opacity-50"
+                                                onClick={() => onDeliver?.(row.id)}
+                                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 cursor-pointer disabled:opacity-50"
                                             >
-                                                Aprovar
+                                                {row.rewardType === 'PHYSICAL'
+                                                    ? 'Marcar entregue'
+                                                    : 'Gerar cupom'}
                                             </button>
-                                        )}
+                                            <button
+                                                type="button"
+                                                disabled={busy}
+                                                onClick={() => onReject?.(row.id)}
+                                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20 cursor-pointer disabled:opacity-50"
+                                            >
+                                                Rejeitar
+                                            </button>
+                                        </>
+                                    )}
+                                    {!historical && row.status === 'approved' && onDeliver && (
                                         <button
                                             type="button"
                                             disabled={busy}
-                                            onClick={() => onDeliver?.(row.id)}
+                                            onClick={() => onDeliver(row.id)}
                                             className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 cursor-pointer disabled:opacity-50"
                                         >
-                                            {row.rewardType === 'PHYSICAL' ? 'Marcar entregue' : 'Gerar cupom'}
+                                            Marcar entregue
                                         </button>
-                                        <button
-                                            type="button"
-                                            disabled={busy}
-                                            onClick={() => onReject?.(row.id)}
-                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20 cursor-pointer disabled:opacity-50"
-                                        >
-                                            Rejeitar
-                                        </button>
-                                    </>
-                                )}
-                                {!historical && row.status === 'approved' && onDeliver && (
-                                    <button
-                                        type="button"
-                                        disabled={busy}
-                                        onClick={() => onDeliver(row.id)}
-                                        className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 cursor-pointer disabled:opacity-50"
-                                    >
-                                        Marcar entregue
-                                    </button>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    </li>
-                ))}
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );

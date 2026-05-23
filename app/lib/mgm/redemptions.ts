@@ -159,11 +159,13 @@ export async function requestRedemption(
             });
 
             // Persiste endereço no UserProfile pra pré-preencher próximos resgates.
+            // Sem o campo `notes` — esse é por-resgate (tamanho de camiseta etc.).
             if (input.shippingInfo) {
+                const { notes: _notes, ...addressOnly } = input.shippingInfo;
                 await tx.userProfile.updateMany({
                     where: { userId: input.userId },
                     data: {
-                        mgmShippingAddress: input.shippingInfo as unknown as Prisma.InputJsonValue,
+                        mgmShippingAddress: addressOnly as unknown as Prisma.InputJsonValue,
                     },
                 });
             }
@@ -326,6 +328,49 @@ export async function adminRejectRedemption(
                 status: 'rejected',
                 rejectedReason: reason,
             },
+            include: { reward: true },
+        });
+        return toView(updated);
+    });
+}
+
+export class AdminShippingError extends Error {
+    code: 'not_found' | 'not_editable';
+    constructor(code: AdminShippingError['code'], message: string) {
+        super(message);
+        this.code = code;
+    }
+}
+
+/**
+ * Admin atualiza shippingInfo de um resgate (Gap 2).
+ *
+ * Permitido apenas enquanto o resgate está em `requested` ou `approved`.
+ * Após `delivered` o item já foi enviado — não dá pra mudar destino.
+ * Rejeitado/cancelado também não — perdeu sentido.
+ */
+export async function adminUpdateShipping(
+    redemptionId: string,
+    shippingInfo: ShippingInfo,
+): Promise<MgmRedemptionView> {
+    return withRlsUserContext(MGM_ADMIN_RLS_USER_ID, async (tx) => {
+        const existing = await tx.mgmRedemption.findUnique({
+            where: { id: redemptionId },
+            select: { id: true, status: true },
+        });
+        if (!existing) {
+            throw new AdminShippingError('not_found', 'Resgate não encontrado.');
+        }
+        if (existing.status !== 'requested' && existing.status !== 'approved') {
+            throw new AdminShippingError(
+                'not_editable',
+                `Resgate em status "${existing.status}" não permite edição de endereço.`,
+            );
+        }
+
+        const updated = await tx.mgmRedemption.update({
+            where: { id: redemptionId },
+            data: { shippingInfo: shippingInfo as unknown as Prisma.InputJsonValue },
             include: { reward: true },
         });
         return toView(updated);
