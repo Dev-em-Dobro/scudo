@@ -77,6 +77,9 @@ function getPrompt(resumeText: string) {
         'Quando não souber um campo, retorne null (ou array vazio para listas).',
         'No campo confidence.overall e confidence.fields, use valores entre 0 e 1.',
         'Nunca invente links, nomes ou cidades.',
+        'ATENÇÃO: Sempre que encontrar um link de deploy (ex: github.io, vercel.app, netlify.app, onrender.com, herokuapp.com, fly.dev, pages.dev, firebaseapp.com), associe esse link ao campo deployUrl do projeto correspondente, mesmo que o link esteja em uma linha separada ou após a descrição.',
+        'Nunca ignore links de deploy. Eles são sempre válidos e devem ser extraídos e associados ao projeto correto.',
+        'Se houver múltiplos links de deploy, associe cada um ao projeto mais próximo ou relevante.',
         'Formato obrigatório:',
         JSON.stringify({
             fullName: null,
@@ -319,15 +322,28 @@ function chooseProjects(
     confidence: number | undefined,
     threshold: number,
 ) {
+    const fallbackDeployByTitle = new Map(
+        fallbackValue
+            .filter((project) => project.deployUrl)
+            .map((project) => [project.title.trim().toLowerCase(), project.deployUrl]),
+    );
+
     if ((confidence ?? 0) >= threshold && aiValue.length > 0) {
         return aiValue
             .filter((project) => project.title.trim().length > 0)
-            .map((project) => ({
-                title: project.title.trim(),
-                shortDescription: project.shortDescription?.trim() ?? null,
-                technologies: uniqueNormalizedList(project.technologies),
-                deployUrl: project.deployUrl?.trim() ?? null,
-            }));
+            .map((project, index) => {
+                const normalizedTitle = project.title.trim().toLowerCase();
+                const aiDeployUrl = project.deployUrl?.trim() ?? null;
+                const fallbackDeployByIndex = fallbackValue[index]?.deployUrl ?? null;
+                const fallbackDeployByName = fallbackDeployByTitle.get(normalizedTitle) ?? null;
+
+                return {
+                    title: project.title.trim(),
+                    shortDescription: project.shortDescription?.trim() ?? null,
+                    technologies: uniqueNormalizedList(project.technologies),
+                    deployUrl: aiDeployUrl ?? fallbackDeployByName ?? fallbackDeployByIndex,
+                };
+            });
     }
 
     return fallbackValue;

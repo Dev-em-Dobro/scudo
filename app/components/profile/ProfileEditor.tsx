@@ -422,16 +422,23 @@ function parseExperienceDisplayItems(experiences: string[]): ExperienceDisplayIt
 
 function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
     const extractProjectDisplayData = (sourceProject: UserProject) => {
-        const sanitizeUrl = (url: string) => url.replaceAll(/[).,;]+$/g, '').trim();
-        const repoRegex = /https?:\/\/(?:www\.)?github\.com\/[^\s)]+/i;
-        const deployRegex = /https?:\/\/(?:www\.)?[^\s)]*(?:vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev)[^\s)]*/i;
+        const sanitizeUrl = (url: string) => {
+            const cleaned = url.replaceAll(/[).,;"']+$/g, '').trim();
+            if (!cleaned) {
+                return cleaned;
+            }
+
+            return /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
+        };
+        const repoRegex = /(?:https?:\/\/)?(?:www\.)?github\.com\/[^\s)]+/i;
+        const deployRegex = /(?:https?:\/\/)?(?:www\.)?[^\s)]*(?:vercel\.app|netlify\.app|onrender\.com|herokuapp\.com|fly\.dev|github\.io|pages\.dev|firebaseapp\.com)[^\s)]*/i;
 
         let cleanedDescription = sourceProject.shortDescription ?? '';
         let repositoryUrl: string | null = null;
         let deployUrl: string | null = sourceProject.deployUrl ?? null;
 
         cleanedDescription = cleanedDescription.replaceAll(
-            /(reposit[oó]rio|repository|github|deploy|demo)\s*:\s*(https?:\/\/[^\s)]+)/gi,
+            /(reposit[oó]rio|repository|github|deploy|demo)\s*:\s*([^\s)]+)/gi,
             (_fullMatch, rawLabel, rawUrl) => {
                 const label = String(rawLabel).toLowerCase();
                 const url = sanitizeUrl(String(rawUrl));
@@ -898,271 +905,271 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             Limites por item: experiências até {FIELD_LIMITS.experiencesItem} caracteres, idiomas até {FIELD_LIMITS.languagesItem}, descrição de projeto até {FIELD_LIMITS.projectsShortDescription} e cidade até {FIELD_LIMITS.city}.
                         </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
-                            <span>Nome</span>
-                            <input
-                                className={getFieldClass(Boolean(getFieldError('fullName')))}
-                                value={fullName}
-                                maxLength={120}
-                                aria-invalid={Boolean(getFieldError('fullName'))}
-                                onChange={(event) => setFullName(event.target.value)}
-                            />
-                            {getFieldError('fullName') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('fullName')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
-                            <span>Cidade</span>
-                            <input
-                                className={getFieldClass(Boolean(getFieldError('city')))}
-                                value={city}
-                                maxLength={100}
-                                aria-invalid={Boolean(getFieldError('city'))}
-                                onChange={(event) => setCity(event.target.value)}
-                            />
-                            {getFieldError('city') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('city')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
-                            <span>LinkedIn</span>
-                            <input
-                                className={getFieldClass(Boolean(getFieldError('linkedinUrl')))}
-                                value={linkedinUrl}
-                                maxLength={500}
-                                aria-invalid={Boolean(getFieldError('linkedinUrl'))}
-                                onChange={(event) => setLinkedinUrl(event.target.value)}
-                            />
-                            {getFieldError('linkedinUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('linkedinUrl')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
-                            <span>GitHub</span>
-                            <input
-                                className={getFieldClass(Boolean(getFieldError('githubUrl')))}
-                                value={githubUrl}
-                                maxLength={500}
-                                aria-invalid={Boolean(getFieldError('githubUrl'))}
-                                onChange={(event) => setGithubUrl(event.target.value)}
-                            />
-                            {getFieldError('githubUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('githubUrl')}</span> : null}
-                        </label>
-                    </div>
-
-                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                        <span>Resumo Profissional</span>
-                        <textarea
-                            className={`${getFieldClass(Boolean(getFieldError('professionalSummary')))} min-h-24`}
-                            value={professionalSummary}
-                            maxLength={3000}
-                            aria-invalid={Boolean(getFieldError('professionalSummary'))}
-                            onChange={(event) => setProfessionalSummary(event.target.value)}
-                        />
-                        {getFieldError('professionalSummary') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('professionalSummary')}</span> : null}
-                    </label>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                            <span>Experiências (uma por linha)</span>
-                            <textarea
-                                className={`${getFieldClass(Boolean(getFieldError('experiences')))} min-h-24`}
-                                value={experiencesText}
-                                aria-invalid={Boolean(getFieldError('experiences'))}
-                                onChange={(event) => setExperiencesText(event.target.value)}
-                            />
-                            {getFieldError('experiences') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('experiences')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                            <span>Competências Técnicas (uma por linha ou vírgula)</span>
-                            <textarea
-                                className={`${getFieldClass(Boolean(getFieldError('knownTechnologies')))} min-h-24`}
-                                value={knownTechnologiesText}
-                                aria-invalid={Boolean(getFieldError('knownTechnologies'))}
-                                onChange={(event) => setKnownTechnologiesText(event.target.value)}
-                            />
-                            {getFieldError('knownTechnologies') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('knownTechnologies')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                            <span>Habilidades comportamentais (uma por linha)</span>
-                            <textarea
-                                className={`${getFieldClass(Boolean(getFieldError('softSkills')))} min-h-24`}
-                                value={softSkillsText}
-                                aria-invalid={Boolean(getFieldError('softSkills'))}
-                                onChange={(event) => setSoftSkillsText(event.target.value)}
-                            />
-                            {getFieldError('softSkills') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('softSkills')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                            <span>Certificações (uma por linha)</span>
-                            <textarea
-                                className={`${getFieldClass(Boolean(getFieldError('certifications')))} min-h-24`}
-                                value={certificationsText}
-                                aria-invalid={Boolean(getFieldError('certifications'))}
-                                onChange={(event) => setCertificationsText(event.target.value)}
-                            />
-                            {getFieldError('certifications') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('certifications')}</span> : null}
-                        </label>
-
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                            <span>Idiomas (uma por linha)</span>
-                            <textarea
-                                className={`${getFieldClass(Boolean(getFieldError('languages')))} min-h-24`}
-                                value={languagesText}
-                                aria-invalid={Boolean(getFieldError('languages'))}
-                                onChange={(event) => setLanguagesText(event.target.value)}
-                            />
-                            {getFieldError('languages') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('languages')}</span> : null}
-                        </label>
-                    </div>
-
-                    <div className="space-y-3">
-                        <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Novo Projeto</p>
-
-                        <article className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark">
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                <span>Título</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                                <span>Nome</span>
                                 <input
-                                    className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
-                                    value={newProjectDraft.title}
-                                    onChange={(event) => setNewProjectDraft((current) => ({ ...current, title: event.target.value }))}
+                                    className={getFieldClass(Boolean(getFieldError('fullName')))}
+                                    value={fullName}
+                                    maxLength={120}
+                                    aria-invalid={Boolean(getFieldError('fullName'))}
+                                    onChange={(event) => setFullName(event.target.value)}
                                 />
+                                {getFieldError('fullName') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('fullName')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                <span>Descrição breve</span>
-                                <textarea
-                                    className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
-                                    value={newProjectDraft.shortDescription}
-                                    onChange={(event) => setNewProjectDraft((current) => ({ ...current, shortDescription: event.target.value }))}
-                                />
-                            </label>
-
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                <span>Tecnologias (separadas por vírgula)</span>
-                                <textarea
-                                    className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
-                                    value={newProjectDraft.technologiesText}
-                                    onChange={(event) => setNewProjectDraft((current) => ({ ...current, technologiesText: event.target.value }))}
-                                />
-                            </label>
-
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                <span>Link de deploy (opcional)</span>
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                                <span>Cidade</span>
                                 <input
-                                    className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
-                                    value={newProjectDraft.deployUrl}
-                                    onChange={(event) => setNewProjectDraft((current) => ({ ...current, deployUrl: event.target.value }))}
+                                    className={getFieldClass(Boolean(getFieldError('city')))}
+                                    value={city}
+                                    maxLength={100}
+                                    aria-invalid={Boolean(getFieldError('city'))}
+                                    onChange={(event) => setCity(event.target.value)}
                                 />
+                                {getFieldError('city') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('city')}</span> : null}
                             </label>
 
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={handleSaveNewProject}
-                                    className="cursor-pointer px-3 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase"
-                                >
-                                    Salvar Novo Projeto
-                                </button>
-                            </div>
-                        </article>
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                                <span>LinkedIn</span>
+                                <input
+                                    className={getFieldClass(Boolean(getFieldError('linkedinUrl')))}
+                                    value={linkedinUrl}
+                                    maxLength={500}
+                                    aria-invalid={Boolean(getFieldError('linkedinUrl'))}
+                                    onChange={(event) => setLinkedinUrl(event.target.value)}
+                                />
+                                {getFieldError('linkedinUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('linkedinUrl')}</span> : null}
+                            </label>
 
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Projetos na Lista</p>
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                                <span>GitHub</span>
+                                <input
+                                    className={getFieldClass(Boolean(getFieldError('githubUrl')))}
+                                    value={githubUrl}
+                                    maxLength={500}
+                                    aria-invalid={Boolean(getFieldError('githubUrl'))}
+                                    onChange={(event) => setGithubUrl(event.target.value)}
+                                />
+                                {getFieldError('githubUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('githubUrl')}</span> : null}
+                            </label>
                         </div>
 
-                        {projects.length === 0 ? (
-                            <p className="text-xs text-slate-400 dark:text-slate-300">
-                                Nenhum projeto na lista de edição ainda.
-                            </p>
-                        ) : (
-                            <div className="space-y-4">
-                                {projects.map((project, index) => (
-                                    <article
-                                        key={project.localId}
-                                        className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark"
+                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <span>Resumo Profissional</span>
+                            <textarea
+                                className={`${getFieldClass(Boolean(getFieldError('professionalSummary')))} min-h-24`}
+                                value={professionalSummary}
+                                maxLength={3000}
+                                aria-invalid={Boolean(getFieldError('professionalSummary'))}
+                                onChange={(event) => setProfessionalSummary(event.target.value)}
+                            />
+                            {getFieldError('professionalSummary') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('professionalSummary')}</span> : null}
+                        </label>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <span>Experiências (uma por linha)</span>
+                                <textarea
+                                    className={`${getFieldClass(Boolean(getFieldError('experiences')))} min-h-24`}
+                                    value={experiencesText}
+                                    aria-invalid={Boolean(getFieldError('experiences'))}
+                                    onChange={(event) => setExperiencesText(event.target.value)}
+                                />
+                                {getFieldError('experiences') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('experiences')}</span> : null}
+                            </label>
+
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <span>Competências Técnicas (uma por linha ou vírgula)</span>
+                                <textarea
+                                    className={`${getFieldClass(Boolean(getFieldError('knownTechnologies')))} min-h-24`}
+                                    value={knownTechnologiesText}
+                                    aria-invalid={Boolean(getFieldError('knownTechnologies'))}
+                                    onChange={(event) => setKnownTechnologiesText(event.target.value)}
+                                />
+                                {getFieldError('knownTechnologies') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('knownTechnologies')}</span> : null}
+                            </label>
+
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <span>Habilidades comportamentais (uma por linha)</span>
+                                <textarea
+                                    className={`${getFieldClass(Boolean(getFieldError('softSkills')))} min-h-24`}
+                                    value={softSkillsText}
+                                    aria-invalid={Boolean(getFieldError('softSkills'))}
+                                    onChange={(event) => setSoftSkillsText(event.target.value)}
+                                />
+                                {getFieldError('softSkills') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('softSkills')}</span> : null}
+                            </label>
+
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <span>Certificações (uma por linha)</span>
+                                <textarea
+                                    className={`${getFieldClass(Boolean(getFieldError('certifications')))} min-h-24`}
+                                    value={certificationsText}
+                                    aria-invalid={Boolean(getFieldError('certifications'))}
+                                    onChange={(event) => setCertificationsText(event.target.value)}
+                                />
+                                {getFieldError('certifications') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('certifications')}</span> : null}
+                            </label>
+
+                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <span>Idiomas (uma por linha)</span>
+                                <textarea
+                                    className={`${getFieldClass(Boolean(getFieldError('languages')))} min-h-24`}
+                                    value={languagesText}
+                                    aria-invalid={Boolean(getFieldError('languages'))}
+                                    onChange={(event) => setLanguagesText(event.target.value)}
+                                />
+                                {getFieldError('languages') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('languages')}</span> : null}
+                            </label>
+                        </div>
+
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Novo Projeto</p>
+
+                            <article className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark">
+                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                    <span>Título</span>
+                                    <input
+                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                        value={newProjectDraft.title}
+                                        onChange={(event) => setNewProjectDraft((current) => ({ ...current, title: event.target.value }))}
+                                    />
+                                </label>
+
+                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                    <span>Descrição breve</span>
+                                    <textarea
+                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
+                                        value={newProjectDraft.shortDescription}
+                                        onChange={(event) => setNewProjectDraft((current) => ({ ...current, shortDescription: event.target.value }))}
+                                    />
+                                </label>
+
+                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                    <span>Tecnologias (separadas por vírgula)</span>
+                                    <textarea
+                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
+                                        value={newProjectDraft.technologiesText}
+                                        onChange={(event) => setNewProjectDraft((current) => ({ ...current, technologiesText: event.target.value }))}
+                                    />
+                                </label>
+
+                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                    <span>Link de deploy (opcional)</span>
+                                    <input
+                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                        value={newProjectDraft.deployUrl}
+                                        onChange={(event) => setNewProjectDraft((current) => ({ ...current, deployUrl: event.target.value }))}
+                                    />
+                                </label>
+
+                                <div className="flex justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveNewProject}
+                                        className="cursor-pointer px-3 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase"
                                     >
-                                        <div className="flex items-center justify-between gap-3">
-                                            <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">
-                                                Projeto {index + 1}
-                                            </p>
-                                            <button
-                                                type="button"
-                                                onClick={() => removeProject(project.localId)}
-                                                className="cursor-pointer text-xs font-bold uppercase text-red-600 dark:text-red-400 hover:text-red-500"
-                                            >
-                                                Remover
-                                            </button>
-                                        </div>
+                                        Salvar Novo Projeto
+                                    </button>
+                                </div>
+                            </article>
 
-                                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                            <span>Título</span>
-                                            <input
-                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.title`)))}
-                                                value={project.title}
-                                                aria-invalid={Boolean(getFieldError(`projects.${index}.title`))}
-                                                onChange={(event) => updateProject(project.localId, { title: event.target.value })}
-                                            />
-                                            {getFieldError(`projects.${index}.title`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.title`)}</span> : null}
-                                        </label>
-
-                                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                            <span>Descrição breve</span>
-                                            <textarea
-                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.shortDescription`))) + ' min-h-20'}
-                                                value={project.shortDescription}
-                                                aria-invalid={Boolean(getFieldError(`projects.${index}.shortDescription`))}
-                                                onChange={(event) => updateProject(project.localId, { shortDescription: event.target.value })}
-                                            />
-                                            {getFieldError(`projects.${index}.shortDescription`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.shortDescription`)}</span> : null}
-                                        </label>
-
-                                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                            <span>Tecnologias (separadas por vírgula)</span>
-                                            <textarea
-                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.technologies`))) + ' min-h-20'}
-                                                value={project.technologiesText}
-                                                aria-invalid={Boolean(getFieldError(`projects.${index}.technologies`))}
-                                                onChange={(event) => updateProject(project.localId, { technologiesText: event.target.value })}
-                                            />
-                                            {getFieldError(`projects.${index}.technologies`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.technologies`)}</span> : null}
-                                        </label>
-
-                                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
-                                            <span>Link de deploy (opcional)</span>
-                                            <input
-                                                className={getFieldClass(Boolean(getFieldError(`projects.${index}.deployUrl`)))}
-                                                value={project.deployUrl}
-                                                aria-invalid={Boolean(getFieldError(`projects.${index}.deployUrl`))}
-                                                onChange={(event) => updateProject(project.localId, { deployUrl: event.target.value })}
-                                            />
-                                            {getFieldError(`projects.${index}.deployUrl`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.deployUrl`)}</span> : null}
-                                        </label>
-                                    </article>
-                                ))}
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Projetos na Lista</p>
                             </div>
+
+                            {projects.length === 0 ? (
+                                <p className="text-xs text-slate-400 dark:text-slate-300">
+                                    Nenhum projeto na lista de edição ainda.
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {projects.map((project, index) => (
+                                        <article
+                                            key={project.localId}
+                                            className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark"
+                                        >
+                                            <div className="flex items-center justify-between gap-3">
+                                                <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">
+                                                    Projeto {index + 1}
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeProject(project.localId)}
+                                                    className="cursor-pointer text-xs font-bold uppercase text-red-600 dark:text-red-400 hover:text-red-500"
+                                                >
+                                                    Remover
+                                                </button>
+                                            </div>
+
+                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                                <span>Título</span>
+                                                <input
+                                                    className={getFieldClass(Boolean(getFieldError(`projects.${index}.title`)))}
+                                                    value={project.title}
+                                                    aria-invalid={Boolean(getFieldError(`projects.${index}.title`))}
+                                                    onChange={(event) => updateProject(project.localId, { title: event.target.value })}
+                                                />
+                                                {getFieldError(`projects.${index}.title`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.title`)}</span> : null}
+                                            </label>
+
+                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                                <span>Descrição breve</span>
+                                                <textarea
+                                                    className={getFieldClass(Boolean(getFieldError(`projects.${index}.shortDescription`))) + ' min-h-20'}
+                                                    value={project.shortDescription}
+                                                    aria-invalid={Boolean(getFieldError(`projects.${index}.shortDescription`))}
+                                                    onChange={(event) => updateProject(project.localId, { shortDescription: event.target.value })}
+                                                />
+                                                {getFieldError(`projects.${index}.shortDescription`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.shortDescription`)}</span> : null}
+                                            </label>
+
+                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                                <span>Tecnologias (separadas por vírgula)</span>
+                                                <textarea
+                                                    className={getFieldClass(Boolean(getFieldError(`projects.${index}.technologies`))) + ' min-h-20'}
+                                                    value={project.technologiesText}
+                                                    aria-invalid={Boolean(getFieldError(`projects.${index}.technologies`))}
+                                                    onChange={(event) => updateProject(project.localId, { technologiesText: event.target.value })}
+                                                />
+                                                {getFieldError(`projects.${index}.technologies`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.technologies`)}</span> : null}
+                                            </label>
+
+                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                                <span>Link de deploy (opcional)</span>
+                                                <input
+                                                    className={getFieldClass(Boolean(getFieldError(`projects.${index}.deployUrl`)))}
+                                                    value={project.deployUrl}
+                                                    aria-invalid={Boolean(getFieldError(`projects.${index}.deployUrl`))}
+                                                    onChange={(event) => updateProject(project.localId, { deployUrl: event.target.value })}
+                                                />
+                                                {getFieldError(`projects.${index}.deployUrl`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.deployUrl`)}</span> : null}
+                                            </label>
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4">
+                            <p className="text-xs text-slate-400 dark:text-slate-300">
+                                Itens atuais: {parsedPreview.knownTechnologies.length} skills derivadas de {parsedPreview.projects.length} projetos e {parsedPreview.experiences.length} experiências
+                            </p>
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {isSaving ? 'Salvando...' : 'Salvar Perfil'}
+                            </button>
+                        </div>
+
+                        {feedback && (
+                            <p role="alert" className="text-xs text-slate-600 dark:text-slate-300">
+                                {feedback}
+                            </p>
                         )}
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4">
-                        <p className="text-xs text-slate-400 dark:text-slate-300">
-                            Itens atuais: {parsedPreview.knownTechnologies.length} skills derivadas de {parsedPreview.projects.length} projetos e {parsedPreview.experiences.length} experiências
-                        </p>
-                        <button
-                            type="submit"
-                            disabled={isSaving}
-                            className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                            {isSaving ? 'Salvando...' : 'Salvar Perfil'}
-                        </button>
-                    </div>
-
-                    {feedback && (
-                        <p role="alert" className="text-xs text-slate-600 dark:text-slate-300">
-                            {feedback}
-                        </p>
-                    )}
                     </div>
                 </form>
             ) : null}

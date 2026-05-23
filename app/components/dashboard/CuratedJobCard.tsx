@@ -11,6 +11,31 @@ interface CuratedJobCardProps {
     readonly isOfficialStudent?: boolean;
 }
 
+type JobReportReason = 'EXPIRED' | 'UNAVAILABLE' | 'CANCELLED';
+
+type JobReportFeedback = {
+    kind: 'idle' | 'success' | 'error';
+    message: string | null;
+};
+
+const REPORT_REASON_OPTIONS: Array<{ value: JobReportReason; label: string; helper: string }> = [
+    {
+        value: 'EXPIRED',
+        label: 'Expirada',
+        helper: 'A vaga saiu do ar ou a candidatura não está mais disponível.',
+    },
+    {
+        value: 'UNAVAILABLE',
+        label: 'Indisponível',
+        helper: 'O link abre erro, página vazia ou o processo não funciona.',
+    },
+    {
+        value: 'CANCELLED',
+        label: 'Cancelada',
+        helper: 'A empresa cancelou a oportunidade ou informou a remoção.',
+    },
+];
+
 const levelLabel: Record<JobListItem["level"], string> = {
     ESTAGIO: "Estágio",
     JUNIOR: "Júnior",
@@ -33,6 +58,8 @@ const sourceLabel: Record<JobListItem["source"], string> = {
     COMPANY_SITE: "Site da empresa",
     OTHER: "Outra fonte",
 };
+
+const BADGE_BASE_CLASS = "inline-flex h-8 items-center rounded-full border text-xs font-bold";
 
 function timeAgo(date: Date | null | undefined): string {
     if (!date) return "—";
@@ -80,6 +107,12 @@ export default function CuratedJobCard({
 }: Readonly<CuratedJobCardProps>) {
     const { user } = useAuth();
     const [showSkillGapAlert, setShowSkillGapAlert] = useState(false);
+    const [reportMenuOpen, setReportMenuOpen] = useState(false);
+    const [reportingReason, setReportingReason] = useState<JobReportReason | null>(null);
+    const [reportFeedback, setReportFeedback] = useState<JobReportFeedback>({
+        kind: 'idle',
+        message: null,
+    });
 
     const fit = useMemo(() => {
         const normalize = (value: string) => value.toLowerCase().trim();
@@ -125,11 +158,51 @@ export default function CuratedJobCard({
         window.open(job.sourceUrl, "_blank", "noopener,noreferrer");
     }
 
+    async function handleReportClick(reason: JobReportReason) {
+        setReportingReason(reason);
+        setReportFeedback({ kind: 'idle', message: null });
+
+        try {
+            const response = await fetch(`/api/jobs/${job.id}/reports`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reason }),
+            });
+
+            const data = await response.json().catch(() => null) as
+                | { error?: string; message?: string; reviewAfterAt?: string }
+                | null;
+
+            if (!response.ok) {
+                throw new Error(data?.error ?? 'Não foi possível registrar o reporte.');
+            }
+
+            setReportMenuOpen(false);
+            setReportFeedback({
+                kind: 'success',
+                message: data?.message ?? 'Reporte registrado. A vaga será reavaliada em até 15 minutos.',
+            });
+        } catch (error) {
+            setReportFeedback({
+                kind: 'error',
+                message: error instanceof Error ? error.message : 'Falha inesperada ao registrar o reporte.',
+            });
+        } finally {
+            setReportingReason(null);
+        }
+    }
+
+    function handleDismissReportFeedback() {
+        setReportFeedback({ kind: 'idle', message: null });
+    }
+
     const publishedDate = job.publishedAt ?? job.createdAt;
 
     const fitBadge =
         fit.fitPercentage === null ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 dark:bg-slate-900 text-slate-500 border border-slate-600/40 border-dashed">
+            <div className={`${BADGE_BASE_CLASS} gap-1.5 px-3 bg-slate-800 dark:bg-slate-900 text-slate-500 border-slate-600/40 border-dashed`}>
                 <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
                     {"help"}
                 </span>
@@ -137,7 +210,7 @@ export default function CuratedJobCard({
             </div>
         ) : (
             <div
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}
+                className={`${BADGE_BASE_CLASS} gap-1.5 px-3 ${getFitBadgeClass(fit.fitPercentage, fit.isEstimated)}`}
             >
                 <span
                     className={`material-symbols-outlined ${getFitIconClass(fit.fitPercentage, fit.isEstimated)}`}
@@ -165,7 +238,7 @@ export default function CuratedJobCard({
                         {job.title}
                     </h3>
                     <span
-                        className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${levelColor[job.level]}`}
+                        className={`shrink-0 ${BADGE_BASE_CLASS} px-3 ${levelColor[job.level]}`}
                     >
                         {levelLabel[job.level].toUpperCase()}
                     </span>
@@ -258,22 +331,83 @@ export default function CuratedJobCard({
             )}
 
             {/* Actions row */}
-            <div className="mt-4 pt-3.5 border-t border-border-light dark:border-border-dark flex items-center justify-between gap-4">
-                <a
-                    href={job.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-semibold text-emerald-400 underline-offset-2 transition-colors hover:text-emerald-300 hover:underline"
-                >
-                    Ver vaga completa
-                </a>
-                <button
-                    type="button"
-                    onClick={handleApplyClick}
-                    className="cursor-pointer px-5 py-2 bg-primary hover:bg-primary/90 active:scale-95 text-white text-xs font-bold rounded-lg uppercase tracking-wide transition-all duration-150 shadow-sm shadow-primary/20"
-                >
-                    Candidatar
-                </button>
+            <div className="mt-4 pt-3.5 border-t border-border-light dark:border-border-dark space-y-3">
+                {reportFeedback.kind !== 'idle' && reportFeedback.message ? (
+                    <div
+                        className={`rounded-lg border px-3 py-2 text-xs font-medium ${reportFeedback.kind === 'success'
+                            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                            : 'border-red-500/30 bg-red-500/10 text-red-300'
+                            }`}
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <p className="pt-0.5">{reportFeedback.message}</p>
+                            <button
+                                type="button"
+                                onClick={handleDismissReportFeedback}
+                                aria-label="Fechar mensagem do reporte"
+                                className="cursor-pointer inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current/20 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
+                            >
+                                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "16px" }}>
+                                    close
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <a
+                        href={job.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-emerald-400 underline-offset-2 transition-colors hover:text-emerald-300 hover:underline"
+                    >
+                        Ver vaga completa
+                    </a>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setReportMenuOpen((open) => !open)}
+                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-border-light dark:border-border-dark px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+                            aria-expanded={reportMenuOpen}
+                            aria-controls={`job-report-menu-${job.id}`}
+                        >
+                            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "15px" }}>flag</span>
+                            {' '}Reportar
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleApplyClick}
+                            className="cursor-pointer px-5 py-2 bg-primary hover:bg-primary/90 active:scale-95 text-white text-xs font-bold rounded-lg uppercase tracking-wide transition-all duration-150 shadow-sm shadow-primary/20"
+                        >
+                            Candidatar
+                        </button>
+                    </div>
+                </div>
+
+                {reportMenuOpen ? (
+                    <div id={`job-report-menu-${job.id}`} className="rounded-xl border border-border-light dark:border-border-dark bg-background-light/90 dark:bg-background-dark/90 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300 mb-3">
+                            Marque apenas se a vaga realmente estiver indisponível.
+                        </p>
+                        <div className="grid gap-2 sm:grid-cols-3">
+                            {REPORT_REASON_OPTIONS.map((option) => (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    disabled={reportingReason !== null}
+                                    onClick={() => void handleReportClick(option.value)}
+                                    className="cursor-pointer rounded-lg border border-border-light dark:border-border-dark px-3 py-2 text-left transition-colors hover:border-amber-500/40 hover:bg-amber-500/5 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <span className="block text-sm font-semibold text-white">{option.label}</span>
+                                    <span className="mt-1 block text-xs text-slate-400">{option.helper}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
             </div>
         </article>
     );
