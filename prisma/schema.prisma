@@ -82,7 +82,9 @@ model User {
   onboardingProgress        UserOnboardingProgress[]
   productFeedbacks          ProductFeedback[]
   mgmReferralCode           String?                   @unique // MGM: gerado lazy na 1ª visita a /indique-e-ganhe
+  mgmRankingOptIn           Boolean                   @default(true) // MGM Fase 1: aparece no leaderboard público (opt-out vira "Anônimo")
   mgmReferralsMade          MgmReferral[]             @relation("ReferrerUser")
+  mgmRedemptions            MgmRedemption[]
 }
 
 model ProductFeedback {
@@ -218,6 +220,7 @@ model UserProfile {
   resumeFileName      String?
   resumeSyncStatus    ResumeSyncStatus @default(NOT_UPLOADED)
   resumeUploadedAt    DateTime?
+  mgmShippingAddress  Json? // MGM Fase 1: endereço pré-preenchido p/ resgates físicos
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 }
@@ -324,37 +327,60 @@ model JobIngestionLog {
 }
 
 // ─────────────────────────────────────────────────────────────
-// MGM (Member-Get-Member) — Fase 0. Ver docs/member-get-member/spec-fase-0-rota-scudo.md
-// RLS/GRANT das tabelas abaixo: migration hand-authored (default privileges revogados).
+// MGM (Member-Get-Member) — Fase 0 + Fase 1. Ver docs/member-get-member/spec-fase-0-rota-scudo.md (v0.4).
+// RLS/GRANT das tabelas abaixo: migrations hand-authored (default privileges revogados).
 // ─────────────────────────────────────────────────────────────
 
 enum MgmReferralStatus {
-  pending // dentro da garantia 7d
-  valid // garantia passou, conta pra ranking
+  pending // dentro da garantia (default 15d, env MGM_GUARANTEE_DAYS)
+  valid // garantia passou, conta pra ranking e resgate
   invalid // falhou validação (motivo em invalidReason)
   reverted // reembolsado pós-garantia, ponto debitado
+}
+
+enum PaymentGateway {
+  hubla
+  asaas
+  stripe
+  other
+}
+
+enum MgmRewardType {
+  PHYSICAL // camiseta, livro — ops envia (UserProfile.mgmShippingAddress)
+  DIGITAL_DISCOUNT // % off renovação — ops gera cupom manual na Hubla
+  DIGITAL_VOUCHER // 1 ano grátis — ops aplica via Curseduca ou cupom 100%
+}
+
+enum MgmRedemptionStatus {
+  requested // aluno pediu
+  approved // ops aprovou (físico em produção; digital pode ir direto p/ delivered)
+  delivered // entregue (cupom gerado / item enviado)
+  rejected // ops rejeitou (estorna pontos)
+  cancelled // aluno cancelou antes de ops mexer (estorna pontos)
 }
 
 model MgmReferral {
   id               String            @id @default(cuid())
   referrerUserId   String // FK pra User (aluno indicador), resolvido via mgmReferralCode
   referralCodeUsed String // o ?ref= que veio na URL (denormalizado pra auditoria)
-  referredEmail    String // e-mail do amigo que comprou (do payload Hubla)
+  referredEmail    String // e-mail do amigo que comprou (do payload do gateway)
   referredPhone    String?
   referredName     String?
   saleAmount       Decimal           @db.Decimal(10, 2)
-  hublaOrderId     String            @unique // ID do pedido na Hubla — idempotência
-  pointsBase       Int // 40 (configurável)
-  pointsMultiplier Decimal           @db.Decimal(3, 1) // 3.0 em janela LI-26; 1.0 perpétuo
+  gateway          PaymentGateway    @default(hubla) // MGM Fase 1: multi-gateway
+  gatewayOrderId   String // ID do pedido no gateway (renomeado de hublaOrderId)
+  pointsBase       Int // 100 (env MGM_POINTS_BASE)
+  pointsMultiplier Decimal           @db.Decimal(3, 1) // boost da temporada (1.5x-3x); 1.0 fora
   pointsEarned     Int // pointsBase × pointsMultiplier (denormalizado p/ ranking rápido)
   status           MgmReferralStatus @default(pending)
   invalidReason    String? // self_referral | duplicate | existing_student | disposable_domain | manual_disqualify
-  guaranteeUntil   DateTime // signedUpAt + 7d
+  guaranteeUntil   DateTime // signedUpAt + MGM_GUARANTEE_DAYS (default 15d)
   signedUpAt       DateTime          @default(now())
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   referrerUser     User              @relation("ReferrerUser", fields: [referrerUserId], references: [id], onDelete: Cascade)
 
+  @@unique([gateway, gatewayOrderId]) // idempotência multi-gateway
   @@index([referrerUserId, status])
   @@index([referredEmail])
   @@index([referralCodeUsed])
@@ -371,4 +397,46 @@ model MgmClick {
   @@index([referralCode])
   @@index([referredEmail])
   @@index([createdAt])
+}
+
+model MgmReward {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  name         String
+  description  String?
+  costPoints   Int
+  type         MgmRewardType
+  rewardFamily String // "merch-camiseta" | "merch-livro" | "renovacao" — exclusividade por aluno
+  metadata     Json? // { discountPercent: 30, durationMonths: 12, sku: "..." }
+  active       Boolean         @default(true)
+  sortOrder    Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  redemptions  MgmRedemption[]
+
+  @@index([active, sortOrder])
+  @@index([rewardFamily])
+}
+
+model MgmRedemption {
+  id             String              @id @default(cuid())
+  userId         String
+  rewardId       String
+  rewardFamily   String // denormalizado p/ índice de exclusividade O(1)
+  costSnapshot   Int // costPoints no momento do resgate (auditoria)
+  status         MgmRedemptionStatus @default(requested)
+  shippingInfo   Json? // { name, phone, address, city, state, zip } se PHYSICAL
+  deliveryInfo   Json? // { couponCode, tracking, deliveredVia }
+  rejectedReason String?
+  requestedAt    DateTime            @default(now())
+  approvedAt     DateTime?
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+  updatedAt      DateTime            @updatedAt
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward         MgmReward           @relation(fields: [rewardId], references: [id])
+
+  @@index([userId, status])
+  @@index([userId, rewardFamily, status]) // check de exclusividade por família
+  @@index([status, requestedAt]) // fila do admin
 }
