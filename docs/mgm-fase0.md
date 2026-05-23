@@ -148,3 +148,73 @@ Após aplicar a migration da Fase 1, rodar 1 vez (idempotente):
 node scripts/seed-mgm-rewards.mjs
 ```
 Cria/atualiza os 6 prêmios: camiseta (100), livro Clean Code (200), descontos renovação 30/40/50% (300/400/500) e 1 ano grátis (800).
+
+## Ferramentas de QA (staging / teste interno)
+
+⚠️ **Não usar em prod com dados reais.** Pra acelerar smoke test do fluxo
+completo sem precisar de pagamento real ou esperar a garantia 15d.
+
+### 1. Simular venda sem passar pela Hubla
+
+Endpoint `POST /api/mgm/dev/fake-purchase` — gated por:
+- `MGM_DEV_TEST_ENABLED=true` na env (default OFF → endpoint retorna 404)
+- Sessão autenticada de admin (e-mail em `MGM_ADMIN_EMAILS`)
+- `ENABLE_MGM=true`
+
+Cria um `MgmReferral` sintético chamando `recordReferral()` direto com
+um `orderId` gerado (`dev-<gateway>-<ts>-<rand>`). Idempotente — chamar 2x
+com mesmo `orderId` (passar `--data orderId`) retorna `idempotent: true`.
+
+```bash
+# Logar no admin via browser, copiar o cookie da sessão, depois:
+curl -X POST https://scudo.devemdobro.com/api/mgm/dev/fake-purchase \
+  -H "Cookie: __Secure-better-auth.session_token=COLA_AQUI" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "referralCode": "ricardo-47",
+    "customerEmail": "teste@friend.com",
+    "customerName": "Amigo Teste",
+    "amount": 1297
+  }'
+```
+
+Body opcional: `customerPhone`, `gateway` (`hubla|asaas|stripe|other`),
+`event` (`purchase.approved|purchase.refunded`), `orderId` (pra testar
+idempotência ou refund de venda anterior).
+
+### 2. Pular a garantia de 15d
+
+Script `scripts/mgm-fast-forward-garantia.mjs` move referrals
+`pending → valid` sem esperar o cron — útil pra testar o resgate logo
+após simular a indicação.
+
+```bash
+# Tudo que está pending vira valid (cuidado!)
+node scripts/mgm-fast-forward-garantia.mjs --all
+
+# Só de um aluno específico:
+node scripts/mgm-fast-forward-garantia.mjs --user-id cmiabcd1234
+
+# Só 1 referral:
+node scripts/mgm-fast-forward-garantia.mjs --referral-id cmrefxyz9876
+
+# Listar sem alterar:
+node scripts/mgm-fast-forward-garantia.mjs --all --dry-run
+```
+
+Roda sob contexto RLS `system:mgm-cron` (mesma policy do cron real).
+
+### Roteiro de smoke test sugerido
+
+1. `MGM_DEV_TEST_ENABLED=true` na env de staging (NUNCA em prod com dados reais)
+2. Login como admin no `/indique-e-ganhe` (gera referral code, ex.: `ricardo-47`)
+3. `POST /api/mgm/dev/fake-purchase` com `referralCode=ricardo-47` e e-mail novo
+4. Confirmar que `MgmReferral` foi criado em status `pending`
+5. `node scripts/mgm-fast-forward-garantia.mjs --referral-id <id>` → vira `valid`
+6. Voltar em `/indique-e-ganhe` → aba Prêmios → saldo deve mostrar `pointsEarned`
+7. Resgatar camiseta → preencher endereço → confirmar
+8. Abrir `/admin/mgm-redemptions` → aprovar → "Marcar entregue"
+9. Conferir no histórico do aluno: status `Entregue`, info do envio
+
+Pra refund: chamar `POST /api/mgm/dev/fake-purchase` com `event=purchase.refunded`
+e o mesmo `orderId` do passo 3 — `MgmReferral` vira `reverted` e saldo cai.
