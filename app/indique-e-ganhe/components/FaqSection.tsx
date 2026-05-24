@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import {
     MGM_PURPLE,
@@ -16,10 +16,14 @@ interface FaqSectionProps {
 
 interface QA {
     readonly q: string;
-    readonly a: string;
+    readonly a: ReactNode;
 }
 
-function buildFaq(pointsBase: number, guaranteeDays: number): QA[] {
+function buildFaq(
+    pointsBase: number,
+    guaranteeDays: number,
+    onOpenRegulamento: () => void,
+): QA[] {
     return [
         {
             q: 'Como funciona a indicação?',
@@ -49,13 +53,31 @@ function buildFaq(pointsBase: number, guaranteeDays: number): QA[] {
             q: 'Como faço o resgate dos pontos?',
             a: 'Vá na aba Prêmios e escolha o que quer trocar. Você pode resgatar uma camiseta, um livro e um desconto na renovação — mas os descontos de renovação não são acumulativos (escolhe um só entre 30%, 40%, 50% ou 1 ano grátis). A equipe da Dobro processa o pedido em até alguns dias úteis.',
         },
+        {
+            q: 'Onde leio o regulamento completo do programa?',
+            a: (
+                <>
+                    O regulamento traz todas as regras de elegibilidade, ganho de pontos,
+                    famílias de prêmios, conduta e o que conta como uso indevido. Ao
+                    participar do programa você aceita esses termos integralmente.{' '}
+                    <button
+                        type="button"
+                        onClick={onOpenRegulamento}
+                        className="font-semibold underline-offset-2 hover:underline cursor-pointer"
+                        style={{ color: MGM_PURPLE }}
+                    >
+                        Abrir regulamento completo →
+                    </button>
+                </>
+            ),
+        },
     ];
 }
 
 export default function FaqSection({ pointsBase, guaranteeDays }: FaqSectionProps) {
     const [openIdx, setOpenIdx] = useState<number | null>(0);
     const [regulamentoOpen, setRegulamentoOpen] = useState(false);
-    const faq = buildFaq(pointsBase, guaranteeDays);
+    const faq = buildFaq(pointsBase, guaranteeDays, () => setRegulamentoOpen(true));
 
     return (
         <section
@@ -121,9 +143,9 @@ export default function FaqSection({ pointsBase, guaranteeDays }: FaqSectionProp
                                 </span>
                             </button>
                             {isOpen ? (
-                                <p className="text-sm text-slate-400 leading-relaxed pb-5 pr-8 max-w-[68ch]">
+                                <div className="text-sm text-slate-400 leading-relaxed pb-5 pr-8 max-w-[68ch]">
                                     {item.a}
-                                </p>
+                                </div>
                             ) : null}
                         </div>
                     );

@@ -19,6 +19,11 @@ interface Secao {
 function buildSecoes(pointsBase: number, guaranteeDays: number): Secao[] {
     return [
         {
+            titulo: 'Aceitação dos termos',
+            corpo:
+                'Ao participar do programa Indique e Ganhe — gerando seu link, compartilhando ou resgatando pontos —, você aceita integralmente todos os termos e condições deste regulamento. Caso não concorde com qualquer parte, basta não usar o programa: sua conta DevQuest segue normal e nada muda no seu acesso à plataforma.',
+        },
+        {
             titulo: 'Elegibilidade',
             corpo:
                 'O programa de indicações é exclusivo para alunos do DevQuest com conta ativa (aluno oficial verificado na plataforma).',
@@ -76,9 +81,9 @@ function buildSecoes(pointsBase: number, guaranteeDays: number): Secao[] {
                 'A Dobro reserva-se o direito de modificar, suspender ou encerrar o programa a qualquer momento. Alterações relevantes são comunicadas na própria área do programa.',
         },
         {
-            titulo: 'Conduta e uso indevido',
+            titulo: 'Conduta, fraude e ambiente justo',
             corpo:
-                'Tentativas de fraude, auto-indicação, criação de contas falsas ou qualquer uso indevido levam à desqualificação e à perda dos pontos acumulados.',
+                'O programa existe pra recompensar quem ajuda a comunidade DevQuest a crescer — e isso só funciona com um ambiente justo para todos. Tentativas de fraude (auto-indicação, criação de contas falsas, conluio entre contas, uso de e-mails descartáveis ou qualquer manipulação artificial dos pontos) levam à desqualificação, perda dos pontos acumulados e podem implicar revogação do acesso ao programa em definitivo. A Dobro pode investigar atividades suspeitas a qualquer momento e solicitar comprovações.',
         },
     ];
 }
