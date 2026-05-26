@@ -74,7 +74,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
     const evaluableJobsInfoText = `Total da página = vagas com stack + vagas sem stack (${evaluableJobs.length} + ${nonEvaluableJobsCount} = ${totalJobs}). Total do card de aptidão = apenas vagas com stack (${evaluableJobs.length}). Portanto, os números diferentes são esperados pela lógica atual.`;
 
     return (
-        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-amber-500/30 dark:hover:border-amber-500/30 transition-colors">
+        <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5 hover:border-amber-500/30 hover:border-amber-500/30 transition-colors">
             <div className="flex items-start gap-4">
                 <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                     <span
@@ -95,7 +95,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                     {hasSkills ? (
                         <>
                             <div className="mt-1 flex items-start gap-2">
-                                <p className="text-sm text-slate-400 dark:text-slate-300">{statusText}</p>
+                                <p className="text-sm text-white/70">{statusText}</p>
                                 {totalJobs > 0 && (
                                     <div className="relative">
                                         <button
@@ -107,7 +107,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                                             onMouseLeave={() => setIsTooltipOpen(false)}
                                             onFocus={() => setIsTooltipOpen(true)}
                                             onBlur={() => setIsTooltipOpen(false)}
-                                            className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border-light dark:border-border-dark bg-white/5 text-slate-400 transition-colors hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60"
+                                            className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#333] bg-white/5 text-white/70 transition-colors hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60"
                                         >
                                             <span
                                                 className="material-symbols-outlined text-sm"
@@ -121,7 +121,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                                         <div
                                             id={tooltipId}
                                             role="tooltip"
-                                            className={`pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-lg border border-amber-500/30 bg-surface-dark px-3 py-2 text-xs leading-relaxed text-slate-200 shadow-lg transition-opacity ${isTooltipOpen ? 'opacity-100' : 'opacity-0'}`}
+                                            className={`pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-lg border border-amber-500/30 bg-surface-dark px-3 py-2 text-xs leading-relaxed text-white/90 shadow-lg transition-opacity ${isTooltipOpen ? 'opacity-100' : 'opacity-0'}`}
                                         >
                                             {evaluableJobsInfoText}
                                         </div>
@@ -135,7 +135,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>
                                         {" "}Habilidades prioritárias
                                     </p>
-                                    <p className="text-xs text-slate-400 dark:text-slate-300">
+                                    <p className="text-xs text-white/70">
                                         Priorize as habilidades abaixo para aumentar sua compatibilidade com as vagas atuais.
                                     </p>
                                     <div className="mt-2.5 flex flex-wrap gap-1.5">
@@ -152,7 +152,7 @@ export default function CandidacyReadinessCard({ jobs }: Readonly<CandidacyReadi
                             )}
                         </>
                     ) : (
-                        <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
+                        <p className="text-sm text-white/70 mt-1">
                             Adicione suas habilidades ao perfil para ver sua aptidão nas vagas.
                         </p>
                     )}

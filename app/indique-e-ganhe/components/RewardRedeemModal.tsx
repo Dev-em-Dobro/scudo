@@ -106,7 +106,7 @@ export default function RewardRedeemModal({
             }}
         >
             <div
-                className="w-full max-w-lg rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern"
+                className="w-full max-w-lg rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern"
                 style={{ boxShadow: PANEL_SHADOW }}
             >
                 <div className="flex items-start justify-between gap-4">
@@ -132,7 +132,7 @@ export default function RewardRedeemModal({
                             >
                                 Resgatar: {reward.name}
                             </h3>
-                            <p className="text-xs text-slate-400 mt-0.5">
+                            <p className="text-xs text-white/70 mt-0.5">
                                 Custo: <span className="font-semibold text-white">{reward.costPoints} pts</span>
                                 {' · '}Saldo após:{' '}
                                 <span className="font-semibold text-white">
@@ -144,7 +144,7 @@ export default function RewardRedeemModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-slate-500 hover:text-white transition-colors p-1 cursor-pointer"
+                        className="text-white/50 hover:text-white transition-colors p-1 cursor-pointer"
                         aria-label="Fechar"
                     >
                         <span className="material-symbols-outlined text-[22px]">close</span>
@@ -153,8 +153,8 @@ export default function RewardRedeemModal({
 
                 {renewalText && (
                     <div className="mt-5 rounded-xl border border-slate-700/40 bg-slate-800/30 px-4 py-3">
-                        <p className="text-sm text-slate-200">{renewalText.headline}</p>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-sm text-white/90">{renewalText.headline}</p>
+                        <p className="text-xs text-white/50 mt-1">
                             Cupom aplicado na sua próxima renovação anual do DevQuest.
                         </p>
                     </div>
@@ -182,11 +182,11 @@ export default function RewardRedeemModal({
 
                 {isPhysical && (
                     <div className="mt-5 space-y-3">
-                        <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        <h4 className="text-xs font-semibold uppercase tracking-[2px] text-white/50">
                             Endereço de entrega
                         </h4>
                         {savedAddress && (
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-white/50">
                                 Endereço pré-preenchido com o último que você cadastrou.
                                 Pode editar antes de confirmar.
                             </p>
@@ -211,7 +211,7 @@ export default function RewardRedeemModal({
                         type="button"
                         onClick={onClose}
                         disabled={submitting}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+                        className="px-4 py-2 rounded-lg text-sm font-semibold text-white/80 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                     >
                         Cancelar
                     </button>

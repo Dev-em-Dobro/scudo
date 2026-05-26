@@ -1,50 +1,37 @@
 import type { MgmStatusCards } from '@/app/lib/mgm/service';
 import { getGuaranteeDays } from '@/app/lib/mgm/seasons';
-import { MGM_PURPLE, PANEL_SHADOW } from '@/app/indique-e-ganhe/components/theme';
+import { MGM_PURPLE } from '@/app/indique-e-ganhe/components/theme';
 
 interface StatusCardsProps {
     readonly data: MgmStatusCards;
 }
 
 interface SegmentProps {
-    readonly icon: string;
-    readonly iconClass?: string;
-    readonly iconColor?: string;
     readonly label: string;
     readonly value: number;
     readonly valueColor?: string;
     readonly hint: string;
+    readonly accentColor?: string;
 }
 
-function Segment({
-    icon,
-    iconClass,
-    iconColor,
-    label,
-    value,
-    valueColor,
-    hint,
-}: SegmentProps) {
+function Card({ label, value, valueColor, hint, accentColor }: SegmentProps) {
     return (
-        <div className="flex-1 px-5 py-5 sm:px-6">
-            <div className="flex items-center gap-2">
-                <span
-                    className={`material-symbols-outlined text-[20px] ${iconClass ?? ''}`}
-                    style={{ fontVariationSettings: "'FILL' 1", color: iconColor }}
-                >
-                    {icon}
-                </span>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                    {label}
-                </span>
-            </div>
+        <div
+            className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 transition-colors duration-200 hover:border-[#6528d3]"
+            style={accentColor ? { borderTopColor: accentColor, borderTopWidth: '2px' } : undefined}
+        >
+            <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                {label}_
+            </span>
             <p
-                className="mt-3 text-3xl font-bold tabular-nums leading-none"
+                className="mt-4 text-[40px] font-black tabular-nums leading-none [font-family:'Ubuntu',Helvetica]"
                 style={{ color: valueColor ?? '#ffffff' }}
             >
                 {value}
             </p>
-            <p className="mt-2 text-xs text-slate-500">{hint}</p>
+            <p className="mt-3 text-white/60 text-[14px] leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                {hint}
+            </p>
         </div>
     );
 }
@@ -53,28 +40,21 @@ export default function StatusCards({ data }: StatusCardsProps) {
     const guaranteeDays = getGuaranteeDays();
 
     return (
-        <div
-            className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-border-light dark:divide-border-dark"
-            style={{ boxShadow: PANEL_SHADOW }}
-        >
-            <Segment
-                icon="hourglass_top"
-                iconClass="text-amber-400"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card
                 label="Pendentes"
                 value={data.pendingCount}
                 hint={`${data.pointsPending} pts em garantia · ${guaranteeDays} dias`}
+                accentColor="#ff6b35"
             />
-            <Segment
-                icon="verified"
-                iconColor={MGM_PURPLE}
+            <Card
                 label="Disponíveis"
                 value={data.validCount}
                 valueColor={MGM_PURPLE}
                 hint={`${data.pointsAvailable} pts prontos pra resgatar`}
+                accentColor="#6528d3"
             />
-            <Segment
-                icon="redeem"
-                iconClass="text-slate-400"
+            <Card
                 label="Resgatados"
                 value={data.redeemedCount}
                 hint={
@@ -82,6 +62,7 @@ export default function StatusCards({ data }: StatusCardsProps) {
                         ? `${data.pointsSpent} pts gastos em prêmios`
                         : 'Troque seus pontos na aba Prêmios'
                 }
+                accentColor="#22c55e"
             />
         </div>
     );

@@ -55,11 +55,11 @@ function PasswordField({
 }: Readonly<PasswordFieldProps>) {
     return (
         <div className="space-y-1.5">
-            <label htmlFor={id} className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+            <label htmlFor={id} className="text-xs font-semibold text-white/80 uppercase tracking-wide">
                 {label}
             </label>
             <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                     lock
                 </span>
                 <input
@@ -67,14 +67,14 @@ function PasswordField({
                     type={visible ? "text" : "password"}
                     autoComplete="new-password"
                     placeholder={placeholder}
-                    className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                    className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary/40 transition-all"
                     {...registration(id)}
                 />
                 <button
                     type="button"
                     onClick={toggleVisibility}
                     aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
-                    className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-400 hover:text-primary transition-colors"
+                    className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-white/70 hover:text-[#a78bfa] transition-colors"
                 >
                     <span
                         className="material-symbols-outlined text-[18px]"
@@ -94,12 +94,12 @@ function InvalidTokenState() {
     return (
         <div className="w-full max-w-md space-y-4">
             <h1 className="text-2xl font-bold text-white">Link inválido</h1>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-white/80">
                 Este link de recuperação está incompleto ou expirou. Solicite um novo link para redefinir sua senha.
             </p>
             <Link
                 href="/recuperar-senha"
-                className="inline-flex items-center justify-center rounded-lg border border-primary bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center justify-center rounded-lg border border-[#6528d3] bg-[#6528d3] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#5020b0] transition-colors"
             >
                 Solicitar novo link
             </Link>
@@ -123,7 +123,7 @@ function SuccessState() {
 
             <Link
                 href="/login"
-                className="inline-flex items-center justify-center w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all"
+                className="inline-flex items-center justify-center w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all"
             >
                 Ir para login
             </Link>
@@ -175,7 +175,7 @@ export default function ResetPasswordForm({ token }: Readonly<ResetPasswordFormP
         <div className="w-full max-w-md">
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Definir nova senha</h1>
-                <p className="text-sm text-slate-300">Escolha uma nova senha para acessar sua conta.</p>
+                <p className="text-sm text-white/80">Escolha uma nova senha para acessar sua conta.</p>
             </div>
 
             {isDone ? (
@@ -214,15 +214,15 @@ export default function ResetPasswordForm({ token }: Readonly<ResetPasswordFormP
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="cursor-pointer w-full rounded-lg bg-primary hover:bg-primary/90 active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
+                        className="cursor-pointer w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
                     >
                         {isSubmitting ? "Redefinindo..." : "Redefinir senha"}
                     </button>
                 </form>
             )}
 
-            <p className="mt-7 text-sm text-slate-400">
-                <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+            <p className="mt-7 text-sm text-white/70">
+                <Link href="/login" className="font-semibold text-[#a78bfa] hover:text-[#a78bfa]/80 transition-colors">
                     Voltar para login
                 </Link>
             </p>

@@ -20,7 +20,7 @@ function SectionBlock({
     children,
 }: Readonly<{ title: string; icon: string; iconColor: string; children: React.ReactNode }>) {
     return (
-        <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+        <section className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5">
             <div className="flex items-center gap-2 mb-5">
                 <span
                     className={`material-symbols-outlined ${iconColor}`}
@@ -46,12 +46,12 @@ function DistributionBar({
 
     return (
         <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-slate-400 dark:text-slate-300 w-24 shrink-0">{label}</span>
-            <div className="flex-1 h-2 bg-slate-100 dark:bg-background-dark rounded-full overflow-hidden">
+            <span className="text-xs font-medium text-white/70 w-24 shrink-0">{label}</span>
+            <div className="flex-1 h-2 bg-[#0d0d0d] rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${bgClass}`} style={{ width: `${pct}%` }} />
             </div>
             <span className={`text-sm font-bold ${colorClass} w-8 text-right shrink-0`}>{value}</span>
-            <span className="text-xs text-slate-400 dark:text-slate-300 w-9 shrink-0">{pct}%</span>
+            <span className="text-xs text-white/70 w-9 shrink-0">{pct}%</span>
         </div>
     );
 }
@@ -116,8 +116,8 @@ function buildFitStats(jobs: AnalyticsJob[], knownTechnologies: string[]): FitSt
 function getAvgFitVisual(avgFit: number) {
     if (avgFit >= 70) {
         return {
-            color: 'text-primary',
-            iconBg: 'bg-primary/10',
+            color: 'text-[#a78bfa]',
+            iconBg: 'bg-[#6528d3]/10',
         };
     }
 
@@ -219,7 +219,7 @@ export default async function AnalyticsPage() {
                 ? `Compatibilidade média em ${fitStats.evaluableCount} vagas do recorte analisado.`
                 : 'Adicione habilidades ao perfil.',
             icon: 'target',
-            iconColor: fitStats.hasSkills ? avgFitVisual.color : 'text-slate-400',
+            iconColor: fitStats.hasSkills ? avgFitVisual.color : 'text-white/70',
             iconBg: fitStats.hasSkills ? avgFitVisual.iconBg : 'bg-slate-500/10',
             href: '/jobs',
         },
@@ -229,8 +229,8 @@ export default async function AnalyticsPage() {
             value: fitStats.hasSkills ? String(fitStats.highFitJobs) : '—',
             description: fitStats.hasSkills ? 'Vagas analisadas com compatibilidade ≥ 70%.' : 'Adicione habilidades ao perfil.',
             icon: 'verified',
-            iconColor: fitStats.hasSkills ? 'text-primary' : 'text-slate-400',
-            iconBg: fitStats.hasSkills ? 'bg-primary/10' : 'bg-slate-500/10',
+            iconColor: fitStats.hasSkills ? 'text-[#a78bfa]' : 'text-white/70',
+            iconBg: fitStats.hasSkills ? 'bg-[#6528d3]/10' : 'bg-slate-500/10',
             href: '/jobs',
         },
         {
@@ -239,42 +239,36 @@ export default async function AnalyticsPage() {
             value: fitStats.hasSkills ? String(fitStats.lowFitJobs) : '—',
             description: fitStats.hasSkills ? 'Vagas analisadas com compatibilidade abaixo de 50%.' : 'Adicione habilidades ao perfil.',
             icon: 'trending_down',
-            iconColor: fitStats.hasSkills ? 'text-red-400' : 'text-slate-400',
+            iconColor: fitStats.hasSkills ? 'text-red-400' : 'text-white/70',
             iconBg: fitStats.hasSkills ? 'bg-red-500/10' : 'bg-slate-500/10',
         },
     ];
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-black text-white [font-family:'Ubuntu',Helvetica] antialiased">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
+            <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-black">
                 <Header title="Radar de Mercado" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
-                    <section data-onboarding-id="analytics-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
-                        <div className="flex items-start gap-3">
-                            <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <span
-                                    className="material-symbols-outlined text-primary"
-                                    style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
-                                >
-                                    insights
-                                </span>
-                            </div>
-                            <div className="space-y-1">
-                                <h2 className="text-base md:text-lg font-bold text-white">Pare de adivinhar: veja o que o mercado realmente pede.</h2>
-                                <p className="text-base text-slate-300">
-                                    Acompanhe as vagas em alta e ajuste seu perfil com estratégia para aumentar suas chances de contratação.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
+                <div className="flex-1 overflow-visible lg:overflow-auto scrollbar-modern">
+                    <div className="w-full px-6 md:px-8 py-10 md:py-14 space-y-12">
+                        <section data-onboarding-id="analytics-overview">
+                            <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
+                                Radar de mercado_
+                            </span>
+                            <h1 className="mt-4 text-3xl md:text-[40px] font-black text-white leading-[1.1] [font-family:'Ubuntu',Helvetica]">
+                                Veja o que o mercado pede
+                            </h1>
+                            <p className="mt-5 text-white/70 text-[16px] leading-relaxed max-w-[60ch] [font-family:'Ubuntu',Helvetica]">
+                                Acompanhe as vagas em alta e ajuste seu perfil pra subir compatibilidade.
+                            </p>
+                        </section>
 
                     {/* Stat cards */}
                     <div data-onboarding-id="analytics-stats" className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {statCards.map((card) => {
-                            const cardClass = `bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4${'href' in card ? ' hover:border-primary/40 transition-colors cursor-pointer' : ''}`;
+                            const cardClass = `bg-[#1a1a1a] border border-[#333] rounded-xl p-5 flex items-start gap-4${'href' in card ? ' hover:border-[#6528d3]/40 transition-colors cursor-pointer' : ''}`;
                             const inner = (
                                 <>
                                     <div className={`shrink-0 w-10 h-10 rounded-lg ${card.iconBg} flex items-center justify-center`}>
@@ -286,9 +280,9 @@ export default async function AnalyticsPage() {
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">{card.title}</p>
+                                        <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">{card.title}</p>
                                         <p className="text-2xl font-bold text-white mt-0.5">{card.value}</p>
-                                        <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">{card.description}</p>
+                                        <p className="text-xs text-white/70 mt-1">{card.description}</p>
                                     </div>
                                 </>
                             );
@@ -298,56 +292,46 @@ export default async function AnalyticsPage() {
                         })}
                     </div>
 
-                    <div data-onboarding-id="analytics-skill-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
-                        <div className="flex items-start gap-3">
-                            <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                                <span
-                                    className="material-symbols-outlined text-amber-400"
-                                    style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}
-                                >
-                                    school
-                                </span>
-                            </div>
-                            <div className="space-y-1">
-                                <h2 className="text-base md:text-lg font-bold text-white">Seu plano de evolução no mercado</h2>
-                                <p className="text-base text-slate-300">
-                                    Veja as habilidades mais demandadas, seus gaps prioritários e o que estudar primeiro para subir sua compatibilidade.
-                                </p>
-                            </div>
-                        </div>
+                    <div data-onboarding-id="analytics-skill-overview">
+                        <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                            Plano de evolução_
+                        </span>
+                        <h2 className="mt-3 text-[24px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                            Habilidades em alta e seus gaps
+                        </h2>
                     </div>
 
                     <div data-onboarding-id="analytics-skill-stats" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div data-onboarding-id="analytics-skill-coverage" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
-                            <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-primary" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+                        <div data-onboarding-id="analytics-skill-coverage" className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5 flex items-start gap-4">
+                            <div className="shrink-0 w-10 h-10 rounded-lg bg-[#6528d3]/10 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-[#a78bfa]" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
                                     verified
                                 </span>
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Cobertura de Habilidades</p>
+                                <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Cobertura de Habilidades</p>
                                 <p className="text-2xl font-bold text-white mt-0.5">{`${skillDemandStats.coverage}%`}</p>
-                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Habilidades demandadas já dominadas no perfil.</p>
+                                <p className="text-xs text-white/70 mt-1">Habilidades demandadas já dominadas no perfil.</p>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 flex items-start gap-4">
+                        <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5 flex items-start gap-4">
                             <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                                 <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
                                     trending_up
                                 </span>
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-300 uppercase tracking-wide">Gaps Prioritários</p>
+                                <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Gaps Prioritários</p>
                                 <p className="text-2xl font-bold text-white mt-0.5">{String(skillDemandStats.topGaps.length)}</p>
-                                <p className="text-xs text-slate-400 dark:text-slate-300 mt-1">Habilidades para evolução imediata.</p>
+                                <p className="text-xs text-white/70 mt-1">Habilidades para evolução imediata.</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div data-onboarding-id="analytics-skill-ranking" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                        <div data-onboarding-id="analytics-skill-ranking" className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5">
                             <div className="flex items-center gap-2 mb-5">
-                                <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>bar_chart</span>
+                                <span className="material-symbols-outlined text-[#a78bfa]" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>bar_chart</span>
                                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">Ranking de Habilidades do Mercado</h2>
                             </div>
 
@@ -357,18 +341,18 @@ export default async function AnalyticsPage() {
                                         const barWidth = Math.round((item.demand / skillDemandStats.maxDemand) * 100);
                                         return (
                                             <div key={item.skill} className="flex items-center gap-3">
-                                                <span className="text-xs font-mono text-slate-400 dark:text-slate-300 w-5 text-right shrink-0">
+                                                <span className="text-xs font-mono text-white/70 w-5 text-right shrink-0">
                                                     {index + 1}
                                                 </span>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-sm font-mono font-medium text-slate-200 uppercase">
+                                                        <span className="text-sm font-mono font-medium text-white/90 uppercase">
                                                             {item.skill}
                                                         </span>
                                                         <div className="flex items-center gap-2 shrink-0 ml-3">
-                                                            <span className="text-xs text-slate-400 dark:text-slate-300">{item.demand} vagas</span>
+                                                            <span className="text-xs text-white/70">{item.demand} vagas</span>
                                                             {item.mastered ? (
-                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-violet-500/10 text-violet-400 border border-violet-500/30">
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-violet-500/10 text-[#a78bfa] border border-violet-500/30">
                                                                     <span className="material-symbols-outlined" style={{ fontSize: '11px', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                                                                     {' '}Dominada
                                                                 </span>
@@ -380,9 +364,9 @@ export default async function AnalyticsPage() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="h-1.5 bg-slate-100 dark:bg-background-dark rounded-full overflow-hidden">
+                                                    <div className="h-1.5 bg-[#0d0d0d] rounded-full overflow-hidden">
                                                         <div
-                                                            className={`h-full rounded-full ${item.mastered ? 'bg-primary' : 'bg-amber-500/60'}`}
+                                                            className={`h-full rounded-full ${item.mastered ? 'bg-[#6528d3]' : 'bg-amber-500/60'}`}
                                                             style={{ width: `${barWidth}%` }}
                                                         />
                                                     </div>
@@ -393,13 +377,13 @@ export default async function AnalyticsPage() {
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center gap-3 py-8 text-center">
-                                    <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 1" }}>psychology_alt</span>
-                                    <p className="text-sm font-medium text-slate-400 dark:text-slate-300">Ainda não há habilidades suficientes para análise.</p>
+                                    <span className="material-symbols-outlined text-4xl text-white/80 dark:text-white/50" style={{ fontVariationSettings: "'FILL' 1" }}>psychology_alt</span>
+                                    <p className="text-sm font-medium text-white/70">Ainda não há habilidades suficientes para análise.</p>
                                 </div>
                             )}
                         </div>
 
-                        <div data-onboarding-id="analytics-study-plan" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
+                        <div data-onboarding-id="analytics-study-plan" className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>school</span>
                                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">Plano de Estudo Sugerido</h2>
@@ -410,15 +394,15 @@ export default async function AnalyticsPage() {
                                     {skillDemandStats.topGaps.map((item, index) => (
                                         <div
                                             key={item.skill}
-                                            className="flex items-center gap-3 p-3 rounded-lg border border-border-light dark:border-border-dark bg-slate-50 dark:bg-background-dark hover:border-primary/30 transition-colors"
+                                            className="flex items-center gap-3 p-3 rounded-lg border border-[#333] bg-slate-50 bg-black hover:border-[#6528d3]/30 transition-colors"
                                         >
                                             <span className="shrink-0 w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xs font-bold text-amber-400">
                                                 {index + 1}
                                             </span>
-                                            <span className="flex-1 text-sm font-mono font-medium text-slate-200 uppercase">
+                                            <span className="flex-1 text-sm font-mono font-medium text-white/90 uppercase">
                                                 {item.skill}
                                             </span>
-                                            <span className="text-xs text-slate-400 dark:text-slate-300 shrink-0">
+                                            <span className="text-xs text-white/70 shrink-0">
                                                 {item.demand} {item.demand === 1 ? 'vaga' : 'vagas'}
                                             </span>
                                         </div>
@@ -426,9 +410,9 @@ export default async function AnalyticsPage() {
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center gap-3 py-8 text-center">
-                                    <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
-                                    <p className="text-sm font-medium text-slate-200">Você está bem alinhado!</p>
-                                    <p className="text-xs text-slate-400 dark:text-slate-300">Nenhum gap prioritário identificado no recorte atual de vagas.</p>
+                                    <span className="material-symbols-outlined text-4xl text-[#a78bfa]" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
+                                    <p className="text-sm font-medium text-white/90">Você está bem alinhado!</p>
+                                    <p className="text-xs text-white/70">Nenhum gap prioritário identificado no recorte atual de vagas.</p>
                                 </div>
                             )}
                         </div>
@@ -461,7 +445,7 @@ export default async function AnalyticsPage() {
                                         />
                                     );
                                 })}
-                                <p className="pt-1 text-xs text-slate-400 dark:text-slate-300">
+                                <p className="pt-1 text-xs text-white/70">
                                     Direção de especialização mais mencionada nas vagas do recorte atual.
                                 </p>
                             </div>
@@ -470,14 +454,14 @@ export default async function AnalyticsPage() {
 
                     {/* Distribuição por Compatibilidade */}
                     <div data-onboarding-id="analytics-fit-model">
-                        <SectionBlock title="Distribuição por Compatibilidade" icon="donut_large" iconColor="text-primary">
+                        <SectionBlock title="Distribuição por Compatibilidade" icon="donut_large" iconColor="text-[#a78bfa]">
                             {fitStats.hasSkills ? (
                                 <div className="space-y-3">
                                     <DistributionBar
                                         label="Alta (≥70%)"
                                         value={fitStats.highFitJobs}
                                         total={fitStats.evaluableCount}
-                                        colorClass="text-violet-400"
+                                        colorClass="text-[#a78bfa]"
                                         bgClass="bg-violet-400"
                                     />
                                     <DistributionBar
@@ -494,12 +478,12 @@ export default async function AnalyticsPage() {
                                         colorClass="text-red-400"
                                         bgClass="bg-red-400"
                                     />
-                                    <p className="pt-1 text-xs text-slate-400 dark:text-slate-300">
+                                    <p className="pt-1 text-xs text-white/70">
                                         Adendo: a compatibilidade considera apenas o recorte técnico do Radar (fontes, senioridade e stack mapeada).
                                     </p>
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-400 dark:text-slate-300">
+                                <p className="text-sm text-white/70">
                                     Faça upload do seu currículo ou adicione suas habilidades no perfil para ver a distribuição de compatibilidade.
                                 </p>
                             )}
@@ -507,6 +491,7 @@ export default async function AnalyticsPage() {
                     </div>
 
 
+                    </div>
                 </div>
             </main>
         </div>

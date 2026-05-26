@@ -53,7 +53,7 @@ const INITIAL_STATE: FeedbackFormState = {
 };
 
 function fieldClassName() {
-  return 'w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary';
+  return 'w-full rounded-lg border border-[#333] bg-background-light bg-black px-3 py-2.5 text-sm text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-[#6528d3]';
 }
 
 export default function FeedbackForm() {
@@ -123,7 +123,7 @@ export default function FeedbackForm() {
             </option>
           ))}
         </select>
-        <p className="text-xs text-slate-300">
+        <p className="text-xs text-white/80">
           {CATEGORY_OPTIONS.find((option) => option.value === form.category)?.helper}
         </p>
       </div>
@@ -228,7 +228,7 @@ export default function FeedbackForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-[#6528d3] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#5020b0] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? 'Enviando...' : 'Enviar feedback'}
       </button>

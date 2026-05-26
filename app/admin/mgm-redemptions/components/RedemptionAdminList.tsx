@@ -141,7 +141,7 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                 <h2 className="text-2xl font-bold text-white tracking-tight">
                     Fila de resgates
                 </h2>
-                <div className="inline-flex rounded-lg border border-border-light dark:border-border-dark p-1 bg-white dark:bg-surface-dark">
+                <div className="inline-flex rounded-lg border border-[#333] p-1 bg-[#1a1a1a]">
                     {FAMILY_OPTIONS.map((opt) => (
                         <button
                             key={opt.id}
@@ -149,8 +149,8 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                             onClick={() => setFilter(opt.id)}
                             className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
                                 filter === opt.id
-                                    ? 'bg-violet-500/20 text-violet-300'
-                                    : 'text-slate-400'
+                                    ? 'bg-violet-500/20 text-[#a78bfa]'
+                                    : 'text-white/70'
                             }`}
                         >
                             {opt.label}
@@ -169,8 +169,8 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
             />
 
             {recent.length > 0 && (
-                <details className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5">
-                    <summary className="text-sm font-semibold text-slate-300 cursor-pointer">
+                <details className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-5">
+                    <summary className="text-sm font-semibold text-white/80 cursor-pointer">
                         Histórico recente ({recent.length})
                     </summary>
                     <div className="mt-4">
@@ -187,9 +187,9 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                         if (e.target === e.currentTarget) setDeliveringId(null);
                     }}
                 >
-                    <div className="w-full max-w-md rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6">
+                    <div className="w-full max-w-md rounded-2xl border border-[#333] bg-[#1a1a1a] p-6">
                         <h3 className="text-lg font-bold text-white">Entregar prêmio digital</h3>
-                        <p className="text-xs text-slate-400 mt-1.5">
+                        <p className="text-xs text-white/70 mt-1.5">
                             Cole o código de cupom gerado na Hubla.
                         </p>
                         <input
@@ -197,14 +197,14 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
                             placeholder="Ex.: DEVQUEST30-XYZ"
-                            className="mt-4 w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark px-3 py-2 text-sm text-white font-mono"
+                            className="mt-4 w-full rounded-lg border border-[#333] bg-black px-3 py-2 text-sm text-white font-mono"
                             autoFocus
                         />
                         <div className="mt-5 flex gap-2 justify-end">
                             <button
                                 type="button"
                                 onClick={() => setDeliveringId(null)}
-                                className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white cursor-pointer"
+                                className="px-4 py-2 rounded-lg text-sm font-semibold text-white/80 hover:text-white cursor-pointer"
                             >
                                 Cancelar
                             </button>
@@ -229,11 +229,11 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                         if (e.target === e.currentTarget) setEditingShippingRow(null);
                     }}
                 >
-                    <div className="w-full max-w-lg rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern">
+                    <div className="w-full max-w-lg rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern">
                         <h3 className="text-lg font-bold text-white">
                             Editar endereço — {editingShippingRow.rewardName}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-white/70 mt-1">
                             Aluno: {editingShippingRow.userName} · {editingShippingRow.userEmail}
                         </p>
                         <div className="mt-5">
@@ -253,7 +253,7 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                                 type="button"
                                 onClick={() => setEditingShippingRow(null)}
                                 disabled={busy}
-                                className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white cursor-pointer disabled:opacity-50"
+                                className="px-4 py-2 rounded-lg text-sm font-semibold text-white/80 hover:text-white cursor-pointer disabled:opacity-50"
                             >
                                 Cancelar
                             </button>
@@ -294,8 +294,8 @@ function RedemptionTable({
 }: RedemptionTableProps) {
     if (rows.length === 0) {
         return (
-            <div className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-10 text-center">
-                <p className="text-sm text-slate-400">
+            <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-10 text-center">
+                <p className="text-sm text-white/70">
                     {historical ? 'Sem histórico ainda.' : 'Fila vazia. 🎉'}
                 </p>
             </div>
@@ -303,8 +303,8 @@ function RedemptionTable({
     }
 
     return (
-        <div className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden">
-            <ul className="divide-y divide-border-light dark:divide-border-dark">
+        <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] overflow-hidden">
+            <ul className="divide-y divide-[#333]">
                 {rows.map((row) => {
                     const canEditShipping =
                         !historical &&
@@ -317,22 +317,22 @@ function RedemptionTable({
                                 <div className="min-w-0 flex-1">
                                     <p className="text-sm font-semibold text-white">
                                         {row.rewardName}
-                                        <span className="ml-2 text-xs font-normal text-slate-500">
+                                        <span className="ml-2 text-xs font-normal text-white/50">
                                             · {row.costSnapshot} pts
                                         </span>
                                     </p>
-                                    <p className="text-xs text-slate-400 mt-1">
+                                    <p className="text-xs text-white/70 mt-1">
                                         {row.userName} · {row.userEmail}
                                     </p>
-                                    <p className="text-xs text-slate-500 mt-0.5">
+                                    <p className="text-xs text-white/50 mt-0.5">
                                         Solicitado:{' '}
                                         {new Date(row.requestedAt).toLocaleString('pt-BR')}
                                     </p>
                                     {row.shippingInfo && (
-                                        <div className="mt-2 text-xs text-slate-400 bg-slate-800/30 rounded px-3 py-2">
+                                        <div className="mt-2 text-xs text-white/70 bg-slate-800/30 rounded px-3 py-2">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="font-semibold text-slate-300">
+                                                    <p className="font-semibold text-white/80">
                                                         {row.shippingInfo.name}{' '}
                                                         {row.shippingInfo.phone &&
                                                             `· ${row.shippingInfo.phone}`}
@@ -344,7 +344,7 @@ function RedemptionTable({
                                                         {row.shippingInfo.zip}
                                                     </p>
                                                     {row.shippingInfo.notes && (
-                                                        <p className="text-slate-500 mt-1">
+                                                        <p className="text-white/50 mt-1">
                                                             Obs: {row.shippingInfo.notes}
                                                         </p>
                                                     )}
@@ -354,7 +354,7 @@ function RedemptionTable({
                                                         type="button"
                                                         onClick={() => onEditShipping!(row)}
                                                         disabled={busy}
-                                                        className="text-[11px] font-semibold text-violet-300 hover:text-violet-200 underline-offset-2 hover:underline cursor-pointer shrink-0 disabled:opacity-50"
+                                                        className="text-[11px] font-semibold text-[#a78bfa] hover:text-white underline-offset-2 hover:underline cursor-pointer shrink-0 disabled:opacity-50"
                                                     >
                                                         Editar
                                                     </button>
@@ -434,7 +434,7 @@ function StatusBadge({ status }: { status: MgmRedemptionAdminView['status'] }) {
         approved: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
         delivered: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
         rejected: 'bg-red-500/10 text-red-300 border-red-500/30',
-        cancelled: 'bg-slate-500/10 text-slate-300 border-slate-500/30',
+        cancelled: 'bg-slate-500/10 text-white/80 border-slate-500/30',
     };
     return (
         <span

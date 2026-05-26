@@ -238,15 +238,15 @@ export default function JobBoardResults({
                         </div>
                     </div>
 
-                    <div data-onboarding-id="jobs-pagination" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-4 rounded-xl">
-                        <p className="text-sm text-slate-400 dark:text-slate-300">
+                    <div data-onboarding-id="jobs-pagination" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-[#1a1a1a] border border-[#333] p-4 rounded-xl">
+                        <p className="text-sm text-white/70">
                             Mostrando <span className="font-semibold text-white">{startItem}–{endItem}</span> de <span className="font-semibold text-white">{filteredAndSortedJobs.length}</span> vagas
                         </p>
 
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
-                                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-background-dark text-slate-200 hover:border-primary/60 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
+                                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-[#333] rounded-lg bg-black text-white/90 hover:border-[#6528d3]/60 hover:text-[#a78bfa] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
                                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                                 disabled={activePage <= 1}
                             >
@@ -254,13 +254,13 @@ export default function JobBoardResults({
                                 {" "}Anterior
                             </button>
 
-                            <span className="text-sm text-slate-500 dark:text-slate-200 px-2">
+                            <span className="text-sm text-white/60 px-2">
                                 {activePage} / {totalPages}
                             </span>
 
                             <button
                                 type="button"
-                                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-background-dark text-slate-200 hover:border-primary/60 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
+                                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-[#333] rounded-lg bg-black text-white/90 hover:border-[#6528d3]/60 hover:text-[#a78bfa] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
                                 onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                                 disabled={activePage >= totalPages}
                             >
@@ -271,10 +271,10 @@ export default function JobBoardResults({
                     </div>
                 </>
             ) : (
-                <div data-onboarding-id="jobs-results" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-10 flex flex-col items-center gap-3 text-center">
-                    <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 1" }}>search_off</span>
-                    <p className="text-sm font-medium text-slate-200">Nenhuma vaga encontrada</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-300">Tente ajustar os filtros ou o termo de busca.</p>
+                <div data-onboarding-id="jobs-results" className="bg-[#1a1a1a] border border-[#333] rounded-xl p-10 flex flex-col items-center gap-3 text-center">
+                    <span className="material-symbols-outlined text-4xl text-white/80 dark:text-white/50" style={{ fontVariationSettings: "'FILL' 1" }}>search_off</span>
+                    <p className="text-sm font-medium text-white/90">Nenhuma vaga encontrada</p>
+                    <p className="text-xs text-white/70">Tente ajustar os filtros ou o termo de busca.</p>
                 </div>
             )}
         </div>

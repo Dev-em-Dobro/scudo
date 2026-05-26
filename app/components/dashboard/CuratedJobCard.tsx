@@ -49,7 +49,7 @@ const levelColor: Record<JobListItem["level"], string> = {
     JUNIOR: "bg-blue-500/15 text-blue-400 border-blue-500/30",
     PLENO: "bg-violet-950/60 text-violet-100 border-violet-700/60",
     SENIOR: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-    OUTRO: "bg-slate-500/15 text-slate-400 border-slate-500/30",
+    OUTRO: "bg-slate-500/15 text-white/70 border-slate-500/30",
 };
 
 const sourceLabel: Record<JobListItem["source"], string> = {
@@ -76,7 +76,7 @@ function timeAgo(date: Date | null | undefined): string {
 
 function getFitBadgeClass(pct: number, isEstimated: boolean) {
     if (isEstimated) {
-        return "bg-slate-800 dark:bg-slate-900 text-slate-400 border border-slate-500/40 border-dashed";
+        return "bg-slate-800 dark:bg-slate-900 text-white/70 border border-slate-500/40 border-dashed";
     }
     if (pct >= 80) return "bg-violet-950/60 text-violet-100 border border-violet-700/60";
     if (pct >= 50) return "bg-slate-800 dark:bg-slate-900 text-amber-400 border border-amber-500/40";
@@ -84,8 +84,8 @@ function getFitBadgeClass(pct: number, isEstimated: boolean) {
 }
 
 function getFitIconClass(pct: number, isEstimated: boolean) {
-    if (isEstimated) return "text-slate-400";
-    if (pct >= 80) return "text-violet-500";
+    if (isEstimated) return "text-white/70";
+    if (pct >= 80) return "text-[#a78bfa]";
     if (pct >= 50) return "text-amber-400";
     return "text-red-400";
 }
@@ -202,7 +202,7 @@ export default function CuratedJobCard({
 
     const fitBadge =
         fit.fitPercentage === null ? (
-            <div className={`${BADGE_BASE_CLASS} gap-1.5 px-3 bg-slate-800 dark:bg-slate-900 text-slate-500 border-slate-600/40 border-dashed`}>
+            <div className={`${BADGE_BASE_CLASS} gap-1.5 px-3 bg-slate-800 dark:bg-slate-900 text-white/50 border-slate-600/40 border-dashed`}>
                 <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>
                     {"help"}
                 </span>
@@ -223,7 +223,7 @@ export default function CuratedJobCard({
         );
 
     return (
-        <article className="group mb-3 last:mb-0 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md">
+        <article className="group mb-3 last:mb-0 bg-[#1a1a1a] border border-[#333] rounded-xl p-5 hover:border-slate-300 hover:border-[#6528d3] hover:shadow-md">
             {/*
               Mobile: 1ª linha = compatibilidade à esquerda; depois título+nível e empresa.
               sm+: título+nível | compatibilidade (topo); empresa abaixo à esquerda.
@@ -244,14 +244,14 @@ export default function CuratedJobCard({
                     </span>
                 </div>
 
-                <p className="col-start-1 row-start-3 text-sm text-slate-400 dark:text-slate-300 sm:row-start-2 sm:col-start-1 flex items-center gap-1 flex-wrap">
+                <p className="col-start-1 row-start-3 text-sm text-white/70 sm:row-start-2 sm:col-start-1 flex items-center gap-1 flex-wrap">
                     <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>
                         business
                     </span>
                     <span>{job.companyName}</span>
                     {job.location && (
                         <>
-                            <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
+                            <span className="text-white/80 dark:text-white/50 mx-0.5">•</span>
                             <span className="material-symbols-outlined leading-none" style={{ fontSize: "15px" }}>
                                 location_on
                             </span>
@@ -260,7 +260,7 @@ export default function CuratedJobCard({
                     )}
                     {job.isRemote && !job.location && (
                         <>
-                            <span className="text-slate-300 dark:text-slate-500 mx-0.5">•</span>
+                            <span className="text-white/80 dark:text-white/50 mx-0.5">•</span>
                             <span>Remoto</span>
                         </>
                     )}
@@ -269,13 +269,13 @@ export default function CuratedJobCard({
 
             {/* Meta row */}
             <div className="mt-3 flex items-center gap-5 text-xs font-medium tracking-wide">
-                <span className="text-slate-400 dark:text-slate-300 uppercase">
+                <span className="text-white/70 uppercase">
                     Fonte:{" "}
-                    <span className="text-slate-500 dark:text-slate-200 normal-case font-semibold tracking-normal">{sourceLabel[job.source]}</span>
+                    <span className="text-white/60 normal-case font-semibold tracking-normal">{sourceLabel[job.source]}</span>
                 </span>
-                <span className="text-slate-400 dark:text-slate-300 uppercase">
+                <span className="text-white/70 uppercase">
                     Publicada:{" "}
-                    <span className="text-slate-500 dark:text-slate-200 normal-case font-semibold tracking-normal">{timeAgo(publishedDate)}</span>
+                    <span className="text-white/60 normal-case font-semibold tracking-normal">{timeAgo(publishedDate)}</span>
                 </span>
             </div>
 
@@ -285,7 +285,7 @@ export default function CuratedJobCard({
                     {job.stack.map((tag) => (
                         <span
                             key={`${job.id}-${tag}`}
-                            className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-400 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
+                            className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-white/70 bg-[#0d0d0d] border border-slate-200 border-[#333] rounded-md"
                         >
                             {tag.toUpperCase()}
                         </span>
@@ -300,7 +300,7 @@ export default function CuratedJobCard({
                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>warning</span>
                         {" "}Habilidades insuficientes
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-white/70">
                         O nível desta vaga é superior ao seu estágio atual. Priorize adquirir as habilidades abaixo antes de se candidatar.
                     </p>
                     {fit.missingSkills.length > 0 && (
@@ -320,18 +320,18 @@ export default function CuratedJobCard({
 
             {showSkillGapAlert && isBlockedByRank && (
                 <div className="mt-4 p-3 rounded-lg border border-violet-500/30 bg-violet-500/5">
-                    <p className="text-xs font-bold text-violet-300 uppercase mb-1.5 flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-[#a78bfa] uppercase mb-1.5 flex items-center gap-1.5">
                         <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>lock</span>
                         {' '}Candidatura bloqueada por rank
                     </p>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-white/80">
                         Para vagas de nível {levelLabel[job.level].toLowerCase()}, é necessário chegar ao rank Lendário na Jornada.
                     </p>
                 </div>
             )}
 
             {/* Actions row */}
-            <div className="mt-4 pt-3.5 border-t border-border-light dark:border-border-dark space-y-3">
+            <div className="mt-4 pt-3.5 border-t border-[#333] space-y-3">
                 {reportFeedback.kind !== 'idle' && reportFeedback.message ? (
                     <div
                         className={`rounded-lg border px-3 py-2 text-xs font-medium ${reportFeedback.kind === 'success'
@@ -369,7 +369,7 @@ export default function CuratedJobCard({
                         <button
                             type="button"
                             onClick={() => setReportMenuOpen((open) => !open)}
-                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-border-light dark:border-border-dark px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-[#333] px-3 py-2 text-xs font-semibold text-white/80 transition-colors hover:border-amber-500/50 hover:text-amber-300"
                             aria-expanded={reportMenuOpen}
                             aria-controls={`job-report-menu-${job.id}`}
                         >
@@ -380,7 +380,7 @@ export default function CuratedJobCard({
                         <button
                             type="button"
                             onClick={handleApplyClick}
-                            className="cursor-pointer px-5 py-2 bg-primary hover:bg-primary/90 active:scale-95 text-white text-xs font-bold rounded-lg uppercase tracking-wide transition-all duration-150 shadow-sm shadow-primary/20"
+                            className="cursor-pointer px-5 py-2 bg-[#6528d3] hover:bg-[#5020b0] active:scale-95 text-white text-xs font-bold rounded-lg uppercase tracking-wide transition-all duration-150 shadow-sm shadow-primary/20"
                         >
                             Candidatar
                         </button>
@@ -388,8 +388,8 @@ export default function CuratedJobCard({
                 </div>
 
                 {reportMenuOpen ? (
-                    <div id={`job-report-menu-${job.id}`} className="rounded-xl border border-border-light dark:border-border-dark bg-background-light/90 dark:bg-background-dark/90 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-300 mb-3">
+                    <div id={`job-report-menu-${job.id}`} className="rounded-xl border border-[#333] bg-background-light/90 bg-black/90 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-white/70 mb-3">
                             Marque apenas se a vaga realmente estiver indisponível.
                         </p>
                         <div className="grid gap-2 sm:grid-cols-3">
@@ -399,10 +399,10 @@ export default function CuratedJobCard({
                                     type="button"
                                     disabled={reportingReason !== null}
                                     onClick={() => void handleReportClick(option.value)}
-                                    className="cursor-pointer rounded-lg border border-border-light dark:border-border-dark px-3 py-2 text-left transition-colors hover:border-amber-500/40 hover:bg-amber-500/5 disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="cursor-pointer rounded-lg border border-[#333] px-3 py-2 text-left transition-colors hover:border-amber-500/40 hover:bg-amber-500/5 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <span className="block text-sm font-semibold text-white">{option.label}</span>
-                                    <span className="mt-1 block text-xs text-slate-400">{option.helper}</span>
+                                    <span className="mt-1 block text-xs text-white/70">{option.helper}</span>
                                 </button>
                             ))}
                         </div>

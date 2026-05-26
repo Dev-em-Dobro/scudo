@@ -28,7 +28,7 @@ export default function DailyStreakAnnouncementModal() {
                                     Nova feature: streak diário para manter sua constância
                                 </h2>
                             </div>
-                            <p className="text-sm text-slate-300">
+                            <p className="text-sm text-white/80">
                                 Ao concluir pelo menos uma tarefa da Jornada por dia, você mantém sua sequência.
                                 Esse hábito é importante para sustentar o ritmo de estudos e evoluir de forma
                                 contínua.
@@ -37,7 +37,7 @@ export default function DailyStreakAnnouncementModal() {
                         <button
                             onClick={dismissStreakAnnouncement}
                             aria-label="Fechar aviso de streak diário"
-                            className="shrink-0 text-slate-400 hover:text-white transition-colors cursor-pointer mt-0.5"
+                            className="shrink-0 text-white/70 hover:text-white transition-colors cursor-pointer mt-0.5"
                         >
                             <span className="material-symbols-outlined text-xl">close</span>
                         </button>
@@ -67,7 +67,7 @@ export default function DailyStreakAnnouncementModal() {
                     <button
                         type="button"
                         onClick={dismissStreakAnnouncement}
-                        className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center rounded-lg bg-[#6528d3] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#5020b0] transition-colors cursor-pointer"
                     >
                         Entendi
                     </button>

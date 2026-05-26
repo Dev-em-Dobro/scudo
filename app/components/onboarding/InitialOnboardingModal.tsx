@@ -600,53 +600,53 @@ export default function InitialOnboardingModal() {
             className="fixed inset-0 z-70 m-0 h-dvh w-screen max-h-none max-w-none border-0 bg-slate-950/80 p-0 backdrop-blur-[2px]"
         >
             <div className="flex min-h-full items-end justify-center px-3 py-4 sm:items-center sm:px-6">
-                <div className="w-full max-w-2xl max-h-[88dvh] overflow-y-auto rounded-xl sm:rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-2xl">
-                    <div className="px-6 py-5 border-b border-border-light dark:border-border-dark bg-linear-to-r from-primary/20 via-primary/10 to-transparent">
+                <div className="w-full max-w-2xl max-h-[88dvh] overflow-y-auto rounded-xl sm:rounded-2xl border border-[#333] bg-[#1a1a1a] shadow-2xl">
+                    <div className="px-6 py-5 border-b border-[#333] bg-linear-to-r from-primary/20 via-primary/10 to-transparent">
                         <h2 id="onboarding-title" className="text-xl font-bold text-white tracking-tight">
                             {tutorial.title}
                         </h2>
-                        <p className="mt-1 text-sm text-slate-300">{tutorial.description}</p>
+                        <p className="mt-1 text-sm text-white/80">{tutorial.description}</p>
                     </div>
 
                     <div className="px-6 py-5 space-y-4">
                         {mode === 'welcome' ? (
                             <div className="space-y-4">
-                                <p className="text-sm text-slate-300">
+                                <p className="text-sm text-white/80">
                                     Esse guia rápido ajuda você a entender o caminho ideal para começar. Você pode pular agora e voltar depois.
                                 </p>
                                 {guidedEnabled && (
-                                    <p className="text-sm text-slate-300">
+                                    <p className="text-sm text-white/80">
                                         O modo guiado destaca as áreas da interface durante cada passo para facilitar a navegação.
                                     </p>
                                 )}
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-white/70">
                                     Dica: quando o tutorial em vídeo estiver disponível, ele aparecerá como um passo desta experiência.
                                 </p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between gap-3">
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-[#a78bfa]">
                                         Passo {currentStep + 1} de {totalSteps}
                                     </p>
-                                    <p className="text-xs text-slate-400">{activeStep.type === 'video' ? 'Etapa de vídeo' : 'Etapa de orientação'}</p>
+                                    <p className="text-xs text-white/70">{activeStep.type === 'video' ? 'Etapa de vídeo' : 'Etapa de orientação'}</p>
                                 </div>
 
                                 <div className="h-1.5 rounded-full bg-slate-800/70 overflow-hidden">
                                     <div
-                                        className="h-full bg-primary transition-all"
+                                        className="h-full bg-[#6528d3] transition-all"
                                         style={{ width: `${((currentStep + 1) / Math.max(totalSteps, 1)) * 100}%` }}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <h3 className="text-base font-semibold text-white">{activeStep.title}</h3>
-                                    <p className="text-sm text-slate-300">{activeStep.description}</p>
+                                    <p className="text-sm text-white/80">{activeStep.description}</p>
 
                                     {activeStep.type === 'video' && (
-                                        <div className="rounded-lg border border-dashed border-border-light dark:border-border-dark p-3 text-xs text-slate-400">
+                                        <div className="rounded-lg border border-dashed border-[#333] p-3 text-xs text-white/70">
                                             {activeStep.videoUrl ? (
-                                                <a href={activeStep.videoUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                                                <a href={activeStep.videoUrl} target="_blank" rel="noreferrer" className="text-[#a78bfa] hover:underline">
                                                     Assistir vídeo explicativo
                                                 </a>
                                             ) : (
@@ -659,12 +659,12 @@ export default function InitialOnboardingModal() {
                         )}
                     </div>
 
-                    <div className="px-6 py-4 border-t border-border-light dark:border-border-dark flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="px-6 py-4 border-t border-[#333] flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
                         <button
                             type="button"
                             onClick={() => void handleSkip()}
                             disabled={isSubmitting}
-                            className="cursor-pointer text-sm font-medium text-slate-300 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="cursor-pointer text-sm font-medium text-white/80 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Pular por agora
                         </button>
@@ -674,7 +674,7 @@ export default function InitialOnboardingModal() {
                                 type="button"
                                 onClick={() => void handleStart()}
                                 disabled={isSubmitting}
-                                className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-[#6528d3] px-4 py-2 text-sm font-semibold text-white hover:bg-[#5020b0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {guidedEnabled ? 'Começar tour guiado' : 'Começar tutorial'}
                             </button>
@@ -684,7 +684,7 @@ export default function InitialOnboardingModal() {
                                     type="button"
                                     onClick={() => void handlePrevious()}
                                     disabled={isSubmitting || currentStep === 0}
-                                    className="cursor-pointer inline-flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-lg border border-[#333] px-3 py-2 text-sm font-medium text-white/80 hover:text-white hover:border-[#6528d3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Anterior
                                 </button>
@@ -692,7 +692,7 @@ export default function InitialOnboardingModal() {
                                     type="button"
                                     onClick={() => void handleNext()}
                                     disabled={isSubmitting}
-                                    className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-[#6528d3] px-4 py-2 text-sm font-semibold text-white hover:bg-[#5020b0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {currentStep >= totalSteps - 1 ? 'Concluir' : 'Próximo'}
                                 </button>

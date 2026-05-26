@@ -137,13 +137,13 @@ export default function RegulamentoModal({
                 aria-modal="true"
                 aria-label="Regulamento do programa Indique e Ganhe"
                 style={{ boxShadow: PANEL_SHADOW }}
-                className={`relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark transition-all duration-200 ${
+                className={`relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-[#333] bg-[#1a1a1a] transition-all duration-200 ${
                     shown ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-[0.98]'
                 }`}
             >
-                <div className="flex items-center justify-between gap-3 px-6 md:px-7 py-4 border-b border-border-light dark:border-border-dark shrink-0">
+                <div className="flex items-center justify-between gap-3 px-6 md:px-7 py-4 border-b border-[#333] shrink-0">
                     <div>
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        <span className="text-[11px] font-semibold uppercase tracking-[2px] text-white/50">
                             Indique e Ganhe
                         </span>
                         <h2 className="text-base md:text-lg font-bold text-white tracking-tight">
@@ -154,7 +154,7 @@ export default function RegulamentoModal({
                         type="button"
                         onClick={onClose}
                         aria-label="Fechar"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer active:scale-[0.95]"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors cursor-pointer active:scale-[0.95]"
                     >
                         <span className="material-symbols-outlined text-[20px]">close</span>
                     </button>
@@ -164,17 +164,17 @@ export default function RegulamentoModal({
                     {secoes.map((secao) => (
                         <section key={secao.titulo} className="space-y-1.5">
                             <h3
-                                className="text-[11px] font-bold uppercase tracking-[0.14em]"
+                                className="text-[11px] font-bold uppercase tracking-[2px]"
                                 style={{ color: MGM_PURPLE }}
                             >
                                 {secao.titulo}
                             </h3>
-                            <p className="text-sm text-slate-300 leading-relaxed max-w-[64ch]">
+                            <p className="text-sm text-white/80 leading-relaxed max-w-[64ch]">
                                 {secao.corpo}
                             </p>
                         </section>
                     ))}
-                    <p className="text-xs text-slate-500 pt-3 border-t border-border-light dark:border-border-dark">
+                    <p className="text-xs text-white/50 pt-3 border-t border-[#333]">
                         Dúvidas? Fale com a equipe de Sucesso do Aluno da Dobro.
                     </p>
                 </div>

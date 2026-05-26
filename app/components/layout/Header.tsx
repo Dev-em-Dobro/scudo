@@ -191,7 +191,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     return (
         <>
             <InitialOnboardingModal />
-            <header className="bg-white dark:bg-surface-dark border-b border-border-light dark:border-border-dark h-16 flex items-center justify-between gap-3 px-4 sm:px-6 shrink-0 min-w-0">
+            <header className="bg-[#1a1a1a] border-b border-[#333] h-16 flex items-center justify-between gap-3 px-4 sm:px-6 shrink-0 min-w-0">
                 <div className="flex items-center gap-2 min-w-0 flex-1 lg:hidden">
                     <Link href="/" className="min-w-0 shrink" aria-label="Ir para o início">
                         <BrandLogo className="min-w-0" logoClassName="h-8 w-8 sm:h-9 sm:w-9" titleClassName="h-4 w-auto" />
@@ -206,7 +206,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                 <div className="flex items-center gap-2 shrink-0">
                     <button
                         type="button"
-                        className="lg:hidden shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-light/60 dark:border-border-dark text-slate-300 hover:text-white hover:border-violet-400/40 transition-colors cursor-pointer"
+                        className="lg:hidden shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-light/60 border-[#333] text-white/80 hover:text-white hover:border-[#6528d3] transition-colors cursor-pointer"
                         aria-label="Abrir menu"
                         aria-expanded={mobileNavOpen}
                         onClick={() => setMobileNavOpen(true)}
@@ -220,7 +220,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                         <button
                             type="button"
                             onClick={openStreakModal}
-                            className="hidden md:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-orange-300 hover:border-orange-400/40 transition-colors cursor-pointer"
+                            className="hidden md:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 border-[#333] px-3 text-white/80 hover:text-orange-300 hover:border-orange-400/40 transition-colors cursor-pointer"
                             aria-label="Abrir modal de streak diário"
                             title={`${streakInfoTitle} Clique para abrir os detalhes do streak.`}
                         >
@@ -238,7 +238,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                         onClick={openTutorial}
                         aria-label="Assistir tutorial"
                         title="Assistir tutorial"
-                        className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 dark:border-border-dark px-3 text-slate-300 hover:text-violet-400 hover:border-violet-400/40 transition-colors cursor-pointer"
+                        className="hidden lg:inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border-light/60 border-[#333] px-3 text-white/80 hover:text-[#a78bfa] hover:border-[#6528d3] transition-colors cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>
                             play_circle
@@ -270,11 +270,11 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                         </button>
 
                         {open && (
-                            <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
+                            <div className="absolute right-0 top-12 z-50 w-60 rounded-xl border border-[#333] bg-[#1a1a1a] shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
                                 {/* Cabeçalho do menu */}
-                                <div className="px-4 py-3 border-b border-border-light dark:border-border-dark">
+                                <div className="px-4 py-3 border-b border-[#333]">
                                     <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                                    <p className="text-xs text-slate-400 dark:text-slate-300 truncate mt-0.5">{user.email}</p>
+                                    <p className="text-xs text-white/70 dark:text-white/80 truncate mt-0.5">{user.email}</p>
                                 </div>
 
                                 {/* Ações */}
@@ -307,14 +307,14 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                         onClick={() => setMobileNavOpen(false)}
                     />
                     <nav
-                        className="absolute left-0 top-0 bottom-0 w-[min(20rem,92vw)] bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shadow-2xl flex flex-col"
+                        className="absolute left-0 top-0 bottom-0 w-[min(20rem,92vw)] bg-[#1a1a1a] border-r border-[#333] shadow-2xl flex flex-col"
                         aria-label="Menu principal"
                     >
-                        <div className="flex items-center justify-between h-16 px-4 border-b border-border-light dark:border-border-dark shrink-0">
+                        <div className="flex items-center justify-between h-16 px-4 border-b border-[#333] shrink-0">
                             <span className="text-sm font-bold text-white tracking-tight">Menu</span>
                             <button
                                 type="button"
-                                className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-white/5 cursor-pointer"
+                                className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
                                 aria-label="Fechar menu"
                                 onClick={() => setMobileNavOpen(false)}
                             >
@@ -334,8 +334,8 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                         data-onboarding-id={getOnboardingNavId(item.href)}
                                         onClick={() => setMobileNavOpen(false)}
                                         className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${isActive
-                                            ? 'text-primary bg-primary/15 border-l-2 border-primary'
-                                            : 'text-slate-300 hover:bg-primary/10 hover:text-primary border-l-2 border-transparent'
+                                            ? 'text-[#a78bfa] bg-[#6528d3]/15 border-l-2 border-[#6528d3]'
+                                            : 'text-white/80 hover:bg-[#6528d3]/10 hover:text-[#a78bfa] border-l-2 border-transparent'
                                             }`}
                                     >
                                         <span
@@ -355,7 +355,7 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                         setMobileNavOpen(false);
                                         openStreakModal();
                                     }}
-                                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-300 hover:bg-primary/10 hover:text-primary border-l-2 border-transparent transition-colors"
+                                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-white/80 hover:bg-[#6528d3]/10 hover:text-[#a78bfa] border-l-2 border-transparent transition-colors"
                                 >
                                     <span
                                         className="material-symbols-outlined text-[20px] shrink-0 text-orange-400"
@@ -374,10 +374,10 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
                                     setMobileNavOpen(false);
                                     openTutorial();
                                 }}
-                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-300 hover:bg-primary/10 hover:text-primary border-l-2 border-transparent transition-colors"
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-white/80 hover:bg-[#6528d3]/10 hover:text-[#a78bfa] border-l-2 border-transparent transition-colors"
                             >
                                 <span
-                                    className="material-symbols-outlined text-[20px] shrink-0 text-violet-400"
+                                    className="material-symbols-outlined text-[20px] shrink-0 text-[#a78bfa]"
                                     style={{ fontVariationSettings: "'FILL' 0" }}
                                 >
                                     smart_display

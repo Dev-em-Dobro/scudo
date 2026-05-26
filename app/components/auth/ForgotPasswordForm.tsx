@@ -92,16 +92,16 @@ export default function ForgotPasswordForm() {
         <div className="w-full max-w-md">
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Recuperar senha</h1>
-                <p className="text-sm text-slate-300">Digite seu e-mail para receber o link de redefinição.</p>
+                <p className="text-sm text-white/80">Digite seu e-mail para receber o link de redefinição.</p>
             </div>
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
                 <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                    <label htmlFor="email" className="text-xs font-semibold text-white/80 uppercase tracking-wide">
                         E-mail
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                             mail
                         </span>
                         <input
@@ -109,7 +109,7 @@ export default function ForgotPasswordForm() {
                             type="email"
                             autoComplete="email"
                             placeholder="seu@email.com"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary/40 transition-all"
                             {...register("email")}
                         />
                     </div>
@@ -122,15 +122,15 @@ export default function ForgotPasswordForm() {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="cursor-pointer w-full rounded-lg bg-primary hover:bg-primary/90 active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
+                    className="cursor-pointer w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
                 >
                     {isSubmitting ? "Enviando..." : "Enviar link de recuperação"}
                 </button>
             </form>
 
-            <p className="mt-7 text-sm text-slate-400">
+            <p className="mt-7 text-sm text-white/70">
                 Lembrou sua senha?{" "}
-                <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+                <Link href="/login" className="font-semibold text-[#a78bfa] hover:text-[#a78bfa]/80 transition-colors">
                     Voltar para login
                 </Link>
             </p>

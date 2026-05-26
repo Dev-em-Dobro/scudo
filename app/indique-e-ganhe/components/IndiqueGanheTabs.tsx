@@ -9,7 +9,6 @@ import type { RankingResult } from '@/app/lib/mgm/ranking';
 import IndicacaoTab from '@/app/indique-e-ganhe/components/IndicacaoTab';
 import PremiosTab from '@/app/indique-e-ganhe/components/PremiosTab';
 import RankingTab from '@/app/indique-e-ganhe/components/RankingTab';
-import { MGM_PURPLE } from '@/app/indique-e-ganhe/components/theme';
 
 interface IndiqueGanheTabsProps {
     readonly code: string;
@@ -29,10 +28,10 @@ interface IndiqueGanheTabsProps {
 
 type TabId = 'indicacao' | 'premios' | 'ranking';
 
-const TABS: ReadonlyArray<{ id: TabId; label: string; icon: string }> = [
-    { id: 'indicacao', label: 'Indicação', icon: 'share' },
-    { id: 'premios', label: 'Prêmios', icon: 'card_giftcard' },
-    { id: 'ranking', label: 'Ranking', icon: 'leaderboard' },
+const TABS: ReadonlyArray<{ id: TabId; label: string }> = [
+    { id: 'indicacao', label: 'Indicação' },
+    { id: 'premios', label: 'Prêmios' },
+    { id: 'ranking', label: 'Ranking' },
 ];
 
 export default function IndiqueGanheTabs({
@@ -53,11 +52,11 @@ export default function IndiqueGanheTabs({
     const [active, setActive] = useState<TabId>('indicacao');
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-8">
             <div
                 role="tablist"
                 aria-label="Seções do programa Indique e Ganhe"
-                className="flex gap-6 border-b border-border-light dark:border-border-dark"
+                className="flex gap-8 border-b border-[#333]"
             >
                 {TABS.map((tab) => {
                     const isActive = tab.id === active;
@@ -68,25 +67,12 @@ export default function IndiqueGanheTabs({
                             role="tab"
                             aria-selected={isActive}
                             onClick={() => setActive(tab.id)}
-                            style={
+                            className={`pb-4 -mb-px border-b-2 text-[12px] font-bold uppercase tracking-[2px] transition-colors duration-200 cursor-pointer [font-family:'Ubuntu',Helvetica] ${
                                 isActive
-                                    ? { color: MGM_PURPLE, borderColor: MGM_PURPLE }
-                                    : undefined
-                            }
-                            className={`group inline-flex items-center gap-2 pb-3 -mb-px border-b-2 text-sm font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] ${
-                                isActive
-                                    ? ''
-                                    : 'border-transparent text-slate-500 hover:text-slate-200'
+                                    ? 'border-[#6528d3] text-white'
+                                    : 'border-transparent text-white/50 hover:text-white'
                             }`}
                         >
-                            <span
-                                className="material-symbols-outlined text-[19px] transition-transform duration-200 group-hover:-translate-y-px"
-                                style={{
-                                    fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
-                                }}
-                            >
-                                {tab.icon}
-                            </span>
                             {tab.label}
                         </button>
                     );

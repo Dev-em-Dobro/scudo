@@ -106,11 +106,11 @@ export default function ClampedHelpTooltip({
                     width: layout.width,
                     zIndex: 9999,
                 }}
-                className="pointer-events-auto relative max-h-[min(70vh,28rem)] scale-100 overflow-y-auto rounded-xl border border-emerald-500/40 bg-gradient-to-b from-slate-800/98 to-slate-950/98 px-3.5 py-3 text-left text-[11px] leading-relaxed text-slate-100 opacity-100 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.65),0_0_0_1px_rgba(16,185,129,0.15)] ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-150 ease-out"
+                className="pointer-events-auto relative max-h-[min(70vh,28rem)] scale-100 overflow-y-auto rounded-xl border border-emerald-500/40 bg-gradient-to-b from-slate-800/98 to-slate-950/98 px-3.5 py-3 text-left text-[11px] leading-relaxed text-white/90 opacity-100 shadow-[0_12px_40px_-4px_rgba(0,0,0,0.65),0_0_0_1px_rgba(16,185,129,0.15)] ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-150 ease-out"
                 onMouseEnter={openTooltip}
                 onMouseLeave={scheduleClose}
             >
-                <div className="text-slate-200">{children}</div>
+                <div className="text-white/90">{children}</div>
                 <span
                     className="absolute top-full -mt-px h-2.5 w-2.5 rotate-45 border border-emerald-500/40 border-t-0 border-l-0 bg-slate-950 shadow-sm"
                     style={{ left: layout.arrowLeft }}

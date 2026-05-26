@@ -7,10 +7,10 @@ import { auth } from "@/app/lib/auth";
 import { isStudentVerifiedAuthOnlyEnabled } from "@/app/lib/featureFlags";
 
 const HIGHLIGHTS = [
-    { icon: "school", label: "Acesso exclusivo para alunos da plataforma" },
-    { icon: "auto_awesome", label: "Compatibilidade com vagas calculada pela sua stack" },
-    { icon: "work_outline", label: "Vagas selecionadas para você todo dia" },
-    { icon: "bar_chart", label: "Métricas do mercado em tempo real" },
+    "Acesso exclusivo pra aluno da plataforma",
+    "Matching de vagas pela sua stack",
+    "Vagas selecionadas todo dia",
+    "Métricas do mercado em tempo real",
 ];
 
 export default async function AcessoPage() {
@@ -25,56 +25,36 @@ export default async function AcessoPage() {
     }
 
     return (
-        <main className="min-h-screen bg-background-dark flex">
+        <main className="min-h-screen bg-black flex [font-family:'Ubuntu',Helvetica]">
             {/* Painel de marca — oculto em mobile */}
-            <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col justify-between p-12 border-r border-border-dark relative overflow-hidden">
-                <div className="absolute inset-0 bg-linear-to-br from-emerald-950/60 via-background-dark to-background-dark pointer-events-none" />
-                <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col justify-between p-12 border-r border-[#333] bg-[#0d0d0d]">
+                <BrandLogo logoClassName="h-10 w-auto" titleClassName="h-7 w-auto" priority />
 
-                {/* Logo */}
-                <BrandLogo className="relative" logoClassName="h-10 w-auto" titleClassName="h-7 w-auto" priority />
-
-                {/* Hero */}
-                <div className="relative space-y-6">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5">
-                        <span
-                            className="material-symbols-outlined text-emerald-400 text-sm"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            school
+                <div className="space-y-8">
+                    <div>
+                        <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
+                            Área exclusiva_
                         </span>
-                        <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
-                            Área exclusiva de alunos
-                        </span>
+                        <h1 className="mt-4 text-[40px] font-black text-white leading-[1.05] [font-family:'Ubuntu',Helvetica]">
+                            Sua central de oportunidades
+                        </h1>
+                        <p className="mt-5 text-white/70 text-[16px] leading-relaxed max-w-xs [font-family:'Ubuntu',Helvetica]">
+                            Como aluno, você tem acesso prioritário ao Scudo.
+                        </p>
                     </div>
-
-                    <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
-                        Como aluno da nossa plataforma, você tem acesso prioritário
-                        ao Scudo — sua central de oportunidades personalizada.
-                    </p>
 
                     <ul className="space-y-3">
                         {HIGHLIGHTS.map((h) => (
-                            <li key={h.label} className="flex items-center gap-3">
-                                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/15 shrink-0">
-                                    <span
-                                        className="material-symbols-outlined text-emerald-400 text-base"
-                                        style={{ fontVariationSettings: "'FILL' 1" }}
-                                    >
-                                        {h.icon}
-                                    </span>
-                                </span>
-                                <span className="text-sm text-slate-200">{h.label}</span>
+                            <li key={h} className="flex items-start gap-3">
+                                <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-[#6528d3] shrink-0" />
+                                <span className="text-[14px] text-white/80 [font-family:'Ubuntu',Helvetica]">{h}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
 
-                {/* Rodapé */}
-                <p className="relative text-xs text-slate-400">
-                    © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
+                <p className="text-[12px] text-white/40 [font-family:'Ubuntu',Helvetica]">
+                    © {new Date().getFullYear()} Scudo
                 </p>
             </div>
 

@@ -52,14 +52,14 @@ function SuccessScreen() {
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">E-mail enviado!</h2>
-                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-white/80 leading-relaxed max-w-xs mx-auto">
                     Enviamos suas credenciais de acesso para o seu e-mail. Verifique sua
                     caixa de entrada (e o spam).
                 </p>
             </div>
             <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
+                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
             >
                 <span className="material-symbols-outlined text-base" aria-hidden="true">login</span>
                 {" "}Ir para o login
@@ -81,13 +81,13 @@ function ProcessedScreen() {
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">Solicitação recebida</h2>
-                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-white/80 leading-relaxed max-w-xs mx-auto">
                     Se seu e-mail estiver elegível, enviaremos instruções de acesso. Verifique sua caixa de entrada e spam.
                 </p>
             </div>
             <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
+                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
             >
                 <span className="material-symbols-outlined text-base" aria-hidden="true">login</span>
                 {" "}Ir para o login
@@ -110,13 +110,13 @@ function CreatedNoEmailScreen({ warning }: Readonly<{ warning: string | null }>)
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">Conta criada</h2>
-                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-white/80 leading-relaxed max-w-xs mx-auto">
                     {warning ?? "Sua conta foi criada, mas não conseguimos enviar o e-mail. Entre em contato com o suporte."}
                 </p>
             </div>
             <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
+                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
             >
                 Ir para o login
             </Link>
@@ -138,14 +138,14 @@ function ExistingUserScreen() {
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">Você já tem uma conta!</h2>
-                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-white/80 leading-relaxed max-w-xs mx-auto">
                     Este e-mail já está cadastrado no Scudo. Acesse com suas
                     credenciais normalmente.
                 </p>
             </div>
             <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
+                className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
             >
                 <span className="material-symbols-outlined text-base" aria-hidden="true">login</span>
                 {" "}Ir para o login
@@ -162,7 +162,7 @@ function NotStudentScreen({ studentVerifiedAuthOnly }: Readonly<StudentAccessFor
         <div className="w-full max-w-md text-center space-y-5">
             <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-700/40 mx-auto">
                 <span
-                    className="material-symbols-outlined text-slate-300 text-4xl"
+                    className="material-symbols-outlined text-white/80 text-4xl"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                 >
                     person_search
@@ -170,7 +170,7 @@ function NotStudentScreen({ studentVerifiedAuthOnly }: Readonly<StudentAccessFor
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">E-mail não encontrado</h2>
-                <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-white/80 leading-relaxed max-w-xs mx-auto">
                     Não encontramos esse e-mail na nossa plataforma de cursos.
                     {studentVerifiedAuthOnly
                         ? " No momento, o acesso está disponível apenas para alunos verificados."
@@ -181,7 +181,7 @@ function NotStudentScreen({ studentVerifiedAuthOnly }: Readonly<StudentAccessFor
                 {allowSelfSignup ? (
                     <Link
                         href="/cadastro"
-                        className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
+                        className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 shadow-md shadow-emerald-500/20"
                     >
                         <span className="material-symbols-outlined text-base" aria-hidden="true">person_add</span>
                         {" "}Criar conta grátis
@@ -189,7 +189,7 @@ function NotStudentScreen({ studentVerifiedAuthOnly }: Readonly<StudentAccessFor
                 ) : null}
                 <Link
                     href="/login"
-                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg border border-border-dark bg-surface-dark hover:border-emerald-500/50 px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all duration-150"
+                    className="inline-flex items-center justify-center gap-2 w-full rounded-lg border border-border-dark bg-surface-dark hover:border-emerald-500/50 px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-150"
                 >
                     Já tenho conta — Fazer login
                 </Link>
@@ -273,14 +273,14 @@ export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<
                 </div>
                 <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-white">Algo deu errado</h2>
-                    <p className="text-sm text-slate-300 leading-relaxed max-w-xs mx-auto">
+                    <p className="text-sm text-white/80 leading-relaxed max-w-xs mx-auto">
                         Não foi possível processar sua solicitação. Tente novamente em breve.
                     </p>
                 </div>
                 <button
                     type="button"
                     onClick={() => setFlowStatus("idle")}
-                    className="w-full rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
+                    className="w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
                 >
                     Tentar novamente
                 </button>
@@ -311,7 +311,7 @@ export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<
                 <h1 className="text-2xl font-bold text-white">
                     Acesse com seu e-mail
                 </h1>
-                <p className="text-sm text-slate-300 leading-relaxed">
+                <p className="text-sm text-white/80 leading-relaxed">
                     Use o mesmo e-mail cadastrado na nossa plataforma de cursos.
                     Vamos verificar e enviar suas credenciais de acesso.
                 </p>
@@ -321,12 +321,12 @@ export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<
                 <div className="space-y-1.5">
                     <label
                         htmlFor="email"
-                        className="text-xs font-semibold text-slate-300 uppercase tracking-wide"
+                        className="text-xs font-semibold text-white/80 uppercase tracking-wide"
                     >
                         E-mail da plataforma de cursos
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                             mail
                         </span>
                         <input
@@ -347,7 +347,7 @@ export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<
                 <button
                     type="submit"
                     disabled={isSubmitting || flowStatus === "loading"}
-                    className="cursor-pointer w-full rounded-lg bg-primary hover:bg-primary/90 active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-500/20"
+                    className="cursor-pointer w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-500/20"
                 >
                     {isSubmitting || flowStatus === "loading" ? (
                         <span className="flex items-center justify-center gap-2">
@@ -381,20 +381,20 @@ export default function StudentAccessForm({ studentVerifiedAuthOnly }: Readonly<
             </form>
 
             <div className="mt-8 pt-6 border-t border-border-dark space-y-3">
-                <p className="text-sm text-slate-500 text-center">
+                <p className="text-sm text-white/50 text-center">
                     {studentVerifiedAuthOnly ? "Já tem conta?" : "Não é aluno ou já tem conta?"}
                 </p>
                 <div className="flex gap-3">
                     <Link
                         href="/login"
-                        className="flex-1 text-center rounded-lg border border-border-dark bg-surface-dark hover:border-emerald-500/50 hover:bg-emerald-500/5 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all duration-150"
+                        className="flex-1 text-center rounded-lg border border-border-dark bg-surface-dark hover:border-emerald-500/50 hover:bg-emerald-500/5 px-4 py-2.5 text-sm font-medium text-white/80 transition-all duration-150"
                     >
                         Fazer login
                     </Link>
                     {allowSelfSignup ? (
                         <Link
                             href="/cadastro"
-                            className="flex-1 text-center rounded-lg border border-border-dark bg-surface-dark hover:border-emerald-500/50 hover:bg-emerald-500/5 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all duration-150"
+                            className="flex-1 text-center rounded-lg border border-border-dark bg-surface-dark hover:border-emerald-500/50 hover:bg-emerald-500/5 px-4 py-2.5 text-sm font-medium text-white/80 transition-all duration-150"
                         >
                             Criar conta
                         </Link>

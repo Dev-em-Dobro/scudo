@@ -21,14 +21,14 @@ export default function TutorialVideoModal() {
                 <div className="p-5 pb-4">
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
-                            <span className="material-symbols-outlined text-violet-400 text-2xl shrink-0 mt-0.5">
+                            <span className="material-symbols-outlined text-[#a78bfa] text-2xl shrink-0 mt-0.5">
                                 smart_display
                             </span>
                             <div className="space-y-1">
                                 <h2 className="text-base font-bold text-white">
                                     Antes de começar, assista ao tutorial
                                 </h2>
-                                <p className="text-sm text-slate-300">
+                                <p className="text-sm text-white/80">
                                     Este vídeo mostra como usar a plataforma e aproveitar ao máximo sua jornada de carreira. Recomendamos assistir antes de explorar os recursos.
                                 </p>
                             </div>
@@ -36,7 +36,7 @@ export default function TutorialVideoModal() {
                         <button
                             onClick={closeTutorial}
                             aria-label="Fechar"
-                            className="shrink-0 text-slate-400 hover:text-white transition-colors cursor-pointer mt-0.5"
+                            className="shrink-0 text-white/70 hover:text-white transition-colors cursor-pointer mt-0.5"
                         >
                             <span className="material-symbols-outlined text-xl">close</span>
                         </button>
@@ -59,7 +59,7 @@ export default function TutorialVideoModal() {
                     <button
                         type="button"
                         onClick={dismiss}
-                        className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center rounded-lg bg-[#6528d3] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#5020b0] transition-colors cursor-pointer"
                     >
                         Não mostrar novamente
                     </button>

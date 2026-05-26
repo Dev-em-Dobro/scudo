@@ -82,7 +82,7 @@ const RANK_ICON_FALLBACK: Record<string, string> = {
 };
 
 const RANK_ICON_STYLE: Record<string, { box: string; icon: string }> = {
-    Ferro: { box: 'bg-slate-500/20 border-slate-400/50', icon: 'text-slate-200' },
+    Ferro: { box: 'bg-slate-500/20 border-slate-400/50', icon: 'text-white/90' },
     Bronze: { box: 'bg-orange-600/20 border-orange-500/50', icon: 'text-orange-300' },
     Prata: { box: 'bg-zinc-400/20 border-zinc-300/50', icon: 'text-zinc-100' },
     Ouro: { box: 'bg-yellow-500/20 border-yellow-400/50', icon: 'text-yellow-300' },
@@ -90,7 +90,7 @@ const RANK_ICON_STYLE: Record<string, { box: string; icon: string }> = {
     Esmeralda: { box: 'bg-emerald-500/20 border-emerald-400/50', icon: 'text-emerald-300' },
     Diamante: { box: 'bg-sky-500/20 border-sky-400/50', icon: 'text-sky-300' },
     Mythril: { box: 'bg-indigo-500/20 border-indigo-400/50', icon: 'text-indigo-300' },
-    Mestre: { box: 'bg-violet-500/20 border-violet-400/50', icon: 'text-violet-300' },
+    Mestre: { box: 'bg-violet-500/20 border-violet-400/50', icon: 'text-[#a78bfa]' },
     Lendário: { box: 'bg-amber-500/20 border-amber-400/50', icon: 'text-amber-300' },
 };
 
@@ -145,10 +145,10 @@ function PraticaTaskCard({
     hasCodeQuestAccount: boolean;
 }>) {
     return (
-        <div className="w-full text-left rounded-lg border border-primary/30 bg-background-light dark:bg-background-dark p-3 select-none">
+        <div className="w-full text-left rounded-lg border border-[#6528d3]/30 bg-black p-3 select-none">
             <div className="flex items-start gap-2">
                 <span
-                    className="material-symbols-outlined shrink-0 mt-0.5 text-lg text-primary"
+                    className="material-symbols-outlined shrink-0 mt-0.5 text-lg text-[#a78bfa]"
                     style={{ fontVariationSettings: "'FILL' 0" }}
                     aria-hidden
                 >
@@ -156,41 +156,41 @@ function PraticaTaskCard({
                 </span>
                 <div className="min-w-0 flex-1">
                     <p className="text-sm font-normal text-white">{task.title}</p>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-primary/20 text-primary border border-primary/40 mt-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-[#6528d3]/20 text-[#a78bfa] border border-[#6528d3]/40 mt-1">
                         Exercício
                     </span>
                     {codeQuestProgress ? (
                         <div className="mt-2 space-y-1.5">
-                            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Progresso CodeQuest</p>
+                            <p className="text-[10px] text-white/70 font-semibold uppercase tracking-wide">Progresso CodeQuest</p>
                             {codeQuestProgress.byCategory.map((cat) => {
                                 const width = cat.total > 0 ? Math.round((cat.done / cat.total) * 100) : 0;
 
                                 return (
                                     <div key={cat.category}>
-                                        <div className="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                                        <div className="flex justify-between text-[10px] text-white/70 mb-0.5">
                                             <span className="capitalize">{cat.category}</span>
                                             <span>{cat.done}/{cat.total}</span>
                                         </div>
-                                        <div className="h-1 rounded-full bg-slate-700 overflow-hidden">
+                                        <div className="h-1 rounded-full bg-white/10 overflow-hidden">
                                             <div
-                                                className="h-full rounded-full bg-primary transition-all duration-300"
+                                                className="h-full rounded-full bg-[#6528d3] transition-all duration-300"
                                                 style={{ width: `${width}%` }}
                                             />
                                         </div>
                                     </div>
                                 );
                             })}
-                            <p className="text-[10px] text-slate-500 pt-0.5">
+                            <p className="text-[10px] text-white/50 pt-0.5">
                                 Total: {codeQuestProgress.completedExercises}/{codeQuestProgress.totalExercises} ({codeQuestProgress.percent}%)
                             </p>
                         </div>
                     ) : (
-                        <p className="text-[10px] text-slate-400 mt-1.5">
+                        <p className="text-[10px] text-white/70 mt-1.5">
                             Nenhum progresso encontrado para este email no CodeQuest.
                         </p>
                     )}
                     {hasCodeQuestAccount === false ? (
-                        <p className="text-[10px] text-slate-400 mt-1.5">
+                        <p className="text-[10px] text-white/70 mt-1.5">
                             Seu email não foi encontrado no CodeQuest ainda.
                         </p>
                     ) : null}
@@ -198,7 +198,7 @@ function PraticaTaskCard({
                         href="https://code-quest-devquest.replit.app"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-primary text-white hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#6528d3] text-white hover:bg-[#5020b0] transition-colors"
                     >
                         <span
                             className="material-symbols-outlined"
@@ -267,13 +267,13 @@ function RegularTaskButton({
             type="button"
             onClick={onToggle}
             disabled={!isInteractive}
-            className={`w-full text-left rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark p-3 transition-colors select-none ${isInteractive ? 'hover:border-primary/30 cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
+            className={`w-full text-left rounded-lg border border-[#333] bg-black p-3 transition-colors select-none ${isInteractive ? 'hover:border-[#6528d3] cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
             aria-pressed={status === 'done'}
             aria-label={status === 'done' ? `Marcar como a fazer: ${task.title}` : `Marcar como concluída: ${task.title}`}
         >
             <div className="flex items-start gap-2">
                 <span
-                    className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-emerald-400' : 'text-slate-500 dark:text-slate-200'}`}
+                    className={`material-symbols-outlined shrink-0 mt-0.5 text-lg ${status === 'done' ? 'text-emerald-400' : 'text-white/50 dark:text-white/90'}`}
                     style={{
                         fontVariationSettings: status === 'done' ? "'FILL' 1" : "'FILL' 0",
                     }}
@@ -283,7 +283,7 @@ function RegularTaskButton({
                 </span>
                 <div className="min-w-0">
                     <p
-                        className={`text-sm font-normal ${status === 'done' ? 'text-slate-300 dark:text-slate-300 line-through' : 'text-white'}`}
+                        className={`text-sm font-normal ${status === 'done' ? 'text-white/80 dark:text-white/80 line-through' : 'text-white'}`}
                     >
                         {taskTitleLine ?? task.title}
                     </p>
@@ -291,11 +291,11 @@ function RegularTaskButton({
                         {TASK_KIND_LABEL[kind]}
                     </span>
                     {task.description && !(kind === 'conceito' && task.description === 'Conceito-chave') && (
-                        <p className="text-xs text-slate-500 dark:text-slate-200 mt-1">{task.description}</p>
+                        <p className="text-xs text-white/50 dark:text-white/90 mt-1">{task.description}</p>
                     )}
                     {statusLabel ? (
                         <span
-                            className={`inline-block mt-2 ml-1 text-[10px] font-medium uppercase tracking-wide ${status === 'done' ? 'text-violet-400' : 'text-slate-500 dark:text-slate-200'}`}
+                            className={`inline-block mt-2 ml-1 text-[10px] font-medium uppercase tracking-wide ${status === 'done' ? 'text-[#a78bfa]' : 'text-white/50 dark:text-white/90'}`}
                         >
                             {statusLabel}
                         </span>
@@ -584,63 +584,31 @@ export default function JornadaBoard({
 
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/6 p-4 space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                    <div className="min-w-0 flex-1 space-y-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                            Progresso nas plataformas externas
+            <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-5 md:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                        <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                            Sincronização_
+                        </span>
+                        <p className="mt-2 text-[14px] text-white/70 leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                            {hasCodeQuestAccount && codeQuestProgress
+                                ? <>CodeQuest: <span className="font-bold text-white">{codeQuestProgress.completedExercises}/{codeQuestProgress.totalExercises}</span> exercícios ({codeQuestProgress.percent}%). Aulas vêm da Curseduca.</>
+                                : hasCodeQuestAccount
+                                    ? 'Progresso do CodeQuest ainda não carregado. Aulas vêm da Curseduca.'
+                                    : 'CodeQuest não vinculado ao seu e-mail. Aulas vêm da Curseduca.'}
                         </p>
-                        {hasCodeQuestAccount ? (
-                            <div className="flex items-center gap-1">
-                                <span
-                                    className="material-symbols-outlined inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
-                                    style={{ fontVariationSettings: "'FILL' 1" }}
-                                    aria-hidden
-                                >
-                                    code
-                                </span>
-                                <p className="min-w-0 flex-1 text-sm leading-snug text-slate-200">
-                                    {codeQuestProgress
-                                        ? `CodeQuest: ${codeQuestProgress.completedExercises}/${codeQuestProgress.totalExercises} exercícios (${codeQuestProgress.percent}%).`
-                                        : 'Progresso do CodeQuest ainda não carregado.'}
-                                </p>
-                            </div>
-                        ) : (
-                            <p className="text-sm leading-snug text-slate-500">
-                                Conta CodeQuest não encontrada para seu e-mail — a sincronização de exercícios será ignorada até haver cadastro.
-                            </p>
-                        )}
-                        <div className="flex items-center gap-1">
-                            <span
-                                className="material-symbols-outlined inline-flex size-6 shrink-0 items-center justify-center text-xl leading-none text-emerald-400"
-                                style={{ fontVariationSettings: "'FILL' 1" }}
-                                aria-hidden
-                            >
-                                menu_book
-                            </span>
-                            <p className="min-w-0 flex-1 text-sm leading-snug text-slate-200">
-                                Curseduca: tarefas de aula refletem o que você concluiu na plataforma de aulas.
-                            </p>
-                        </div>
                     </div>
 
-                    <div className="flex shrink-0 flex-wrap items-center gap-2 self-start sm:pt-6">
+                    <div className="flex shrink-0 items-center gap-2">
                         <button
                             type="button"
                             onClick={() => {
                                 void syncExternalPlatforms();
                             }}
                             disabled={isSyncingExternal}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/55 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#22c55e] hover:bg-[#16a34a] px-5 py-2.5 text-[13px] font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer [font-family:'Ubuntu',Helvetica]"
                         >
-                            <span
-                                className={`material-symbols-outlined text-base ${isSyncingExternal ? 'animate-spin' : ''}`}
-                                style={{ fontSize: '18px' }}
-                                aria-hidden
-                            >
-                                {isSyncingExternal ? 'autorenew' : 'sync'}
-                            </span>
-                            {isSyncingExternal ? 'Sincronizando...' : 'Sincronizar exercícios e aulas'}
+                            {isSyncingExternal ? 'Sincronizando…' : 'Sincronizar'}
                         </button>
                         <ExternalSyncHelpButton helpText={EXTERNAL_SYNC_HELP} />
                     </div>
@@ -663,95 +631,88 @@ export default function JornadaBoard({
                 ) : null}
             </div>
 
-            {/* Ficha RPG do aluno */}
-            <div className="rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 shadow-sm">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-300 mb-4">
-                    Sua ficha
-                </h2>
-                <div className="flex flex-wrap items-center gap-6">
-                    {(() => {
-                        const rankStyle = RANK_ICON_STYLE[currentRankLetter]
-                            ?? { box: 'bg-amber-500/20 border-amber-500/50', icon: 'text-amber-400' };
-                        const hasRankEmoji = Boolean(RANK_EMOJI[currentRankLetter]);
+            {/* Rank em destaque */}
+            {(() => {
+                const rankStyle = RANK_ICON_STYLE[currentRankLetter]
+                    ?? { box: 'bg-amber-500/20 border-amber-500/50', icon: 'text-amber-400' };
+                const hasRankEmoji = Boolean(RANK_EMOJI[currentRankLetter]);
+                const isLendario = currentRankLetter === 'Lendário';
 
-                        return (
-                            <div className="flex items-center gap-3">
-                                <div className={`flex items-center justify-center w-14 h-14 rounded-xl border-2 ${rankStyle.box}`}>
+                return (
+                    <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8" style={{ borderTopColor: '#6528d3', borderTopWidth: '2px' }}>
+                        <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
+                            {/* Ícone gigante do rank */}
+                            <div className={`flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-2xl border-2 shrink-0 ${rankStyle.box}`}>
+                                <span
+                                    className={rankStyle.icon}
+                                    style={{
+                                        fontSize: '56px',
+                                        lineHeight: 1,
+                                        fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',
+                                    }}
+                                    aria-hidden
+                                >
+                                    {RANK_EMOJI[currentRankLetter] ?? ''}
+                                </span>
+                                {hasRankEmoji ? null : (
                                     <span
-                                        className={rankStyle.icon}
-                                        style={{
-                                            fontSize: '28px',
-                                            lineHeight: 1,
-                                            fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',
-                                        }}
+                                        className={`material-symbols-outlined ${rankStyle.icon}`}
+                                        style={{ fontSize: '56px', fontVariationSettings: "'FILL' 1, 'wght' 600" }}
                                         aria-hidden
                                     >
-                                        {RANK_EMOJI[currentRankLetter] ?? ''}
+                                        {RANK_ICON_FALLBACK[currentRankLetter] ?? 'military_tech'}
                                     </span>
-                                    {hasRankEmoji ? null : (
-                                        <span
-                                            className={`material-symbols-outlined ${rankStyle.icon}`}
-                                            style={{ fontSize: '28px', fontVariationSettings: "'FILL' 1, 'wght' 600" }}
-                                            aria-hidden
-                                        >
-                                            {RANK_ICON_FALLBACK[currentRankLetter] ?? 'military_tech'}
-                                        </span>
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">Rank atual</p>
-                                    <p className="text-lg font-bold text-white">Rank {currentRankLetter}</p>
+                                )}
+                            </div>
+
+                            {/* Nome do rank em destaque + progress */}
+                            <div className="flex-1 min-w-0">
+                                <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
+                                    Seu rank_
+                                </span>
+                                <p className="mt-2 text-[40px] md:text-[48px] font-black text-white leading-none [font-family:'Ubuntu',Helvetica]">
+                                    {currentRankLetter}
+                                </p>
+                                <div className="mt-5 max-w-md">
+                                    <div className="flex justify-between text-[12px] font-bold text-white/70 mb-2 [font-family:'Ubuntu',Helvetica]">
+                                        <span className="uppercase tracking-[1px]">Progresso</span>
+                                        <span className="tabular-nums">{completedCurrentStageTasks} / {totalCurrentStageTasks}</span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                                        <div
+                                            className="h-full rounded-full bg-[#6528d3] transition-all duration-300"
+                                            style={{ width: `${currentStageProgressPercent}%` }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        );
-                    })()}
-                    <div className="flex-1 min-w-50 max-w-md">
-                        <div className="flex justify-between text-xs font-medium text-slate-400 dark:text-slate-300 mb-1">
-                            <span>Progresso do rank atual</span>
-                            <span>{completedCurrentStageTasks} / {totalCurrentStageTasks} tarefas</span>
                         </div>
-                        <div className="h-2.5 rounded-full bg-slate-700 dark:bg-slate-800 overflow-hidden">
-                            <div
-                                className="h-full rounded-full bg-primary transition-all duration-300"
-                                style={{ width: `${currentStageProgressPercent}%` }}
-                            />
-                        </div>
-                    </div>
-                </div>
-                {currentRankLetter === 'Lendário' ? (
-                    <div className="mt-4 flex items-start gap-3 p-4 rounded-lg border border-primary/30 bg-primary/10">
-                        <span className="material-symbols-outlined text-primary shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>verified</span>
-                        <p className="text-sm text-primary/90">
-                            Você está pronto para concorrer às vagas. Boa sorte!
-                        </p>
-                    </div>
-                ) : (
-                    <div className="mt-4 flex items-start gap-3 p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
-                        <span className="material-symbols-outlined text-amber-400 shrink-0" style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>info</span>
-                        <div className="space-y-1 text-sm text-amber-200/90">
-                            <p>
-                                Ainda não concorra às vagas. Conclua as etapas da jornada antes de se candidatar.
+
+                        {/* Alert curto */}
+                        {isLendario ? (
+                            <p className="mt-6 text-[14px] font-bold text-[#22c55e] [font-family:'Ubuntu',Helvetica]">
+                                Pronto pra concorrer às vagas. Boa sorte.
                             </p>
-                            <p>
-                                {nextStage
-                                    ? `Faltam ${formatTaskCount(tasksToNextRank)} para liberar o Rank ${nextStage.rankLetter}.`
-                                    : `Faltam ${formatTaskCount(tasksToNextRank)} para concluir o rank atual.`}
+                        ) : (
+                            <p className="mt-6 text-[14px] text-white/70 [font-family:'Ubuntu',Helvetica]">
+                                Faltam <span className="font-bold text-white">{formatTaskCount(tasksToNextRank)}</span>
+                                {nextStage ? <> pra liberar <span className="font-bold text-[#a78bfa]">Rank {nextStage.rankLetter}</span>.</> : ' pra concluir o rank atual.'}
                             </p>
-                        </div>
+                        )}
                     </div>
-                )}
-            </div>
+                );
+            })()}
 
             {/* Board de ranks */}
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-slate-400 dark:text-slate-300 min-w-[min(100%,16rem)]">
-                    Dica: arraste para os lados, use Shift + scroll no desktop, ou as setas para navegar entre os ranks.
-                </p>
+                <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                    Todos os ranks_
+                </span>
                 <div className="flex items-center gap-2 shrink-0">
                     <button
                         type="button"
                         onClick={() => scrollBoardBy(-340)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#333] bg-[#1a1a1a] text-white/80 hover:text-white hover:border-[#6528d3]/40 transition-colors"
                         aria-label="Rolar ranks para a esquerda"
                     >
                         <span className="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
@@ -759,7 +720,7 @@ export default function JornadaBoard({
                     <button
                         type="button"
                         onClick={() => scrollBoardBy(340)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-slate-300 hover:text-white hover:border-primary/40 transition-colors"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#333] bg-[#1a1a1a] text-white/80 hover:text-white hover:border-[#6528d3]/40 transition-colors"
                         aria-label="Rolar ranks para a direita"
                     >
                         <span className="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
@@ -785,22 +746,21 @@ export default function JornadaBoard({
 
                         if (isFutureLockedStage) {
                             stageContent = (
-                                <div className="h-full min-h-40 rounded-lg border border-slate-700/50 bg-slate-900/40 p-4 flex flex-col items-center justify-center text-center">
+                                <div className="h-full min-h-40 rounded-lg border border-[#333] bg-black/40 p-4 flex flex-col items-center justify-center text-center">
                                     <span
-                                        className="material-symbols-outlined text-slate-300"
-                                        style={{ fontSize: '28px', fontVariationSettings: "'FILL' 1" }}
+                                        className="material-symbols-outlined text-white/40"
+                                        style={{ fontSize: '32px', fontVariationSettings: "'FILL' 1" }}
                                         aria-hidden
                                     >
                                         lock
                                     </span>
-                                    <p className="mt-2 text-sm font-semibold text-slate-200">Rank bloqueado</p>
-                                    <p className="mt-1 text-xs text-slate-400 max-w-56">
-                                        Conclua o rank atual para visualizar as tarefas deste rank.
+                                    <p className="mt-3 text-[12px] font-bold uppercase tracking-[2px] text-white/50 [font-family:'Ubuntu',Helvetica]">
+                                        Bloqueado
                                     </p>
                                 </div>
                             );
                         } else if (stageTasks.length === 0) {
-                            stageContent = <p className="text-xs text-slate-400 dark:text-slate-300 py-2">Nenhuma tarefa</p>;
+                            stageContent = <p className="text-xs text-white/70 dark:text-white/80 py-2">Nenhuma tarefa</p>;
                         } else {
                             stageContent = stageTasks.map((task) => {
                                 const status = task.status;
@@ -850,9 +810,9 @@ export default function JornadaBoard({
                         return (
                             <div
                                 key={stage.id}
-                                className={`shrink-0 snap-start w-80 sm:w-72 lg:w-70 flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden ${isFutureLockedStage ? 'opacity-60' : 'opacity-100'}`}
+                                className={`shrink-0 snap-start w-80 sm:w-72 lg:w-70 flex flex-col rounded-xl border border-[#333] bg-[#1a1a1a] overflow-hidden ${isFutureLockedStage ? 'opacity-60' : 'opacity-100'}`}
                             >
-                                <div className="p-4 border-b border-border-light dark:border-border-dark">
+                                <div className="p-4 border-b border-[#333]">
                                     <h3 className="text-sm font-bold text-white leading-tight">{stage.title}</h3>
                                     <div className="mt-2 flex items-center gap-2 flex-wrap">
                                         <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/50">
@@ -864,8 +824,8 @@ export default function JornadaBoard({
                                             </span>
                                         )}
                                         {!isEditableStage && isFutureLockedStage && (
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-700/40 text-slate-300 border border-slate-600/40">
-                                                Libera após concluir rank atual
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-[1px] bg-white/5 text-white/50 border border-[#333]">
+                                                Bloqueado
                                             </span>
                                         )}
                                     </div>

@@ -4,11 +4,11 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { RankingEntry, RankingResult } from '@/app/lib/mgm/ranking';
-import { MGM_PURPLE, MGM_PURPLE_SOFT, PANEL_SHADOW } from '@/app/indique-e-ganhe/components/theme';
+import { MGM_PURPLE } from '@/app/indique-e-ganhe/components/theme';
 
 interface RankingTabProps {
     readonly rankingAllTime: RankingResult;
-    readonly rankingSeason: RankingResult | null; // null fora de temporada
+    readonly rankingSeason: RankingResult | null;
     readonly viewerOptIn: boolean;
 }
 
@@ -39,44 +39,34 @@ export default function RankingTab({
             startTransition(() => router.refresh());
         } catch (err) {
             console.error(err);
-            setOptIn(!next); // revert
+            setOptIn(!next);
         }
     }
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-                <div
-                    className="inline-flex rounded-lg border border-border-light dark:border-border-dark p-1 bg-white dark:bg-surface-dark"
-                    role="tablist"
-                    style={{ boxShadow: PANEL_SHADOW }}
-                >
+        <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="inline-flex rounded-lg border border-[#333] bg-[#1a1a1a] p-1" role="tablist">
                     <button
                         type="button"
                         role="tab"
                         aria-selected={scope === 'season'}
                         disabled={!seasonAvailable}
                         onClick={() => setScope('season')}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-md transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                        style={
-                            scope === 'season'
-                                ? { backgroundColor: MGM_PURPLE_SOFT, color: MGM_PURPLE }
-                                : { color: '#94a3b8' }
-                        }
+                        className={`text-[12px] font-bold uppercase tracking-[1.5px] px-4 py-2 rounded-md transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed [font-family:'Ubuntu',Helvetica] ${
+                            scope === 'season' ? 'bg-[#6528d3] text-white' : 'text-white/60 hover:text-white'
+                        }`}
                     >
-                        {seasonAvailable ? (rankingSeason!.seasonName ?? 'Temporada') : 'Sem temporada ativa'}
+                        {seasonAvailable ? (rankingSeason!.seasonName ?? 'Temporada') : 'Sem temporada'}
                     </button>
                     <button
                         type="button"
                         role="tab"
                         aria-selected={scope === 'all-time'}
                         onClick={() => setScope('all-time')}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-md transition-colors cursor-pointer"
-                        style={
-                            scope === 'all-time'
-                                ? { backgroundColor: MGM_PURPLE_SOFT, color: MGM_PURPLE }
-                                : { color: '#94a3b8' }
-                        }
+                        className={`text-[12px] font-bold uppercase tracking-[1.5px] px-4 py-2 rounded-md transition-colors cursor-pointer [font-family:'Ubuntu',Helvetica] ${
+                            scope === 'all-time' ? 'bg-[#6528d3] text-white' : 'text-white/60 hover:text-white'
+                        }`}
                     >
                         All-time
                     </button>
@@ -87,36 +77,26 @@ export default function RankingTab({
                         type="checkbox"
                         checked={optIn}
                         onChange={toggleOptIn}
-                        className="h-4 w-4 rounded accent-violet-500 cursor-pointer"
+                        className="h-4 w-4 rounded accent-[#6528d3] cursor-pointer"
                     />
-                    <span className="text-xs text-slate-400">Aparecer no ranking público</span>
+                    <span className="text-[13px] text-white/70 [font-family:'Ubuntu',Helvetica]">
+                        Aparecer no ranking público
+                    </span>
                 </label>
             </div>
 
-            <div
-                className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden"
-                style={{ boxShadow: PANEL_SHADOW }}
-            >
+            <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] overflow-hidden">
                 {current.entries.length === 0 ? (
-                    <div className="p-10 flex flex-col items-center text-center">
-                        <span
-                            className="flex h-14 w-14 items-center justify-center rounded-xl"
-                            style={{ backgroundColor: MGM_PURPLE_SOFT }}
-                        >
-                            <span
-                                className="material-symbols-outlined text-[28px]"
-                                style={{ fontVariationSettings: "'FILL' 1", color: MGM_PURPLE }}
-                            >
-                                leaderboard
-                            </span>
-                        </span>
-                        <p className="mt-4 text-sm text-slate-400 max-w-[42ch]">
-                            Ninguém pontuou ainda neste recorte. Compartilhe seu link e
-                            seja o primeiro a aparecer aqui.
+                    <div className="p-12 flex flex-col items-center text-center">
+                        <p className="text-[16px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                            Ninguém pontuou ainda
+                        </p>
+                        <p className="mt-2 text-[14px] text-white/60 max-w-[44ch] leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                            Compartilhe seu link e seja o primeiro a aparecer aqui.
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-border-light dark:divide-border-dark">
+                    <ul className="divide-y divide-[#333]">
                         {current.entries.map((entry) => (
                             <RankingRow
                                 key={entry.userId}
@@ -128,24 +108,17 @@ export default function RankingTab({
                 )}
             </div>
 
-            {/* Posição do viewer fora do top */}
             {current.viewerEntry &&
                 current.viewerRank &&
                 current.viewerRank > current.entries.length && (
-                    <div
-                        className="rounded-2xl border-2 bg-white dark:bg-surface-dark overflow-hidden"
-                        style={{
-                            borderColor: MGM_PURPLE,
-                            boxShadow: PANEL_SHADOW,
-                        }}
-                    >
+                    <div className="rounded-2xl border-2 border-[#6528d3] bg-[#1a1a1a] overflow-hidden">
                         <RankingRow entry={current.viewerEntry} isViewer />
                     </div>
                 )}
 
-            <p className="text-xs text-slate-500 leading-relaxed">
-                Ranking conta indicações válidas e em apuração (dentro da garantia 15d).
-                Pontos em apuração podem ser revertidos se o indicado reembolsar.
+            <p className="text-[13px] text-white/50 leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                Ranking conta indicações válidas e em apuração (dentro da garantia de 15d). Pontos
+                em apuração podem ser revertidos se o indicado solicitar reembolso.
             </p>
         </div>
     );
@@ -157,52 +130,46 @@ interface RankingRowProps {
 }
 
 function RankingRow({ entry, isViewer }: RankingRowProps) {
-    const rankIcon =
+    const rankColor =
         entry.rank === 1
-            ? { glyph: 'emoji_events', color: '#fbbf24' }
+            ? '#ff6b35'
             : entry.rank === 2
-              ? { glyph: 'workspace_premium', color: '#cbd5e1' }
+              ? '#94a3b8'
               : entry.rank === 3
-                ? { glyph: 'workspace_premium', color: '#fb923c' }
+                ? '#fb923c'
                 : null;
 
     return (
         <li
-            className="px-5 py-3.5 flex items-center gap-4"
-            style={isViewer ? { backgroundColor: MGM_PURPLE_SOFT } : undefined}
+            className="px-6 py-4 flex items-center gap-5"
+            style={isViewer ? { backgroundColor: 'rgba(101, 40, 211, 0.08)' } : undefined}
         >
-            <span className="w-8 text-center shrink-0">
-                {rankIcon ? (
-                    <span
-                        className="material-symbols-outlined text-[22px]"
-                        style={{ fontVariationSettings: "'FILL' 1", color: rankIcon.color }}
-                    >
-                        {rankIcon.glyph}
-                    </span>
-                ) : (
-                    <span className="text-sm font-bold tabular-nums text-slate-400">
-                        {entry.rank}
-                    </span>
-                )}
+            <span className="w-10 text-center shrink-0">
+                <span
+                    className="text-[18px] font-black tabular-nums [font-family:'Ubuntu',Helvetica]"
+                    style={{ color: rankColor ?? 'rgba(255,255,255,0.5)' }}
+                >
+                    {entry.rank}
+                </span>
             </span>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">
+                <p className="text-[15px] font-bold text-white truncate [font-family:'Ubuntu',Helvetica]">
                     {entry.displayName}
                     {isViewer && (
-                        <span
-                            className="ml-2 text-[10px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
-                            style={{ backgroundColor: MGM_PURPLE, color: '#fff' }}
-                        >
+                        <span className="ml-2 text-[10px] font-bold uppercase tracking-[1.5px] px-2 py-0.5 rounded bg-[#6528d3] text-white">
                             Você
                         </span>
                     )}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-[12px] text-white/60 [font-family:'Ubuntu',Helvetica]">
                     {entry.referralsCount}{' '}
                     {entry.referralsCount === 1 ? 'indicação' : 'indicações'}
                 </p>
             </div>
-            <p className="text-sm font-bold tabular-nums shrink-0" style={{ color: MGM_PURPLE }}>
+            <p
+                className="text-[16px] font-black tabular-nums shrink-0 [font-family:'Ubuntu',Helvetica]"
+                style={{ color: MGM_PURPLE }}
+            >
                 {entry.pointsTotal} pts
             </p>
         </li>

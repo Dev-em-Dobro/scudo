@@ -15,7 +15,6 @@ export default async function JornadaPage() {
         redirect('/login');
     }
 
-    // Sync da Curseduca em background — não bloqueia o carregamento da página
     syncCurseducaProgressForUser(session.user.id).catch((error) => {
         console.error('[jornada] Falha ao sincronizar progresso da Curseduca em background.', {
             error: error instanceof Error ? error.message : 'unknown_error',
@@ -32,34 +31,38 @@ export default async function JornadaPage() {
     }
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-black text-white [font-family:'Ubuntu',Helvetica] antialiased">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
+            <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-black">
                 <Header title="Jornada do aluno" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-6 scrollbar-modern">
-                    <section data-onboarding-id="jornada-overview" className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 md:p-6">
-                        <div className="space-y-1">
-                            <h2 className="text-base md:text-lg font-bold text-white">Evolua por ranks antes da candidatura</h2>
-                            <p className="text-base text-slate-300">
-                                A Jornada organiza seu progresso em etapas práticas para você ganhar consistência antes de se candidatar.
+                <div className="flex-1 overflow-visible lg:overflow-auto scrollbar-modern">
+                    <div className="w-full px-6 md:px-8 py-10 md:py-14 space-y-12">
+                        {/* HERO */}
+                        <section data-onboarding-id="jornada-overview">
+                            <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
+                                Jornada do aluno_
+                            </span>
+                            <h1 className="mt-4 text-3xl md:text-[40px] font-black text-white leading-[1.1] [font-family:'Ubuntu',Helvetica]">
+                                Suba de rank até as candidaturas
+                            </h1>
+                            <p className="mt-5 text-white/70 text-[16px] leading-relaxed max-w-[60ch] [font-family:'Ubuntu',Helvetica]">
+                                Conclua as tarefas do seu rank atual pra desbloquear o próximo.
                             </p>
-                            <p className="text-sm text-slate-300">
-                                Conclua as tarefas do rank atual para desbloquear o próximo nível.
-                            </p>
-                        </div>
-                    </section>
+                        </section>
 
-                    <div data-onboarding-id="jornada-board">
-                        <JornadaBoard
-                            stages={snapshot.stages}
-                            tasks={snapshot.tasks}
-                            editableStageId={snapshot.editableStageId}
-                            initialCurrentRankLetter={snapshot.currentRankLetter}
-                            initialCodeQuestProgress={snapshot.codeQuestProgress}
-                            hasCodeQuestAccount={snapshot.hasCodeQuestAccount}
-                        />
+                        {/* BOARD */}
+                        <div data-onboarding-id="jornada-board">
+                            <JornadaBoard
+                                stages={snapshot.stages}
+                                tasks={snapshot.tasks}
+                                editableStageId={snapshot.editableStageId}
+                                initialCurrentRankLetter={snapshot.currentRankLetter}
+                                initialCodeQuestProgress={snapshot.codeQuestProgress}
+                                hasCodeQuestAccount={snapshot.hasCodeQuestAccount}
+                            />
+                        </div>
                     </div>
                 </div>
             </main>

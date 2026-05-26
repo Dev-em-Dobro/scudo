@@ -89,7 +89,7 @@ interface FieldProps {
 function Field({ label, value, onChange, required }: FieldProps) {
     return (
         <label className="block">
-            <span className="text-xs font-semibold text-slate-400">
+            <span className="text-xs font-semibold text-white/70">
                 {label}
                 {required && <span className="text-red-400 ml-0.5">*</span>}
             </span>
@@ -98,7 +98,7 @@ function Field({ label, value, onChange, required }: FieldProps) {
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 required={required}
-                className="mt-1 w-full rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-[#333] bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#6528d3]"
             />
         </label>
     );

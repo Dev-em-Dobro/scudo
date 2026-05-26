@@ -31,8 +31,8 @@ export default async function CadastroPage() {
             {/* Painel de marca — oculto em mobile */}
             <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col justify-between p-12 border-r border-border-dark relative overflow-hidden">
                 <div className="absolute inset-0 bg-linear-to-br from-emerald-950/60 via-background-dark to-background-dark pointer-events-none" />
-                <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#6528d3]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-[#6528d3]/5 rounded-full blur-2xl pointer-events-none" />
 
                 {/* Logo */}
                 <BrandLogo className="relative" logoClassName="h-10 w-auto" titleClassName="h-7 w-auto" priority />
@@ -41,9 +41,9 @@ export default async function CadastroPage() {
                 <div className="relative space-y-6">
                     <div className="space-y-3">
                         <h2 className="text-3xl font-bold text-white leading-snug">
-                            Comece sua jornada <span className="text-primary">hoje mesmo</span>
+                            Comece sua jornada <span className="text-[#a78bfa]">hoje mesmo</span>
                         </h2>
-                        <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
+                        <p className="text-white/80 text-sm leading-relaxed max-w-xs">
                             Crie sua conta e tenha acesso a vagas alinhadas ao seu perfil técnico em minutos.
                         </p>
                     </div>
@@ -51,22 +51,22 @@ export default async function CadastroPage() {
                     <ul className="space-y-3">
                         {FEATURES.map((f) => (
                             <li key={f.label} className="flex items-center gap-3">
-                                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 shrink-0">
+                                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#6528d3]/15 shrink-0">
                                     <span
-                                        className="material-symbols-outlined text-primary text-base"
+                                        className="material-symbols-outlined text-[#a78bfa] text-base"
                                         style={{ fontVariationSettings: "'FILL' 1" }}
                                     >
                                         {f.icon}
                                     </span>
                                 </span>
-                                <span className="text-sm text-slate-200">{f.label}</span>
+                                <span className="text-sm text-white/90">{f.label}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
 
                 {/* Rodapé */}
-                <p className="relative text-xs text-slate-400">
+                <p className="relative text-xs text-white/70">
                     © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
                 </p>
             </div>

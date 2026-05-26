@@ -23,9 +23,9 @@ export default async function LoginPage() {
             {/* Painel de marca — oculto em mobile; roxo + verde em equilíbrio */}
             <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col min-h-screen p-12 border-r border-border-dark relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/55 via-background-dark to-background-dark pointer-events-none" />
-                <div className="absolute -top-28 -left-28 w-[22rem] h-[22rem] rounded-full bg-primary/12 blur-3xl pointer-events-none" />
+                <div className="absolute -top-28 -left-28 w-[22rem] h-[22rem] rounded-full bg-[#6528d3]/12 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-24 -right-16 w-80 h-80 rounded-full bg-emerald-500/18 blur-3xl pointer-events-none" />
-                <div className="absolute top-1/2 -right-24 w-64 h-64 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
+                <div className="absolute top-1/2 -right-24 w-64 h-64 rounded-full bg-[#6528d3]/8 blur-3xl pointer-events-none" />
 
                 {/* Logo + texto centralizados na área útil; rodapé fixo embaixo */}
                 <div className="relative z-10 flex flex-1 flex-col justify-center items-center min-h-0">
@@ -45,7 +45,7 @@ export default async function LoginPage() {
                                     evolução
                                 </span>
                             </h2>
-                            <p className="text-sm leading-relaxed text-slate-300/95">
+                            <p className="text-sm leading-relaxed text-white/80/95">
                                 Conectamos seu perfil técnico às vagas certas com precisão — sem desperdício de tempo.
                             </p>
                             <div
@@ -56,7 +56,7 @@ export default async function LoginPage() {
                     </div>
                 </div>
 
-                <p className="relative z-10 shrink-0 pt-8 text-center text-xs text-slate-400">
+                <p className="relative z-10 shrink-0 pt-8 text-center text-xs text-white/70">
                     © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
                 </p>
             </div>

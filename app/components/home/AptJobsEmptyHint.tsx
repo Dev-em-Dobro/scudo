@@ -8,7 +8,7 @@ const ARIA_LABEL =
 export default function AptJobsEmptyHint() {
     return (
         <div className="flex items-start gap-2">
-            <p className="flex-1 text-sm text-slate-400">
+            <p className="flex-1 text-sm text-white/70">
                 Nenhuma vaga apta no momento. Envie seu currículo para ampliar a compatibilidade.
             </p>
             <ClampedHelpTooltip ariaLabel={ARIA_LABEL} maxWidthPx={22 * 16} tooltipId="apt-jobs-empty-help-tooltip">
@@ -16,7 +16,7 @@ export default function AptJobsEmptyHint() {
                     Envie seu currículo (PDF ou DOCX) para extrair projetos e derivar automaticamente as habilidades do
                     perfil.
                 </p>
-                <p className="text-slate-300/95">
+                <p className="text-white/80/95">
                     Currículo sem projetos não funciona mais. A Scudo só contabiliza conhecimento técnico aplicado.
                     Atualize seus projetos com as tecnologias e conceitos que está aprendendo.
                 </p>

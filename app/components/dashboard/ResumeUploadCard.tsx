@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
 
 function getSyncBadgeClass(status: string) {
-    if (status === 'ready') return 'bg-violet-500/10 text-violet-400 border-violet-500/30';
+    if (status === 'ready') return 'bg-violet-500/10 text-[#a78bfa] border-violet-500/30';
     if (status === 'processing' || status === 'uploaded') return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
-    return 'bg-slate-500/10 text-slate-400 border-slate-500/30';
+    return 'bg-slate-500/10 text-white/70 border-slate-500/30';
 }
 
 function getSyncIcon(status: string) {
@@ -121,11 +121,11 @@ export default function ResumeUploadCard() {
     }
 
     return (
-        <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 hover:border-primary/30 dark:hover:border-primary/30 transition-colors">
+        <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5 hover:border-[#6528d3]/30 dark:hover:border-[#6528d3]/30 transition-colors">
             <div className="flex items-start gap-4">
-                <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 rounded-lg bg-[#6528d3]/10 border border-[#6528d3]/20 flex items-center justify-center">
                     <span
-                        className="material-symbols-outlined text-primary"
+                        className="material-symbols-outlined text-[#a78bfa]"
                         style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}
                     >
                         upload_file
@@ -134,7 +134,7 @@ export default function ResumeUploadCard() {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold shrink-0">2</span>
+                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#6528d3] text-white text-xs font-bold shrink-0">2</span>
                             <h2 className="text-sm font-bold text-white">
                                 Envie o currículo preenchido
                             </h2>
@@ -146,12 +146,12 @@ export default function ResumeUploadCard() {
                             {statusLabel}
                         </span>
                     </div>
-                    <p className="text-sm text-slate-400 dark:text-slate-300 mt-1">
+                    <p className="text-sm text-white/70 mt-1">
                         Envie o modelo preenchido (PDF ou DOCX) para extrair seus projetos e habilidades automaticamente. Use o modelo do passo 1 — arquivos com formatação complexa podem não ser lidos.
                     </p>
 
                     <div className="mt-3 flex items-center gap-3 flex-wrap">
-                        <label className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary bg-primary hover:bg-primary/90 text-white cursor-pointer active:scale-95 transition-all duration-150 uppercase tracking-wide ${(isUploading || !isAuthenticated) ? 'opacity-50 cursor-not-allowed' : ''
+                        <label className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-[#6528d3] bg-[#6528d3] hover:bg-[#5020b0] text-white cursor-pointer active:scale-95 transition-all duration-150 uppercase tracking-wide ${(isUploading || !isAuthenticated) ? 'opacity-50 cursor-not-allowed' : ''
                             }`}>
                             <span className="material-symbols-outlined" style={{ fontSize: "15px", fontVariationSettings: "'FILL' 1" }}>upload_file</span>
                             <span>{isUploading ? 'Processando...' : 'Upload PDF/DOCX'}</span>
@@ -164,14 +164,14 @@ export default function ResumeUploadCard() {
                             />
                         </label>
                         {displayedFileName && (
-                            <span className="text-xs text-slate-400 dark:text-slate-300 truncate max-w-48">
+                            <span className="text-xs text-white/70 truncate max-w-48">
                                 {displayedFileName}
                             </span>
                         )}
                     </div>
 
                     {message && (
-                        <p className="mt-2 text-xs text-slate-400 dark:text-slate-300">{message}</p>
+                        <p className="mt-2 text-xs text-white/70">{message}</p>
                     )}
 
                     {requiresManualReview && (
@@ -210,7 +210,7 @@ export default function ResumeUploadCard() {
                             {user.knownTechnologies.map((technology) => (
                                 <span
                                     key={technology}
-                                    className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-400 dark:text-slate-300 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-md"
+                                    className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-white/70 bg-[#0d0d0d] border border-slate-200 border-[#333] rounded-md"
                                 >
                                     {technology}
                                 </span>
@@ -223,13 +223,13 @@ export default function ResumeUploadCard() {
             <dialog
                 ref={readyDialogRef}
                 onClose={() => setIsReadyModalOpen(false)}
-                className="fixed left-1/2 top-1/2 m-0 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 shadow-2xl backdrop:bg-slate-950/70"
+                className="fixed left-1/2 top-1/2 m-0 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[#333] bg-[#1a1a1a] p-5 shadow-2xl backdrop:bg-slate-950/70"
                 aria-labelledby="resume-ready-modal-title"
             >
                 <div>
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
-                            <span className="material-symbols-outlined text-primary" style={{ fontSize: '22px', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+                            <span className="material-symbols-outlined text-[#a78bfa]" style={{ fontSize: '22px', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                                 check_circle
                             </span>
                             <div>
@@ -237,10 +237,10 @@ export default function ResumeUploadCard() {
                                     Currículo processado com sucesso
                                 </h3>
                                 <div className="mt-1 space-y-2">
-                                    <p className="text-sm text-slate-400 dark:text-slate-300">
+                                    <p className="text-sm text-white/70">
                                         Finalizamos a leitura do seu currículo.
                                     </p>
-                                    <p className="text-sm text-slate-400 dark:text-slate-300">
+                                    <p className="text-sm text-white/70">
                                         Para os cálculos da plataforma, consideramos as habilidades extraídas dos seus projetos pessoais identificados no arquivo. Confira no perfil se as informações refletem sua experiência.
                                     </p>
                                 </div>
@@ -250,7 +250,7 @@ export default function ResumeUploadCard() {
                             type="button"
                             onClick={() => setIsReadyModalOpen(false)}
                             aria-label="Fechar aviso"
-                            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 hover:border-primary/40 transition-colors"
+                            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-[#333] text-white/70 hover:text-white/90 hover:border-[#6528d3]/40 transition-colors"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: '18px' }} aria-hidden="true">
                                 close
@@ -262,14 +262,14 @@ export default function ResumeUploadCard() {
                         <button
                             type="button"
                             onClick={() => setIsReadyModalOpen(false)}
-                            className="inline-flex cursor-pointer items-center px-3 py-2 text-xs font-bold rounded-lg border border-border-light dark:border-border-dark text-slate-400 hover:text-slate-200 transition-colors uppercase tracking-wide"
+                            className="inline-flex cursor-pointer items-center px-3 py-2 text-xs font-bold rounded-lg border border-[#333] text-white/70 hover:text-white/90 transition-colors uppercase tracking-wide"
                         >
                             Revisar depois
                         </button>
                         <Link
                             href="/perfil"
                             onClick={() => setIsReadyModalOpen(false)}
-                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase tracking-wide"
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-[#6528d3] bg-[#6528d3] hover:bg-[#5020b0] text-white transition-colors uppercase tracking-wide"
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: '15px', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                                 edit_square

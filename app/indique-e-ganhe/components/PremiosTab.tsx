@@ -7,15 +7,8 @@ import type { MgmRewardView } from '@/app/lib/mgm/rewards';
 import type { MgmRedemptionView, ShippingInfo } from '@/app/lib/mgm/redemptions';
 import RewardRedeemModal from '@/app/indique-e-ganhe/components/RewardRedeemModal';
 import ShippingAddressModal from '@/app/indique-e-ganhe/components/ShippingAddressModal';
-import {
-    MGM_PURPLE,
-    MGM_PURPLE_SOFT,
-    PANEL_SHADOW,
-} from '@/app/indique-e-ganhe/components/theme';
-import {
-    formatRenewalReward,
-    iconForFamily,
-} from '@/app/indique-e-ganhe/components/rewardFormatting';
+import { MGM_PURPLE } from '@/app/indique-e-ganhe/components/theme';
+import { formatRenewalReward } from '@/app/indique-e-ganhe/components/rewardFormatting';
 
 interface PremiosTabProps {
     readonly rewards: readonly MgmRewardView[];
@@ -24,12 +17,15 @@ interface PremiosTabProps {
     readonly savedAddress: ShippingInfo | null;
 }
 
-const STATUS_LABELS: Record<MgmRedemptionView['status'], { label: string; tone: string }> = {
-    requested: { label: 'Solicitado', tone: 'text-amber-300 bg-amber-500/10 border-amber-500/30' },
-    approved: { label: 'Aprovado', tone: 'text-blue-300 bg-blue-500/10 border-blue-500/30' },
-    delivered: { label: 'Entregue', tone: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30' },
-    rejected: { label: 'Rejeitado', tone: 'text-red-300 bg-red-500/10 border-red-500/30' },
-    cancelled: { label: 'Cancelado', tone: 'text-slate-300 bg-slate-500/10 border-slate-500/30' },
+const STATUS_LABELS: Record<
+    MgmRedemptionView['status'],
+    { label: string; bg: string; text: string }
+> = {
+    requested: { label: 'Solicitado', bg: 'bg-[#ff6b35]', text: 'text-white' },
+    approved: { label: 'Aprovado', bg: 'bg-[#3b82f6]', text: 'text-white' },
+    delivered: { label: 'Entregue', bg: 'bg-[#22c55e]', text: 'text-white' },
+    rejected: { label: 'Rejeitado', bg: 'bg-[#ef4444]', text: 'text-white' },
+    cancelled: { label: 'Cancelado', bg: 'bg-[#444]', text: 'text-white/80' },
 };
 
 export default function PremiosTab({
@@ -45,7 +41,6 @@ export default function PremiosTab({
     const [cancellingId, setCancellingId] = useState<string | null>(null);
     const [cancelError, setCancelError] = useState<{ id: string; message: string } | null>(null);
 
-    // Famílias com resgate ativo — pra desabilitar e mostrar tooltip.
     const blockedFamilies = useMemo(() => {
         const set = new Set<string>();
         for (const r of redemptions) {
@@ -78,95 +73,82 @@ export default function PremiosTab({
     }
 
     return (
-        <div className="space-y-6">
-            {/* Saldo em destaque */}
-            <div
-                className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 md:p-6"
-                style={{ boxShadow: PANEL_SHADOW }}
-            >
-                <div className="flex items-center justify-between gap-4">
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Saldo disponível
-                        </p>
-                        <p
-                            className="mt-2 text-3xl font-bold tabular-nums"
-                            style={{ color: pointsAvailable < 0 ? '#f87171' : MGM_PURPLE }}
-                        >
-                            {pointsAvailable} pts
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                            Pontos em garantia ainda não contam — aparecem aqui após 15 dias.
-                        </p>
-                    </div>
-                    <span
-                        className="hidden sm:flex h-14 w-14 items-center justify-center rounded-2xl shrink-0"
-                        style={{ backgroundColor: MGM_PURPLE_SOFT }}
-                    >
-                        <span
-                            className="material-symbols-outlined text-[30px]"
-                            style={{ fontVariationSettings: "'FILL' 1", color: MGM_PURPLE }}
-                        >
-                            account_balance_wallet
-                        </span>
+        <div className="space-y-8">
+            {/* Saldo + Endereço */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Saldo */}
+                <div
+                    className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8 transition-colors duration-200 hover:border-[#6528d3]"
+                    style={{ borderTopColor: '#6528d3', borderTopWidth: '2px' }}
+                >
+                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                        Saldo disponível_
                     </span>
+                    <p
+                        className="mt-4 text-[40px] font-black tabular-nums leading-none [font-family:'Ubuntu',Helvetica]"
+                        style={{ color: pointsAvailable < 0 ? '#ef4444' : MGM_PURPLE }}
+                    >
+                        {pointsAvailable} <span className="text-[20px] font-bold">pts</span>
+                    </p>
+                    <p className="mt-3 text-white/60 text-[14px] leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                        Pontos em garantia ainda não contam — aparecem aqui após 15 dias.
+                    </p>
+
+                    {pointsAvailable < 0 && (
+                        <div className="mt-5 rounded-lg border border-[#ef4444]/40 bg-[#ef4444]/10 p-4">
+                            <p className="text-[14px] font-bold text-[#ef4444] [font-family:'Ubuntu',Helvetica]">
+                                Saldo abaixo de zero
+                            </p>
+                            <p className="mt-2 text-[13px] text-white/70 leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                                Uma indicação anterior foi <strong>reembolsada</strong> e os pontos
+                                voltaram, deixando seu saldo negativo em{' '}
+                                <strong>{Math.abs(pointsAvailable)} pts</strong>. Os prêmios já
+                                resgatados ficam com você — nada é cobrado de volta. Pra voltar a
+                                resgatar, acumule novas indicações até subir acima de zero.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
-                {pointsAvailable < 0 && (
-                    <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
-                        <p className="text-sm font-semibold text-red-300 flex items-center gap-2">
-                            <span
-                                className="material-symbols-outlined text-[18px]"
-                                style={{ fontVariationSettings: "'FILL' 1" }}
-                            >
-                                info
-                            </span>
-                            Saldo abaixo de zero
-                        </p>
-                        <p className="text-xs text-red-200/85 mt-1.5 leading-relaxed">
-                            Uma indicação anterior foi <strong>reembolsada</strong> e os pontos
-                            dela voltaram, deixando seu saldo negativo em{' '}
-                            <strong>{Math.abs(pointsAvailable)} pts</strong>. Os prêmios já
-                            resgatados ficam com você — nada é cobrado de volta. Pra voltar a
-                            resgatar, basta acumular novas indicações até o saldo subir acima de
-                            zero.
-                        </p>
-                    </div>
-                )}
-
-                {/* Endereço de entrega (Gap 1) */}
-                <div className="mt-4 pt-4 border-t border-border-light/40 dark:border-border-dark/40 flex items-center justify-between gap-4 flex-wrap">
-                    <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Endereço de entrega
-                        </p>
+                {/* Endereço */}
+                <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8 transition-colors duration-200 hover:border-[#6528d3] flex flex-col">
+                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                        Endereço de entrega_
+                    </span>
+                    <div className="mt-4 flex-1">
                         {savedAddress ? (
-                            <p className="text-xs text-slate-400 mt-1 truncate">
-                                {savedAddress.name} · {savedAddress.city}/{savedAddress.state} · CEP {savedAddress.zip}
-                            </p>
+                            <div className="text-[14px] text-white leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                                <p className="font-bold">{savedAddress.name}</p>
+                                <p className="text-white/70">{savedAddress.address}</p>
+                                <p className="text-white/70">
+                                    {savedAddress.city}/{savedAddress.state} · CEP {savedAddress.zip}
+                                </p>
+                            </div>
                         ) : (
-                            <p className="text-xs text-slate-500 mt-1">
-                                Nenhum endereço cadastrado — pediremos no próximo resgate físico.
+                            <p className="text-[14px] text-white/60 leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                                Nenhum endereço cadastrado. Pediremos no próximo resgate de prêmio físico.
                             </p>
                         )}
                     </div>
                     <button
                         type="button"
                         onClick={() => setEditingAddress(true)}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-colors hover:opacity-90"
-                        style={{ color: MGM_PURPLE, backgroundColor: MGM_PURPLE_SOFT }}
+                        className="mt-5 w-fit inline-flex items-center justify-center rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-5 py-2.5 text-[13px] font-bold text-white transition-colors duration-200 cursor-pointer [font-family:'Ubuntu',Helvetica]"
                     >
                         {savedAddress ? 'Editar endereço' : 'Cadastrar endereço'}
                     </button>
                 </div>
             </div>
 
-            {/* Vitrine */}
-            <div>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 mb-3">
-                    Catálogo
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Catálogo */}
+            <section>
+                <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                    Catálogo_
+                </span>
+                <h2 className="mt-3 mb-6 text-[24px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                    Troque seus pontos por prêmios
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {rewards.map((reward) => (
                         <RewardCard
                             key={reward.id}
@@ -177,65 +159,46 @@ export default function PremiosTab({
                         />
                     ))}
                 </div>
-            </div>
+            </section>
 
-            {/* Histórico */}
+            {/* Histórico de resgates */}
             {redemptions.length > 0 && (
-                <div>
-                    <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 mb-3">
-                        Seus resgates
-                    </h3>
-                    <div
-                        className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden"
-                        style={{ boxShadow: PANEL_SHADOW }}
-                    >
-                        <ul className="divide-y divide-border-light dark:divide-border-dark">
+                <section>
+                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                        Seus resgates_
+                    </span>
+                    <div className="mt-6 rounded-2xl border border-[#333] bg-[#1a1a1a] overflow-hidden">
+                        <ul className="divide-y divide-[#333]">
                             {redemptions.map((r) => {
                                 const status = STATUS_LABELS[r.status];
                                 const isConfirming = confirmingCancelId === r.id;
                                 const isCancelling = cancellingId === r.id;
                                 const errorForRow = cancelError?.id === r.id ? cancelError.message : null;
                                 return (
-                                    <li key={r.id} className="px-5 py-4">
-                                        <div className="flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <span
-                                                    className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0"
-                                                    style={{ backgroundColor: MGM_PURPLE_SOFT }}
-                                                >
-                                                    <span
-                                                        className="material-symbols-outlined text-[19px]"
-                                                        style={{
-                                                            fontVariationSettings: "'FILL' 1",
-                                                            color: MGM_PURPLE,
-                                                        }}
-                                                    >
-                                                        {iconForFamily(r.rewardFamily)}
-                                                    </span>
-                                                </span>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-semibold text-white truncate">
-                                                        {r.rewardName}
+                                    <li key={r.id} className="px-6 py-5">
+                                        <div className="flex flex-wrap items-center justify-between gap-4">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-[16px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                                                    {r.rewardName}
+                                                </p>
+                                                <p className="mt-1 text-[13px] text-white/60 tabular-nums [font-family:'Ubuntu',Helvetica]">
+                                                    {r.costSnapshot} pts ·{' '}
+                                                    {new Date(r.requestedAt).toLocaleDateString('pt-BR')}
+                                                </p>
+                                                {r.rejectedReason && (
+                                                    <p className="mt-2 text-[13px] text-[#ef4444] [font-family:'Ubuntu',Helvetica]">
+                                                        Motivo: {r.rejectedReason}
                                                     </p>
-                                                    <p className="text-xs text-slate-500">
-                                                        {r.costSnapshot} pts ·{' '}
-                                                        {new Date(r.requestedAt).toLocaleDateString('pt-BR')}
+                                                )}
+                                                {r.deliveryInfo?.couponCode && (
+                                                    <p className="mt-2 text-[13px] text-[#22c55e] font-mono [font-family:'Ubuntu',Helvetica]">
+                                                        Cupom: {r.deliveryInfo.couponCode}
                                                     </p>
-                                                    {r.rejectedReason && (
-                                                        <p className="text-xs text-red-400 mt-0.5">
-                                                            Motivo: {r.rejectedReason}
-                                                        </p>
-                                                    )}
-                                                    {r.deliveryInfo?.couponCode && (
-                                                        <p className="text-xs text-emerald-300 mt-0.5 font-mono">
-                                                            Cupom: {r.deliveryInfo.couponCode}
-                                                        </p>
-                                                    )}
-                                                </div>
+                                                )}
                                             </div>
-                                            <div className="flex items-center gap-2 shrink-0">
+                                            <div className="flex items-center gap-3 shrink-0">
                                                 <span
-                                                    className={`text-[11px] font-semibold uppercase tracking-[0.1em] px-2 py-1 rounded border ${status.tone}`}
+                                                    className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[1px] ${status.bg} ${status.text} [font-family:'Ubuntu',Helvetica]`}
                                                 >
                                                     {status.label}
                                                 </span>
@@ -246,18 +209,18 @@ export default function PremiosTab({
                                                             setConfirmingCancelId(r.id);
                                                             setCancelError(null);
                                                         }}
-                                                        className="text-xs text-slate-400 hover:text-red-300 transition-colors cursor-pointer underline-offset-2 hover:underline"
+                                                        className="text-[12px] font-bold text-white/60 hover:text-[#ef4444] transition-colors cursor-pointer underline-offset-2 hover:underline [font-family:'Ubuntu',Helvetica]"
                                                     >
                                                         Cancelar
                                                     </button>
                                                 )}
                                                 {r.status === 'requested' && isConfirming && (
-                                                    <div className="flex items-center gap-1.5">
+                                                    <div className="flex items-center gap-2">
                                                         <button
                                                             type="button"
                                                             onClick={() => void confirmCancel(r.id)}
                                                             disabled={isCancelling}
-                                                            className="text-xs font-semibold text-red-300 hover:text-red-200 px-2 py-1 rounded border border-red-500/40 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className="text-[12px] font-bold text-white bg-[#ef4444] hover:bg-[#dc2626] px-3 py-1.5 rounded-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed [font-family:'Ubuntu',Helvetica]"
                                                         >
                                                             {isCancelling ? 'Cancelando…' : 'Confirmar'}
                                                         </button>
@@ -268,7 +231,7 @@ export default function PremiosTab({
                                                                 setCancelError(null);
                                                             }}
                                                             disabled={isCancelling}
-                                                            className="text-xs text-slate-500 hover:text-slate-300 px-1.5 py-1 transition-colors cursor-pointer disabled:opacity-50"
+                                                            className="text-[12px] text-white/60 hover:text-white px-2 py-1.5 transition-colors cursor-pointer disabled:opacity-50 [font-family:'Ubuntu',Helvetica]"
                                                         >
                                                             Voltar
                                                         </button>
@@ -277,18 +240,12 @@ export default function PremiosTab({
                                             </div>
                                         </div>
                                         {isConfirming && !errorForRow && (
-                                            <p className="text-xs text-slate-500 mt-2 pl-12">
+                                            <p className="mt-3 text-[12px] text-white/60 [font-family:'Ubuntu',Helvetica]">
                                                 Os {r.costSnapshot} pts voltam pro seu saldo na hora.
                                             </p>
                                         )}
                                         {errorForRow && (
-                                            <p className="text-xs text-red-300 mt-2 pl-12 flex items-center gap-1.5">
-                                                <span
-                                                    className="material-symbols-outlined text-[14px]"
-                                                    style={{ fontVariationSettings: "'FILL' 1" }}
-                                                >
-                                                    error
-                                                </span>
+                                            <p className="mt-3 text-[12px] text-[#ef4444] [font-family:'Ubuntu',Helvetica]">
                                                 {errorForRow}
                                             </p>
                                         )}
@@ -297,7 +254,7 @@ export default function PremiosTab({
                             })}
                         </ul>
                     </div>
-                </div>
+                </section>
             )}
 
             {selected && (
@@ -333,74 +290,43 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: Reward
     const renewalText =
         reward.type !== 'PHYSICAL' ? formatRenewalReward(reward.type, reward.metadata) : null;
 
-    const deliveryBadge = isPhysical
-        ? { icon: 'local_shipping', label: 'Envio físico' }
-        : { icon: 'redeem', label: 'Cupom digital' };
+    const deliveryLabel = isPhysical ? 'Envio físico' : 'Cupom digital';
 
     return (
-        <div
-            className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-5 flex flex-col"
-            style={{ boxShadow: PANEL_SHADOW }}
-        >
+        <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 flex flex-col transition-colors duration-200 hover:border-[#6528d3]">
             <div className="flex items-center justify-between">
-                <span
-                    className="flex h-12 w-12 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: MGM_PURPLE_SOFT }}
-                >
-                    <span
-                        className="material-symbols-outlined text-[26px]"
-                        style={{ fontVariationSettings: "'FILL' 1", color: MGM_PURPLE }}
-                    >
-                        {iconForFamily(reward.rewardFamily)}
-                    </span>
+                <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                    {deliveryLabel}_
                 </span>
-                <span
-                    className="text-xs font-bold tabular-nums px-2.5 py-1 rounded-full"
-                    style={{
-                        backgroundColor: MGM_PURPLE_SOFT,
-                        color: MGM_PURPLE,
-                    }}
-                >
+                <span className="text-[12px] font-bold tabular-nums text-white px-3 py-1 rounded-full bg-[#6528d3] [font-family:'Ubuntu',Helvetica]">
                     {reward.costPoints} pts
                 </span>
             </div>
-            <h4 className="mt-4 text-base font-bold text-white tracking-tight leading-tight">
+
+            <h3 className="mt-5 text-[18px] font-bold text-white leading-tight [font-family:'Ubuntu',Helvetica]">
                 {reward.name}
-            </h4>
-            <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500 w-fit">
-                <span
-                    className="material-symbols-outlined text-[13px]"
-                    style={{ fontVariationSettings: "'FILL' 0" }}
-                >
-                    {deliveryBadge.icon}
-                </span>
-                {deliveryBadge.label}
-            </span>
+            </h3>
+
             {renewalText?.fromText && renewalText.toText ? (
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-                    <span className="line-through text-slate-600">{renewalText.fromText}</span>{' '}
-                    <span className="text-white font-semibold">{renewalText.toText}</span>
+                <p className="mt-3 text-[14px] leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                    <span className="line-through text-white/40">{renewalText.fromText}</span>{' '}
+                    <span className="text-white font-bold">{renewalText.toText}</span>
                 </p>
             ) : (
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                <p className="mt-3 text-[14px] text-white/70 leading-relaxed [font-family:'Ubuntu',Helvetica]">
                     {reward.description ?? renewalText?.short ?? ''}
                 </p>
             )}
 
-            <div className="mt-5 pt-4 border-t border-border-light/30 dark:border-border-dark/40">
+            <div className="mt-6 pt-5 border-t border-[#333]">
                 {familyBlocked ? (
-                    <p className="text-xs text-amber-300 flex items-center gap-1.5">
-                        <span
-                            className="material-symbols-outlined text-[15px]"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            block
-                        </span>
+                    <p className="text-[13px] text-[#ff6b35] font-bold [font-family:'Ubuntu',Helvetica]">
                         Já resgatado nesta categoria
                     </p>
                 ) : !canAfford ? (
-                    <p className="text-xs text-slate-500">
-                        Faltam <span className="font-semibold text-slate-300">
+                    <p className="text-[13px] text-white/60 [font-family:'Ubuntu',Helvetica]">
+                        Faltam{' '}
+                        <span className="font-bold text-white">
                             {reward.costPoints - pointsAvailable} pts
                         </span>
                     </p>
@@ -409,8 +335,7 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: Reward
                         type="button"
                         onClick={onSelect}
                         disabled={disabled}
-                        className="w-full px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ backgroundColor: MGM_PURPLE }}
+                        className="w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-4 py-3 text-[14px] font-bold text-white transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed [font-family:'Ubuntu',Helvetica]"
                     >
                         Resgatar
                     </button>

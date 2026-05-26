@@ -44,9 +44,13 @@ export default function Sidebar() {
     const visibleNavItems = getVisibleNavItems();
 
     return (
-        <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark shrink-0 hidden lg:flex flex-col transition-[width] duration-200`}>
+        <aside
+            className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[#0d0d0d] border-r border-[#333] shrink-0 hidden lg:flex flex-col transition-[width] duration-200`}
+        >
             {/* Logo */}
-            <div className={`h-16 flex items-center border-b border-border-light dark:border-border-dark gap-3 ${isCollapsed ? 'justify-center px-3' : 'justify-between px-5'}`}>
+            <div
+                className={`h-16 flex items-center border-b border-[#333] gap-3 ${isCollapsed ? 'justify-center px-3' : 'justify-between px-5'}`}
+            >
                 <Link href="/" aria-label="Ir para o início">
                     <BrandLogo logoClassName="h-7 w-auto" titleClassName={isCollapsed ? 'hidden' : 'h-4 w-auto'} />
                 </Link>
@@ -56,7 +60,7 @@ export default function Sidebar() {
                     onClick={toggleSidebar}
                     aria-label={isCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
                     title={isCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
-                    className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-light/80 dark:border-border-dark text-slate-400 hover:text-white hover:border-violet-400/40 transition-colors"
+                    className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#333] text-white/50 hover:text-white hover:border-[#6528d3] transition-colors"
                 >
                     <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                         {isCollapsed ? 'chevron_right' : 'chevron_left'}
@@ -65,7 +69,7 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation */}
-            <nav className={`flex-1 py-5 flex flex-col justify-between ${isCollapsed ? 'px-2' : 'pl-3 pr-0'}`}>
+            <nav className={`flex-1 py-5 ${isCollapsed ? 'px-3' : 'px-3'}`}>
                 <div className="space-y-1">
                     {visibleNavItems.map((item) => {
                         const isActive = item.href === '/'
@@ -79,14 +83,14 @@ export default function Sidebar() {
                                 href={item.href}
                                 data-onboarding-id={getOnboardingNavId(item.href)}
                                 title={isCollapsed ? item.label : undefined}
-                                className={`flex items-center gap-3 pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150 group ${isActive
-                                    ? 'rounded-l-lg bg-primary text-white border-r-2 border-primary'
-                                    : 'rounded-lg text-slate-300 hover:bg-primary/10 hover:text-primary'
-                                    } ${isCollapsed ? 'justify-center px-0 rounded-lg border-r-0' : ''}`}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-bold transition-colors duration-200 group [font-family:'Ubuntu',Helvetica] ${
+                                    isActive
+                                        ? 'bg-[#6528d3] text-white'
+                                        : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
+                                } ${isCollapsed ? 'justify-center' : ''}`}
                             >
                                 <span
-                                    className={`material-symbols-outlined text-xl shrink-0 transition-colors ${isActive ? 'text-white' : 'group-hover:text-violet-400'
-                                        }`}
+                                    className="material-symbols-outlined text-[20px] shrink-0"
                                     style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
                                 >
                                     {icon}
@@ -96,29 +100,34 @@ export default function Sidebar() {
                         );
                     })}
                 </div>
-
             </nav>
 
             {/* User Profile */}
-            <div className="p-4 border-t border-border-light dark:border-border-dark">
+            <div className="p-4 border-t border-[#333]">
                 <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
                     {user.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                             alt={`${user.name} Avatar`}
-                            className="h-9 w-9 rounded-lg object-cover shrink-0"
+                            className="h-10 w-10 rounded-lg object-cover shrink-0 border border-[#333]"
                             src={user.avatar}
                             referrerPolicy="no-referrer"
                         />
                     ) : (
-                        <div className="h-9 w-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
-                            <span className="text-sm font-bold text-primary">{getInitials(user.name)}</span>
+                        <div className="h-10 w-10 rounded-lg bg-[#6528d3] flex items-center justify-center shrink-0">
+                            <span className="text-[13px] font-black text-white [font-family:'Ubuntu',Helvetica]">
+                                {getInitials(user.name)}
+                            </span>
                         </div>
                     )}
                     {isCollapsed ? null : (
                         <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-300 truncate">{user.role}</p>
+                            <p className="text-[13px] font-bold text-white truncate [font-family:'Ubuntu',Helvetica]">
+                                {user.name}
+                            </p>
+                            <p className="text-[11px] uppercase tracking-[1.5px] text-white/50 truncate [font-family:'Ubuntu',Helvetica]">
+                                {user.role}
+                            </p>
                         </div>
                     )}
                 </div>

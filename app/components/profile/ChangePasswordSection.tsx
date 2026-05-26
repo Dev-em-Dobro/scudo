@@ -104,7 +104,7 @@ export default function ChangePasswordSection() {
     }
 
     return (
-        <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark p-5 shadow-sm rounded-xl">
+        <section className="bg-[#1a1a1a] border border-[#333] p-5 shadow-sm rounded-xl">
             <div className="flex items-center gap-2 mb-4">
                 <span
                     className="material-symbols-outlined text-amber-400"
@@ -118,12 +118,12 @@ export default function ChangePasswordSection() {
 
             <form className="space-y-4" onSubmit={handleSubmit} noValidate>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                    <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                         <span>Senha Atual</span>
                         <input
                             type="password"
                             autoComplete="current-password"
-                            className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                            className="w-full px-3 py-2 border border-[#333] rounded bg-black text-white"
                             value={currentPassword}
                             onChange={(event) => setCurrentPassword(event.target.value)}
                             maxLength={128}
@@ -131,13 +131,13 @@ export default function ChangePasswordSection() {
                         />
                     </label>
 
-                    <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                    <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                         <span>Nova Senha</span>
                         <div className="relative">
                             <input
                                 type={showNewPassword ? 'text' : 'password'}
                                 autoComplete="new-password"
-                                className="w-full px-3 py-2 pr-10 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                className="w-full px-3 py-2 pr-10 border border-[#333] rounded bg-black text-white"
                                 value={newPassword}
                                 onChange={(event) => setNewPassword(event.target.value)}
                                 minLength={PASSWORD_MIN_LENGTH}
@@ -148,7 +148,7 @@ export default function ChangePasswordSection() {
                                 type="button"
                                 aria-label={showNewPassword ? 'Ocultar nova senha' : 'Mostrar nova senha'}
                                 onClick={() => setShowNewPassword((current) => !current)}
-                                className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-500 dark:text-slate-300 hover:text-primary transition-colors"
+                                className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-white/60 hover:text-[#a78bfa] transition-colors"
                             >
                                 <span
                                     className="material-symbols-outlined"
@@ -162,13 +162,13 @@ export default function ChangePasswordSection() {
                     </label>
                 </div>
 
-                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                     <span>Confirmar Nova Senha</span>
                     <div className="relative">
                         <input
                             type={showConfirmNewPassword ? 'text' : 'password'}
                             autoComplete="new-password"
-                            className="w-full px-3 py-2 pr-10 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                            className="w-full px-3 py-2 pr-10 border border-[#333] rounded bg-black text-white"
                             value={confirmNewPassword}
                             onChange={(event) => setConfirmNewPassword(event.target.value)}
                             minLength={PASSWORD_MIN_LENGTH}
@@ -179,7 +179,7 @@ export default function ChangePasswordSection() {
                             type="button"
                             aria-label={showConfirmNewPassword ? 'Ocultar confirmação da nova senha' : 'Mostrar confirmação da nova senha'}
                             onClick={() => setShowConfirmNewPassword((current) => !current)}
-                            className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-500 dark:text-slate-300 hover:text-primary transition-colors"
+                            className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-white/60 hover:text-[#a78bfa] transition-colors"
                         >
                             <span
                                 className="material-symbols-outlined"
@@ -192,7 +192,7 @@ export default function ChangePasswordSection() {
                     </div>
                 </label>
 
-                <label className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300 cursor-pointer select-none">
+                <label className="inline-flex items-center gap-2 text-sm text-white/60 cursor-pointer select-none">
                     <input
                         type="checkbox"
                         className="h-4 w-4 accent-primary"
@@ -203,14 +203,14 @@ export default function ChangePasswordSection() {
                 </label>
 
                 <div className="flex items-center justify-between gap-4">
-                    <p className="text-xs text-slate-400 dark:text-slate-300">
+                    <p className="text-xs text-white/70">
                         Use uma senha forte com letras, números e símbolos.
                     </p>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-[#6528d3] bg-[#6528d3] hover:bg-[#5020b0] text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? 'Alterando...' : 'Alterar Senha'}
                     </button>

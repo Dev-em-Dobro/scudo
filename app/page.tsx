@@ -61,51 +61,59 @@ export default async function Home() {
         .map(({ job }) => job);
 
     return (
-        <div className="min-h-screen flex dark bg-background-light dark:bg-background-dark text-white font-sans antialiased">
+        <div className="min-h-screen flex dark bg-black text-white [font-family:'Ubuntu',Helvetica] antialiased">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-background-light dark:bg-background-dark">
+            <main className="flex-1 flex flex-col min-w-0 overflow-visible lg:overflow-hidden bg-black">
                 <Header title="Meu Painel" />
 
-                <div className="flex-1 overflow-visible lg:overflow-auto p-6 md:p-8 space-y-8 scrollbar-modern">
-                    {/* Intro */}
-                    <div data-onboarding-id="painel-resumo">
-                        <p className="text-sm text-slate-400 dark:text-slate-300">
-                            Para a plataforma funcionar corretamente, siga os passos abaixo antes de explorar as vagas.
-                        </p>
-                    </div>
+                <div className="flex-1 overflow-visible lg:overflow-auto scrollbar-modern">
+                    <div className="w-full px-6 md:px-8 py-10 md:py-14 space-y-12">
+                        {/* HERO */}
+                        <section data-onboarding-id="painel-resumo">
+                            <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
+                                Meu painel_
+                            </span>
+                            <h1 className="mt-4 text-3xl md:text-[40px] font-black text-white leading-[1.1] [font-family:'Ubuntu',Helvetica]">
+                                Prepare seu perfil antes das vagas
+                            </h1>
+                            <p className="mt-5 text-white/70 text-[16px] leading-relaxed max-w-[60ch] [font-family:'Ubuntu',Helvetica]">
+                                Suba seu currículo e mantenha o perfil atualizado pra que o matching das vagas funcione direito.
+                            </p>
+                        </section>
 
-                    {/* Main grid */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        {/* Left / main column */}
-                        <div className="xl:col-span-2 space-y-6">
-                            <div data-onboarding-id="painel-modelo-curriculo">
-                                <ResumeExampleCard />
-                            </div>
-                            <div data-onboarding-id="painel-curriculo">
-                                <ResumeUploadCard />
-                            </div>
-                            <div data-onboarding-id="painel-aptidao">
-                                <CandidacyReadinessCard jobs={jobs} />
-                            </div>
-                        </div>
-
-                        {/* Right column — Apt Jobs */}
-                        <div className="space-y-4" data-onboarding-id="painel-vagas-aptas">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-bold text-white">Vagas Aptas para Você</h2>
-                                <a href="/jobs" className="text-xs font-medium text-violet-400 hover:text-violet-300 hover:underline transition-colors">
-                                    Ver todas
-                                </a>
-                            </div>
-                            {aptJobs.map((job) => (
-                                <CuratedJobCard key={job.id} job={job} />
-                            ))}
-                            {aptJobs.length === 0 && (
-                                <div className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 text-sm text-slate-400 dark:text-slate-300">
-                                    <AptJobsEmptyHint />
+                        {/* Main grid */}
+                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                            <div className="xl:col-span-2 space-y-6">
+                                <div data-onboarding-id="painel-modelo-curriculo">
+                                    <ResumeExampleCard />
                                 </div>
-                            )}
+                                <div data-onboarding-id="painel-curriculo">
+                                    <ResumeUploadCard />
+                                </div>
+                                <div data-onboarding-id="painel-aptidao">
+                                    <CandidacyReadinessCard jobs={jobs} />
+                                </div>
+                            </div>
+
+                            <div className="space-y-4" data-onboarding-id="painel-vagas-aptas">
+                                <div className="flex items-end justify-between">
+                                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                                        Vagas pra você_
+                                    </span>
+                                    <a href="/jobs" className="text-[12px] font-bold text-[#a78bfa] hover:text-white transition-colors [font-family:'Ubuntu',Helvetica]">
+                                        Ver todas →
+                                    </a>
+                                </div>
+                                {aptJobs.map((job) => (
+                                    <CuratedJobCard key={job.id} job={job} />
+                                ))}
+                                {aptJobs.length === 0 && (
+                                    <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-5 text-sm text-white/70">
+                                        <AptJobsEmptyHint />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -97,7 +97,7 @@ export default function ShippingAddressModal({
             }}
         >
             <div
-                className="w-full max-w-lg rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern"
+                className="w-full max-w-lg rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8 max-h-[90vh] overflow-y-auto scrollbar-modern"
                 style={{ boxShadow: PANEL_SHADOW }}
             >
                 <div className="flex items-start justify-between gap-4">
@@ -108,14 +108,14 @@ export default function ShippingAddressModal({
                         >
                             Endereço de entrega
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-white/70 mt-1">
                             Salvar aqui pré-preenche todos os próximos resgates físicos.
                         </p>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-slate-500 hover:text-white p-1 cursor-pointer"
+                        className="text-white/50 hover:text-white p-1 cursor-pointer"
                         aria-label="Fechar"
                     >
                         <span className="material-symbols-outlined text-[22px]">close</span>
@@ -137,7 +137,7 @@ export default function ShippingAddressModal({
                         type="button"
                         onClick={onClose}
                         disabled={submitting}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+                        className="px-4 py-2 rounded-lg text-sm font-semibold text-white/80 hover:text-white hover:bg-slate-800 cursor-pointer disabled:opacity-50"
                     >
                         Cancelar
                     </button>

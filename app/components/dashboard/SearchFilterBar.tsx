@@ -8,18 +8,18 @@ interface SearchFilterBarProps {
 }
 
 const selectClass =
-    'appearance-none pl-3 pr-8 py-2.5 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-surface-dark text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors cursor-pointer hover:border-primary/60 dark:hover:border-primary/60 bg-no-repeat bg-right';
+    'appearance-none pl-3 pr-8 py-2.5 text-sm font-medium border border-[#333] rounded-lg bg-[#1a1a1a] text-white/90 focus:outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary transition-colors cursor-pointer hover:border-[#6528d3]/60 dark:hover:border-[#6528d3]/60 bg-no-repeat bg-right';
 
 export default function SearchFilterBar({ onSearchChange, onSortChange, onLevelChange, onWorkModelChange }: Readonly<SearchFilterBarProps>) {
     return (
-        <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-surface-dark p-4 border border-border-light dark:border-border-dark rounded-xl shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-3 bg-[#1a1a1a] p-4 border border-[#333] rounded-xl shadow-sm">
             {/* Search Input */}
             <div className="relative grow">
-                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-300">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-white/70">
                     <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>search</span>
                 </span>
                 <input
-                    className="block w-full pl-9 pr-3 py-2.5 border border-border-light dark:border-border-dark rounded-lg dark:bg-background-dark text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm transition-colors"
+                    className="block w-full pl-9 pr-3 py-2.5 border border-[#333] rounded-lg bg-black text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary text-sm transition-colors"
                     placeholder="Filtrar por título, empresa ou tecnologia..."
                     type="text"
                     onChange={(e) => onSearchChange?.(e.target.value)}

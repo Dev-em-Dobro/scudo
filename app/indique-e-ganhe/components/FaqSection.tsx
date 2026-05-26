@@ -2,11 +2,6 @@
 
 import { useState, type ReactNode } from 'react';
 
-import {
-    MGM_PURPLE,
-    MGM_PURPLE_SOFT,
-    PANEL_SHADOW,
-} from '@/app/indique-e-ganhe/components/theme';
 import RegulamentoModal from '@/app/indique-e-ganhe/components/RegulamentoModal';
 
 interface FaqSectionProps {
@@ -39,7 +34,7 @@ function buildFaq(
         },
         {
             q: 'Os pontos têm prazo de validade?',
-            a: 'Não! Uma vez que o ponto seja contabilizado, você pode resgatá-lo a qualquer momento — os pontos não expiram enquanto o programa estiver ativo.',
+            a: 'Não. Uma vez que o ponto seja contabilizado, você pode resgatá-lo a qualquer momento — os pontos não expiram enquanto o programa estiver ativo.',
         },
         {
             q: 'E se a pessoa comprar sem ser pelo meu link?',
@@ -47,7 +42,7 @@ function buildFaq(
         },
         {
             q: 'Posso somar indicações?',
-            a: `Sim! Não há limite de pessoas diferentes que você pode convidar. A indicação vira válida quando o amigo compra pelo seu link e permanece após o período de garantia (${guaranteeDays} dias após a compra). Após realizar um resgate, os pontos usados são descontados do saldo.`,
+            a: `Sim. Não há limite de pessoas diferentes que você pode convidar. A indicação vira válida quando o amigo compra pelo seu link e permanece após o período de garantia (${guaranteeDays} dias após a compra). Após realizar um resgate, os pontos usados são descontados do saldo.`,
         },
         {
             q: 'Como faço o resgate dos pontos?',
@@ -58,13 +53,12 @@ function buildFaq(
             a: (
                 <>
                     O regulamento traz todas as regras de elegibilidade, ganho de pontos,
-                    famílias de prêmios, conduta e o que conta como uso indevido. Ao
-                    participar do programa você aceita esses termos integralmente.{' '}
+                    famílias de prêmios, conduta e o que conta como uso indevido. Ao participar
+                    do programa você aceita esses termos integralmente.{' '}
                     <button
                         type="button"
                         onClick={onOpenRegulamento}
-                        className="font-semibold underline-offset-2 hover:underline cursor-pointer"
-                        style={{ color: MGM_PURPLE }}
+                        className="font-bold text-[#a78bfa] hover:text-white underline-offset-2 hover:underline transition-colors cursor-pointer"
                     >
                         Abrir regulamento completo →
                     </button>
@@ -80,36 +74,26 @@ export default function FaqSection({ pointsBase, guaranteeDays }: FaqSectionProp
     const faq = buildFaq(pointsBase, guaranteeDays, () => setRegulamentoOpen(true));
 
     return (
-        <section
-            className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-7"
-            style={{ boxShadow: PANEL_SHADOW }}
-        >
-            <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+        <section>
+            <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
                 <div>
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Ajuda
+                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                        Ajuda_
                     </span>
-                    <h2 className="mt-1 text-lg font-bold text-white tracking-tight">
+                    <h2 className="mt-3 text-[24px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
                         Perguntas frequentes
                     </h2>
                 </div>
                 <button
                     type="button"
                     onClick={() => setRegulamentoOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97]"
-                    style={{ color: MGM_PURPLE, backgroundColor: MGM_PURPLE_SOFT }}
+                    className="rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-5 py-3 text-[13px] font-bold text-white transition-colors duration-200 cursor-pointer [font-family:'Ubuntu',Helvetica]"
                 >
-                    <span
-                        className="material-symbols-outlined text-[17px]"
-                        style={{ fontVariationSettings: "'FILL' 0" }}
-                    >
-                        description
-                    </span>
                     Ver regulamento completo
                 </button>
             </div>
 
-            <div className="mt-4 divide-y divide-border-light dark:divide-border-dark border-t border-border-light dark:border-border-dark">
+            <div className="divide-y divide-[#333] border-t border-b border-[#333]">
                 {faq.map((item, idx) => {
                     const isOpen = openIdx === idx;
                     return (
@@ -118,32 +102,26 @@ export default function FaqSection({ pointsBase, guaranteeDays }: FaqSectionProp
                                 type="button"
                                 aria-expanded={isOpen}
                                 onClick={() => setOpenIdx(isOpen ? null : idx)}
-                                className="w-full flex items-center justify-between gap-4 py-4 text-left cursor-pointer group"
+                                className="w-full flex items-center justify-between gap-4 py-5 text-left cursor-pointer group"
                             >
                                 <span
-                                    className="text-sm font-semibold transition-colors"
-                                    style={{ color: isOpen ? MGM_PURPLE : undefined }}
+                                    className={`text-[16px] font-bold transition-colors [font-family:'Ubuntu',Helvetica] ${
+                                        isOpen ? 'text-[#a78bfa]' : 'text-white group-hover:text-[#a78bfa]'
+                                    }`}
                                 >
-                                    <span
-                                        className={isOpen ? '' : 'text-slate-200 group-hover:text-white'}
-                                    >
-                                        {item.q}
-                                    </span>
+                                    {item.q}
                                 </span>
                                 <span
-                                    className={`material-symbols-outlined text-[20px] shrink-0 transition-transform duration-200 ${
-                                        isOpen ? 'rotate-180' : 'text-slate-500'
+                                    className={`text-[20px] font-black shrink-0 transition-transform duration-200 [font-family:'Ubuntu',Helvetica] ${
+                                        isOpen ? 'text-[#a78bfa] rotate-45' : 'text-white/50'
                                     }`}
-                                    style={{
-                                        fontVariationSettings: "'FILL' 0",
-                                        color: isOpen ? MGM_PURPLE : undefined,
-                                    }}
+                                    aria-hidden="true"
                                 >
-                                    expand_more
+                                    +
                                 </span>
                             </button>
                             {isOpen ? (
-                                <div className="text-sm text-slate-400 leading-relaxed pb-5 pr-8 max-w-[68ch]">
+                                <div className="text-[15px] text-white/70 leading-relaxed pb-6 pr-10 max-w-[70ch] [font-family:'Ubuntu',Helvetica]">
                                     {item.a}
                                 </div>
                             ) : null}
@@ -152,7 +130,7 @@ export default function FaqSection({ pointsBase, guaranteeDays }: FaqSectionProp
                 })}
             </div>
 
-            <p className="text-xs text-slate-500 mt-5">
+            <p className="text-[13px] text-white/50 mt-6 [font-family:'Ubuntu',Helvetica]">
                 Ainda com dúvida? Fale com a equipe de Sucesso do Aluno da Dobro.
             </p>
 

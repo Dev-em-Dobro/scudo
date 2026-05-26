@@ -4,11 +4,6 @@ import { useState } from 'react';
 
 import type { MgmReferralView } from '@/app/lib/mgm/service';
 import ReferralHistory from '@/app/indique-e-ganhe/components/ReferralHistory';
-import {
-    MGM_PURPLE,
-    MGM_PURPLE_SOFT,
-    PANEL_SHADOW,
-} from '@/app/indique-e-ganhe/components/theme';
 
 interface IndicacaoTabProps {
     readonly code: string;
@@ -38,7 +33,6 @@ export default function IndicacaoTab({
             setCopied(true);
             globalThis.setTimeout(() => setCopied(false), 2000);
         } catch {
-            // Clipboard indisponível (http/permissão) — seleção manual cobre.
             setCopied(false);
         }
     }
@@ -48,100 +42,69 @@ export default function IndicacaoTab({
     )}`;
 
     return (
-        <div className="space-y-6">
-            <div
-                className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-7"
-                style={{ boxShadow: PANEL_SHADOW }}
-            >
+        <div className="space-y-8">
+            {/* Link card */}
+            <section className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8 transition-colors duration-200 hover:border-[#6528d3]">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Seu link de indicação
+                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                        Seu link_
                     </span>
-                    <span
-                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold font-mono"
-                        style={{ color: MGM_PURPLE, backgroundColor: MGM_PURPLE_SOFT }}
-                    >
-                        <span
-                            className="material-symbols-outlined text-[15px]"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            tag
-                        </span>
+                    <span className="inline-flex items-center rounded-md border border-[#444] px-3 py-1 text-[12px] font-mono text-white [font-family:'Ubuntu',Helvetica]">
                         {code}
                     </span>
                 </div>
 
-                <p className="mt-2 text-sm text-slate-400 max-w-[60ch] leading-relaxed">
+                <p className="mt-3 text-white/70 text-[14px] leading-relaxed max-w-[60ch] [font-family:'Ubuntu',Helvetica]">
                     Compartilhe este link. Quando alguém compra o DevQuest por ele, você
                     pontua e a pessoa ganha 10% de desconto. O código é permanente e único.
                 </p>
 
-                <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
+                <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <input
                         readOnly
                         value={shareLink}
                         onFocus={(event) => event.currentTarget.select()}
-                        className="flex-1 min-w-0 rounded-xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark px-4 py-3 text-sm text-slate-200 font-mono focus:outline-none focus:border-slate-500 transition-colors"
+                        className="flex-1 min-w-0 rounded-lg bg-black border border-[#333] px-4 py-3 text-[14px] text-white font-mono focus:outline-none focus:border-[#6528d3] transition-colors [font-family:'Ubuntu',Helvetica]"
                         aria-label="Link de indicação"
                     />
                     <button
                         type="button"
                         onClick={() => void handleCopy()}
-                        className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-all duration-200 cursor-pointer active:scale-[0.97]"
+                        className="shrink-0 inline-flex items-center justify-center rounded-lg bg-[#6528d3] hover:bg-[#5020b0] px-6 py-3 text-[14px] font-bold text-white transition-colors duration-200 cursor-pointer [font-family:'Ubuntu',Helvetica]"
                     >
-                        <span
-                            className="material-symbols-outlined text-[18px]"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            {copied ? 'check_circle' : 'content_copy'}
-                        </span>
-                        {copied ? 'Copiado!' : 'Copiar'}
+                        {copied ? 'Copiado' : 'Copiar link'}
                     </button>
                     <a
                         href={whatsappHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/40 px-5 py-3 text-sm font-semibold text-emerald-300 hover:bg-emerald-500/10 transition-all duration-200 active:scale-[0.97]"
+                        className="shrink-0 inline-flex items-center justify-center rounded-lg bg-[#22c55e] hover:bg-[#16a34a] px-6 py-3 text-[14px] font-bold text-white transition-colors duration-200 [font-family:'Ubuntu',Helvetica]"
                     >
-                        <span
-                            className="material-symbols-outlined text-[18px]"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            share
-                        </span>
                         WhatsApp
                     </a>
                 </div>
 
                 {boostActive ? (
-                    <div className="mt-4 inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
-                        <span
-                            className="material-symbols-outlined text-[18px] text-amber-400"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                            local_fire_department
-                        </span>
-                        <span className="text-xs font-semibold text-amber-300">
-                            {seasonName ? `${seasonName}: ` : ''}pontos turbinados em {boostMultiplier}x — é a melhor hora pra indicar.
-                        </span>
-                    </div>
+                    <p className="mt-5 text-[14px] text-[#ff6b35] font-bold [font-family:'Ubuntu',Helvetica]">
+                        {seasonName ? `${seasonName}: ` : ''}pontos turbinados em {boostMultiplier}x agora — é a melhor hora pra indicar.
+                    </p>
                 ) : null}
-            </div>
+            </section>
 
-            <div
-                className="rounded-2xl border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark p-6 md:p-7"
-                style={{ boxShadow: PANEL_SHADOW }}
-            >
-                <div className="flex items-center justify-between gap-3 mb-4">
-                    <h3 className="text-sm font-bold text-white">Suas indicações</h3>
+            {/* History card */}
+            <section className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 md:p-8">
+                <div className="flex items-center justify-between gap-3 mb-6">
+                    <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
+                        Suas indicações_
+                    </span>
                     {referrals.length > 0 ? (
-                        <span className="text-xs text-slate-500 tabular-nums">
+                        <span className="text-[12px] text-white/60 tabular-nums [font-family:'Ubuntu',Helvetica]">
                             {referrals.length} registro{referrals.length === 1 ? '' : 's'}
                         </span>
                     ) : null}
                 </div>
                 <ReferralHistory referrals={referrals} />
-            </div>
+            </section>
         </div>
     );
 }

@@ -76,10 +76,11 @@ const FIELD_LIMITS = {
 };
 
 function getFieldClass(hasError: boolean) {
-    const base = 'w-full px-3 py-2 border rounded dark:bg-background-dark dark:text-white';
+    const base =
+        "w-full px-4 py-2.5 text-[14px] text-white rounded-lg bg-black border transition-colors duration-150 focus:outline-none placeholder:text-white/30 [font-family:'Ubuntu',Helvetica]";
     return hasError
-        ? `${base} border-red-500/80 focus:outline-none focus:ring-2 focus:ring-red-500/40`
-        : `${base} border-slate-300 dark:border-border-dark`;
+        ? `${base} border-red-500/80 focus:border-red-400`
+        : `${base} border-[#333] hover:border-[#444] focus:border-[#6528d3]`;
 }
 
 function addFieldError(target: Record<string, string>, key: string, message: string) {
@@ -265,20 +266,20 @@ function toEditableProject(project: EditableProjectForm) {
 
 function PersonalDataRow({ icon, label, value }: Readonly<{ icon: string; label: string; value: string | null }>) {
     return (
-        <div className="flex items-center gap-3 py-2.5 border-b border-border-light dark:border-border-dark last:border-0">
+        <div className="flex items-center gap-3 py-2.5 border-b border-[#333] last:border-0">
             <span
-                className="shrink-0 material-symbols-outlined text-slate-200"
+                className="shrink-0 material-symbols-outlined text-white/90"
                 style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}
             >
                 {icon}
             </span>
-            <span className="text-xs font-semibold text-slate-300 uppercase tracking-wide w-24 shrink-0">
+            <span className="text-xs font-semibold text-white/80 uppercase tracking-wide w-24 shrink-0">
                 {label}
             </span>
             {value ? (
-                <span className="text-sm text-slate-100 truncate">{value}</span>
+                <span className="text-sm text-white/90 truncate">{value}</span>
             ) : (
-                <span className="text-sm text-slate-300 italic">Não informado</span>
+                <span className="text-sm text-white/80 italic">Não informado</span>
             )}
         </div>
     );
@@ -286,21 +287,19 @@ function PersonalDataRow({ icon, label, value }: Readonly<{ icon: string; label:
 
 function SectionBlock({
     title,
-    icon,
     iconColor,
     children,
-}: Readonly<{ title: string; icon: string; iconColor: string; children: React.ReactNode }>) {
+}: Readonly<{ title: string; icon?: string; iconColor?: string; children: React.ReactNode }>) {
+    const accentColor = iconColor?.match(/text-(amber|blue|emerald|green|red|orange|violet|\[[^\]]+\])-?\d*/)?.[0];
+    const accentRoxo = accentColor === 'text-[#a78bfa]' ? '#a78bfa' : '#ededed';
     return (
-        <section className="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-                <span
-                    className={`material-symbols-outlined ${iconColor}`}
-                    style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}
-                >
-                    {icon}
-                </span>
-                <h2 className="text-sm font-bold text-white uppercase tracking-wider">{title}</h2>
-            </div>
+        <section className="bg-[#1a1a1a] border border-[#333] rounded-2xl p-6 md:p-8 transition-colors duration-200 hover:border-[#444]">
+            <h2
+                className="text-[11px] font-bold uppercase tracking-[2px] mb-6 [font-family:'Ubuntu',Helvetica]"
+                style={{ color: accentRoxo }}
+            >
+                {title}_
+            </h2>
             {children}
         </section>
     );
@@ -308,7 +307,11 @@ function SectionBlock({
 
 function TagList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel: string }>) {
     if (values.length === 0) {
-        return <p className="text-sm text-slate-200">{emptyLabel}</p>;
+        return (
+            <p className="text-[13px] text-white/50 italic [font-family:'Ubuntu',Helvetica]">
+                {emptyLabel}
+            </p>
+        );
     }
 
     return (
@@ -316,11 +319,61 @@ function TagList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel
             {values.map((value) => (
                 <span
                     key={value}
-                    className="inline-flex items-center px-2.5 py-1 text-xs font-mono font-medium text-slate-100 bg-slate-100 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg"
+                    className="inline-flex items-center px-3 py-1.5 text-[12px] font-bold text-white/85 bg-white/[0.04] border border-[#333] rounded-full transition-colors duration-150 hover:border-[#6528d3] hover:text-white [font-family:'Ubuntu',Helvetica]"
                 >
                     {value}
                 </span>
             ))}
+        </div>
+    );
+}
+
+const LANGUAGE_LEVEL_COLOR: Record<string, string> = {
+    Nativo: '#22c55e',
+    Fluente: '#22c55e',
+    Avançado: '#a78bfa',
+    Intermediário: '#ff6b35',
+    Básico: '#94a3b8',
+};
+
+function LanguageList({ values, emptyLabel }: Readonly<{ values: string[]; emptyLabel: string }>) {
+    if (values.length === 0) {
+        return (
+            <p className="text-[13px] text-white/50 italic [font-family:'Ubuntu',Helvetica]">
+                {emptyLabel}
+            </p>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {values.map((value) => {
+                const [language, level] = value.split(' - ').map((part) => part.trim());
+                const levelColor = level ? LANGUAGE_LEVEL_COLOR[level] ?? '#a78bfa' : null;
+
+                return (
+                    <div
+                        key={value}
+                        className="flex items-center justify-between gap-3 rounded-lg border border-[#333] bg-white/[0.02] px-4 py-3 transition-colors duration-150 hover:border-[#6528d3]"
+                    >
+                        <span className="text-[14px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                            {language}
+                        </span>
+                        {level && levelColor ? (
+                            <span
+                                className="text-[10px] font-bold uppercase tracking-[1.5px] px-2 py-1 rounded-md [font-family:'Ubuntu',Helvetica]"
+                                style={{
+                                    color: levelColor,
+                                    backgroundColor: `${levelColor}1f`,
+                                    border: `1px solid ${levelColor}40`,
+                                }}
+                            >
+                                {level}
+                            </span>
+                        ) : null}
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -486,7 +539,7 @@ function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
     const projectDisplay = extractProjectDisplayData(project);
 
     return (
-        <article className="border border-border-light dark:border-border-dark rounded-xl p-4 bg-slate-50 dark:bg-background-dark space-y-3 hover:border-primary/30 transition-colors">
+        <article className="border border-[#333] rounded-xl p-4 bg-[#0d0d0d] space-y-3 hover:border-[#6528d3]/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-bold text-white">{project.title}</p>
                 {projectDisplay.repositoryUrl || projectDisplay.deployUrl ? (
@@ -496,7 +549,7 @@ function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
                                 href={projectDisplay.repositoryUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-slate-100 border border-border-dark rounded-lg hover:bg-white/10 transition-colors"
+                                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-white/90 border border-[#333] rounded-lg hover:bg-white/10 transition-colors"
                             >
                                 <span className="material-symbols-outlined" style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}>
                                     code
@@ -511,7 +564,7 @@ function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
                                 href={projectDisplay.deployUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors"
+                                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-[#a78bfa] border border-[#6528d3]/30 rounded-lg hover:bg-[#6528d3]/10 transition-colors"
                             >
                                 <span className="material-symbols-outlined" style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}>
                                     open_in_new
@@ -522,14 +575,14 @@ function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
                         ) : null}
                     </div>
                 ) : (
-                    <span className="shrink-0 inline-flex items-center px-2 py-0.5 text-xs font-medium text-slate-200 border border-border-dark rounded-lg">
+                    <span className="shrink-0 inline-flex items-center px-2 py-0.5 text-xs font-medium text-white/90 border border-[#333] rounded-lg">
                         Sem deploy
                     </span>
                 )}
             </div>
 
             {projectDisplay.cleanedDescription ? (
-                <p className="text-xs text-slate-100 leading-relaxed">{projectDisplay.cleanedDescription}</p>
+                <p className="text-xs text-white/90 leading-relaxed">{projectDisplay.cleanedDescription}</p>
             ) : null}
 
             {project.technologies.length > 0 ? (
@@ -537,7 +590,7 @@ function ProjectCard({ project }: Readonly<{ project: UserProject }>) {
                     {project.technologies.map((tech) => (
                         <span
                             key={`${project.id}-${tech}`}
-                            className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-slate-100 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded"
+                            className="inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium text-white/90 bg-[#1a1a1a] border border-[#333] rounded"
                         >
                             {tech}
                         </span>
@@ -794,7 +847,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     <button
                         type="button"
                         onClick={handleCancelEdit}
-                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-border-light dark:border-border-dark text-slate-100 bg-white/5 hover:bg-white/10 hover:border-primary/30 transition-colors uppercase"
+                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-[#333] text-white/90 bg-white/5 hover:bg-white/10 hover:border-[#6528d3]/30 transition-colors uppercase"
                     >
                         Cancelar Edição
                     </button>
@@ -802,14 +855,14 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     <button
                         type="button"
                         onClick={handleOpenEditor}
-                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase"
+                        className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-[#6528d3] bg-[#6528d3] hover:bg-[#5020b0] text-white transition-colors uppercase"
                     >
                         Editar Perfil
                     </button>
                 )}
             </div>
 
-            <SectionBlock title="Dados Pessoais" icon="person" iconColor="text-primary">
+            <SectionBlock title="Dados Pessoais" icon="person" iconColor="text-[#a78bfa]">
                 <PersonalDataRow icon="badge" label="Nome" value={profileSnapshot.fullName} />
                 <PersonalDataRow icon="location_on" label="Cidade" value={profileSnapshot.city} />
                 <PersonalDataRow icon="work" label="LinkedIn" value={profileSnapshot.linkedinUrl} />
@@ -818,14 +871,14 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
             <SectionBlock title="Resumo Profissional" icon="description" iconColor="text-blue-400">
                 {profileSnapshot.professionalSummary ? (
-                    <p className="text-sm text-slate-100 leading-relaxed">{profileSnapshot.professionalSummary}</p>
+                    <p className="text-sm text-white/90 leading-relaxed">{profileSnapshot.professionalSummary}</p>
                 ) : (
-                    <p className="text-sm text-slate-200">Sem resumo extraído até o momento.</p>
+                    <p className="text-sm text-white/90">Sem resumo extraído até o momento.</p>
                 )}
             </SectionBlock>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <SectionBlock title="Competências Técnicas" icon="integration_instructions" iconColor="text-primary">
+                <SectionBlock title="Competências Técnicas" icon="integration_instructions" iconColor="text-[#a78bfa]">
                     <TagList values={profileSnapshot.knownTechnologies} emptyLabel="Nenhuma competência técnica cadastrada." />
                 </SectionBlock>
                 <SectionBlock title="Habilidades comportamentais" icon="psychology" iconColor="text-blue-400">
@@ -835,7 +888,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
             <SectionBlock title="Projetos" icon="folder_open" iconColor="text-blue-400">
                 {profileSnapshot.projects.length === 0 ? (
-                    <p className="text-sm text-slate-200">Nenhum projeto cadastrado ainda.</p>
+                    <p className="text-sm text-white/90">Nenhum projeto cadastrado ainda.</p>
                 ) : (
                     <div className="space-y-3">
                         {profileSnapshot.projects.map((project) => (
@@ -847,23 +900,23 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
 
             <SectionBlock title="Experiências" icon="history_edu" iconColor="text-blue-400">
                 {experienceDisplayItems.length === 0 ? (
-                    <p className="text-sm text-slate-200">Sem experiências cadastradas.</p>
+                    <p className="text-sm text-white/90">Sem experiências cadastradas.</p>
                 ) : (
                     <div className="space-y-3">
                         {experienceDisplayItems.map((experience) => (
                             <article
                                 key={experience.id}
-                                className="rounded-xl border border-border-light dark:border-border-dark bg-slate-50 dark:bg-background-dark p-4"
+                                className="rounded-xl border border-[#333] bg-[#0d0d0d] p-4"
                             >
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
                                         <p className="text-sm font-bold text-white leading-snug">{experience.headline}</p>
                                         {experience.subheadline ? (
-                                            <p className="mt-1 text-sm italic text-slate-300">{experience.subheadline}</p>
+                                            <p className="mt-1 text-sm italic text-white/80">{experience.subheadline}</p>
                                         ) : null}
                                     </div>
                                     {experience.period ? (
-                                        <span className="inline-flex shrink-0 items-center rounded-lg border border-border-dark px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-300">
+                                        <span className="inline-flex shrink-0 items-center rounded-lg border border-[#333] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/80">
                                             {experience.period}
                                         </span>
                                     ) : null}
@@ -872,7 +925,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {experience.descriptions.length > 0 ? (
                                     <div className="mt-3 space-y-2">
                                         {experience.descriptions.map((description, index) => (
-                                            <p key={`${experience.id}-desc-${index}`} className="text-sm text-slate-200 leading-relaxed">
+                                            <p key={`${experience.id}-desc-${index}`} className="text-sm text-white/90 leading-relaxed">
                                                 {description}
                                             </p>
                                         ))}
@@ -889,24 +942,28 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     <TagList values={profileSnapshot.certifications} emptyLabel="Sem certificações cadastradas." />
                 </SectionBlock>
 
-                <SectionBlock title="Idiomas" icon="translate" iconColor="text-blue-400">
-                    <TagList values={normalizeLanguageList(profileSnapshot.languages)} emptyLabel="Sem idiomas cadastrados." />
+                <SectionBlock title="Idiomas" iconColor="text-[#a78bfa]">
+                    <LanguageList values={normalizeLanguageList(profileSnapshot.languages)} emptyLabel="Sem idiomas cadastrados." />
                 </SectionBlock>
             </div>
 
             {isEditing ? (
-                <form ref={formRef} className="space-y-4 bg-white dark:bg-surface-dark border-2 border-primary shadow-xl shadow-primary/10 rounded-xl overflow-hidden" onSubmit={handleSubmit}>
-                    <div className="bg-primary/20 border-b border-primary/40 px-5 py-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>edit</span>
-                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">Editar Dados do Perfil</h3>
+                <form ref={formRef} className="bg-[#1a1a1a] border border-[#333] rounded-2xl overflow-hidden" style={{ borderTopColor: '#6528d3', borderTopWidth: '2px' }} onSubmit={handleSubmit}>
+                    <div className="px-6 md:px-8 py-5 border-b border-[#333]">
+                        <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
+                            Editar perfil_
+                        </span>
+                        <h3 className="mt-2 text-[20px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                            Dados do perfil
+                        </h3>
                     </div>
-                    <div className="px-5 space-y-4 pb-5">
-                        <p className="text-xs text-slate-400 dark:text-slate-300">
-                            Limites por item: experiências até {FIELD_LIMITS.experiencesItem} caracteres, idiomas até {FIELD_LIMITS.languagesItem}, descrição de projeto até {FIELD_LIMITS.projectsShortDescription} e cidade até {FIELD_LIMITS.city}.
+                    <div className="px-6 md:px-8 py-6 space-y-5">
+                        <p className="text-[12px] text-white/50 leading-relaxed [font-family:'Ubuntu',Helvetica]">
+                            Limites por item: experiências {FIELD_LIMITS.experiencesItem} chars · idiomas {FIELD_LIMITS.languagesItem} · descrição de projeto {FIELD_LIMITS.projectsShortDescription} · cidade {FIELD_LIMITS.city}.
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2">
                                 <span>Nome</span>
                                 <input
                                     className={getFieldClass(Boolean(getFieldError('fullName')))}
@@ -918,7 +975,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('fullName') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('fullName')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2">
                                 <span>Cidade</span>
                                 <input
                                     className={getFieldClass(Boolean(getFieldError('city')))}
@@ -930,7 +987,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('city') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('city')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2">
                                 <span>LinkedIn</span>
                                 <input
                                     className={getFieldClass(Boolean(getFieldError('linkedinUrl')))}
@@ -942,7 +999,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('linkedinUrl') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('linkedinUrl')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2">
                                 <span>GitHub</span>
                                 <input
                                     className={getFieldClass(Boolean(getFieldError('githubUrl')))}
@@ -955,7 +1012,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             </label>
                         </div>
 
-                        <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                        <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                             <span>Resumo Profissional</span>
                             <textarea
                                 className={`${getFieldClass(Boolean(getFieldError('professionalSummary')))} min-h-24`}
@@ -968,7 +1025,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         </label>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Experiências (uma por linha)</span>
                                 <textarea
                                     className={`${getFieldClass(Boolean(getFieldError('experiences')))} min-h-24`}
@@ -979,7 +1036,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('experiences') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('experiences')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Competências Técnicas (uma por linha ou vírgula)</span>
                                 <textarea
                                     className={`${getFieldClass(Boolean(getFieldError('knownTechnologies')))} min-h-24`}
@@ -990,7 +1047,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('knownTechnologies') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('knownTechnologies')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Habilidades comportamentais (uma por linha)</span>
                                 <textarea
                                     className={`${getFieldClass(Boolean(getFieldError('softSkills')))} min-h-24`}
@@ -1001,7 +1058,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('softSkills') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('softSkills')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Certificações (uma por linha)</span>
                                 <textarea
                                     className={`${getFieldClass(Boolean(getFieldError('certifications')))} min-h-24`}
@@ -1012,7 +1069,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('certifications') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('certifications')}</span> : null}
                             </label>
 
-                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Idiomas (uma por linha)</span>
                                 <textarea
                                     className={`${getFieldClass(Boolean(getFieldError('languages')))} min-h-24`}
@@ -1025,40 +1082,40 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         </div>
 
                         <div className="space-y-3">
-                            <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Novo Projeto</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60">Novo Projeto</p>
 
-                            <article className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark">
-                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                            <article className="border border-[#333] rounded-lg p-3 space-y-3 bg-[#1a1a1a]">
+                                <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                     <span>Título</span>
                                     <input
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                        className="w-full px-3 py-2 border border-[#333] rounded bg-black text-white"
                                         value={newProjectDraft.title}
                                         onChange={(event) => setNewProjectDraft((current) => ({ ...current, title: event.target.value }))}
                                     />
                                 </label>
 
-                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                     <span>Descrição breve</span>
                                     <textarea
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
+                                        className="w-full px-3 py-2 border border-[#333] rounded bg-black text-white min-h-20"
                                         value={newProjectDraft.shortDescription}
                                         onChange={(event) => setNewProjectDraft((current) => ({ ...current, shortDescription: event.target.value }))}
                                     />
                                 </label>
 
-                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                     <span>Tecnologias (separadas por vírgula)</span>
                                     <textarea
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white min-h-20"
+                                        className="w-full px-3 py-2 border border-[#333] rounded bg-black text-white min-h-20"
                                         value={newProjectDraft.technologiesText}
                                         onChange={(event) => setNewProjectDraft((current) => ({ ...current, technologiesText: event.target.value }))}
                                     />
                                 </label>
 
-                                <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                     <span>Link de deploy (opcional)</span>
                                     <input
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-border-dark rounded dark:bg-background-dark dark:text-white"
+                                        className="w-full px-3 py-2 border border-[#333] rounded bg-black text-white"
                                         value={newProjectDraft.deployUrl}
                                         onChange={(event) => setNewProjectDraft((current) => ({ ...current, deployUrl: event.target.value }))}
                                     />
@@ -1068,7 +1125,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                     <button
                                         type="button"
                                         onClick={handleSaveNewProject}
-                                        className="cursor-pointer px-3 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase"
+                                        className="cursor-pointer px-3 py-2 text-xs font-bold rounded border border-[#6528d3] bg-[#6528d3] hover:bg-[#5020b0] text-white transition-colors uppercase"
                                     >
                                         Salvar Novo Projeto
                                     </button>
@@ -1076,11 +1133,11 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             </article>
 
                             <div className="flex items-center justify-between gap-3">
-                                <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">Projetos na Lista</p>
+                                <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60">Projetos na Lista</p>
                             </div>
 
                             {projects.length === 0 ? (
-                                <p className="text-xs text-slate-400 dark:text-slate-300">
+                                <p className="text-xs text-white/70">
                                     Nenhum projeto na lista de edição ainda.
                                 </p>
                             ) : (
@@ -1088,10 +1145,10 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                     {projects.map((project, index) => (
                                         <article
                                             key={project.localId}
-                                            className="border border-border-light dark:border-border-dark rounded-lg p-3 space-y-3 bg-white dark:bg-surface-dark"
+                                            className="border border-[#333] rounded-lg p-3 space-y-3 bg-[#1a1a1a]"
                                         >
                                             <div className="flex items-center justify-between gap-3">
-                                                <p className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300">
+                                                <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60">
                                                     Projeto {index + 1}
                                                 </p>
                                                 <button
@@ -1103,7 +1160,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                                 </button>
                                             </div>
 
-                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                                 <span>Título</span>
                                                 <input
                                                     className={getFieldClass(Boolean(getFieldError(`projects.${index}.title`)))}
@@ -1114,7 +1171,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                                 {getFieldError(`projects.${index}.title`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.title`)}</span> : null}
                                             </label>
 
-                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                                 <span>Descrição breve</span>
                                                 <textarea
                                                     className={getFieldClass(Boolean(getFieldError(`projects.${index}.shortDescription`))) + ' min-h-20'}
@@ -1125,7 +1182,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                                 {getFieldError(`projects.${index}.shortDescription`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.shortDescription`)}</span> : null}
                                             </label>
 
-                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                                 <span>Tecnologias (separadas por vírgula)</span>
                                                 <textarea
                                                     className={getFieldClass(Boolean(getFieldError(`projects.${index}.technologies`))) + ' min-h-20'}
@@ -1136,7 +1193,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                                 {getFieldError(`projects.${index}.technologies`) ? <span className="text-[11px] normal-case text-red-400">{getFieldError(`projects.${index}.technologies`)}</span> : null}
                                             </label>
 
-                                            <label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-300 space-y-2 block">
+                                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                                 <span>Link de deploy (opcional)</span>
                                                 <input
                                                     className={getFieldClass(Boolean(getFieldError(`projects.${index}.deployUrl`)))}
@@ -1153,20 +1210,20 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                         </div>
 
                         <div className="flex items-center justify-between gap-4">
-                            <p className="text-xs text-slate-400 dark:text-slate-300">
+                            <p className="text-xs text-white/70">
                                 Itens atuais: {parsedPreview.knownTechnologies.length} skills derivadas de {parsedPreview.projects.length} projetos e {parsedPreview.experiences.length} experiências
                             </p>
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-primary bg-primary hover:bg-primary/90 text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="cursor-pointer px-4 py-2 text-xs font-bold rounded border border-[#6528d3] bg-[#6528d3] hover:bg-[#5020b0] text-white transition-colors uppercase disabled:opacity-60 disabled:cursor-not-allowed"
                             >
                                 {isSaving ? 'Salvando...' : 'Salvar Perfil'}
                             </button>
                         </div>
 
                         {feedback && (
-                            <p role="alert" className="text-xs text-slate-600 dark:text-slate-300">
+                            <p role="alert" className="text-xs text-white/50">
                                 {feedback}
                             </p>
                         )}
@@ -1175,7 +1232,7 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
             ) : null}
 
             {feedback && !isEditing ? (
-                <p role="alert" className="text-xs text-slate-200">
+                <p role="alert" className="text-xs text-white/90">
                     {feedback}
                 </p>
             ) : null}

@@ -99,17 +99,17 @@ export default function RegisterForm() {
 
             <div className="space-y-1 mb-7">
                 <h1 className="text-2xl font-bold text-white">Criar conta grátis</h1>
-                <p className="text-sm text-slate-300">Preencha os dados abaixo e comece agora.</p>
+                <p className="text-sm text-white/80">Preencha os dados abaixo e comece agora.</p>
             </div>
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
                 {/* Nome */}
                 <div className="space-y-1.5">
-                    <label htmlFor="name" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                    <label htmlFor="name" className="text-xs font-semibold text-white/80 uppercase tracking-wide">
                         Nome completo
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                             person
                         </span>
                         <input
@@ -117,7 +117,7 @@ export default function RegisterForm() {
                             type="text"
                             autoComplete="name"
                             placeholder="Seu nome"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary/40 transition-all"
                             {...register("name")}
                         />
                     </div>
@@ -126,11 +126,11 @@ export default function RegisterForm() {
 
                 {/* E-mail */}
                 <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                    <label htmlFor="email" className="text-xs font-semibold text-white/80 uppercase tracking-wide">
                         E-mail
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                             mail
                         </span>
                         <input
@@ -138,7 +138,7 @@ export default function RegisterForm() {
                             type="email"
                             autoComplete="email"
                             placeholder="seu@email.com"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary/40 transition-all"
                             {...register("email")}
                         />
                     </div>
@@ -147,11 +147,11 @@ export default function RegisterForm() {
 
                 {/* Senha */}
                 <div className="space-y-1.5">
-                    <label htmlFor="password" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                    <label htmlFor="password" className="text-xs font-semibold text-white/80 uppercase tracking-wide">
                         Senha
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                             lock
                         </span>
                         <input
@@ -159,7 +159,7 @@ export default function RegisterForm() {
                             type="password"
                             autoComplete="new-password"
                             placeholder="Mínimo 8 caracteres"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary/40 transition-all"
                             {...register("password")}
                         />
                     </div>
@@ -168,11 +168,11 @@ export default function RegisterForm() {
 
                 {/* Confirmar senha */}
                 <div className="space-y-1.5">
-                    <label htmlFor="confirmPassword" className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                    <label htmlFor="confirmPassword" className="text-xs font-semibold text-white/80 uppercase tracking-wide">
                         Confirmar senha
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/70 text-[18px] pointer-events-none">
                             lock
                         </span>
                         <input
@@ -180,7 +180,7 @@ export default function RegisterForm() {
                             type="password"
                             autoComplete="new-password"
                             placeholder="Repita sua senha"
-                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
+                            className="w-full rounded-lg border border-border-dark bg-surface-dark pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-[#6528d3] focus:ring-1 focus:ring-primary/40 transition-all"
                             {...register("confirmPassword")}
                         />
                     </div>
@@ -194,7 +194,7 @@ export default function RegisterForm() {
                 <button
                     type="submit"
                     disabled={busy}
-                    className="cursor-pointer w-full rounded-lg bg-primary hover:bg-primary/90 active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
+                    className="cursor-pointer w-full rounded-lg bg-[#6528d3] hover:bg-[#5020b0] active:scale-[0.98] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
                 >
                     {isSubmitting ? "Criando conta..." : "Criar conta grátis"}
                 </button>
@@ -202,7 +202,7 @@ export default function RegisterForm() {
 
             <div className="my-5 flex items-center gap-3">
                 <div className="flex-1 h-px bg-border-dark" />
-                <span className="text-xs text-slate-400 uppercase tracking-wide">ou cadastre-se com</span>
+                <span className="text-xs text-white/70 uppercase tracking-wide">ou cadastre-se com</span>
                 <div className="flex-1 h-px bg-border-dark" />
             </div>
 
@@ -211,7 +211,7 @@ export default function RegisterForm() {
                     type="button"
                     disabled={busy}
                     onClick={() => void handleSocial("google")}
-                    className="cursor-pointer w-full flex items-center justify-center gap-2.5 rounded-lg border border-border-dark bg-surface-dark px-4 py-2.5 text-sm text-slate-200 hover:border-primary/50 hover:bg-primary/5 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="cursor-pointer w-full flex items-center justify-center gap-2.5 rounded-lg border border-border-dark bg-surface-dark px-4 py-2.5 text-sm text-white/90 hover:border-[#6528d3]/50 hover:bg-[#6528d3]/5 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -226,7 +226,7 @@ export default function RegisterForm() {
                     type="button"
                     disabled={busy}
                     onClick={() => void handleSocial("linkedin")}
-                    className="cursor-pointer w-full flex items-center justify-center gap-2.5 rounded-lg border border-border-dark bg-surface-dark px-4 py-2.5 text-sm text-slate-200 hover:border-primary/50 hover:bg-primary/5 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="cursor-pointer w-full flex items-center justify-center gap-2.5 rounded-lg border border-border-dark bg-surface-dark px-4 py-2.5 text-sm text-white/90 hover:border-[#6528d3]/50 hover:bg-[#6528d3]/5 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2" aria-hidden="true">
                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
@@ -235,9 +235,9 @@ export default function RegisterForm() {
                 </button>
             </div>
 
-            <p className="mt-7 text-sm text-slate-500">
+            <p className="mt-7 text-sm text-white/50">
                 Já tem conta?{" "}
-                <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+                <Link href="/login" className="font-semibold text-[#a78bfa] hover:text-[#a78bfa]/80 transition-colors">
                     Entrar
                 </Link>
             </p>

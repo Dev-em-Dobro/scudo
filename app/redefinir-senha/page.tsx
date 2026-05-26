@@ -27,21 +27,21 @@ export default async function RedefinirSenhaPage({ searchParams }: Readonly<Rede
         <main className="min-h-screen bg-background-dark flex">
             <div className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col justify-between p-12 border-r border-border-dark relative overflow-hidden">
                 <div className="absolute inset-0 bg-linear-to-br from-emerald-950/60 via-background-dark to-background-dark pointer-events-none" />
-                <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#6528d3]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-[#6528d3]/5 rounded-full blur-2xl pointer-events-none" />
 
                 <BrandLogo className="relative" logoClassName="h-10 w-auto" titleClassName="h-7 w-auto" priority />
 
                 <div className="relative space-y-3">
                     <h2 className="text-3xl font-bold text-white leading-snug">
-                        Defina uma nova <span className="text-primary">senha segura</span>
+                        Defina uma nova <span className="text-[#a78bfa]">senha segura</span>
                     </h2>
-                    <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
+                    <p className="text-white/80 text-sm leading-relaxed max-w-xs">
                         Escolha uma senha forte e exclusiva para proteger seu acesso à plataforma.
                     </p>
                 </div>
 
-                <p className="relative text-xs text-slate-400">
+                <p className="relative text-xs text-white/70">
                     © {new Date().getFullYear()} Scudo. Todos os direitos reservados.
                 </p>
             </div>
