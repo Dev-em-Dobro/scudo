@@ -16,6 +16,8 @@ interface IndiqueGanheTabsProps {
     readonly shareLink: string;
     readonly referrals: readonly MgmReferralView[];
     readonly boostActive: boolean;
+    readonly boostMultiplier: number;
+    readonly seasonName: string | null;
     readonly rewards: readonly MgmRewardView[];
     readonly redemptions: readonly MgmRedemptionView[];
     readonly pointsAvailable: number;
@@ -38,6 +40,8 @@ export default function IndiqueGanheTabs({
     shareLink,
     referrals,
     boostActive,
+    boostMultiplier,
+    seasonName,
     rewards,
     redemptions,
     pointsAvailable,
@@ -96,6 +100,8 @@ export default function IndiqueGanheTabs({
                         shareLink={shareLink}
                         referrals={referrals}
                         boostActive={boostActive}
+                        boostMultiplier={boostMultiplier}
+                        seasonName={seasonName}
                     />
                 ) : null}
                 {active === 'premios' ? (

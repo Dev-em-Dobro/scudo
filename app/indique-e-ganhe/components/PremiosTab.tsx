@@ -41,6 +41,9 @@ export default function PremiosTab({
     const router = useRouter();
     const [selected, setSelected] = useState<MgmRewardView | null>(null);
     const [editingAddress, setEditingAddress] = useState(false);
+    const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null);
+    const [cancellingId, setCancellingId] = useState<string | null>(null);
+    const [cancelError, setCancelError] = useState<{ id: string; message: string } | null>(null);
 
     // Famílias com resgate ativo — pra desabilitar e mostrar tooltip.
     const blockedFamilies = useMemo(() => {
@@ -53,16 +56,24 @@ export default function PremiosTab({
         return set;
     }, [redemptions]);
 
-    async function cancelRedemption(id: string) {
-        if (!confirm('Cancelar este resgate? Os pontos voltam pro seu saldo.')) return;
-        const response = await fetch(`/api/mgm/redemptions/${id}/cancel`, {
-            method: 'POST',
-        });
-        if (response.ok) {
-            router.refresh();
-        } else {
-            const data = await response.json().catch(() => ({}));
-            alert(data.error ?? 'Não foi possível cancelar.');
+    async function confirmCancel(id: string) {
+        setCancellingId(id);
+        setCancelError(null);
+        try {
+            const response = await fetch(`/api/mgm/redemptions/${id}/cancel`, {
+                method: 'POST',
+            });
+            if (response.ok) {
+                setConfirmingCancelId(null);
+                router.refresh();
+            } else {
+                const data = await response.json().catch(() => ({}));
+                setCancelError({ id, message: data.error ?? 'Não foi possível cancelar. Tente novamente.' });
+            }
+        } catch {
+            setCancelError({ id, message: 'Erro de rede. Tente novamente em instantes.' });
+        } finally {
+            setCancellingId(null);
         }
     }
 
@@ -181,59 +192,106 @@ export default function PremiosTab({
                         <ul className="divide-y divide-border-light dark:divide-border-dark">
                             {redemptions.map((r) => {
                                 const status = STATUS_LABELS[r.status];
+                                const isConfirming = confirmingCancelId === r.id;
+                                const isCancelling = cancellingId === r.id;
+                                const errorForRow = cancelError?.id === r.id ? cancelError.message : null;
                                 return (
-                                    <li key={r.id} className="px-5 py-4 flex items-center justify-between gap-4">
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            <span
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0"
-                                                style={{ backgroundColor: MGM_PURPLE_SOFT }}
-                                            >
+                                    <li key={r.id} className="px-5 py-4">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3 min-w-0">
                                                 <span
-                                                    className="material-symbols-outlined text-[19px]"
-                                                    style={{
-                                                        fontVariationSettings: "'FILL' 1",
-                                                        color: MGM_PURPLE,
-                                                    }}
+                                                    className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0"
+                                                    style={{ backgroundColor: MGM_PURPLE_SOFT }}
                                                 >
-                                                    {iconForFamily(r.rewardFamily)}
+                                                    <span
+                                                        className="material-symbols-outlined text-[19px]"
+                                                        style={{
+                                                            fontVariationSettings: "'FILL' 1",
+                                                            color: MGM_PURPLE,
+                                                        }}
+                                                    >
+                                                        {iconForFamily(r.rewardFamily)}
+                                                    </span>
                                                 </span>
-                                            </span>
-                                            <div className="min-w-0">
-                                                <p className="text-sm font-semibold text-white truncate">
-                                                    {r.rewardName}
-                                                </p>
-                                                <p className="text-xs text-slate-500">
-                                                    {r.costSnapshot} pts ·{' '}
-                                                    {new Date(r.requestedAt).toLocaleDateString('pt-BR')}
-                                                </p>
-                                                {r.rejectedReason && (
-                                                    <p className="text-xs text-red-400 mt-0.5">
-                                                        Motivo: {r.rejectedReason}
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-semibold text-white truncate">
+                                                        {r.rewardName}
                                                     </p>
+                                                    <p className="text-xs text-slate-500">
+                                                        {r.costSnapshot} pts ·{' '}
+                                                        {new Date(r.requestedAt).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                    {r.rejectedReason && (
+                                                        <p className="text-xs text-red-400 mt-0.5">
+                                                            Motivo: {r.rejectedReason}
+                                                        </p>
+                                                    )}
+                                                    {r.deliveryInfo?.couponCode && (
+                                                        <p className="text-xs text-emerald-300 mt-0.5 font-mono">
+                                                            Cupom: {r.deliveryInfo.couponCode}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <span
+                                                    className={`text-[11px] font-semibold uppercase tracking-[0.1em] px-2 py-1 rounded border ${status.tone}`}
+                                                >
+                                                    {status.label}
+                                                </span>
+                                                {r.status === 'requested' && !isConfirming && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setConfirmingCancelId(r.id);
+                                                            setCancelError(null);
+                                                        }}
+                                                        className="text-xs text-slate-400 hover:text-red-300 transition-colors cursor-pointer underline-offset-2 hover:underline"
+                                                    >
+                                                        Cancelar
+                                                    </button>
                                                 )}
-                                                {r.deliveryInfo?.couponCode && (
-                                                    <p className="text-xs text-emerald-300 mt-0.5 font-mono">
-                                                        Cupom: {r.deliveryInfo.couponCode}
-                                                    </p>
+                                                {r.status === 'requested' && isConfirming && (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => void confirmCancel(r.id)}
+                                                            disabled={isCancelling}
+                                                            className="text-xs font-semibold text-red-300 hover:text-red-200 px-2 py-1 rounded border border-red-500/40 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {isCancelling ? 'Cancelando…' : 'Confirmar'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setConfirmingCancelId(null);
+                                                                setCancelError(null);
+                                                            }}
+                                                            disabled={isCancelling}
+                                                            className="text-xs text-slate-500 hover:text-slate-300 px-1.5 py-1 transition-colors cursor-pointer disabled:opacity-50"
+                                                        >
+                                                            Voltar
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            <span
-                                                className={`text-[11px] font-semibold uppercase tracking-[0.1em] px-2 py-1 rounded border ${status.tone}`}
-                                            >
-                                                {status.label}
-                                            </span>
-                                            {r.status === 'requested' && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => cancelRedemption(r.id)}
-                                                    className="text-xs text-slate-400 hover:text-red-300 transition-colors cursor-pointer underline-offset-2 hover:underline"
+                                        {isConfirming && !errorForRow && (
+                                            <p className="text-xs text-slate-500 mt-2 pl-12">
+                                                Os {r.costSnapshot} pts voltam pro seu saldo na hora.
+                                            </p>
+                                        )}
+                                        {errorForRow && (
+                                            <p className="text-xs text-red-300 mt-2 pl-12 flex items-center gap-1.5">
+                                                <span
+                                                    className="material-symbols-outlined text-[14px]"
+                                                    style={{ fontVariationSettings: "'FILL' 1" }}
                                                 >
-                                                    Cancelar
-                                                </button>
-                                            )}
-                                        </div>
+                                                    error
+                                                </span>
+                                                {errorForRow}
+                                            </p>
+                                        )}
                                     </li>
                                 );
                             })}
@@ -270,9 +328,14 @@ interface RewardCardProps {
 function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: RewardCardProps) {
     const canAfford = pointsAvailable >= reward.costPoints;
     const disabled = !canAfford || familyBlocked;
+    const isPhysical = reward.type === 'PHYSICAL';
 
     const renewalText =
         reward.type !== 'PHYSICAL' ? formatRenewalReward(reward.type, reward.metadata) : null;
+
+    const deliveryBadge = isPhysical
+        ? { icon: 'local_shipping', label: 'Envio físico' }
+        : { icon: 'redeem', label: 'Cupom digital' };
 
     return (
         <div
@@ -304,6 +367,15 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: Reward
             <h4 className="mt-4 text-base font-bold text-white tracking-tight leading-tight">
                 {reward.name}
             </h4>
+            <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500 w-fit">
+                <span
+                    className="material-symbols-outlined text-[13px]"
+                    style={{ fontVariationSettings: "'FILL' 0" }}
+                >
+                    {deliveryBadge.icon}
+                </span>
+                {deliveryBadge.label}
+            </span>
             {renewalText?.fromText && renewalText.toText ? (
                 <p className="mt-2 text-xs text-slate-400 leading-relaxed">
                     <span className="line-through text-slate-600">{renewalText.fromText}</span>{' '}

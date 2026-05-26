@@ -35,7 +35,7 @@ function buildFaq(
         },
         {
             q: 'Quem pode indicar e ser indicado?',
-            a: 'Indicar pode qualquer aluno do DevQuest com conta ativa. Ser indicada pode qualquer pessoa que ainda não é aluno e queira começar a estudar programação com a gente.',
+            a: 'Qualquer aluno do DevQuest com conta ativa pode indicar. E pode ser indicada qualquer pessoa que ainda não seja aluna e queira começar a estudar programação com a gente.',
         },
         {
             q: 'Os pontos têm prazo de validade?',

@@ -15,6 +15,8 @@ interface IndicacaoTabProps {
     readonly shareLink: string;
     readonly referrals: readonly MgmReferralView[];
     readonly boostActive: boolean;
+    readonly boostMultiplier: number;
+    readonly seasonName: string | null;
 }
 
 const WHATSAPP_MESSAGE =
@@ -25,6 +27,8 @@ export default function IndicacaoTab({
     shareLink,
     referrals,
     boostActive,
+    boostMultiplier,
+    seasonName,
 }: IndicacaoTabProps) {
     const [copied, setCopied] = useState(false);
 
@@ -118,7 +122,7 @@ export default function IndicacaoTab({
                             local_fire_department
                         </span>
                         <span className="text-xs font-semibold text-amber-300">
-                            Pontos turbinados nesta janela — é a melhor hora pra indicar.
+                            {seasonName ? `${seasonName}: ` : ''}pontos turbinados em {boostMultiplier}x — é a melhor hora pra indicar.
                         </span>
                     </div>
                 ) : null}

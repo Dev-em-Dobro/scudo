@@ -112,8 +112,8 @@ export default async function IndiqueGanhePage() {
                                         <br className="hidden sm:block" /> e acumule pontos
                                     </h2>
                                     <p className="mt-2.5 text-sm md:text-base text-slate-400 leading-relaxed max-w-[54ch]">
-                                        Compartilhe seu link. Quando alguém compra pelo seu link,
-                                        você pontua e troca os pontos por prêmios.
+                                        Compartilhe seu link com quem quer começar a programar.
+                                        A cada compra feita por ele, você ganha pontos e troca por prêmios.
                                     </p>
 
                                     <div className="mt-5">
@@ -180,6 +180,8 @@ export default async function IndiqueGanhePage() {
                             shareLink={shareLink}
                             referrals={referrals}
                             boostActive={boostActive}
+                            boostMultiplier={getPointsMultiplier(now)}
+                            seasonName={seasonName}
                             rewards={rewards}
                             redemptions={redemptions}
                             pointsAvailable={statusCards.pointsAvailable}
