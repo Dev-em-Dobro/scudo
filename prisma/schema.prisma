@@ -34,6 +34,7 @@ model User {
   mgmRankingOptIn           Boolean                   @default(true) // MGM Fase 1: aparece no leaderboard público (opt-out vira "Anônimo")
   mgmReferralsMade          MgmReferral[]             @relation("ReferrerUser")
   mgmRedemptions            MgmRedemption[]
+  jobApplications           JobApplication[]
 }
 
 model ProductFeedback {
@@ -234,25 +235,26 @@ model Verification {
 }
 
 model Job {
-  id                 String      @id @default(cuid())
+  id                 String           @id @default(cuid())
   title              String
   companyName        String
-  level              JobLevel    @default(OUTRO)
+  level              JobLevel         @default(OUTRO)
   stack              String[]
   location           String?
-  isRemote           Boolean     @default(false)
+  isRemote           Boolean          @default(false)
   publishedAt        DateTime?
   source             JobSource
   sourceUrl          String
   externalId         String?
-  fingerprint        String      @unique
-  lastSeenAt         DateTime    @default(now())
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-  isActive           Boolean     @default(true)
+  fingerprint        String           @unique
+  lastSeenAt         DateTime         @default(now())
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  isActive           Boolean          @default(true)
   inactivatedAt      DateTime?
   inactivationReason String?
   reports            JobReport[]
+  applications       JobApplication[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -260,6 +262,20 @@ model Job {
   @@index([isActive, lastSeenAt])
   @@index([publishedAt])
   @@index([companyName])
+}
+
+model JobApplication {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([jobId, createdAt])
+  @@index([userId, createdAt])
 }
 
 model JobIngestionLog {
