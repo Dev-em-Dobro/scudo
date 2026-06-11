@@ -61,6 +61,13 @@ export function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
+    // Link público de indicação (/i/<code>) — o indicado é um prospect anônimo
+    // (ainda não tem conta). A rota registra o MgmClick e redireciona (302) pro
+    // checkout; exigir login aqui quebraria a campanha. [MGM spec §4.7]
+    if (pathname.startsWith('/i/')) {
+        return NextResponse.next();
+    }
+
     // A partir daqui, a rota requer sessão ativa
     const authenticated = hasSessionCookie(request);
 

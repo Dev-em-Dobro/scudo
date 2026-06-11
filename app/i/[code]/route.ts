@@ -46,6 +46,15 @@ function buildCheckoutUrl(code: string | null): string | null {
             url.searchParams.set('utm_medium', 'referral');
             url.searchParams.set('utm_content', code);
         }
+        // Cupom fixo de campanha (desconto do indicado). Default INDIQUEMGM;
+        // `MGM_CHECKOUT_COUPON` sobrescreve (string vazia desliga). Aplicado a
+        // todo acesso pelo link de indicação — independente da validade do
+        // `ref` (a atribuição é reconciliada à parte; o desconto melhora a
+        // conversão de quem chegou pelo link).
+        const coupon = (process.env.MGM_CHECKOUT_COUPON ?? 'INDIQUEMGM').trim();
+        if (coupon) {
+            url.searchParams.set('coupon', coupon);
+        }
         return url.toString();
     } catch {
         console.warn('[mgm/i] MGM_CHECKOUT_URL inválido — fallback para "/".');

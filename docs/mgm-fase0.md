@@ -37,6 +37,7 @@ Deploy: `npm run prisma:migrate:deploy` no pipeline (Neon).
 | `HUBLA_WEBHOOK_SECRET` | Sim (Hubla) | — | Bearer/`x-webhook-secret` do `POST /api/referrals/hubla-webhook` |
 | `ASAAS_WEBHOOK_SECRET` | Sim (Asaas) | — | Header `asaas-access-token` do `POST /api/referrals/asaas-webhook` (Fase 1) |
 | `MGM_CHECKOUT_URL` | Sim (deploy) | fallback `/` | URL do checkout DevQuest na Hubla. Sem ela, `/i/[code]` redireciona pra `/` |
+| `MGM_CHECKOUT_COUPON` | Não | **`INDIQUEMGM`** | Cupom de desconto do indicado, anexado como `?coupon=` no redirect do `/i/[code]` pro checkout. Setar string vazia desliga o cupom |
 | `MGM_RENEWAL_PRICE_CENTS` | Não | — | Preço da renovação anual em centavos (ex.: `129700` = R$ 1.297). Sem env, vitrine de prêmios mostra só o `%` sem ancorar preço |
 | `MGM_ADMIN_EMAILS` | Sim (admin) | — | CSV de e-mails com acesso a `/admin/mgm-redemptions` (Fase 1) |
 | `MGM_SEASON_NAME` | Não | — | Nome da temporada ativa exibido na UI (ex.: "Temporada Copa do Mundo") |
