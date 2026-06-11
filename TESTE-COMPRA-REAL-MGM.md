@@ -89,9 +89,9 @@ Estado em 2026-06-11 — ambiente de teste: `https://scudo-dev-em-dobros-project
       - [ ] Evento de **reembolso** marcado (rótulo "Fatura reembolsada"/
         "Reembolso de fatura" = `invoice.refunded`) — eventos extras são
         inofensivos: o endpoint responde `200 skipped` pro que não trata
-- [ ] **`HUBLA_WEBHOOK_SECRET` setada na Vercel** (projeto da conta dev) com o
-      **token da conta Hubla** (painel → Integrações/Credenciais) + redeploy.
-      ⚠️ Essa env NÃO existe no projeto ainda — sem ela o webhook responde 500.
+- [x] **`HUBLA_WEBHOOK_SECRET` setada na Vercel** (2026-06-11, stakeholder) +
+      redeploy. Validado: endpoint responde 401 pra request sem/with token
+      errado — só o token real da Hubla passa.
 
 > Quando o programa for pro domínio definitivo, repetir webhook + secret
 > apontando pro domínio final.
