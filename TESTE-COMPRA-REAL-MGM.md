@@ -79,9 +79,16 @@ Estado em 2026-06-11 — ambiente de teste: `https://scudo-dev-em-dobros-project
       `coupon`/`ref`/`utm` pros botões da Hubla (mudança feita no
       `ferramentas-ded/matriculas-site/index.html`, ainda não deployada)
 - [ ] **Cupom `INDIQUEMGM` criado na Hubla** nas ofertas de 1 ano e 2 anos
-- [ ] **Webhook v2 configurado NA Hubla** (painel → Integrações → Webhooks):
-      - URL: `https://scudo-dev-em-dobros-projects.vercel.app/api/referrals/hubla-webhook`
-      - Eventos: `invoice.payment_succeeded` + `invoice.refunded`
+- [x] **Webhook v2 criado NA Hubla** (2026-06-11) — regra com o nome
+      **"Indicação alunos - Member Get Member"**, evento "Pagamento de fatura
+      realizado" (= `invoice.payment_succeeded`). Falta confirmar na regra:
+      - [ ] **URL** apontando pro ambiente de teste:
+        `https://scudo-dev-em-dobros-projects.vercel.app/api/referrals/hubla-webhook`
+        (trocar pro domínio definitivo no go-live)
+      - [ ] **Produto/oferta** corretos no escopo da regra (DevQuest 1 ano e 2 anos)
+      - [ ] Evento de **reembolso** marcado (rótulo "Fatura reembolsada"/
+        "Reembolso de fatura" = `invoice.refunded`) — eventos extras são
+        inofensivos: o endpoint responde `200 skipped` pro que não trata
 - [ ] **`HUBLA_WEBHOOK_SECRET` setada na Vercel** (projeto da conta dev) com o
       **token da conta Hubla** (painel → Integrações/Credenciais) + redeploy.
       ⚠️ Essa env NÃO existe no projeto ainda — sem ela o webhook responde 500.
