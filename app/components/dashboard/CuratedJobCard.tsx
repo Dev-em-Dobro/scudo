@@ -13,7 +13,7 @@ interface CuratedJobCardProps {
 
 type JobReportReason = 'EXPIRED' | 'UNAVAILABLE' | 'CANCELLED';
 
-type JobReportFeedback = {
+type ActionFeedback = {
     kind: 'idle' | 'success' | 'error';
     message: string | null;
 };
@@ -109,7 +109,12 @@ export default function CuratedJobCard({
     const [showSkillGapAlert, setShowSkillGapAlert] = useState(false);
     const [reportMenuOpen, setReportMenuOpen] = useState(false);
     const [reportingReason, setReportingReason] = useState<JobReportReason | null>(null);
-    const [reportFeedback, setReportFeedback] = useState<JobReportFeedback>({
+    const [isApplying, setIsApplying] = useState(false);
+    const [reportFeedback, setReportFeedback] = useState<ActionFeedback>({
+        kind: 'idle',
+        message: null,
+    });
+    const [applyFeedback, setApplyFeedback] = useState<ActionFeedback>({
         kind: 'idle',
         message: null,
     });
@@ -145,6 +150,40 @@ export default function CuratedJobCard({
         && requiresLegendaryRank(job.level)
         && currentRank !== 'Lendário';
 
+    async function registerApplyEvent() {
+        setIsApplying(true);
+        setApplyFeedback({ kind: 'idle', message: null });
+
+        try {
+            const response = await fetch(`/api/jobs/${job.id}/apply`, {
+                method: 'POST',
+                keepalive: true,
+            });
+
+            const data = await response.json().catch(() => null) as
+                | { error?: string; message?: string; alreadyApplied?: boolean }
+                | null;
+
+            if (!response.ok) {
+                throw new Error(data?.error ?? 'Não foi possível registrar sua candidatura.');
+            }
+
+            setApplyFeedback({
+                kind: 'success',
+                message: data?.message ?? (data?.alreadyApplied
+                    ? 'Candidatura já registrada para essa vaga.'
+                    : 'Candidatura registrada com sucesso.'),
+            });
+        } catch (error) {
+            setApplyFeedback({
+                kind: 'error',
+                message: error instanceof Error ? error.message : 'Falha inesperada ao registrar candidatura.',
+            });
+        } finally {
+            setIsApplying(false);
+        }
+    }
+
     function handleApplyClick() {
         if (isBlockedByRank) {
             setShowSkillGapAlert(true);
@@ -155,7 +194,15 @@ export default function CuratedJobCard({
             setShowSkillGapAlert(true);
             return;
         }
-        window.open(job.sourceUrl, "_blank", "noopener,noreferrer");
+
+        const openedWindow = globalThis.open(job.sourceUrl, "_blank", "noopener,noreferrer");
+
+        // Fallback para navegadores que bloqueiam popup em nova aba.
+        if (!openedWindow) {
+            globalThis.location.assign(job.sourceUrl);
+        }
+
+        void registerApplyEvent();
     }
 
     async function handleReportClick(reason: JobReportReason) {
@@ -196,6 +243,10 @@ export default function CuratedJobCard({
 
     function handleDismissReportFeedback() {
         setReportFeedback({ kind: 'idle', message: null });
+    }
+
+    function handleDismissApplyFeedback() {
+        setApplyFeedback({ kind: 'idle', message: null });
     }
 
     const publishedDate = job.publishedAt ?? job.createdAt;
@@ -332,6 +383,29 @@ export default function CuratedJobCard({
 
             {/* Actions row */}
             <div className="mt-4 pt-3.5 border-t border-[#333] space-y-3">
+                {applyFeedback.kind !== 'idle' && applyFeedback.message ? (
+                    <div
+                        className={`rounded-lg border px-3 py-2 text-xs font-medium ${applyFeedback.kind === 'success'
+                            ? 'border-blue-500/30 bg-blue-500/10 text-blue-200'
+                            : 'border-red-500/30 bg-red-500/10 text-red-300'
+                            }`}
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <p className="pt-0.5">{applyFeedback.message}</p>
+                            <button
+                                type="button"
+                                onClick={handleDismissApplyFeedback}
+                                aria-label="Fechar mensagem da candidatura"
+                                className="cursor-pointer inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current/20 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
+                            >
+                                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: "16px" }}>
+                                    close
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
+
                 {reportFeedback.kind !== 'idle' && reportFeedback.message ? (
                     <div
                         className={`rounded-lg border px-3 py-2 text-xs font-medium ${reportFeedback.kind === 'success'
@@ -380,9 +454,10 @@ export default function CuratedJobCard({
                         <button
                             type="button"
                             onClick={handleApplyClick}
-                            className="cursor-pointer px-5 py-2 bg-[#6528d3] hover:bg-[#5020b0] active:scale-95 text-white text-xs font-bold rounded-lg uppercase tracking-wide transition-all duration-150 shadow-sm shadow-primary/20"
+                            disabled={isApplying}
+                            className="cursor-pointer px-5 py-2 bg-[#6528d3] hover:bg-[#5020b0] active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 text-white text-xs font-bold rounded-lg uppercase tracking-wide transition-all duration-150 shadow-sm shadow-primary/20"
                         >
-                            Candidatar
+                            {isApplying ? 'Candidatando...' : 'Candidatar'}
                         </button>
                     </div>
                 </div>
