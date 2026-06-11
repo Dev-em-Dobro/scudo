@@ -73,16 +73,27 @@ $env:ENABLE_MGM="true"; $env:NEXT_PUBLIC_ENABLE_MGM="true"
 
 ### Configurar o webhook NA Hubla (pré-requisito — não é código)
 
-O endpoint `POST /api/referrals/hubla-webhook` é só o **receptor**. Pra ele
-disparar, **a Hubla precisa ser configurada** (painel/admin ou API da Hubla,
-por quem tem acesso à conta — ops/stakeholder, não `@dev`) para enviar webhook
-de **compra aprovada** e **reembolso** para:
+O endpoint `POST /api/referrals/hubla-webhook` é só o **receptor** (formato
+**Webhook v2.0.0** da Hubla). Pra ele disparar, **a Hubla precisa ser
+configurada** (painel/admin, por quem tem acesso à conta — ops/stakeholder,
+não `@dev`):
 
-- **URL:** `https://scudo.devemdobro.com/api/referrals/hubla-webhook`
-- **Auth:** header `x-webhook-secret: <HUBLA_WEBHOOK_SECRET>` **ou**
-  `Authorization: Bearer <HUBLA_WEBHOOK_SECRET>` (o handler aceita os dois).
-  Se a Hubla só assinar com esquema próprio, ajustar só a auth do handler
-  (mudança isolada) — não rearquiteta o resto.
+1. Painel Hubla → **Integrações → Webhooks** → criar webhook **versão 2.0**.
+2. **URL:** `https://scudo.devemdobro.com/api/referrals/hubla-webhook`
+3. **Eventos:** marcar **Fatura: pagamento bem-sucedido**
+   (`invoice.payment_succeeded`) e **Fatura: reembolso** (`invoice.refunded`).
+   Outros eventos assinados são respondidos com `{skipped: 'unhandled_event'}`
+   (200, sem retry).
+4. **Auth:** a Hubla assina cada request com o **token único da conta** no
+   header `x-hubla-token` (não há header customizável). Copiar o token
+   (painel → Integrações/Credenciais) e setar `HUBLA_WEBHOOK_SECRET` na Vercel
+   com **esse valor**. Pra testes manuais via curl, o handler também aceita
+   `x-webhook-secret` ou `Authorization: Bearer`.
+
+**Mapeamento do payload v2** (handler): `event.invoice.id` → `gatewayOrderId`;
+`event.payer` (fallback `event.user`) → comprador; `amount.totalCents/100` →
+`saleAmount` em reais; `firstPaymentSession.utm.content` → `ref` (P1 — nosso
+redirect `/i/[code]` manda `utm_content=<code>`); sem utm → P2 por e-mail.
 
 **Não é bloqueante (resiliência §4.7):** sem webhook útil da Hubla, **P2**
 (casar e-mail do comprador com `MgmClick` — basta qualquer webhook com o

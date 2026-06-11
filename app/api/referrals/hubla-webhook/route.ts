@@ -9,30 +9,55 @@ export const runtime = 'nodejs';
 /**
  * Adapter Hubla → handler central (`recordReferral`). Spec v0.4 §v0.4-H.
  *
- * Responsabilidade DESTE arquivo: validar secret Hubla, parse Zod do payload
- * Hubla, mapear pro shape normalizado. NADA de lógica de negócio aqui —
- * idempotência, validações, atribuição P1/P2 e RLS são do `recordReferral`.
+ * Formato: **Webhook Hubla v2.0.0** (docs: hubla.gitbook.io/docs/webhooks).
+ * A Hubla autentica enviando o token único da conta no header `x-hubla-token`
+ * (não há header customizável) — `HUBLA_WEBHOOK_SECRET` deve ser setado com
+ * esse token. `x-webhook-secret`/Bearer continuam aceitos pra testes manuais.
+ *
+ * Eventos consumidos: `invoice.payment_succeeded` e `invoice.refunded`.
+ * Qualquer outro `type` responde 200 `{skipped}` — a Hubla faz retry em
+ * não-2xx, e evento não-mapeado não é erro.
+ *
+ * Responsabilidade DESTE arquivo: validar token, parse Zod do payload Hubla,
+ * mapear pro shape normalizado. NADA de lógica de negócio aqui — idempotência,
+ * validações, atribuição P1/P2 e RLS são do `recordReferral`.
  */
 
-const customerSchema = z.object({
-    email: z.email(),
+const personSchema = z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.email().optional(),
     phone: z.string().optional(),
-    name: z.string().optional(),
 });
 
-const HublaWebhookSchema = z.object({
-    event: z.enum(['purchase.approved', 'purchase.refunded']),
-    orderId: z.string().min(1),
-    customer: customerSchema,
-    amount: z.number().nonnegative(),
-    // O ref pode chegar em qualquer um destes (a Hubla decide — spec §4.4):
-    utm: z.object({ content: z.string().optional() }).optional(),
-    metadata: z.record(z.string(), z.string()).optional(),
-    query: z.record(z.string(), z.string()).optional(),
-    createdAt: z.string().optional(),
+const HublaWebhookV2Schema = z.object({
+    type: z.enum(['invoice.payment_succeeded', 'invoice.refunded']),
+    version: z.string().optional(),
+    event: z.object({
+        invoice: z.object({
+            id: z.string().min(1),
+            saleDate: z.string().optional(),
+            createdAt: z.string().optional(),
+            amount: z.object({ totalCents: z.number().nonnegative() }),
+            // utm capturado pela Hubla na sessão de checkout — nosso redirect
+            // /i/[code] manda utm_content=<referralCode> (P1).
+            firstPaymentSession: z
+                .object({
+                    utm: z
+                        .object({
+                            source: z.string().optional(),
+                            content: z.string().optional(),
+                        })
+                        .optional(),
+                })
+                .optional(),
+        }),
+        payer: personSchema.optional(),
+        user: personSchema.optional(),
+    }),
 });
 
-type HublaWebhook = z.infer<typeof HublaWebhookSchema>;
+type HublaWebhookV2 = z.infer<typeof HublaWebhookV2Schema>;
 
 function isAuthorized(request: NextRequest) {
     const webhookSecret = process.env.HUBLA_WEBHOOK_SECRET;
@@ -46,6 +71,7 @@ function isAuthorized(request: NextRequest) {
     }
 
     const providedSecret =
+        request.headers.get('x-hubla-token') ??
         request.headers.get('x-webhook-secret') ??
         request.headers.get('authorization')?.replace('Bearer ', '');
 
@@ -56,20 +82,10 @@ function isAuthorized(request: NextRequest) {
     return { ok: true as const };
 }
 
-/** P1: extrai o ref de query/metadata/utm, nesta ordem de confiança. */
-function extractHublaRef(payload: HublaWebhook): string | null {
-    const candidates = [
-        payload.query?.ref,
-        payload.metadata?.ref,
-        payload.utm?.content,
-    ];
-    for (const candidate of candidates) {
-        const value = candidate?.trim();
-        if (value) {
-            return value;
-        }
-    }
-    return null;
+function fullName(person?: z.infer<typeof personSchema>): string | null {
+    if (!person) return null;
+    const name = [person.firstName, person.lastName].filter(Boolean).join(' ').trim();
+    return name || null;
 }
 
 export async function POST(request: NextRequest) {
@@ -83,32 +99,58 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => null);
-    const parsed = HublaWebhookSchema.safeParse(body);
+
+    // Evento não-mapeado (assinatura na Hubla pode incluir outros types) →
+    // 200 pra não entrar em retry; logamos pra visibilidade.
+    const typeProbe = z.object({ type: z.string() }).safeParse(body);
+    if (
+        typeProbe.success &&
+        !['invoice.payment_succeeded', 'invoice.refunded'].includes(typeProbe.data.type)
+    ) {
+        console.warn('[mgm/hubla-webhook] Evento ignorado.', { type: typeProbe.data.type });
+        return NextResponse.json({ ok: true, skipped: 'unhandled_event' });
+    }
+
+    const parsed = HublaWebhookV2Schema.safeParse(body);
 
     if (!parsed.success) {
         return NextResponse.json(
             {
-                error: 'Payload inválido para webhook da Hubla.',
+                error: 'Payload inválido para webhook da Hubla (v2).',
                 details: parsed.error.issues,
             },
             { status: 400 },
         );
     }
 
-    const data = parsed.data;
+    const data: HublaWebhookV2 = parsed.data;
+    const { invoice } = data.event;
+
+    // Comprador: `payer` é quem pagou; fallback `user` (titular do acesso).
+    const customer = data.event.payer?.email ? data.event.payer : data.event.user;
+    if (!customer?.email) {
+        return NextResponse.json(
+            { error: 'Payload sem e-mail do comprador (payer/user).' },
+            { status: 400 },
+        );
+    }
 
     const result = await recordReferral({
         gateway: 'hubla',
-        event: data.event,
-        orderId: data.orderId,
+        event:
+            data.type === 'invoice.payment_succeeded'
+                ? 'purchase.approved'
+                : 'purchase.refunded',
+        orderId: invoice.id,
         customer: {
-            email: data.customer.email,
-            phone: data.customer.phone ?? null,
-            name: data.customer.name ?? null,
+            email: customer.email,
+            phone: customer.phone ?? null,
+            name: fullName(customer),
         },
-        amount: data.amount,
-        ref: extractHublaRef(data),
-        createdAt: data.createdAt ?? null,
+        // Hubla manda centavos; shape normalizado é em reais.
+        amount: invoice.amount.totalCents / 100,
+        ref: invoice.firstPaymentSession?.utm?.content?.trim() || null,
+        createdAt: invoice.saleDate ?? invoice.createdAt ?? null,
     });
 
     return NextResponse.json(result);
