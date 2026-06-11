@@ -8,7 +8,10 @@ import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
 import AptJobsEmptyHint from './components/home/AptJobsEmptyHint';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
+import SeasonHighlightStrip from './components/mgm/SeasonHighlightStrip';
 import { auth } from './lib/auth';
+import { isMgmEnabled } from './lib/featureFlags';
+import { getCurrentSeason } from './lib/mgm/seasons';
 import { getJobBoardJobs } from './lib/jobs/jobBoard';
 import { getOrCreateUserProfile } from './lib/profile/profile';
 
@@ -41,6 +44,9 @@ export default async function Home() {
         name: session.user.name,
         email: session.user.email,
     });
+
+    // Destaque sutil da temporada MGM (v0.5) — só com flag ligada + janela ativa.
+    const season = isMgmEnabled() ? getCurrentSeason() : null;
 
     const aptJobs = jobs
         .map((job) => ({
@@ -81,6 +87,15 @@ export default async function Home() {
                                 Suba seu currículo e mantenha o perfil atualizado pra que o matching das vagas funcione direito.
                             </p>
                         </section>
+
+                        {/* TEMPORADA MGM (v0.5) */}
+                        {season?.active && (
+                            <SeasonHighlightStrip
+                                seasonName={season.name}
+                                multiplier={season.multiplier}
+                                endsAt={season.endsAt?.toISOString() ?? null}
+                            />
+                        )}
 
                         {/* Main grid */}
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

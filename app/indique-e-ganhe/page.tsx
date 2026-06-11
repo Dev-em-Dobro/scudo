@@ -27,6 +27,7 @@ import { getRanking } from '@/app/lib/mgm/ranking';
 import StatusCards from '@/app/indique-e-ganhe/components/StatusCards';
 import IndiqueGanheTabs from '@/app/indique-e-ganhe/components/IndiqueGanheTabs';
 import FaqSection from '@/app/indique-e-ganhe/components/FaqSection';
+import SeasonBanner from '@/app/indique-e-ganhe/components/SeasonBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -107,23 +108,31 @@ export default async function IndiqueGanhePage() {
                                 compra feita por ele, você ganha pontos e troca por prêmios.
                             </p>
 
-                            <div className="mt-6 inline-flex">
-                                {boostActive ? (
-                                    <span className="inline-flex items-center gap-2 rounded-full bg-[#ff6b35] px-4 py-2">
-                                        <span className="text-[12px] font-bold text-white tracking-wide [font-family:'Ubuntu',Helvetica]">
-                                            {seasonName ? `${seasonName.toUpperCase()} · ` : 'TEMPORADA ATIVA · '}
-                                            {boostMultiplier}X PONTOS
-                                        </span>
-                                    </span>
-                                ) : (
+                            {!boostActive && (
+                                <div className="mt-6 inline-flex">
                                     <span className="inline-flex items-center gap-2 rounded-full bg-[#6528d3] px-4 py-2">
                                         <span className="text-[12px] font-bold text-white tracking-wide [font-family:'Ubuntu',Helvetica]">
                                             {pointsBase} PONTOS POR INDICAÇÃO VÁLIDA
                                         </span>
                                     </span>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </section>
+
+                        {/* BANNER DA TEMPORADA (v0.5) */}
+                        {boostActive && (
+                            <SeasonBanner
+                                seasonName={seasonName}
+                                multiplier={boostMultiplier}
+                                endsAt={seasonEndsAt}
+                                seasonPrize={(() => {
+                                    const prize = rewards.find((r) => r.seasonOnly);
+                                    return prize
+                                        ? { name: prize.name, costPoints: prize.costPoints }
+                                        : null;
+                                })()}
+                            />
+                        )}
 
                         {/* STATUS */}
                         <StatusCards data={statusCards} />

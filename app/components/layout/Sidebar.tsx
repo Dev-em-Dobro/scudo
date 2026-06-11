@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/app/components/layout/BrandLogo';
 import { getVisibleNavItems } from '@/app/lib/constants';
+import { useMgmSeason } from '@/app/lib/mgm/useMgmSeason';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useSidebar } from '@/app/providers/SidebarProvider';
 
@@ -42,6 +43,9 @@ export default function Sidebar() {
     const pathname = usePathname();
     const { isCollapsed, toggleSidebar } = useSidebar();
     const visibleNavItems = getVisibleNavItems();
+    // Destaque sutil da temporada MGM no item "Indique e Ganhe" (v0.5).
+    const mgmSeason = useMgmSeason();
+    const seasonActive = mgmSeason?.active ?? false;
 
     return (
         <aside
@@ -76,6 +80,8 @@ export default function Sidebar() {
                             ? pathname === '/'
                             : pathname.startsWith(item.href);
                         const icon = NAV_ICONS[item.label] ?? item.icon;
+                        const showSeasonBadge =
+                            seasonActive && item.href === '/indique-e-ganhe';
 
                         return (
                             <Link
@@ -89,13 +95,30 @@ export default function Sidebar() {
                                         : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
                                 } ${isCollapsed ? 'justify-center' : ''}`}
                             >
-                                <span
-                                    className="material-symbols-outlined text-[20px] shrink-0"
-                                    style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-                                >
-                                    {icon}
+                                <span className="relative shrink-0">
+                                    <span
+                                        className="material-symbols-outlined text-[20px] block"
+                                        style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                                    >
+                                        {icon}
+                                    </span>
+                                    {showSeasonBadge && isCollapsed && (
+                                        <span
+                                            className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#ff6b35]"
+                                            aria-hidden="true"
+                                        />
+                                    )}
                                 </span>
-                                {isCollapsed ? null : <span>{item.label}</span>}
+                                {isCollapsed ? null : (
+                                    <>
+                                        <span>{item.label}</span>
+                                        {showSeasonBadge && (
+                                            <span className="ml-auto inline-flex items-center rounded-full bg-[#ff6b35] px-2 py-0.5 text-[10px] font-black tabular-nums text-white">
+                                                {mgmSeason?.multiplier}x
+                                            </span>
+                                        )}
+                                    </>
+                                )}
                             </Link>
                         );
                     })}
