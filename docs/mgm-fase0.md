@@ -49,6 +49,16 @@ Deploy: `npm run prisma:migrate:deploy` no pipeline (Neon).
 | `MGM_APP_URL` | Não | `BETTER_AUTH_URL` | Base usada em `buildShareLink` (`/i/<code>`) |
 | `CRON_SECRET` | Sim | — | **Já existe** (reusado do cron de jobs). Auth do `/api/cron/mgm-validate` |
 
+## Prêmio especial da temporada (v0.5)
+
+A temporada (boost de pontos) continua 100% via envs — **abrir uma temporada não envolve código**. O prêmio especial é um reward do catálogo com `seasonOnly=true`: só aparece na vitrine e só aceita resgate enquanto `MGM_BOOST_STARTS_AT/ENDS_AT` estiver na janela. O gate é na entrada — resgates feitos durante a janela seguem o fluxo admin normal depois do fim.
+
+**Checklist pra abrir uma temporada com prêmio** (ex.: Copa do Mundo, +50%, cadeira gamer):
+
+1. Setar na Vercel: `MGM_SEASON_NAME`, `MGM_BOOST_STARTS_AT`, `MGM_BOOST_ENDS_AT`, `MGM_BOOST_MULTIPLIER=1.5` + redeploy.
+2. Seed do prêmio: entrada no `scripts/seed-mgm-rewards.mjs` com `seasonOnly: true` e família **por temporada** (ex.: `temporada-copa-2026` — garante 1 resgate por aluno nesta temporada sem bloquear a próxima) → `node scripts/seed-mgm-rewards.mjs` apontando pro banco de prod.
+3. Fim da temporada: automático (cadeira some da vitrine e resgate bloqueia com `season_inactive`). Opcional: `active=false` no reward por higiene.
+
 ## Go-live: ligar o MGM em produção
 
 Feature flag default **OFF** — nada do MGM aparece até concluir os passos, **nesta ordem**:

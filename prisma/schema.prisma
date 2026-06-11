@@ -359,6 +359,7 @@ model MgmReward {
   rewardFamily String // "merch-camiseta" | "merch-livro" | "renovacao" — exclusividade por aluno
   metadata     Json? // { discountPercent: 30, durationMonths: 12, sku: "..." }
   active       Boolean         @default(true)
+  seasonOnly   Boolean         @default(false) // v0.5: visível/resgatável só com isSeasonActive()
   sortOrder    Int             @default(0)
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt

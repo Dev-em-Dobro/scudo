@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /**
- * Seed do catálogo MGM (spec v0.4 §v0.4-D).
+ * Seed do catálogo MGM (spec v0.4 §v0.4-D, v0.5 §v0.5-D).
  *
- * 6 prêmios iniciais — sob demanda (sem estoque):
+ * 6 prêmios permanentes — sob demanda (sem estoque):
  *  - 100 pts: Camiseta DevQuest         (PHYSICAL,         merch-camiseta)
  *  - 200 pts: Livro Clean Code          (PHYSICAL,         merch-livro)
  *  - 300 pts: 30% off renovação         (DIGITAL_DISCOUNT, renovacao)
  *  - 400 pts: 40% off renovação         (DIGITAL_DISCOUNT, renovacao)
  *  - 500 pts: 50% off renovação         (DIGITAL_DISCOUNT, renovacao)
  *  - 800 pts: 1 ano grátis na renovação (DIGITAL_VOUCHER,  renovacao)
+ *
+ * + 1 prêmio de temporada (seasonOnly — só aparece/resgata com MGM_BOOST_* ativo):
+ *  - 600 pts: Cadeira Gamer (PHYSICAL, temporada-copa-2026) — Temporada Copa do Mundo
  *
  * Idempotente: usa upsert por slug. Roda manualmente:
  *   node scripts/seed-mgm-rewards.mjs              # → DATABASE_URL (prod/dev)
@@ -82,6 +85,18 @@ const REWARDS = [
         metadata: { discountPercent: 100, durationMonths: 12 },
         sortOrder: 60,
     },
+    {
+        slug: 'cadeira-gamer-copa-2026',
+        name: 'Cadeira Gamer',
+        description:
+            'Prêmio especial da Temporada Copa do Mundo. Cadeira gamer enviada pra sua casa — exclusiva de quem resgatar durante a temporada.',
+        costPoints: 600,
+        type: 'PHYSICAL',
+        rewardFamily: 'temporada-copa-2026',
+        metadata: { sku: 'cadeira-gamer-copa-2026' },
+        seasonOnly: true,
+        sortOrder: 5, // primeiro card da vitrine enquanto a temporada rola
+    },
 ];
 
 async function main() {
@@ -101,6 +116,7 @@ async function main() {
                     rewardFamily: reward.rewardFamily,
                     metadata: reward.metadata,
                     active: true,
+                    seasonOnly: reward.seasonOnly ?? false,
                     sortOrder: reward.sortOrder,
                 },
                 update: {
@@ -111,6 +127,7 @@ async function main() {
                     rewardFamily: reward.rewardFamily,
                     metadata: reward.metadata,
                     active: true,
+                    seasonOnly: reward.seasonOnly ?? false,
                     sortOrder: reward.sortOrder,
                 },
             });

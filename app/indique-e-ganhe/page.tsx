@@ -14,6 +14,7 @@ import {
 } from '@/app/lib/mgm/service';
 import { buildShareLink } from '@/app/lib/mgm/share-link';
 import {
+    getCurrentSeason,
     getGuaranteeDays,
     getPointsBase,
     getPointsMultiplier,
@@ -50,6 +51,10 @@ export default async function IndiqueGanhePage() {
     const now = new Date();
     const boostActive = isSeasonActive(now);
     const seasonName = getSeasonName();
+    // v0.5: prêmio da temporada mostra a data-limite de resgate no card.
+    const seasonEndsAt = boostActive
+        ? (getCurrentSeason(now).endsAt?.toISOString() ?? null)
+        : null;
     const shareLink = buildShareLink(code);
 
     const [statusCards, referrals, rewards, redemptions, rankingAllTime, rankingSeason, profile] =
@@ -135,6 +140,7 @@ export default async function IndiqueGanhePage() {
                             redemptions={redemptions}
                             pointsAvailable={statusCards.pointsAvailable}
                             savedAddress={savedAddress}
+                            seasonEndsAt={seasonEndsAt}
                             rankingAllTime={rankingAllTime}
                             rankingSeason={rankingSeason}
                             viewerOptIn={viewerOptIn}

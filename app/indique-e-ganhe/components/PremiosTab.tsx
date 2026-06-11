@@ -15,6 +15,8 @@ interface PremiosTabProps {
     readonly redemptions: readonly MgmRedemptionView[];
     readonly pointsAvailable: number;
     readonly savedAddress: ShippingInfo | null;
+    /** ISO do fim da temporada ativa — null fora de temporada (v0.5). */
+    readonly seasonEndsAt: string | null;
 }
 
 const STATUS_LABELS: Record<
@@ -33,6 +35,7 @@ export default function PremiosTab({
     redemptions,
     pointsAvailable,
     savedAddress,
+    seasonEndsAt,
 }: PremiosTabProps) {
     const router = useRouter();
     const [selected, setSelected] = useState<MgmRewardView | null>(null);
@@ -155,6 +158,7 @@ export default function PremiosTab({
                             reward={reward}
                             pointsAvailable={pointsAvailable}
                             familyBlocked={blockedFamilies.has(reward.rewardFamily)}
+                            seasonEndsAt={seasonEndsAt}
                             onSelect={() => setSelected(reward)}
                         />
                     ))}
@@ -279,10 +283,11 @@ interface RewardCardProps {
     readonly reward: MgmRewardView;
     readonly pointsAvailable: number;
     readonly familyBlocked: boolean;
+    readonly seasonEndsAt: string | null;
     readonly onSelect: () => void;
 }
 
-function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: RewardCardProps) {
+function RewardCard({ reward, pointsAvailable, familyBlocked, seasonEndsAt, onSelect }: RewardCardProps) {
     const canAfford = pointsAvailable >= reward.costPoints;
     const disabled = !canAfford || familyBlocked;
     const isPhysical = reward.type === 'PHYSICAL';
@@ -293,7 +298,13 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: Reward
     const deliveryLabel = isPhysical ? 'Envio físico' : 'Cupom digital';
 
     return (
-        <div className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 flex flex-col transition-colors duration-200 hover:border-[#6528d3]">
+        <div
+            className={`rounded-2xl border bg-[#1a1a1a] p-6 flex flex-col transition-colors duration-200 ${
+                reward.seasonOnly
+                    ? 'border-[#ff6b35]/50 hover:border-[#ff6b35]'
+                    : 'border-[#333] hover:border-[#6528d3]'
+            }`}
+        >
             <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#ededed] [font-family:'Ubuntu',Helvetica]">
                     {deliveryLabel}_
@@ -302,6 +313,19 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, onSelect }: Reward
                     {reward.costPoints} pts
                 </span>
             </div>
+
+            {reward.seasonOnly && (
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#ff6b35]/40 bg-[#ff6b35]/10 px-3 py-2">
+                    <span className="text-[11px] font-bold uppercase tracking-[1px] text-[#ff6b35] [font-family:'Ubuntu',Helvetica]">
+                        ⭐ Prêmio da Temporada
+                    </span>
+                    {seasonEndsAt && (
+                        <span className="text-[11px] text-white/70 tabular-nums [font-family:'Ubuntu',Helvetica]">
+                            até {new Date(seasonEndsAt).toLocaleDateString('pt-BR')}
+                        </span>
+                    )}
+                </div>
+            )}
 
             <h3 className="mt-5 text-[18px] font-bold text-white leading-tight [font-family:'Ubuntu',Helvetica]">
                 {reward.name}

@@ -3,6 +3,7 @@ import { Prisma, type MgmRedemption, type MgmReward, type MgmRedemptionStatus } 
 import { withRlsUserContext } from '@/app/lib/rls';
 import { computeBalanceWithinTx } from '@/app/lib/mgm/balance';
 import { MGM_ADMIN_RLS_USER_ID } from '@/app/lib/mgm/rlsContext';
+import { isSeasonActive } from '@/app/lib/mgm/seasons';
 
 /**
  * Resgates de prêmios MGM (spec v0.4 §v0.4-D/I).
@@ -81,6 +82,7 @@ export class RedemptionError extends Error {
     code:
         | 'reward_not_found'
         | 'reward_inactive'
+        | 'season_inactive'
         | 'family_already_redeemed'
         | 'insufficient_balance';
 
@@ -118,6 +120,16 @@ export async function requestRedemption(
             }
             if (!reward.active) {
                 throw new RedemptionError('reward_inactive', 'Prêmio indisponível no momento.');
+            }
+
+            // v0.5-C: prêmio da temporada só resgata com a janela aberta.
+            // Gate na ENTRADA — resgates feitos dentro da janela seguem o
+            // fluxo admin normal mesmo depois do fim da temporada.
+            if (reward.seasonOnly && !isSeasonActive()) {
+                throw new RedemptionError(
+                    'season_inactive',
+                    'Este prêmio é exclusivo da temporada e ela não está ativa.',
+                );
             }
 
             // Regra de família: máx 1 resgate ativo por família por aluno.

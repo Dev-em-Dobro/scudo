@@ -21,6 +21,7 @@ interface IndiqueGanheTabsProps {
     readonly redemptions: readonly MgmRedemptionView[];
     readonly pointsAvailable: number;
     readonly savedAddress: ShippingInfo | null;
+    readonly seasonEndsAt: string | null;
     readonly rankingAllTime: RankingResult;
     readonly rankingSeason: RankingResult | null;
     readonly viewerOptIn: boolean;
@@ -45,6 +46,7 @@ export default function IndiqueGanheTabs({
     redemptions,
     pointsAvailable,
     savedAddress,
+    seasonEndsAt,
     rankingAllTime,
     rankingSeason,
     viewerOptIn,
@@ -96,6 +98,7 @@ export default function IndiqueGanheTabs({
                         redemptions={redemptions}
                         pointsAvailable={pointsAvailable}
                         savedAddress={savedAddress}
+                        seasonEndsAt={seasonEndsAt}
                     />
                 ) : null}
                 {active === 'ranking' ? (
