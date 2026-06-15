@@ -30,6 +30,19 @@ const personSchema = z.object({
     phone: z.string().optional(),
 });
 
+// utm capturado pela Hubla na sessão de checkout (P1: utm_content=<referralCode>).
+const utmSchema = z
+    .object({
+        source: z.string().optional(),
+        medium: z.string().optional(),
+        content: z.string().optional(),
+    })
+    .optional();
+
+// Hubla v2 real envia a sessão de checkout em `invoice.paymentSession`;
+// `firstPaymentSession` fica como fallback (formato dos payloads de teste/docs).
+const checkoutSessionSchema = z.object({ utm: utmSchema }).optional();
+
 const HublaWebhookV2Schema = z.object({
     type: z.enum(['invoice.payment_succeeded', 'invoice.refunded']),
     version: z.string().optional(),
@@ -39,18 +52,10 @@ const HublaWebhookV2Schema = z.object({
             saleDate: z.string().optional(),
             createdAt: z.string().optional(),
             amount: z.object({ totalCents: z.number().nonnegative() }),
-            // utm capturado pela Hubla na sessão de checkout — nosso redirect
-            // /i/[code] manda utm_content=<referralCode> (P1).
-            firstPaymentSession: z
-                .object({
-                    utm: z
-                        .object({
-                            source: z.string().optional(),
-                            content: z.string().optional(),
-                        })
-                        .optional(),
-                })
-                .optional(),
+            // Comprador real da fatura — Hubla v2 coloca o payer DENTRO do invoice.
+            payer: personSchema.optional(),
+            paymentSession: checkoutSessionSchema,
+            firstPaymentSession: checkoutSessionSchema,
         }),
         payer: personSchema.optional(),
         user: personSchema.optional(),
@@ -126,14 +131,22 @@ export async function POST(request: NextRequest) {
     const data: HublaWebhookV2 = parsed.data;
     const { invoice } = data.event;
 
-    // Comprador: `payer` é quem pagou; fallback `user` (titular do acesso).
-    const customer = data.event.payer?.email ? data.event.payer : data.event.user;
+    // Comprador: prioridade `invoice.payer` (e-mail usado no checkout — Hubla v2
+    // real); fallbacks `event.payer` e `event.user` (titular do acesso).
+    const customer = invoice.payer?.email
+        ? invoice.payer
+        : data.event.payer?.email
+          ? data.event.payer
+          : data.event.user;
     if (!customer?.email) {
         return NextResponse.json(
             { error: 'Payload sem e-mail do comprador (payer/user).' },
             { status: 400 },
         );
     }
+
+    // Sessão de checkout: Hubla v2 real = `paymentSession`; fallback `firstPaymentSession`.
+    const checkoutSession = invoice.paymentSession ?? invoice.firstPaymentSession;
 
     const result = await recordReferral({
         gateway: 'hubla',
@@ -149,7 +162,7 @@ export async function POST(request: NextRequest) {
         },
         // Hubla manda centavos; shape normalizado é em reais.
         amount: invoice.amount.totalCents / 100,
-        ref: invoice.firstPaymentSession?.utm?.content?.trim() || null,
+        ref: checkoutSession?.utm?.content?.trim() || null,
         createdAt: invoice.saleDate ?? invoice.createdAt ?? null,
     });
 
