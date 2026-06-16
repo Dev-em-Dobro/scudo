@@ -131,7 +131,6 @@ function buildTransactionalHeaders(): Record<string, string> {
 }
 
 const ACCOUNT_RECOVERY_LOGO_CID = "scudo-logo";
-const ACCOUNT_RECOVERY_TITLE_CID = "scudo-title";
 
 function buildResetPasswordInlineAssets() {
   return [
@@ -139,11 +138,6 @@ function buildResetPasswordInlineAssets() {
       filename: "scudo-logo.png",
       path: join(process.cwd(), "app", "assets", "scudo-logo.png"),
       cid: ACCOUNT_RECOVERY_LOGO_CID,
-    },
-    {
-      filename: "scudo-titulo.png",
-      path: join(process.cwd(), "app", "assets", "scudo-titulo.png"),
-      cid: ACCOUNT_RECOVERY_TITLE_CID,
     },
   ];
 }
@@ -334,16 +328,7 @@ function buildResetPasswordEmailHtml(params: {
         <table role="presentation" width="100%" style="max-width:560px;">
           <tr>
             <td style="padding-bottom:24px;text-align:center;">
-              <table role="presentation" cellpadding="0" cellspacing="0" style="display:inline-table;margin:0 auto;">
-                <tr>
-                  <td style="vertical-align:middle;padding-right:12px;">
-                    <img src="cid:${ACCOUNT_RECOVERY_LOGO_CID}" alt="" width="56" height="56" style="display:block;width:56px;height:56px;" />
-                  </td>
-                  <td style="vertical-align:middle;">
-                    <img src="cid:${ACCOUNT_RECOVERY_TITLE_CID}" alt="Scudo" width="200" height="50" style="display:block;width:200px;height:50px;" />
-                  </td>
-                </tr>
-              </table>
+              <img src="cid:${ACCOUNT_RECOVERY_LOGO_CID}" alt="Scudo" width="96" height="96" style="display:inline-block;width:96px;height:96px;margin:0 auto;" />
             </td>
           </tr>
           <tr>
