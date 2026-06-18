@@ -195,7 +195,7 @@ function PraticaTaskCard({
                         </p>
                     ) : null}
                     <a
-                        href="https://code-quest-devquest.replit.app"
+                        href="https://codequest.devemdobro.com"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#6528d3] text-white hover:bg-[#5020b0] transition-colors"
