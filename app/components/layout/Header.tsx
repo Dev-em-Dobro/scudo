@@ -191,16 +191,15 @@ export default function Header({ title = 'Meu Painel' }: Readonly<HeaderProps>) 
     return (
         <>
             <InitialOnboardingModal />
-            <header className="bg-[#1a1a1a] border-b border-[#333] h-16 flex items-center justify-between gap-3 px-4 sm:px-6 shrink-0 min-w-0">
+            <header aria-label={title} className="bg-[#1a1a1a] border-b border-[#333] h-16 flex items-center justify-between gap-3 px-4 sm:px-6 shrink-0 min-w-0">
                 <div className="flex items-center gap-2 min-w-0 flex-1 lg:hidden">
                     <Link href="/" className="min-w-0 shrink" aria-label="Ir para o início">
                         <BrandLogo className="min-w-0" logoClassName="h-8 w-8 sm:h-9 sm:w-9" titleClassName="h-4 w-auto" />
                     </Link>
                 </div>
 
-                <h1 className="hidden lg:block flex-1 text-xl font-bold text-white tracking-tight truncate min-w-0 text-left">
-                    {title}
-                </h1>
+                {/* Título agora vive só no corpo da página (HERO). Spacer mantém os controles à direita no desktop. */}
+                <div className="hidden lg:block flex-1" aria-hidden="true" />
 
                 {/* Mobile: hambúrguer no lugar do antigo atalho do tutorial | Desktop: tutorial em texto */}
                 <div className="flex items-center gap-2 shrink-0">
