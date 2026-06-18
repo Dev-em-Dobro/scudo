@@ -30,8 +30,12 @@ export async function fetchCodeQuestProgressByEmail(email: string): Promise<Code
     }
 
     try {
+        // Comparação case-insensitive: o e-mail do Scudo já vem normalizado em
+        // lowercase, mas o e-mail salvo no CodeQuest pode ter maiúsculas. Sem o
+        // lower() nos dois lados, contas com e-mail capitalizado não casavam e a
+        // Jornada mostrava "sem acesso ao CodeQuest" indevidamente.
         const userResult = await codeQuestPool.query<{ firebase_id: string }>(
-            `SELECT split_part(id, '/', 2) as firebase_id FROM users WHERE data->>'email' = $1 LIMIT 1`,
+            `SELECT split_part(id, '/', 2) as firebase_id FROM users WHERE lower(data->>'email') = $1 LIMIT 1`,
             [normalizedEmail],
         );
 
