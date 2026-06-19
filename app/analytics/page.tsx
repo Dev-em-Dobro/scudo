@@ -394,7 +394,7 @@ export default async function AnalyticsPage() {
                                     {skillDemandStats.topGaps.map((item, index) => (
                                         <div
                                             key={item.skill}
-                                            className="flex items-center gap-3 p-3 rounded-lg border border-[#333] bg-slate-50 bg-black hover:border-[#6528d3]/30 transition-colors"
+                                            className="flex items-center gap-3 p-3 rounded-lg border border-[#333] bg-black hover:border-[#6528d3]/30 transition-colors"
                                         >
                                             <span className="shrink-0 w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xs font-bold text-amber-400">
                                                 {index + 1}

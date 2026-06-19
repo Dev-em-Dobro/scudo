@@ -33,10 +33,10 @@ export default async function JobsPage() {
                                 Vagas_
                             </span>
                             <h1 className="mt-4 text-3xl md:text-[40px] font-black text-white leading-[1.1] [font-family:'Ubuntu',Helvetica]">
-                                Vagas com matching da sua stack
+                                Vagas mais compatíveis com seu conhecimento
                             </h1>
                             <p className="mt-5 text-white/70 text-[16px] leading-relaxed max-w-[60ch] [font-family:'Ubuntu',Helvetica]">
-                                Cada vaga vem com o % de compatibilidade calculado sobre as habilidades do seu perfil.
+                                Cada vaga vem com o % de compatibilidade calculado sobre as habilidades do seu perfil. Continue avançando no curso e aumente sua compatibilidade.
                             </p>
                         </section>
 
