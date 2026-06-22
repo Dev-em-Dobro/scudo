@@ -11,7 +11,10 @@
  *  - 800 pts: 1 ano grátis na renovação (DIGITAL_VOUCHER,  renovacao)
  *
  * + 1 prêmio de temporada (seasonOnly — só aparece/resgata com MGM_BOOST_* ativo):
- *  - 600 pts: Cadeira Gamer (PHYSICAL, temporada-copa-2026) — Temporada Copa do Mundo
+ *  - 600 pts: PIX de R$ 500 (PIX, temporada-copa-2026) — Temporada Copa do Mundo
+ *
+ * Legado desativado (active=false, mantido no seed pra ser desligado idempotentemente):
+ *  - Cadeira Gamer (temporada-copa-2026) — substituída pelo PIX de R$ 500
  *
  * Idempotente: usa upsert por slug. Roda manualmente:
  *   node scripts/seed-mgm-rewards.mjs              # → DATABASE_URL (prod/dev)
@@ -86,6 +89,19 @@ const REWARDS = [
         sortOrder: 60,
     },
     {
+        slug: 'pix-500-copa-2026',
+        name: 'PIX de R$ 500',
+        description:
+            'Prêmio especial da Temporada Copa do Mundo: R$ 500 na sua conta via PIX. Exclusivo de quem resgatar durante a temporada — após o resgate, a equipe DevQuest confirma sua chave PIX pelo e-mail cadastrado e envia o valor.',
+        costPoints: 600,
+        type: 'PIX',
+        rewardFamily: 'temporada-copa-2026',
+        metadata: { amountCents: 50000 },
+        seasonOnly: true,
+        sortOrder: 5, // primeiro card da vitrine enquanto a temporada rola
+    },
+    // Legado: substituído pelo PIX. Mantido só pra desativar de forma idempotente.
+    {
         slug: 'cadeira-gamer-copa-2026',
         name: 'Cadeira Gamer',
         description:
@@ -95,7 +111,8 @@ const REWARDS = [
         rewardFamily: 'temporada-copa-2026',
         metadata: { sku: 'cadeira-gamer-copa-2026' },
         seasonOnly: true,
-        sortOrder: 5, // primeiro card da vitrine enquanto a temporada rola
+        active: false,
+        sortOrder: 5,
     },
 ];
 
@@ -115,7 +132,7 @@ async function main() {
                     type: reward.type,
                     rewardFamily: reward.rewardFamily,
                     metadata: reward.metadata,
-                    active: true,
+                    active: reward.active ?? true,
                     seasonOnly: reward.seasonOnly ?? false,
                     sortOrder: reward.sortOrder,
                 },
@@ -126,7 +143,7 @@ async function main() {
                     type: reward.type,
                     rewardFamily: reward.rewardFamily,
                     metadata: reward.metadata,
-                    active: true,
+                    active: reward.active ?? true,
                     seasonOnly: reward.seasonOnly ?? false,
                     sortOrder: reward.sortOrder,
                 },

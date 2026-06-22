@@ -315,6 +315,7 @@ enum MgmRewardType {
   PHYSICAL // camiseta, livro — ops envia (UserProfile.mgmShippingAddress)
   DIGITAL_DISCOUNT // % off renovação — ops gera cupom manual na Hubla
   DIGITAL_VOUCHER // 1 ano grátis — ops aplica via Curseduca ou cupom 100%
+  PIX // prêmio em dinheiro — ops paga via PIX e registra o comprovante
 }
 
 enum MgmRedemptionStatus {

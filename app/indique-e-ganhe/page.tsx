@@ -27,7 +27,8 @@ import { getRanking } from '@/app/lib/mgm/ranking';
 import StatusCards from '@/app/indique-e-ganhe/components/StatusCards';
 import IndiqueGanheTabs from '@/app/indique-e-ganhe/components/IndiqueGanheTabs';
 import FaqSection from '@/app/indique-e-ganhe/components/FaqSection';
-import SeasonBanner from '@/app/indique-e-ganhe/components/SeasonBanner';
+import Image from 'next/image';
+import bannerCopa from '@/app/assets/banner-copa.png';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,18 +120,14 @@ export default async function IndiqueGanhePage() {
                             )}
                         </section>
 
-                        {/* BANNER DA TEMPORADA (v0.5) */}
+                        {/* BANNER DA TEMPORADA (v0.5) — arte oficial da Copa */}
                         {boostActive && (
-                            <SeasonBanner
-                                seasonName={seasonName}
-                                multiplier={boostMultiplier}
-                                endsAt={seasonEndsAt}
-                                seasonPrize={(() => {
-                                    const prize = rewards.find((r) => r.seasonOnly);
-                                    return prize
-                                        ? { name: prize.name, costPoints: prize.costPoints }
-                                        : null;
-                                })()}
+                            <Image
+                                src={bannerCopa}
+                                alt="Temporada Copa DevQuest — Indique & Ganhe: 1.5x pontos nas indicações, 600 pts = R$ 500 no PIX, 300 pts = camiseta exclusiva. Até 24 de julho de 2026."
+                                priority
+                                sizes="(max-width: 1024px) 100vw, 1024px"
+                                className="w-full h-auto rounded-2xl border border-[#ff6b35]/30"
                             />
                         )}
 
