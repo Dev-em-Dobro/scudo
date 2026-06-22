@@ -22,9 +22,11 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
       "img-src 'self' data: blob: https: http:",
-      // ws://localhost permite HMR em dev; em produção não é necessário
+      // Em dev liberamos http/ws de localhost e 127.0.0.1 (qualquer porta) pra
+      // não quebrar o auth-client quando a porta muda (3001) ou se acessa via
+      // 127.0.0.1; ws://localhost também cobre o HMR. Produção segue restrito.
       isDev
-        ? "connect-src 'self' https: wss: ws://localhost:* ws://127.0.0.1:*"
+        ? "connect-src 'self' https: wss: ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:*"
         : "connect-src 'self' https: wss:",
       "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
       "frame-ancestors 'none'",

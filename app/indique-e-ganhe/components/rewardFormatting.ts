@@ -14,6 +14,8 @@ export function iconForFamily(family: string): string {
             return 'menu_book';
         case 'renovacao':
             return 'autorenew';
+        case 'temporada-copa-2026':
+            return 'payments';
         default:
             return 'card_giftcard';
     }

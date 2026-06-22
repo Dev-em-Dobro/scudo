@@ -1,6 +1,9 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
+import bannerCopaComBotao from './assets/banner-copa-com-botao.webp';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import ResumeExampleCard from './components/dashboard/ResumeExampleCard';
@@ -8,7 +11,6 @@ import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
 import AptJobsEmptyHint from './components/home/AptJobsEmptyHint';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
-import SeasonHighlightStrip from './components/mgm/SeasonHighlightStrip';
 import { auth } from './lib/auth';
 import { isMgmEnabled } from './lib/featureFlags';
 import { getCurrentSeason } from './lib/mgm/seasons';
@@ -75,6 +77,22 @@ export default async function Home() {
 
                 <div className="flex-1 overflow-visible lg:overflow-auto scrollbar-modern">
                     <div className="w-full px-6 md:px-8 py-10 md:py-14 space-y-12">
+                        {/* TEMPORADA MGM (v0.5) — banner da Copa linkando pro Indique e Ganhe */}
+                        {season?.active && (
+                            <Link
+                                href="/indique-e-ganhe"
+                                aria-label="Temporada Copa DevQuest — ir pro Indique e Ganhe"
+                                className="block overflow-hidden rounded-2xl border border-[#ff6b35]/30 transition-opacity duration-200 hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6b35]"
+                            >
+                                <Image
+                                    src={bannerCopaComBotao}
+                                    alt="Temporada Copa DevQuest — Indique & Ganhe: 1.5x pontos, 600 pts = R$ 500 no PIX, 300 pts = camiseta exclusiva. Clique aqui e saiba mais."
+                                    sizes="(max-width: 1024px) 100vw, 1024px"
+                                    className="w-full h-auto"
+                                />
+                            </Link>
+                        )}
+
                         {/* HERO */}
                         <section data-onboarding-id="painel-resumo">
                             <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#a78bfa] [font-family:'Ubuntu',Helvetica]">
@@ -87,15 +105,6 @@ export default async function Home() {
                                 Suba seu currículo e mantenha o perfil atualizado pra que o matching das vagas funcione direito.
                             </p>
                         </section>
-
-                        {/* TEMPORADA MGM (v0.5) */}
-                        {season?.active && (
-                            <SeasonHighlightStrip
-                                seasonName={season.name}
-                                multiplier={season.multiplier}
-                                endsAt={season.endsAt?.toISOString() ?? null}
-                            />
-                        )}
 
                         {/* Main grid */}
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

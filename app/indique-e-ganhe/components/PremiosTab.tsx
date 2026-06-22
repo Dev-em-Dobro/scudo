@@ -292,10 +292,18 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, seasonEndsAt, onSe
     const disabled = !canAfford || familyBlocked;
     const isPhysical = reward.type === 'PHYSICAL';
 
+    // Copy de "% off / ano grátis" é exclusiva da família renovação. Outros
+    // tipos digitais (ex.: PIX) usam a própria description.
     const renewalText =
-        reward.type !== 'PHYSICAL' ? formatRenewalReward(reward.type, reward.metadata) : null;
+        reward.rewardFamily === 'renovacao'
+            ? formatRenewalReward(reward.type, reward.metadata)
+            : null;
 
-    const deliveryLabel = isPhysical ? 'Envio físico' : 'Cupom digital';
+    const deliveryLabel = isPhysical
+        ? 'Envio físico'
+        : reward.type === 'PIX'
+          ? 'Prêmio em dinheiro'
+          : 'Cupom digital';
 
     return (
         <div

@@ -91,10 +91,12 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
 
     async function confirmDeliverDigital() {
         if (!deliveringId || !couponCode.trim()) return;
+        const row = pending.find((x) => x.id === deliveringId);
+        const deliveredVia = row?.rewardType === 'PIX' ? 'pix' : 'hubla-coupon';
         const ok = await callAction(
             `/api/admin/mgm-redemptions/${deliveringId}/deliver`,
             'POST',
-            { deliveryInfo: { couponCode: couponCode.trim(), deliveredVia: 'hubla-coupon' } },
+            { deliveryInfo: { couponCode: couponCode.trim(), deliveredVia } },
         );
         if (ok) {
             setDeliveringId(null);
@@ -179,8 +181,11 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                 </details>
             )}
 
-            {/* Modal: gerar cupom digital */}
-            {deliveringId && (
+            {/* Modal: gerar cupom digital / registrar PIX */}
+            {deliveringId && (() => {
+                const deliveringRow = pending.find((x) => x.id === deliveringId);
+                const isPixDelivery = deliveringRow?.rewardType === 'PIX';
+                return (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
                     onClick={(e) => {
@@ -188,15 +193,19 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                     }}
                 >
                     <div className="w-full max-w-md rounded-2xl border border-[#333] bg-[#1a1a1a] p-6">
-                        <h3 className="text-lg font-bold text-white">Entregar prêmio digital</h3>
+                        <h3 className="text-lg font-bold text-white">
+                            {isPixDelivery ? 'Registrar pagamento PIX' : 'Entregar prêmio digital'}
+                        </h3>
                         <p className="text-xs text-white/70 mt-1.5">
-                            Cole o código de cupom gerado na Hubla.
+                            {isPixDelivery
+                                ? 'Pague o PIX e cole aqui o ID da transação ou comprovante.'
+                                : 'Cole o código de cupom gerado na Hubla.'}
                         </p>
                         <input
                             type="text"
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
-                            placeholder="Ex.: DEVQUEST30-XYZ"
+                            placeholder={isPixDelivery ? 'Ex.: E1234... (ID da transação PIX)' : 'Ex.: DEVQUEST30-XYZ'}
                             className="mt-4 w-full rounded-lg border border-[#333] bg-black px-3 py-2 text-sm text-white font-mono"
                             autoFocus
                         />
@@ -219,7 +228,8 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                         </div>
                     </div>
                 </div>
-            )}
+                );
+            })()}
 
             {/* Modal: editar endereço de resgate (Gap 2) */}
             {editingShippingRow && (
@@ -364,7 +374,8 @@ function RedemptionTable({
                                     )}
                                     {row.deliveryInfo?.couponCode && (
                                         <p className="text-xs text-emerald-300 mt-1 font-mono">
-                                            Cupom entregue: {row.deliveryInfo.couponCode}
+                                            {row.rewardType === 'PIX' ? 'PIX enviado' : 'Cupom entregue'}:{' '}
+                                            {row.deliveryInfo.couponCode}
                                         </p>
                                     )}
                                     {row.rejectedReason && (
@@ -396,7 +407,9 @@ function RedemptionTable({
                                             >
                                                 {row.rewardType === 'PHYSICAL'
                                                     ? 'Marcar entregue'
-                                                    : 'Gerar cupom'}
+                                                    : row.rewardType === 'PIX'
+                                                      ? 'Registrar PIX'
+                                                      : 'Gerar cupom'}
                                             </button>
                                             <button
                                                 type="button"

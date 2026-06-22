@@ -39,6 +39,7 @@ export default function RewardRedeemModal({
     const [error, setError] = useState<string | null>(null);
 
     const isPhysical = reward.type === 'PHYSICAL';
+    const isPix = reward.type === 'PIX';
     const isRenovacao = reward.rewardFamily === 'renovacao';
 
     const [shipping, setShipping] = useState<ShippingInfo>(() => ({
@@ -89,7 +90,7 @@ export default function RewardRedeemModal({
     }
 
     const renewalText =
-        reward.type !== 'PHYSICAL'
+        reward.rewardFamily === 'renovacao'
             ? formatRenewalReward(reward.type, reward.metadata)
             : null;
 
@@ -156,6 +157,18 @@ export default function RewardRedeemModal({
                         <p className="text-sm text-white/90">{renewalText.headline}</p>
                         <p className="text-xs text-white/50 mt-1">
                             Cupom aplicado na sua próxima renovação anual do DevQuest.
+                        </p>
+                    </div>
+                )}
+
+                {isPix && (
+                    <div className="mt-5 rounded-xl border border-[#ff6b35]/40 bg-[#ff6b35]/10 px-4 py-3">
+                        <p className="text-sm text-white/90">
+                            {reward.description ?? 'Prêmio em dinheiro via PIX.'}
+                        </p>
+                        <p className="text-xs text-white/50 mt-1">
+                            Após o resgate, a equipe DevQuest confirma sua chave PIX pelo seu
+                            e-mail cadastrado e envia o valor.
                         </p>
                     </div>
                 )}
