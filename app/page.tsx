@@ -88,6 +88,7 @@ export default async function Home() {
                                     src={bannerCopaComBotao}
                                     alt="Temporada Copa DevQuest — Indique & Ganhe: 1.5x pontos, 600 pts = R$ 500 no PIX, 300 pts = camiseta exclusiva. Clique aqui e saiba mais."
                                     sizes="(max-width: 1024px) 100vw, 1024px"
+                                    unoptimized
                                     className="w-full h-auto"
                                 />
                             </Link>
