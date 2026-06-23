@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image, { type StaticImageData } from 'next/image';
 
 import type { MgmRewardView } from '@/app/lib/mgm/rewards';
 import type { MgmRedemptionView, ShippingInfo } from '@/app/lib/mgm/redemptions';
@@ -9,6 +10,20 @@ import RewardRedeemModal from '@/app/indique-e-ganhe/components/RewardRedeemModa
 import ShippingAddressModal from '@/app/indique-e-ganhe/components/ShippingAddressModal';
 import { MGM_PURPLE } from '@/app/indique-e-ganhe/components/theme';
 import { formatRenewalReward } from '@/app/indique-e-ganhe/components/rewardFormatting';
+import premioCamisetaCopa from '@/app/assets/premio-camiseta-copa.webp';
+import premioCamisetaDevquest from '@/app/assets/premio-camiseta-devquest.webp';
+
+/** Foto do produto por slug de prêmio (opcional — só quem tem imagem mostra miniatura). */
+const REWARD_IMAGES: Record<string, StaticImageData> = {
+    'camiseta-copa-2026': premioCamisetaCopa,
+    'camiseta-devquest': premioCamisetaDevquest,
+};
+
+/** Altura da miniatura por slug (default h-48). A camiseta DevQuest é em retrato,
+ *  então ganha mais altura pra não ficar pequena. Classes literais p/ o Tailwind. */
+const REWARD_IMAGE_HEIGHTS: Record<string, string> = {
+    'camiseta-devquest': 'h-60',
+};
 
 interface PremiosTabProps {
     readonly rewards: readonly MgmRewardView[];
@@ -39,6 +54,7 @@ export default function PremiosTab({
 }: PremiosTabProps) {
     const router = useRouter();
     const [selected, setSelected] = useState<MgmRewardView | null>(null);
+    const [lightbox, setLightbox] = useState<{ img: StaticImageData; name: string } | null>(null);
     const [editingAddress, setEditingAddress] = useState(false);
     const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null);
     const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -160,6 +176,7 @@ export default function PremiosTab({
                             familyBlocked={blockedFamilies.has(reward.rewardFamily)}
                             seasonEndsAt={seasonEndsAt}
                             onSelect={() => setSelected(reward)}
+                            onImageClick={(img) => setLightbox({ img, name: reward.name })}
                         />
                     ))}
                 </div>
@@ -275,6 +292,38 @@ export default function PremiosTab({
                     onClose={() => setEditingAddress(false)}
                 />
             )}
+            {lightbox && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={lightbox.name}
+                    onClick={() => setLightbox(null)}
+                >
+                    <button
+                        type="button"
+                        onClick={() => setLightbox(null)}
+                        aria-label="Fechar"
+                        className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                    >
+                        <span className="material-symbols-outlined text-[22px]">close</span>
+                    </button>
+                    <div
+                        className="flex flex-col items-center gap-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Image
+                            src={lightbox.img}
+                            alt={lightbox.name}
+                            sizes="(max-width: 768px) 90vw, 600px"
+                            className="max-h-[80vh] w-auto rounded-xl object-contain"
+                        />
+                        <p className="text-[14px] font-bold text-white [font-family:'Ubuntu',Helvetica]">
+                            {lightbox.name}
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -285,9 +334,10 @@ interface RewardCardProps {
     readonly familyBlocked: boolean;
     readonly seasonEndsAt: string | null;
     readonly onSelect: () => void;
+    readonly onImageClick: (img: StaticImageData) => void;
 }
 
-function RewardCard({ reward, pointsAvailable, familyBlocked, seasonEndsAt, onSelect }: RewardCardProps) {
+function RewardCard({ reward, pointsAvailable, familyBlocked, seasonEndsAt, onSelect, onImageClick }: RewardCardProps) {
     const canAfford = pointsAvailable >= reward.costPoints;
     const disabled = !canAfford || familyBlocked;
     const isPhysical = reward.type === 'PHYSICAL';
@@ -333,6 +383,25 @@ function RewardCard({ reward, pointsAvailable, familyBlocked, seasonEndsAt, onSe
                         </span>
                     )}
                 </div>
+            )}
+
+            {REWARD_IMAGES[reward.slug] && (
+                <button
+                    type="button"
+                    onClick={() => onImageClick(REWARD_IMAGES[reward.slug])}
+                    aria-label={`Ver imagem ampliada: ${reward.name}`}
+                    className="group relative mt-4 block w-full overflow-hidden rounded-lg bg-black/30 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6528d3]"
+                >
+                    <Image
+                        src={REWARD_IMAGES[reward.slug]}
+                        alt={reward.name}
+                        sizes="(max-width: 640px) 100vw, 360px"
+                        className={`w-full ${REWARD_IMAGE_HEIGHTS[reward.slug] ?? 'h-48'} object-contain transition-transform duration-200 group-hover:scale-[1.03]`}
+                    />
+                    <span className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        <span className="material-symbols-outlined text-[16px]">zoom_in</span>
+                    </span>
+                </button>
             )}
 
             <h3 className="mt-5 text-[18px] font-bold text-white leading-tight [font-family:'Ubuntu',Helvetica]">
