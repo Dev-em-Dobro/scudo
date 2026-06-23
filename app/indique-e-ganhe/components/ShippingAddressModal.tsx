@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { ShippingInfo } from '@/app/lib/mgm/redemptions';
@@ -29,8 +29,15 @@ export default function ShippingAddressModal({
     onClose,
 }: ShippingAddressModalProps) {
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
     const [submitting, setSubmitting] = useState(false);
+    // true depois que o PUT volta ok: segura o loader até o router.refresh()
+    // terminar (dado já re-renderizado na página) antes de fechar o modal.
+    const [awaitingRefresh, setAwaitingRefresh] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // Loader ativo: durante o PUT (submitting) e durante o refresh do server
+    // component (isPending). Trava fechar/cancelar enquanto roda.
+    const busy = submitting || isPending;
     const [shipping, setShipping] = useState<ShippingInfo>(() =>
         current
             ? {
@@ -47,11 +54,11 @@ export default function ShippingAddressModal({
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
-            if (e.key === 'Escape') onClose();
+            if (e.key === 'Escape' && !busy) onClose();
         }
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [onClose]);
+    }, [onClose, busy]);
 
     async function submit() {
         setSubmitting(true);
@@ -75,14 +82,26 @@ export default function ShippingAddressModal({
                 setSubmitting(false);
                 return;
             }
-            router.refresh();
-            onClose();
+            // Salvou: dispara o re-fetch do server component e mantém o loader
+            // ligado (isPending) até a página re-renderizar com o novo dado.
+            setSubmitting(false);
+            setAwaitingRefresh(true);
+            startTransition(() => {
+                router.refresh();
+            });
         } catch (err) {
             console.error(err);
             setError('Erro de rede. Tente novamente.');
             setSubmitting(false);
         }
     }
+
+    // Fecha o modal só quando o refresh terminou (dado já na tela).
+    useEffect(() => {
+        if (awaitingRefresh && !isPending) {
+            onClose();
+        }
+    }, [awaitingRefresh, isPending, onClose]);
 
     const isValid = isShippingFormValid(shipping);
 
@@ -93,7 +112,7 @@ export default function ShippingAddressModal({
             aria-modal="true"
             aria-labelledby="shipping-modal-title"
             onClick={(e) => {
-                if (e.target === e.currentTarget) onClose();
+                if (e.target === e.currentTarget && !busy) onClose();
             }}
         >
             <div
@@ -115,7 +134,8 @@ export default function ShippingAddressModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-white/50 hover:text-white p-1 cursor-pointer"
+                        disabled={busy}
+                        className="text-white/50 hover:text-white p-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Fechar"
                     >
                         <span className="material-symbols-outlined text-[22px]">close</span>
@@ -136,19 +156,29 @@ export default function ShippingAddressModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        disabled={submitting}
-                        className="px-4 py-2 rounded-lg text-sm font-semibold text-white/80 hover:text-white hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+                        disabled={busy}
+                        className="px-4 py-2 rounded-lg text-sm font-semibold text-white/80 hover:text-white hover:bg-slate-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
                         onClick={submit}
-                        disabled={submitting || !isValid}
+                        disabled={busy || !isValid}
+                        aria-busy={busy}
                         className="px-5 py-2 rounded-lg text-sm font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ backgroundColor: MGM_PURPLE }}
                     >
-                        {submitting ? 'Salvando…' : 'Salvar endereço'}
+                        {busy ? (
+                            <span className="inline-flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[18px] animate-spin">
+                                    progress_activity
+                                </span>
+                                {submitting ? 'Salvando…' : 'Atualizando…'}
+                            </span>
+                        ) : (
+                            'Salvar endereço'
+                        )}
                     </button>
                 </div>
             </div>
