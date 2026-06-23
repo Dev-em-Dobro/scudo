@@ -5,6 +5,7 @@ import Header from '@/app/components/layout/Header';
 import Sidebar from '@/app/components/layout/Sidebar';
 import { auth } from '@/app/lib/auth';
 import { prisma } from '@/app/lib/prisma';
+import { withRlsUserContext } from '@/app/lib/rls';
 import { isMgmEnabled } from '@/app/lib/featureFlags';
 import { isOfficialStudentUser } from '@/app/lib/jornada/service';
 import {
@@ -69,10 +70,15 @@ export default async function IndiqueGanhePage() {
             boostActive
                 ? getRanking(session.user.id, { scope: 'season', limit: 10 })
                 : Promise.resolve(null),
-            prisma.userProfile.findUnique({
-                where: { userId: session.user.id },
-                select: { mgmShippingAddress: true },
-            }),
+            // UserProfile tem RLS — a leitura precisa do contexto do usuário,
+            // senão a policy filtra a linha em silêncio e volta null (endereço
+            // salvo "some" da tela). Ver [[fix shipping-address RLS]].
+            withRlsUserContext(session.user.id, (tx) =>
+                tx.userProfile.findUnique({
+                    where: { userId: session.user.id },
+                    select: { mgmShippingAddress: true },
+                }),
+            ),
         ]);
 
     const userMeta = await prisma.user.findUnique({
