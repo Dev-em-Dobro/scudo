@@ -131,9 +131,6 @@ export default async function IndiqueGanhePage() {
                             )}
                         </section>
 
-                        {/* STATUS */}
-                        <StatusCards data={statusCards} />
-
                         {/* TABS */}
                         <IndiqueGanheTabs
                             code={code}
@@ -151,6 +148,14 @@ export default async function IndiqueGanhePage() {
                             rankingSeason={rankingSeason}
                             viewerOptIn={viewerOptIn}
                         />
+
+                        {/* STATUS */}
+                        <section>
+                            <h2 className="mb-6 text-[22px] md:text-[26px] font-black text-white leading-tight [font-family:'Ubuntu',Helvetica]">
+                                Sua pontuação
+                            </h2>
+                            <StatusCards data={statusCards} />
+                        </section>
 
                         {/* FAQ */}
                         <FaqSection pointsBase={pointsBase} guaranteeDays={guaranteeDays} />
