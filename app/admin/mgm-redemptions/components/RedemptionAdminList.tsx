@@ -23,6 +23,13 @@ const FAMILY_OPTIONS: ReadonlyArray<{ id: FamilyFilter; label: string }> = [
     { id: 'renovacao', label: 'Renovação' },
 ];
 
+/** "Camiseta" agrupa as famílias merch-camiseta* (normal + exclusiva da temporada). */
+function matchesFamilyFilter(family: string, f: FamilyFilter): boolean {
+    if (f === 'all') return true;
+    if (f === 'merch-camiseta') return family.startsWith('merch-camiseta');
+    return family === f;
+}
+
 const SHIPPING_EDITABLE_STATUSES = new Set<MgmRedemptionAdminView['status']>([
     'requested',
     'approved',
@@ -39,10 +46,7 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
     const [busy, setBusy] = useState(false);
 
     const filteredPending = useMemo(
-        () =>
-            filter === 'all'
-                ? pending
-                : pending.filter((r) => r.rewardFamily === filter),
+        () => pending.filter((r) => matchesFamilyFilter(r.rewardFamily, filter)),
         [pending, filter],
     );
 
@@ -250,9 +254,9 @@ export default function RedemptionAdminList({ pending, recent }: Props) {
                             <ShippingForm
                                 value={shippingDraft}
                                 onChange={setShippingDraft}
-                                showNotes={editingShippingRow.rewardFamily === 'merch-camiseta'}
+                                showNotes={editingShippingRow.rewardFamily.startsWith('merch-camiseta')}
                                 notesLabel={
-                                    editingShippingRow.rewardFamily === 'merch-camiseta'
+                                    editingShippingRow.rewardFamily.startsWith('merch-camiseta')
                                         ? 'Tamanho da camiseta'
                                         : 'Observação'
                                 }

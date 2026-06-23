@@ -10,8 +10,9 @@
  *  - 500 pts: 50% off renovação         (DIGITAL_DISCOUNT, renovacao)
  *  - 800 pts: 1 ano grátis na renovação (DIGITAL_VOUCHER,  renovacao)
  *
- * + 1 prêmio de temporada (seasonOnly — só aparece/resgata com MGM_BOOST_* ativo):
- *  - 600 pts: PIX de R$ 500 (PIX, temporada-copa-2026) — Temporada Copa do Mundo
+ * + 2 prêmios de temporada (seasonOnly — só aparecem/resgatam com MGM_BOOST_* ativo):
+ *  - 300 pts: Camiseta Exclusiva da Copa (PHYSICAL, merch-camiseta-copa) — Temporada Copa do Mundo
+ *  - 600 pts: PIX de R$ 500            (PIX,      temporada-copa-2026) — Temporada Copa do Mundo
  *
  * Legado desativado (active=false, mantido no seed pra ser desligado idempotentemente):
  *  - Cadeira Gamer (temporada-copa-2026) — substituída pelo PIX de R$ 500
@@ -99,6 +100,21 @@ const REWARDS = [
         metadata: { amountCents: 50000 },
         seasonOnly: true,
         sortOrder: 5, // primeiro card da vitrine enquanto a temporada rola
+    },
+    {
+        slug: 'camiseta-copa-2026',
+        name: 'Camiseta Exclusiva da Copa',
+        description:
+            'Camiseta exclusiva da Temporada Copa do Mundo — modelo especial, produzida sob demanda. Disponível só pra quem resgatar durante a temporada.',
+        costPoints: 300,
+        type: 'PHYSICAL',
+        // Família PRÓPRIA (separada da camiseta normal) pra o aluno poder
+        // resgatar as DUAS camisetas. O modal ainda pede o tamanho porque a
+        // família começa com "merch-camiseta".
+        rewardFamily: 'merch-camiseta-copa',
+        metadata: { sku: 'tshirt-copa-2026' },
+        seasonOnly: true,
+        sortOrder: 6, // logo após o PIX na vitrine da temporada
     },
     // Legado: substituído pelo PIX. Mantido só pra desativar de forma idempotente.
     {
