@@ -22,16 +22,18 @@ export function isStudentVerifiedAuthOnlyEnabled() {
 }
 
 /**
- * Member-Get-Member (Indique e Ganhe). Default OFF — a feature só aparece
- * em prod quando ENABLE_MGM (server) ou NEXT_PUBLIC_ENABLE_MGM (client/nav)
- * for ligado. Gateia: página /indique-e-ganhe, item de nav, rota /i/[code],
- * webhook Hubla e cron de validação.
+ * Member-Get-Member (Indique e Ganhe). Default OFF — fonte ÚNICA de verdade:
+ * `NEXT_PUBLIC_ENABLE_MGM`. É a única var lida nos dois contextos (servidor em
+ * runtime + cliente "assada" no bundle), então um único interruptor controla
+ * tudo de forma consistente: página /indique-e-ganhe, item de nav, banner do
+ * painel, rota /i/[code], webhooks (Hubla/Asaas) e cron de validação.
+ *
+ * Para desligar: setar `NEXT_PUBLIC_ENABLE_MGM=false` (ou remover) e redeployar
+ * — o valor é inlined no client em build-time, então o redeploy sincroniza a
+ * nav. (A var legada `ENABLE_MGM` não é mais consultada.)
  */
 export function isMgmEnabled() {
-  return (
-    parseBooleanFlag(process.env.ENABLE_MGM) ||
-    parseBooleanFlag(process.env.NEXT_PUBLIC_ENABLE_MGM)
-  );
+  return parseBooleanFlag(process.env.NEXT_PUBLIC_ENABLE_MGM);
 }
 
 export function isResumeAiExtractionEnabled() {
