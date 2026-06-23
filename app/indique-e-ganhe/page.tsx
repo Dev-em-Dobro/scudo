@@ -101,7 +101,7 @@ export default async function IndiqueGanhePage() {
                                 src={bannerCopa}
                                 alt="Temporada Copa DevQuest — Indique & Ganhe: 1.5x pontos nas indicações, 600 pts = R$ 500 no PIX, 300 pts = camiseta exclusiva. Até 24 de julho de 2026."
                                 priority
-                                sizes="(max-width: 1024px) 100vw, 1024px"
+                                unoptimized
                                 className="w-full h-auto rounded-2xl border border-[#ff6b35]/30"
                             />
                         )}
