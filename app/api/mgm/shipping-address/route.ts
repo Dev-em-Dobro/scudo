@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 import { auth } from '@/app/lib/auth';
-import { prisma } from '@/app/lib/prisma';
+import { withRlsUserContext } from '@/app/lib/rls';
 import { isMgmEnabled } from '@/app/lib/featureFlags';
 import { isOfficialStudentUser } from '@/app/lib/jornada/service';
 
@@ -55,18 +55,22 @@ export async function PUT(request: NextRequest) {
         state: parsed.data.state.toUpperCase(),
     };
 
-    // UserProfile não tem RLS — escrita direta pelo Prisma.
+    // UserProfile TEM RLS (policy `userprofile_owner_policy` via `app.user_id`) —
+    // a escrita precisa rodar dentro do contexto RLS do usuário, senão a policy
+    // bloqueia o upsert (PrismaClientUnknownRequestError → 500).
     // upsert pra cobrir caso de aluno sem profile (raro mas possível).
-    await prisma.userProfile.upsert({
-        where: { userId: session.user.id },
-        create: {
-            userId: session.user.id,
-            mgmShippingAddress: data as unknown as Prisma.InputJsonValue,
-        },
-        update: {
-            mgmShippingAddress: data as unknown as Prisma.InputJsonValue,
-        },
-    });
+    await withRlsUserContext(session.user.id, (tx) =>
+        tx.userProfile.upsert({
+            where: { userId: session.user.id },
+            create: {
+                userId: session.user.id,
+                mgmShippingAddress: data as unknown as Prisma.InputJsonValue,
+            },
+            update: {
+                mgmShippingAddress: data as unknown as Prisma.InputJsonValue,
+            },
+        }),
+    );
 
     return NextResponse.json({ ok: true, shippingAddress: data });
 }
