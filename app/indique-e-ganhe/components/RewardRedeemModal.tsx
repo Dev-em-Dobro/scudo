@@ -207,7 +207,7 @@ export default function RewardRedeemModal({
                         <ShippingForm
                             value={shipping}
                             onChange={setShipping}
-                            showNotes={reward.rewardFamily === 'merch-camiseta'}
+                            showNotes={reward.rewardFamily.startsWith('merch-camiseta')}
                             notesLabel="Tamanho da camiseta (P/M/G/GG)"
                         />
                     </div>

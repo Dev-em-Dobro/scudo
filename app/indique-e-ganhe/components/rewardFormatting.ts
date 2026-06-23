@@ -9,6 +9,7 @@ import type { MgmRewardType } from '@prisma/client';
 export function iconForFamily(family: string): string {
     switch (family) {
         case 'merch-camiseta':
+        case 'merch-camiseta-copa':
             return 'checkroom';
         case 'merch-livro':
             return 'menu_book';
