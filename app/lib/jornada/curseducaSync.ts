@@ -236,7 +236,7 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
             }
 
             const taskId = resolveTaskIdFromClassId(classId);
-            if (!taskId || !getCatalogTaskById(taskId)) {
+            if (!taskId || !(await getCatalogTaskById(taskId))) {
                 skippedWithoutMap += 1;
                 continue;
             }

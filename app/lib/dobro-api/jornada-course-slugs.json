@@ -1,0 +1,81 @@
+{
+  "primarySlug": "primeiros-passos-1776350627138",
+  "tracks": [
+    {
+      "id": "formacao-fullstack",
+      "title": "DevQuest 2.0 — Formação Full Stack JS com IA",
+      "order": 1,
+      "orderConstraint": "strict",
+      "requiredStartSlugs": [
+        "primeiros-passos-1776350627138",
+        "devquest-20-frontend-1756431088527",
+        "devquest-20-backend-1756431100113"
+      ],
+      "slugs": [
+        "primeiros-passos-1776350627138",
+        "devquest-20-frontend-1756431088527",
+        "devquest-20-backend-1756431100113",
+        "devquest-20-empregabilidade-1756431115888",
+        "curso-ia-para-devs-copia-2025-09-02-10-53-14",
+        "deep-dives-20-1756989770514",
+        "workshops-20-1756989862322",
+        "projetos-dos-eventos-passados-20-1756989959785"
+      ]
+    },
+    {
+      "id": "formacao-ia-automacoes",
+      "title": "Formação IA e Automações",
+      "order": 2,
+      "orderConstraint": "flexible",
+      "slugs": [
+        "automacoes-com-n8n-1761674180431",
+        "ia-aplicada-a-criacao-de-software-1770342157626"
+      ]
+    },
+    {
+      "id": "formacao-js-avancado",
+      "title": "Formação JavaScript Avançado",
+      "order": 3,
+      "orderConstraint": "flexible",
+      "slugs": [
+        "em-breve-nextjs-1761674389149",
+        "fintrack-ai-dashboard-financeiro-com-nextjs-1774658268942"
+      ]
+    },
+    {
+      "id": "projetos-extras",
+      "title": "Projetos extras",
+      "order": 4,
+      "orderConstraint": "optional-later",
+      "notes": "Podem ser feitos mais adiante no curso; ordem interna sugerida, não bloqueante.",
+      "slugs": [
+        "projeto-botflix",
+        "projeto-devlingo-1770063468709",
+        "projeto-fundo-magico-1760624852163",
+        "projeto-king-burguer",
+        "projeto-e-commerce-1764442100039",
+        "workshop-projeto-barbearia-feita-com-reactjs-1769467886006",
+        "projeto-aura-design-1778172969546",
+        "landing-page-mario-galaxy"
+      ]
+    },
+    {
+      "id": "freela-ia",
+      "title": "Freela com IA",
+      "order": 5,
+      "orderConstraint": "flexible",
+      "slugs": ["freela-com-ia-1759450120073"]
+    },
+    {
+      "id": "acelere-carreira",
+      "title": "Acelere Sua Carreira",
+      "order": 6,
+      "orderConstraint": "flexible",
+      "slugs": [
+        "dominando-a-logica-de-programacao",
+        "produtividade-maxima-para-devs-42izz-1755612384645"
+      ]
+    }
+  ],
+  "notes": "Allowlist do currículo DevQuest. Só slugs listados entram no reconcile/board. Exercícios só no CodeQuest não passam pela Curseduca — ver docs sobre codeQuestExerciseId."
+}
