@@ -7,6 +7,8 @@
  * Opções:
  *   JORNADA_SEED_THROUGH_STAGE=s9   — completa até Mestre; Lendário fica editável (default)
  *   JORNADA_SEED_THROUGH_STAGE=s10  — completa tudo incluindo Lendário
+ *   JORNADA_SEED_PROFILE=syntax-wear — completa tudo exceto aulas Syntax Wear (demo)
+ *   JORNADA_SEED_PROFILE=syntax-wear-backend — completa até SW frontend; BE + integração pendentes
  *   JORNADA_SEED_DRY_RUN=1          — só imprime o plano
  */
 import "dotenv/config";
@@ -29,6 +31,7 @@ const userEmail = (
     .toLowerCase();
 
 const throughStage = (process.env.JORNADA_SEED_THROUGH_STAGE ?? "s9").trim();
+const seedProfile = (process.env.JORNADA_SEED_PROFILE ?? "").trim().toLowerCase();
 const dryRun = process.env.JORNADA_SEED_DRY_RUN === "1" || process.env.JORNADA_SEED_DRY_RUN === "true";
 const catalogVersion = Number(process.env.JORNADA_CATALOG_VERSION ?? "1");
 
@@ -56,13 +59,36 @@ if (!userEmail) {
     process.exit(1);
 }
 
-if (!STAGE_ORDER.includes(throughStage)) {
+if (!STAGE_ORDER.includes(throughStage) && !seedProfile.startsWith("syntax-wear")) {
     console.error(`JORNADA_SEED_THROUGH_STAGE inválido: "${throughStage}". Use s1–s10.`);
     process.exit(1);
 }
 
 const throughIndex = STAGE_ORDER.indexOf(throughStage);
 const includedStages = new Set(STAGE_ORDER.slice(0, throughIndex + 1));
+
+function isSyntaxWearCatalogTask(title) {
+    return title.startsWith("Projeto Syntax Wear -");
+}
+
+function isSyntaxWearBackendOrIntegrationTask(title) {
+    return (
+        title.startsWith("Projeto Syntax Wear - Backend -") ||
+        title.startsWith("Projeto Syntax Wear - Integração FE e BE -")
+    );
+}
+
+function shouldCompleteTaskForProfile(task, profile) {
+    if (profile === "syntax-wear") {
+        return !isSyntaxWearCatalogTask(task.title);
+    }
+
+    if (profile === "syntax-wear-backend") {
+        return !isSyntaxWearBackendOrIntegrationTask(task.title);
+    }
+
+    return includedStages.has(task.stageId);
+}
 
 const client = new pg.Client({ connectionString: databaseUrl });
 
@@ -98,23 +124,62 @@ const main = async () => {
             );
         }
 
-        const tasksToComplete = catalogResult.rows.filter((task) => includedStages.has(task.stageId));
-        const stagesToFreeze = STAGE_ORDER.slice(0, throughIndex + 1);
+        const tasksToComplete =
+            seedProfile.startsWith("syntax-wear")
+                ? catalogResult.rows.filter((task) => shouldCompleteTaskForProfile(task, seedProfile))
+                : catalogResult.rows.filter((task) => includedStages.has(task.stageId));
+
+        const stagesToFreeze =
+            seedProfile.startsWith("syntax-wear")
+                ? STAGE_ORDER.filter((stageId) => {
+                      const stageTasks = catalogResult.rows.filter((task) => task.stageId === stageId);
+                      if (stageTasks.length === 0) {
+                          return false;
+                      }
+
+                      return stageTasks.every((task) =>
+                          tasksToComplete.some((done) => done.taskId === task.taskId),
+                      );
+                  })
+                : STAGE_ORDER.slice(0, throughIndex + 1);
+
+        const pendingTasks = catalogResult.rows.filter(
+            (task) => !tasksToComplete.some((done) => done.taskId === task.taskId),
+        );
+
+        const firstPending = pendingTasks[0] ?? null;
 
         const plan = {
             email: user.email,
             userId: user.id,
             officialStudent: Boolean(user.officialStudentVerifiedAt),
-            throughStage,
-            throughRank: STAGE_LABEL[throughStage],
+            profile: seedProfile || "through-stage",
+            throughStage: seedProfile.startsWith("syntax-wear") ? null : throughStage,
+            throughRank: seedProfile.startsWith("syntax-wear") ? null : STAGE_LABEL[throughStage],
             tasksToMarkDone: tasksToComplete.length,
-            stagesToFreeze: stagesToFreeze.map((id) => ({ id, rank: STAGE_LABEL[id] })),
-            editableAfter: STAGE_ORDER[throughIndex + 1]
-                ? {
-                      stageId: STAGE_ORDER[throughIndex + 1],
-                      rank: STAGE_LABEL[STAGE_ORDER[throughIndex + 1]],
-                  }
+            syntaxWearPending: pendingTasks.filter((task) => isSyntaxWearCatalogTask(task.title)).length,
+            pendingSyntaxWearBackend: pendingTasks.filter((task) =>
+                task.title.startsWith("Projeto Syntax Wear - Backend -"),
+            ).length,
+            pendingSyntaxWearIntegration: pendingTasks.filter((task) =>
+                task.title.startsWith("Projeto Syntax Wear - Integração FE e BE -"),
+            ).length,
+            firstPendingTask: firstPending
+                ? { taskId: firstPending.taskId, title: firstPending.title, stageId: firstPending.stageId }
                 : null,
+            stagesToFreeze: stagesToFreeze.map((id) => ({ id, rank: STAGE_LABEL[id] })),
+            editableAfter:
+                seedProfile.startsWith("syntax-wear") && firstPending
+                    ? {
+                          stageId: firstPending.stageId,
+                          rank: STAGE_LABEL[firstPending.stageId],
+                      }
+                    : STAGE_ORDER[throughIndex + 1]
+                      ? {
+                            stageId: STAGE_ORDER[throughIndex + 1],
+                            rank: STAGE_LABEL[STAGE_ORDER[throughIndex + 1]],
+                        }
+                      : null,
             dryRun,
         };
 
@@ -125,6 +190,9 @@ const main = async () => {
         }
 
         await client.query("BEGIN");
+
+        await client.query(`delete from "UserJornadaStageCompletion" where "userId" = $1`, [user.id]);
+        await client.query(`delete from "UserJornadaTaskProgress" where "userId" = $1`, [user.id]);
 
         const now = new Date();
         let insertedTasks = 0;

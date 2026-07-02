@@ -87,6 +87,7 @@ const main = async () => {
                   "order" = excluded."order",
                   "catalogVersion" = excluded."catalogVersion",
                   "externalLessonId" = excluded."externalLessonId",
+                  "isActive" = true,
                   "updatedAt" = now()
                 `,
                 [
@@ -105,6 +106,22 @@ const main = async () => {
             upserted += 1;
         }
 
+        const taskIdsFromCode = tasks.map((task) => task.taskId);
+        let deactivated = 0;
+
+        if (!dryRun && taskIdsFromCode.length > 0) {
+            const deactivatedResult = await client.query(
+                `
+                update "JornadaCatalogTask"
+                set "isActive" = false, "updatedAt" = now()
+                where not ("taskId" = any($1::text[]))
+                  and "isActive" = true
+                `,
+                [taskIdsFromCode],
+            );
+            deactivated = deactivatedResult.rowCount ?? 0;
+        }
+
         console.log(
             JSON.stringify(
                 {
@@ -112,6 +129,7 @@ const main = async () => {
                     catalogVersion,
                     tasksFromCode: tasks.length,
                     upserted,
+                    deactivated,
                     mappedLessons: tasks.filter((task) => task.externalLessonId !== null).length,
                 },
                 null,
