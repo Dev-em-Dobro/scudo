@@ -33,6 +33,7 @@ const DEFAULT_EMPREGABILIDADE_COURSE_SLUG =
 const SYNTAX_WEAR_COURSE_SLUG = 'projeto-e-commerce-1764442100039';
 const NEXTJS_COURSE_SLUG = 'em-breve-nextjs-1761674389149';
 const FINTRACK_COURSE_SLUG = 'fintrack-ai-dashboard-financeiro-com-nextjs-1774658268942';
+const MARIO_GALAXY_COURSE_SLUG = 'landing-page-mario-galaxy';
 
 /** Projetos extras (marco Scudo) → curso Curseduca, sem aula individual. */
 const EXTRA_PROJECT_COURSE_SLUG_BY_TASK_ID: Record<string, string> = {
@@ -43,7 +44,6 @@ const EXTRA_PROJECT_COURSE_SLUG_BY_TASK_ID: Record<string, string> = {
     'mythril-2': 'projeto-king-burguer',
     'mythril-1': 'workshop-projeto-barbearia-feita-com-reactjs-1769467886006',
     'mythril-11': 'projeto-aura-design-1778172969546',
-    'mythril-12': 'landing-page-mario-galaxy',
 };
 
 const NEXTJS_FUNDAMENTALS_CLASS_IDS = new Set([6695, 6696, 6697, 6698, 6699, 6700]);
@@ -58,6 +58,14 @@ function isNextJsFundamentalsClassId(classId: number): boolean {
 
 function isFinTrackClassId(classId: number): boolean {
     return classId >= 6702 && classId <= 6717;
+}
+
+function isMarioGalaxyClassId(classId: number): boolean {
+    return classId === 6779 || classId === 6780;
+}
+
+function isMarioGalaxyJornadaTask(taskId: string): boolean {
+    return taskId === 'platina-128' || taskId === 'platina-129';
 }
 
 function isSyntaxWearJornadaTask(taskId: string): boolean {
@@ -151,6 +159,8 @@ function buildCurseducaLessonPath(classId: number, taskId?: string): string {
     if (!courseSlug) {
         if (isSyntaxWearClassId(classId) || (taskId && isSyntaxWearJornadaTask(taskId))) {
             courseSlug = SYNTAX_WEAR_COURSE_SLUG;
+        } else if (isMarioGalaxyClassId(classId) || (taskId && isMarioGalaxyJornadaTask(taskId))) {
+            courseSlug = MARIO_GALAXY_COURSE_SLUG;
         } else if (isNextJsFundamentalsClassId(classId) || (taskId && isNextJsJornadaTask(taskId))) {
             courseSlug = NEXTJS_COURSE_SLUG;
         } else if (isFinTrackClassId(classId) || (taskId && isFinTrackJornadaTask(taskId))) {

@@ -562,6 +562,8 @@ export const CURSEDUCA_LESSON_TASK_MAP: Record<number, string> = {
     6713: "esmeralda-144",
     6716: "esmeralda-145",
     6717: "esmeralda-146",
+    6779: "platina-128",
+    6780: "platina-129",
 };
 
 const CURSEDUCA_TASK_SECTION_TITLE_MAP: Record<string, string> = {
