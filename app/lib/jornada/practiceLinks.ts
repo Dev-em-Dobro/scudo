@@ -34,6 +34,7 @@ const SYNTAX_WEAR_COURSE_SLUG = 'projeto-e-commerce-1764442100039';
 const NEXTJS_COURSE_SLUG = 'em-breve-nextjs-1761674389149';
 const FINTRACK_COURSE_SLUG = 'fintrack-ai-dashboard-financeiro-com-nextjs-1774658268942';
 const MARIO_GALAXY_COURSE_SLUG = 'landing-page-mario-galaxy';
+const AURA_DESIGN_COURSE_SLUG = 'projeto-aura-design-1778172969546';
 
 /** Projetos extras (marco Scudo) → curso Curseduca, sem aula individual. */
 const EXTRA_PROJECT_COURSE_SLUG_BY_TASK_ID: Record<string, string> = {
@@ -43,7 +44,6 @@ const EXTRA_PROJECT_COURSE_SLUG_BY_TASK_ID: Record<string, string> = {
     'ouro-59': 'projeto-fundo-magico-1760624852163',
     'mythril-2': 'projeto-king-burguer',
     'mythril-1': 'workshop-projeto-barbearia-feita-com-reactjs-1769467886006',
-    'mythril-11': 'projeto-aura-design-1778172969546',
 };
 
 const NEXTJS_FUNDAMENTALS_CLASS_IDS = new Set([6695, 6696, 6697, 6698, 6699, 6700]);
@@ -58,6 +58,14 @@ function isNextJsFundamentalsClassId(classId: number): boolean {
 
 function isFinTrackClassId(classId: number): boolean {
     return classId >= 6702 && classId <= 6717;
+}
+
+function isAuraDesignClassId(classId: number): boolean {
+    return classId === 6765;
+}
+
+function isAuraDesignJornadaTask(taskId: string): boolean {
+    return taskId === 'mythril-11';
 }
 
 function isMarioGalaxyClassId(classId: number): boolean {
@@ -161,6 +169,8 @@ function buildCurseducaLessonPath(classId: number, taskId?: string): string {
             courseSlug = SYNTAX_WEAR_COURSE_SLUG;
         } else if (isMarioGalaxyClassId(classId) || (taskId && isMarioGalaxyJornadaTask(taskId))) {
             courseSlug = MARIO_GALAXY_COURSE_SLUG;
+        } else if (isAuraDesignClassId(classId) || (taskId && isAuraDesignJornadaTask(taskId))) {
+            courseSlug = AURA_DESIGN_COURSE_SLUG;
         } else if (isNextJsFundamentalsClassId(classId) || (taskId && isNextJsJornadaTask(taskId))) {
             courseSlug = NEXTJS_COURSE_SLUG;
         } else if (isFinTrackClassId(classId) || (taskId && isFinTrackJornadaTask(taskId))) {
