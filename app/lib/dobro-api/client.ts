@@ -1,6 +1,8 @@
 import { getDobroApiConfig, type DobroApiConfig } from '@/app/lib/dobro-api/config';
 import {
     getDefaultJornadaCourseSlugs,
+    getJornadaCourseSlugsConfig,
+    isJornadaBoardCourseSlug,
     listCoursesCatalog,
     resolveCourseSlugFromCatalog,
 } from '@/app/lib/dobro-api/courses-catalog';
