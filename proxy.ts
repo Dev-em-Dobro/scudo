@@ -23,15 +23,19 @@ const PUBLIC_API_PREFIXES = [
     '/api/cron',            // MGM: Vercel Cron (sem cookie) — auth via CRON_SECRET
 ];
 
-/** Nomes do cookie de sessão do Better Auth (HTTP e HTTPS). */
-const SESSION_COOKIE_NAMES = [
+/** Prefixos de cookies Better Auth que indicam sessão (inclui chunks `.0`, `.1`). */
+const SESSION_COOKIE_PREFIXES = [
     'better-auth.session_token',
+    'better-auth.session_data',
     '__Secure-better-auth.session_token',
+    '__Secure-better-auth.session_data',
 ];
 
 function hasSessionCookie(request: NextRequest): boolean {
-    return SESSION_COOKIE_NAMES.some(
-        (name) => request.cookies.get(name) !== undefined,
+    return request.cookies.getAll().some(({ name }) =>
+        SESSION_COOKIE_PREFIXES.some(
+            (prefix) => name === prefix || name.startsWith(`${prefix}.`),
+        ),
     );
 }
 

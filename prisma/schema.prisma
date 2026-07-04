@@ -24,6 +24,7 @@ model User {
   productFeedbacks          ProductFeedback[]
   sessions                  Session[]
   jornadaTaskProgress       UserJornadaTaskProgress[]
+  jornadaStageCompletions   UserJornadaStageCompletion[]
   onboardingProgress        UserOnboardingProgress[]
   profile                   UserProfile?
   streak                    UserStreak?
@@ -87,6 +88,20 @@ model UserJornadaTaskProgress {
   @@unique([userId, taskId])
   @@index([userId])
   @@index([taskId])
+}
+
+model UserJornadaStageCompletion {
+  id                         String   @id @default(cuid())
+  userId                     String
+  stageId                    String
+  completedAt                DateTime @default(now())
+  catalogVersionAtCompletion Int?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  user                       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stageId])
+  @@index([userId])
 }
 
 model UserStreak {
@@ -495,4 +510,37 @@ enum ProductFeedbackStatus {
   IN_PROGRESS
   DONE
   DECLINED
+}
+
+enum JornadaCatalogTaskKind {
+  aula
+  projeto
+  desafio
+  conceito
+  pratica
+  entrega
+  extra
+}
+
+// Catálogo publicado da jornada (separado do progresso por taskId).
+// taskId e externalLessonId são imutáveis após publicação — ver docs/jornada-curseduca-opcoes-seguras.md
+model JornadaCatalogTask {
+  id                  String                  @id @default(cuid())
+  taskId              String                  @unique
+  stageId             String
+  kind                JornadaCatalogTaskKind?
+  title               String
+  description         String?
+  order               Int
+  isActive            Boolean                 @default(true)
+  deprecatedAt        DateTime?
+  catalogVersion      Int                     @default(1)
+  externalLessonId    Int?                    @unique
+  codeQuestExerciseId String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  @@index([stageId, order])
+  @@index([catalogVersion])
+  @@index([isActive])
 }

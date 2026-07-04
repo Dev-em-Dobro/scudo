@@ -59,7 +59,7 @@ export async function PATCH(request: Request) {
     }
 
     const { taskId, done } = parsed.data;
-    const task = getCatalogTaskById(taskId);
+    const task = await getCatalogTaskById(taskId);
 
     if (!task) {
         return NextResponse.json({ error: 'Tarefa não encontrada.' }, { status: 404 });

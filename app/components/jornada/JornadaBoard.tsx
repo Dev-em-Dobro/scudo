@@ -4,7 +4,10 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { JornadaStage, JornadaTask, JornadaTaskKind } from '@/app/types';
 import type { CodeQuestProgress } from '@/app/lib/codequest/service';
+import { resolvePracticeLink } from '@/app/lib/jornada/practiceLinks';
+import { getCodeQuestExerciseOptionsForTask } from '@/app/lib/jornada/codequestExerciseMap';
 import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
+import PracticeExercisePicker from '@/app/components/jornada/PracticeExercisePicker';
 import ClampedHelpTooltip from '@/app/components/ui/ClampedHelpTooltip';
 
 interface JornadaBoardProps {
@@ -144,7 +147,26 @@ function PraticaTaskCard({
     codeQuestProgress: CodeQuestProgress | null;
     hasCodeQuestAccount: boolean;
 }>) {
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const practiceLink = resolvePracticeLink(task.id);
+    const taskExercises = getCodeQuestExerciseOptionsForTask(task.id);
+    const completedSlugs = new Set(codeQuestProgress?.completedExerciseIds ?? []);
+    const taskDoneInCodeQuest = taskExercises.length > 0
+        && taskExercises.every((exercise) => completedSlugs.has(exercise.slug));
+    const taskProgressLabel = taskExercises.length > 1
+        ? `${taskExercises.filter((exercise) => completedSlugs.has(exercise.slug)).length}/${taskExercises.length} exercícios nesta tarefa`
+        : null;
+
     return (
+        <>
+            {pickerOpen ? (
+                <PracticeExercisePicker
+                    taskId={task.id}
+                    taskTitle={task.title}
+                    completedExerciseIds={codeQuestProgress?.completedExerciseIds}
+                    onClose={() => setPickerOpen(false)}
+                />
+            ) : null}
         <div className="w-full text-left rounded-lg border border-[#6528d3]/30 bg-black p-3 select-none">
             <div className="flex items-start gap-2">
                 <span
@@ -159,6 +181,12 @@ function PraticaTaskCard({
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-[#6528d3]/20 text-[#a78bfa] border border-[#6528d3]/40 mt-1">
                         Exercício
                     </span>
+                    {taskProgressLabel ? (
+                        <p className={`text-[10px] mt-1.5 ${taskDoneInCodeQuest ? 'text-emerald-400' : 'text-white/70'}`}>
+                            CodeQuest: {taskProgressLabel}
+                            {taskDoneInCodeQuest ? ' — concluído' : ''}
+                        </p>
+                    ) : null}
                     {codeQuestProgress ? (
                         <div className="mt-2 space-y-1.5">
                             <p className="text-[10px] text-white/70 font-semibold uppercase tracking-wide">Progresso CodeQuest</p>
@@ -194,24 +222,42 @@ function PraticaTaskCard({
                             Seu email não foi encontrado no CodeQuest ainda.
                         </p>
                     ) : null}
-                    <a
-                        href="https://codequest.devemdobro.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#6528d3] text-white hover:bg-[#5020b0] transition-colors"
-                    >
-                        <span
-                            className="material-symbols-outlined"
-                            style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}
-                            aria-hidden
+                    {practiceLink.mode === 'multi' ? (
+                        <button
+                            type="button"
+                            onClick={() => setPickerOpen(true)}
+                            className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#6528d3] text-white hover:bg-[#5020b0] transition-colors cursor-pointer"
                         >
-                            open_in_new
-                        </span>
-                        <span>Ir para o CodeQuest</span>
-                    </a>
+                            <span
+                                className="material-symbols-outlined"
+                                style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}
+                                aria-hidden
+                            >
+                                fitness_center
+                            </span>
+                            <span>{practiceLink.label} ({practiceLink.exerciseCount})</span>
+                        </button>
+                    ) : (
+                        <a
+                            href={practiceLink.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#6528d3] text-white hover:bg-[#5020b0] transition-colors"
+                        >
+                            <span
+                                className="material-symbols-outlined"
+                                style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}
+                                aria-hidden
+                            >
+                                open_in_new
+                            </span>
+                            <span>{practiceLink.label}</span>
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
+        </>
     );
 }
 
