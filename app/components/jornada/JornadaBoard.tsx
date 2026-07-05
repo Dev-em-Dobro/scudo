@@ -8,6 +8,7 @@ import { resolvePracticeLink } from '@/app/lib/jornada/practiceLinks';
 import { getCodeQuestExerciseOptionsForTask } from '@/app/lib/jornada/codequestExerciseMap';
 import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
 import PracticeExercisePicker from '@/app/components/jornada/PracticeExercisePicker';
+import RankResumeUpdatedModal from '@/app/components/jornada/RankResumeUpdatedModal';
 import ClampedHelpTooltip from '@/app/components/ui/ClampedHelpTooltip';
 
 interface JornadaBoardProps {
@@ -37,6 +38,13 @@ type JornadaApiResponse = {
     editableStageId?: string;
     currentRankLetter?: string;
     codeQuestProgress?: CodeQuestProgress | null;
+    resumeUpdated?: {
+        available: boolean;
+        updatedAt: string | null;
+        stageId: string | null;
+        rankName: string | null;
+        projectCount: number;
+    } | null;
 };
 
 type JornadaSyncResponse = {
@@ -370,6 +378,10 @@ export default function JornadaBoard({
     const [isSyncingExternal, setIsSyncingExternal] = useState(false);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
     const [codeQuestProgress, setCodeQuestProgress] = useState<CodeQuestProgress | null>(initialCodeQuestProgress);
+    const [resumeUpdatedModal, setResumeUpdatedModal] = useState<{
+        rankName: string | null;
+        projectCount: number;
+    } | null>(null);
     const externalSyncInFlightRef = useRef(false);
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
     const dragStartXRef = useRef(0);
@@ -398,6 +410,12 @@ export default function JornadaBoard({
         }
         if ('codeQuestProgress' in data) {
             setCodeQuestProgress(data.codeQuestProgress ?? null);
+        }
+        if (data.resumeUpdated?.available) {
+            setResumeUpdatedModal({
+                rankName: data.resumeUpdated.rankName,
+                projectCount: data.resumeUpdated.projectCount,
+            });
         }
     }, []);
 
@@ -884,6 +902,13 @@ export default function JornadaBoard({
                     })}
                 </div>
             </div>
+
+            <RankResumeUpdatedModal
+                open={resumeUpdatedModal !== null}
+                rankName={resumeUpdatedModal?.rankName ?? null}
+                projectCount={resumeUpdatedModal?.projectCount ?? 0}
+                onClose={() => setResumeUpdatedModal(null)}
+            />
         </div>
     );
 }

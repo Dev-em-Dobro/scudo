@@ -15,6 +15,8 @@ import {
     computeEditableStageId,
     syncStageCompletions,
 } from '@/app/lib/jornada/stageCompletion';
+import { syncGeneratedResumeForUser } from '@/app/lib/resume/syncGeneratedResume';
+import type { GeneratedResumeMeta } from '@/app/lib/resume/types';
 import {
     awardDailyStreakForTask,
     getUserStreakViewInTransaction,
@@ -36,11 +38,13 @@ export type JornadaSnapshot = {
     streak: JornadaStreakView;
     catalogSource: 'database' | 'code';
     catalogVersion: number;
+    resumeUpdated?: GeneratedResumeMeta | null;
 };
 
 export type SetTaskDoneForUserResult = {
     streakAwardedToday: boolean;
     newlyUnlockedBadges: JornadaStreakBadgeView[];
+    resumeUpdated?: GeneratedResumeMeta | null;
 };
 
 function withPersistedStatuses(catalogTasks: JornadaTask[], completedTaskIds: Set<string>) {
@@ -54,6 +58,43 @@ function computeCurrentRankLetter(stages: JornadaStage[], editableStageId: strin
     const currentStage = stages.find((stage) => stage.id === editableStageId);
 
     return currentStage?.rankLetter ?? 'I';
+}
+
+async function maybeSyncGeneratedResumeAfterStageCompletion(
+    transaction: Parameters<typeof syncGeneratedResumeForUser>[0]['transaction'],
+    userId: string,
+    stages: JornadaStage[],
+    completedStageIds: Set<string>,
+    newlyCompletedStageIds: string[],
+): Promise<GeneratedResumeMeta | null> {
+    if (newlyCompletedStageIds.length === 0) {
+        return null;
+    }
+
+    const user = await transaction.user.findUnique({
+        where: { id: userId },
+        select: {
+            email: true,
+            name: true,
+        },
+    });
+
+    if (!user?.email) {
+        return null;
+    }
+
+    const latestStageId = newlyCompletedStageIds.at(-1) ?? null;
+    const latestStage = stages.find((stage) => stage.id === latestStageId) ?? null;
+
+    return syncGeneratedResumeForUser({
+        transaction,
+        userId,
+        userEmail: user.email,
+        userName: user.name,
+        completedStageIds,
+        triggerStageId: latestStageId,
+        rankName: latestStage?.rankLetter ?? latestStage?.title ?? null,
+    });
 }
 
 export async function getCatalogTaskById(taskId: string) {
@@ -201,14 +242,29 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
         }
     }
 
-    const completedStageIds = await withRlsUserContext(userId, async (transaction) => syncStageCompletions(
-        transaction,
-        userId,
-        catalog.stages,
-        catalog.tasks,
-        completedTaskIds,
-        catalog.catalogVersion,
-    ));
+    let resumeUpdated: GeneratedResumeMeta | null = null;
+
+    const { completedStageIds } = await withRlsUserContext(userId, async (transaction) => {
+        const result = await syncStageCompletions(
+            transaction,
+            userId,
+            catalog.stages,
+            catalog.tasks,
+            completedTaskIds,
+            catalog.catalogVersion,
+        );
+
+        const updatedResume = await maybeSyncGeneratedResumeAfterStageCompletion(
+            transaction,
+            userId,
+            catalog.stages,
+            result.completedStageIds,
+            result.newlyCompletedStageIds,
+        );
+
+        resumeUpdated = updatedResume;
+        return result;
+    });
 
     const tasks = withPersistedStatuses(catalog.tasks, completedTaskIds);
     const editableStageId = computeEditableStageId(catalog.stages, tasks, completedStageIds);
@@ -225,6 +281,7 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
         streak: rlsData.streak,
         catalogSource: catalog.source,
         catalogVersion: catalog.catalogVersion,
+        resumeUpdated,
     };
 }
 
@@ -236,6 +293,7 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
             newlyUnlockedBadgeIds: [],
         };
         let newlyUnlockedBadges: JornadaStreakBadgeView[] = [];
+        let resumeUpdated: GeneratedResumeMeta | null = null;
 
         await withRlsUserContext(userId, async (transaction) => {
             await transaction.userJornadaTaskProgress.upsert({
@@ -296,7 +354,7 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
             });
             const completedTaskIds = new Set(progress.map((item) => item.taskId));
 
-            await syncStageCompletions(
+            const { completedStageIds, newlyCompletedStageIds } = await syncStageCompletions(
                 transaction,
                 userId,
                 catalog.stages,
@@ -304,11 +362,20 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
                 completedTaskIds,
                 catalog.catalogVersion,
             );
+
+            resumeUpdated = await maybeSyncGeneratedResumeAfterStageCompletion(
+                transaction,
+                userId,
+                catalog.stages,
+                completedStageIds,
+                newlyCompletedStageIds,
+            );
         });
 
         return {
             streakAwardedToday: streakResult.awardedToday,
             newlyUnlockedBadges,
+            resumeUpdated,
         };
     }
 
@@ -322,5 +389,6 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
     return {
         streakAwardedToday: false,
         newlyUnlockedBadges: [],
+        resumeUpdated: null,
     };
 }

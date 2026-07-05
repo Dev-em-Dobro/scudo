@@ -87,5 +87,6 @@ export async function PATCH(request: Request) {
         ...snapshot,
         streakAwardedToday: updateResult.streakAwardedToday,
         newlyUnlockedBadges: updateResult.newlyUnlockedBadges,
+        resumeUpdated: updateResult.resumeUpdated ?? snapshot.resumeUpdated ?? null,
     });
 }

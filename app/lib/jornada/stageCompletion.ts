@@ -63,6 +63,7 @@ export async function loadCompletedStageIds(
 
 /**
  * Backfill idempotente: grava conclusão de etapa quando todas as tarefas atuais estão done.
+ * Retorna os stageIds recém-concluídos nesta execução.
  */
 export async function syncStageCompletions(
     transaction: RlsTransaction,
@@ -71,11 +72,12 @@ export async function syncStageCompletions(
     catalogTasks: JornadaTask[],
     completedTaskIds: Set<string>,
     catalogVersion: number,
-): Promise<Set<string>> {
+): Promise<{ completedStageIds: Set<string>; newlyCompletedStageIds: string[] }> {
     const completedStageIds = await loadCompletedStageIds(transaction, userId);
     const tasksByStage = groupTasksByStageId(catalogTasks);
     const sortedStages = [...stages].sort((a, b) => a.order - b.order);
     const now = new Date();
+    const newlyCompletedStageIds: string[] = [];
 
     for (const stage of sortedStages) {
         if (completedStageIds.has(stage.id)) {
@@ -107,7 +109,8 @@ export async function syncStageCompletions(
         });
 
         completedStageIds.add(stage.id);
+        newlyCompletedStageIds.push(stage.id);
     }
 
-    return completedStageIds;
+    return { completedStageIds, newlyCompletedStageIds };
 }

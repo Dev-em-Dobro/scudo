@@ -518,7 +518,6 @@ export const MOCK_TASKS: JornadaTask[] = [
   { id: 'esmeralda-85', stageId: 's6', title: 'Aprendi sobre o conceito: Camada de API com Express (rotas/middlewares/erros)', description: 'Conceito-chave', status: 'pending', order: 181 },
   { id: 'esmeralda-86', stageId: 's6', title: 'Aprendi sobre o conceito: ORM com Prisma (CRUD + relações)', description: 'Conceito-chave', status: 'pending', order: 182 },
   { id: 'esmeralda-87', stageId: 's6', title: 'Aprendi sobre o conceito: Deploy de APIs', description: 'Conceito-chave', status: 'pending', order: 183 },
-  { id: 'esmeralda-88', stageId: 's6', title: 'Atualizar currículo com conceitos e projetos do rank Esmeralda (última tarefa)', status: 'pending', order: 184 },
 
   // ---------- Etapa 7 – Diamante ----------
   { id: 'diamante-1', stageId: 's7', title: 'O que é IA e por que ela vai mudar o rumo do mercado de programação', status: 'pending', order: 1 },
@@ -536,7 +535,6 @@ export const MOCK_TASKS: JornadaTask[] = [
   { id: 'diamante-19', stageId: 's7', title: 'Aprendi sobre o conceito: Integração full stack orientada a produto', description: 'Conceito-chave', status: 'pending', order: 13 },
   { id: 'diamante-20', stageId: 's7', title: 'Aprendi sobre o conceito: IA aplicada em fluxo real (não só demo)', description: 'Conceito-chave', status: 'pending', order: 14 },
   { id: 'diamante-21', stageId: 's7', title: 'Aprendi sobre o conceito: Qualidade de entrega (teste, observabilidade, manutenção)', description: 'Conceito-chave', status: 'pending', order: 15 },
-  { id: 'diamante-22', stageId: 's7', title: 'Atualizar currículo com conceitos e projetos do rank Diamante (última tarefa)', status: 'pending', order: 16 },
 
   // ---------- Etapa 8 – Mythril ----------
   { id: 'mythril-3', stageId: 's8', kind: 'projeto', title: 'Projeto: Freela com IA', status: 'pending', order: 1 },
@@ -548,7 +546,6 @@ export const MOCK_TASKS: JornadaTask[] = [
   { id: 'mythril-7', stageId: 's8', title: 'Aprendi sobre o conceito: Projeto autoral de ponta a ponta', description: 'Conceito-chave', status: 'pending', order: 7 },
   { id: 'mythril-8', stageId: 's8', title: 'Aprendi sobre o conceito: Portfólio com narrativa de impacto', description: 'Conceito-chave', status: 'pending', order: 8 },
   { id: 'mythril-9', stageId: 's8', title: 'Aprendi sobre o conceito: Escopo e entrega para cliente/freela', description: 'Conceito-chave', status: 'pending', order: 9 },
-  { id: 'mythril-10', stageId: 's8', title: 'Atualizar currículo com conceitos e projetos do rank Mythril (última tarefa)', status: 'pending', order: 10 },
 
   // ---------- Etapa 9 – Mestre ----------
   { id: 'mestre-1', stageId: 's9', title: 'Simulação de entrevista técnica', status: 'pending', order: 1 },
@@ -559,12 +556,10 @@ export const MOCK_TASKS: JornadaTask[] = [
   { id: 'mestre-6', stageId: 's9', title: 'Aprendi sobre o conceito: Estratégia de candidaturas', description: 'Conceito-chave', status: 'pending', order: 6 },
   { id: 'mestre-7', stageId: 's9', title: 'Aprendi sobre o conceito: Entrevista técnica e comportamental', description: 'Conceito-chave', status: 'pending', order: 7 },
   { id: 'mestre-8', stageId: 's9', title: 'Aprendi sobre o conceito: Comunicação profissional e networking', description: 'Conceito-chave', status: 'pending', order: 8 },
-  { id: 'mestre-9', stageId: 's9', title: 'Atualizar currículo com conceitos e projetos do rank Mestre (última tarefa)', status: 'pending', order: 9 },
 
   // ---------- Etapa 10 – Lendário ----------
   { id: 'lendario-1', stageId: 's10', title: '3 freelas entregues para clientes reais', description: 'Conceito-chave', status: 'pending', order: 1 },
   { id: 'lendario-2', stageId: 's10', title: 'Ganhar R$5.000+ com programação', description: 'Conceito-chave', status: 'pending', order: 2 },
   { id: 'lendario-3', stageId: 's10', title: 'Primeira vaga na área', description: 'Conceito-chave', status: 'pending', order: 3 },
   { id: 'lendario-4', stageId: 's10', title: 'Mentorar outro aluno', description: 'Conceito-chave', status: 'pending', order: 4 },
-  { id: 'lendario-5', stageId: 's10', title: 'Atualizar currículo e redes com o rank Lendário', description: 'Conceito-chave', status: 'pending', order: 5 },
 ];

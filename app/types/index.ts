@@ -64,6 +64,13 @@ export interface UserProfile {
     resumeSyncStatus: 'not_uploaded' | 'uploaded' | 'processing' | 'ready';
     resumeFileName: string | null;
     resumeUploadedAt: string | null;
+    generatedResume: {
+        available: boolean;
+        updatedAt: string | null;
+        stageId: string | null;
+        rankName: string | null;
+        projectCount: number;
+    };
 }
 
 export type NavItem = {

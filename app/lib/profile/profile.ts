@@ -1,6 +1,7 @@
 import { Prisma, ResumeSyncStatus } from '@prisma/client';
 
 import { withRlsUserContext } from '@/app/lib/rls';
+import { toGeneratedResumeMeta } from '@/app/lib/resume/syncGeneratedResume';
 
 export type ClientProfile = {
     fullName: string | null;
@@ -23,6 +24,13 @@ export type ClientProfile = {
     resumeSyncStatus: 'not_uploaded' | 'uploaded' | 'processing' | 'ready';
     resumeFileName: string | null;
     resumeUploadedAt: string | null;
+    generatedResume: {
+        available: boolean;
+        updatedAt: string | null;
+        stageId: string | null;
+        rankName: string | null;
+        projectCount: number;
+    };
 };
 
 type SessionUser = {
@@ -74,6 +82,7 @@ export function toClientProfile(profile: PrismaUserProfileWithProjects): ClientP
         resumeSyncStatus: mapResumeStatus(profile.resumeSyncStatus),
         resumeFileName: profile.resumeFileName,
         resumeUploadedAt: profile.resumeUploadedAt?.toISOString() ?? null,
+        generatedResume: toGeneratedResumeMeta(profile),
     };
 }
 
