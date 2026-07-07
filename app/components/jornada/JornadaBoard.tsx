@@ -34,7 +34,7 @@ function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
 }
 
 type JornadaApiResponse = {
-    tasks: JornadaTask[];
+    tasks?: JornadaTask[];
     editableStageId?: string;
     currentRankLetter?: string;
     codeQuestProgress?: CodeQuestProgress | null;
@@ -45,6 +45,16 @@ type JornadaApiResponse = {
         rankName: string | null;
         projectCount: number;
     } | null;
+};
+
+type JornadaTaskToggleResponse = {
+    taskId: string;
+    done: boolean;
+    editableStageId: string;
+    currentRankLetter: string;
+    streakAwardedToday?: boolean;
+    newlyUnlockedBadges?: unknown[];
+    resumeUpdated?: JornadaApiResponse['resumeUpdated'];
 };
 
 type JornadaSyncResponse = {
@@ -419,6 +429,21 @@ export default function JornadaBoard({
         }
     }, []);
 
+    const applyTaskToggleResponse = useCallback((data: JornadaTaskToggleResponse) => {
+        if (typeof data.editableStageId === 'string' && data.editableStageId.length > 0) {
+            setCurrentEditableStageId(data.editableStageId);
+        }
+        if (typeof data.currentRankLetter === 'string' && data.currentRankLetter.length > 0) {
+            setCurrentRankLetter(data.currentRankLetter);
+        }
+        if (data.resumeUpdated?.available) {
+            setResumeUpdatedModal({
+                rankName: data.resumeUpdated.rankName,
+                projectCount: data.resumeUpdated.projectCount,
+            });
+        }
+    }, []);
+
     const rollbackTaskStatus = useCallback((taskId: string, originalStatus: JornadaTask['status']) => {
         setBoardTasks((current) => current.map((task) => {
             if (task.id !== taskId) {
@@ -558,8 +583,8 @@ export default function JornadaBoard({
                     throw new Error('Falha ao atualizar progresso da tarefa.');
                 }
 
-                const data = await response.json() as JornadaApiResponse;
-                applyJornadaResponse(data);
+                const data = await response.json() as JornadaTaskToggleResponse;
+                applyTaskToggleResponse(data);
             })
             .catch(() => {
                 rollbackTaskStatus(taskId, targetTask.status);
@@ -568,7 +593,7 @@ export default function JornadaBoard({
             .finally(() => {
                 clearTaskUpdating(taskId);
             });
-    }, [applyJornadaResponse, boardTasks, clearTaskUpdating, currentEditableStageId, rollbackTaskStatus]);
+    }, [applyTaskToggleResponse, boardTasks, clearTaskUpdating, currentEditableStageId, rollbackTaskStatus]);
 
     const tasksByStage = useMemo(() => groupTasksByStageId(boardTasks), [boardTasks]);
     const sortedStages = useMemo(() => [...stages].sort((a, b) => a.order - b.order), [stages]);

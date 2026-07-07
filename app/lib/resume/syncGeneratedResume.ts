@@ -99,24 +99,28 @@ async function persistGeneratedResumeDocument(
     options: {
         stageId: string | null;
         syncBodyToProfile?: boolean;
+        deferPdf?: boolean;
     },
 ): Promise<GeneratedResumeMeta> {
     const normalizedDocument = recomputeTechnologyGroups({
         ...document,
         lastUpdatedAt: new Date().toISOString(),
     });
-    const pdfBytes = await generateAtsResumePdf(normalizedDocument);
     const now = new Date();
 
     if (options.syncBodyToProfile) {
         await syncResumeBodyToUserProfile(transaction, profileId, normalizedDocument);
     }
 
+    const pdfBytes = options.deferPdf
+        ? null
+        : await generateAtsResumePdf(normalizedDocument);
+
     await transaction.userProfile.update({
         where: { id: profileId },
         data: {
             generatedResumeJson: normalizedDocument as unknown as Prisma.InputJsonValue,
-            generatedResumePdf: Buffer.from(pdfBytes),
+            ...(pdfBytes ? { generatedResumePdf: Buffer.from(pdfBytes) } : {}),
             generatedResumeUpdatedAt: now,
             generatedResumeStageId: options.stageId,
         },
@@ -139,6 +143,7 @@ type SyncGeneratedResumeInput = {
     completedStageIds: Set<string>;
     triggerStageId: string | null;
     rankName: string | null;
+    deferPdf?: boolean;
 };
 
 function mergeKnownTechnologies(existing: string[], projectTechnologies: string[]): string[] {
@@ -229,6 +234,7 @@ export async function syncGeneratedResumeForUser(input: SyncGeneratedResumeInput
 
         return persistGeneratedResumeDocument(input.transaction, profile.id, withHeader, {
             stageId: input.triggerStageId,
+            deferPdf: input.deferPdf,
         });
     }
 
@@ -254,6 +260,7 @@ export async function syncGeneratedResumeForUser(input: SyncGeneratedResumeInput
 
     return persistGeneratedResumeDocument(input.transaction, profile.id, document, {
         stageId: input.triggerStageId,
+        deferPdf: input.deferPdf,
     });
 }
 
