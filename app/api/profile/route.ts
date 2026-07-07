@@ -210,11 +210,30 @@ export async function PATCH(request: Request) {
     await withRlsUserContext(session.user.id, async (transaction) => {
         const profile = await transaction.userProfile.findUnique({
             where: { userId: session.user.id },
-            select: { id: true },
+            select: {
+                id: true,
+                generatedResumeUpdatedAt: true,
+            },
         });
 
         if (!profile) {
             throw new Error('Perfil não encontrado para atualização.');
+        }
+
+        const resumeManagedInPanel = Boolean(profile.generatedResumeUpdatedAt);
+
+        if (resumeManagedInPanel) {
+            await transaction.userProfile.update({
+                where: { userId: session.user.id },
+                data: {
+                    fullName: normalizeOptionalText(payload.fullName),
+                    linkedinUrl: normalizeUrl(payload.linkedinUrl),
+                    githubUrl: normalizeUrl(payload.githubUrl),
+                    city: normalizeOptionalText(payload.city),
+                    softSkills,
+                },
+            });
+            return;
         }
 
         const existingCourseProjects = await transaction.userProject.findMany({

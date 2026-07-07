@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import type { AtsResumeDocument } from '@/app/lib/resume/types';
 import {
     joinCommaSeparatedList,
@@ -9,31 +11,26 @@ import {
 } from '@/app/lib/resume/documentUtils';
 
 type GeneratedResumeEditorProps = {
-    document: AtsResumeDocument;
-    onChange: (document: AtsResumeDocument) => void;
+    readonly document: AtsResumeDocument;
+    readonly onChange: (document: AtsResumeDocument) => void;
 };
 
-function fieldClassName() {
-    return 'w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] leading-relaxed text-black placeholder:text-black/35';
+function textareaClassName() {
+    return 'w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] leading-relaxed text-black placeholder:text-black/35 resize-y min-h-[4.5rem]';
 }
 
-function textareaClassName() {
-    return `${fieldClassName()} resize-y min-h-[4.5rem]`;
+function formatHeaderLine(document: AtsResumeDocument) {
+    return [
+        document.header.city,
+        document.header.email,
+        document.header.linkedinUrl ? `LinkedIn: ${document.header.linkedinUrl}` : null,
+        document.header.githubUrl ? `GitHub: ${document.header.githubUrl}` : null,
+    ].filter(Boolean).join(' | ');
 }
 
 export default function GeneratedResumeEditor({ document, onChange }: GeneratedResumeEditorProps) {
     function updateDocument(patch: Partial<AtsResumeDocument>) {
         onChange({ ...document, ...patch });
-    }
-
-    function updateHeader(field: keyof AtsResumeDocument['header'], value: string) {
-        onChange({
-            ...document,
-            header: {
-                ...document.header,
-                [field]: value.trim() ? value : field === 'email' ? document.header.email : null,
-            },
-        });
     }
 
     function updateProject(index: number, patch: Partial<AtsResumeDocument['projects'][number]>) {
@@ -47,43 +44,22 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
         <article className="rounded-lg border border-[#333] bg-white text-black shadow-inner">
             <div className="max-h-[32rem] overflow-y-auto px-6 py-5 text-[13px] leading-relaxed scrollbar-modern">
                 <header className="border-b border-black/10 pb-3 space-y-2">
-                    <input
-                        type="text"
-                        value={document.header.fullName}
-                        onChange={(event) => updateHeader('fullName', event.target.value)}
-                        className={`${fieldClassName()} text-lg font-bold`}
-                        placeholder="Seu nome completo"
-                    />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input
-                            type="text"
-                            value={document.header.city ?? ''}
-                            onChange={(event) => updateHeader('city', event.target.value)}
-                            className={fieldClassName()}
-                            placeholder="Cidade"
-                        />
-                        <input
-                            type="email"
-                            value={document.header.email}
-                            readOnly
-                            className={`${fieldClassName()} text-black/60`}
-                            aria-label="E-mail (somente leitura)"
-                        />
-                        <input
-                            type="text"
-                            value={document.header.linkedinUrl ?? ''}
-                            onChange={(event) => updateHeader('linkedinUrl', event.target.value)}
-                            className={fieldClassName()}
-                            placeholder="linkedin.com/in/seu-perfil"
-                        />
-                        <input
-                            type="text"
-                            value={document.header.githubUrl ?? ''}
-                            onChange={(event) => updateHeader('githubUrl', event.target.value)}
-                            className={fieldClassName()}
-                            placeholder="github.com/seu-usuario"
-                        />
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 className="text-lg font-bold tracking-tight">{document.header.fullName}</h3>
+                            <p className="mt-1 text-[12px] text-black/70">{formatHeaderLine(document)}</p>
+                        </div>
+                        <span className="shrink-0 rounded-md border border-black/10 bg-black/[0.03] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-black/45">
+                            Do perfil
+                        </span>
                     </div>
+                    <p className="text-[11px] text-black/50">
+                        Nome, cidade e links vêm do{' '}
+                        <Link href="/perfil" className="font-semibold text-[#6528d3] hover:underline">
+                            Meu Perfil
+                        </Link>
+                        . Salve lá para atualizar o cabeçalho do currículo.
+                    </p>
                 </header>
 
                 <section className="mt-4">
@@ -112,6 +88,9 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                         <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Projetos</h4>
                         <span className="text-[11px] text-black/45">{document.projects.length} projeto(s)</span>
                     </div>
+                    <p className="mt-1 text-[11px] text-black/50">
+                        Projetos do curso são adicionados ao concluir ranks. Ajuste aqui títulos, descrições e stacks.
+                    </p>
                     <div className="mt-2 space-y-4">
                         {document.projects.map((project, index) => (
                             <div key={`project-${index}`} className="rounded-md border border-black/10 p-3 space-y-2">
@@ -119,7 +98,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                                     type="text"
                                     value={project.title}
                                     onChange={(event) => updateProject(index, { title: event.target.value })}
-                                    className={`${fieldClassName()} font-semibold`}
+                                    className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] font-semibold text-black"
                                     placeholder="Título do projeto"
                                 />
                                 <textarea
@@ -134,7 +113,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                                     onChange={(event) => updateProject(index, {
                                         technologies: parseCommaSeparatedList(event.target.value),
                                     })}
-                                    className={fieldClassName()}
+                                    className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] text-black"
                                     placeholder="React, TypeScript, Node.js"
                                 />
                             </div>
@@ -171,7 +150,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                 </section>
 
                 <p className="mt-4 text-[11px] text-black/45">
-                    As stacks são reorganizadas automaticamente ao salvar, com base nas tecnologias dos projetos.
+                    Ao salvar, o texto do currículo é espelhado no seu perfil para o matching de vagas. As stacks são reorganizadas automaticamente.
                 </p>
             </div>
         </article>

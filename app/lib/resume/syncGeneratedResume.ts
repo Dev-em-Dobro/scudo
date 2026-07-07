@@ -6,8 +6,12 @@ import {
     mergeProfileHeaderIntoDocument,
     mergeUnlockedProjectsIntoDocument,
     recomputeTechnologyGroups,
-    toStorageUrl,
 } from '@/app/lib/resume/documentUtils';
+import {
+    applyProfileHeaderToDocument,
+    resumeHeaderDiffersFromProfile,
+    syncResumeBodyToUserProfile,
+} from '@/app/lib/resume/profileSync';
 import { generateAtsResumePdf } from '@/app/lib/resume/generatePdf';
 import type { AtsResumeDocument, GeneratedResumeMeta } from '@/app/lib/resume/types';
 import type { RlsTransaction } from '@/app/lib/rls';
@@ -94,7 +98,7 @@ async function persistGeneratedResumeDocument(
     document: AtsResumeDocument,
     options: {
         stageId: string | null;
-        syncHeaderToProfile?: boolean;
+        syncBodyToProfile?: boolean;
     },
 ): Promise<GeneratedResumeMeta> {
     const normalizedDocument = recomputeTechnologyGroups({
@@ -104,17 +108,13 @@ async function persistGeneratedResumeDocument(
     const pdfBytes = await generateAtsResumePdf(normalizedDocument);
     const now = new Date();
 
+    if (options.syncBodyToProfile) {
+        await syncResumeBodyToUserProfile(transaction, profileId, normalizedDocument);
+    }
+
     await transaction.userProfile.update({
         where: { id: profileId },
         data: {
-            ...(options.syncHeaderToProfile
-                ? {
-                    fullName: normalizedDocument.header.fullName,
-                    city: normalizedDocument.header.city,
-                    linkedinUrl: toStorageUrl(normalizedDocument.header.linkedinUrl),
-                    githubUrl: toStorageUrl(normalizedDocument.header.githubUrl),
-                }
-                : {}),
             generatedResumeJson: normalizedDocument as unknown as Prisma.InputJsonValue,
             generatedResumePdf: Buffer.from(pdfBytes),
             generatedResumeUpdatedAt: now,
@@ -268,27 +268,38 @@ export async function saveGeneratedResumeDocument(
                 id: true,
                 generatedResumeUpdatedAt: true,
                 generatedResumeStageId: true,
+                fullName: true,
+                city: true,
+                linkedinUrl: true,
+                githubUrl: true,
+                user: {
+                    select: {
+                        email: true,
+                        name: true,
+                    },
+                },
             },
         });
 
-        if (!profile?.generatedResumeUpdatedAt) {
+        if (!profile?.generatedResumeUpdatedAt || !profile.user.email) {
             return null;
         }
 
+        const withProfileHeader = applyProfileHeaderToDocument(
+            document,
+            profile,
+            profile.user.email,
+            profile.user.name,
+        );
+
         const customizedDocument: AtsResumeDocument = {
-            ...document,
-            header: {
-                ...document.header,
-                city: document.header.city?.trim() || null,
-                linkedinUrl: document.header.linkedinUrl?.trim() || null,
-                githubUrl: document.header.githubUrl?.trim() || null,
-            },
+            ...withProfileHeader,
             customizedAt: new Date().toISOString(),
         };
 
         return persistGeneratedResumeDocument(transaction, profile.id, customizedDocument, {
             stageId: profile.generatedResumeStageId,
-            syncHeaderToProfile: true,
+            syncBodyToProfile: true,
         });
     });
 }
@@ -393,23 +404,62 @@ export async function getCurrentGeneratedResumeDocument(userId: string): Promise
 } | null> {
     await ensureGeneratedResumeIsCurrent(userId);
 
-    const profile = await withRlsUserContext(userId, async (transaction) => transaction.userProfile.findUnique({
-        where: { userId },
-        select: {
-            generatedResumeJson: true,
-            generatedResumeUpdatedAt: true,
-        },
-    }));
+    const result = await withRlsUserContext(userId, async (transaction) => {
+        const profile = await transaction.userProfile.findUnique({
+            where: { userId },
+            select: {
+                id: true,
+                generatedResumeJson: true,
+                generatedResumeUpdatedAt: true,
+                generatedResumeStageId: true,
+                fullName: true,
+                city: true,
+                linkedinUrl: true,
+                githubUrl: true,
+                user: {
+                    select: {
+                        email: true,
+                        name: true,
+                    },
+                },
+            },
+        });
 
-    const document = parseGeneratedResumeDocument(profile?.generatedResumeJson ?? null);
-    if (!document || !profile?.generatedResumeUpdatedAt) {
-        return null;
-    }
+        if (!profile?.generatedResumeJson || !profile.generatedResumeUpdatedAt || !profile.user.email) {
+            return null;
+        }
 
-    return {
-        document: recomputeTechnologyGroups(document),
-        updatedAt: profile.generatedResumeUpdatedAt.toISOString(),
-    };
+        const storedDocument = parseGeneratedResumeDocument(profile.generatedResumeJson);
+        if (!storedDocument) {
+            return null;
+        }
+
+        const withHeader = applyProfileHeaderToDocument(
+            storedDocument,
+            profile,
+            profile.user.email,
+            profile.user.name,
+        );
+        const normalizedDocument = recomputeTechnologyGroups(withHeader);
+
+        if (resumeHeaderDiffersFromProfile(storedDocument, profile, profile.user.email, profile.user.name)) {
+            const meta = await persistGeneratedResumeDocument(transaction, profile.id, normalizedDocument, {
+                stageId: profile.generatedResumeStageId,
+            });
+
+            return {
+                document: normalizedDocument,
+                updatedAt: meta.updatedAt ?? new Date().toISOString(),
+            };
+        }
+
+        return {
+            document: normalizedDocument,
+            updatedAt: profile.generatedResumeUpdatedAt.toISOString(),
+        };
+    });
+
+    return result;
 }
 
 export function parseGeneratedResumeDocument(value: Prisma.JsonValue | null): AtsResumeDocument | null {

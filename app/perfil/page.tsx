@@ -44,7 +44,10 @@ export default async function PerfilPage() {
                             </p>
                         </section>
 
-                        <ProfileEditor initialProfile={clientProfile} />
+                        <ProfileEditor
+                            initialProfile={clientProfile}
+                            resumeManagedInPanel={clientProfile.generatedResume.available}
+                        />
                         <ChangePasswordSection />
                     </div>
                 </div>
