@@ -13,7 +13,7 @@ import {
   skipTutorial,
   startTutorial,
 } from '@/app/lib/onboarding/progress';
-import { PLATFORM_INTRO_TUTORIAL } from '@/app/lib/onboarding/tutorials';
+import { resolvePlatformIntroTutorial } from '@/app/lib/onboarding/tutorials';
 
 export const runtime = 'nodejs';
 
@@ -46,14 +46,15 @@ export async function GET() {
   }
 
   const canAccessJornada = await isOfficialStudentUser(session.user.id);
+  const tutorial = resolvePlatformIntroTutorial();
 
-  const progress = await getTutorialProgress(session.user.id, PLATFORM_INTRO_TUTORIAL);
+  const progress = await getTutorialProgress(session.user.id, tutorial);
 
   return NextResponse.json({
     enabled: true,
     guidedEnabled,
     canAccessJornada,
-    tutorial: PLATFORM_INTRO_TUTORIAL,
+    tutorial,
     progress,
     shouldShow: getShouldShow(progress.status),
   });
@@ -83,9 +84,10 @@ export async function PATCH(request: Request) {
   }
 
   const payload = parsed.data;
+  const tutorial = resolvePlatformIntroTutorial();
 
   if (payload.action === 'start') {
-    await startTutorial(session.user.id, PLATFORM_INTRO_TUTORIAL);
+    await startTutorial(session.user.id, tutorial);
   }
 
   if (payload.action === 'set-step') {
@@ -93,18 +95,18 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'O campo step é obrigatório para set-step.' }, { status: 400 });
     }
 
-    await setTutorialStep(session.user.id, PLATFORM_INTRO_TUTORIAL, payload.step);
+    await setTutorialStep(session.user.id, tutorial, payload.step);
   }
 
   if (payload.action === 'complete') {
-    await completeTutorial(session.user.id, PLATFORM_INTRO_TUTORIAL);
+    await completeTutorial(session.user.id, tutorial);
   }
 
   if (payload.action === 'skip') {
-    await skipTutorial(session.user.id, PLATFORM_INTRO_TUTORIAL);
+    await skipTutorial(session.user.id, tutorial);
   }
 
-  const progress = await getTutorialProgress(session.user.id, PLATFORM_INTRO_TUTORIAL);
+  const progress = await getTutorialProgress(session.user.id, tutorial);
 
   return NextResponse.json({
     ok: true,

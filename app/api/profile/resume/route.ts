@@ -10,6 +10,7 @@ import {
     getResumeAiProviderOrder,
     isResumeAiExtractionEnabled,
     isResumeAiStrictPiiSanitizationEnabled,
+    isResumeUploadEnabled,
 } from '@/app/lib/featureFlags';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
 import { withRlsUserContext } from '@/app/lib/rls';
@@ -133,6 +134,13 @@ async function extractResumeWithConfiguredStrategy(normalizedText: string) {
 }
 
 export async function POST(request: Request) {
+    if (!isResumeUploadEnabled()) {
+        return NextResponse.json(
+            { error: 'Upload de currículo desativado neste ambiente.' },
+            { status: 403 },
+        );
+    }
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });

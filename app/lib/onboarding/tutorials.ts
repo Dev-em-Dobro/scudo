@@ -1,3 +1,5 @@
+import { isResumeUploadEnabled } from '@/app/lib/featureFlags';
+
 export type OnboardingStepType = 'info' | 'video';
 
 export interface OnboardingStep {
@@ -202,3 +204,14 @@ export const PLATFORM_INTRO_TUTORIAL: OnboardingTutorial = {
     },
   ],
 };
+
+export function resolvePlatformIntroTutorial(): OnboardingTutorial {
+  if (isResumeUploadEnabled()) {
+    return PLATFORM_INTRO_TUTORIAL;
+  }
+
+  return {
+    ...PLATFORM_INTRO_TUTORIAL,
+    steps: PLATFORM_INTRO_TUTORIAL.steps.filter((step) => step.id !== 'resume-upload'),
+  };
+}
