@@ -154,6 +154,85 @@ const STAGE_ORDER: Record<string, number> = {
     s10: 10,
 };
 
+/** Maior = mais relevante no topo do currículo (full stack e IA primeiro). */
+const PROJECT_KEY_DISPLAY_PRIORITY: Record<string, number> = {
+    'fintrack-ai': 1000,
+    'freela-ia': 950,
+    'syntax-wear-frontend': 850,
+    'syntax-wear-backend': 840,
+    'devlingo': 830,
+    'botflix': 780,
+    'js-consolidacao': 720,
+    'super-mario-galaxy': 700,
+    'aura-design': 680,
+    'barbearia-navalha': 660,
+    'ecommerce-html-css': 600,
+    'projeto-receita': 550,
+};
+
+const COURSE_PROJECT_BY_TITLE = new Map(
+    COURSE_PROJECT_CATALOG.map((project) => [project.title.trim().toLowerCase(), project]),
+);
+
+function scoreTechnologies(technologies: string[]) {
+    const normalized = technologies.map((tech) => tech.trim().toLowerCase());
+    let score = 0;
+
+    if (normalized.some((tech) => tech.includes('openai') || tech.includes('ia generativa') || tech.includes('ia '))) {
+        score += 120;
+    }
+
+    const hasReact = normalized.some((tech) => tech.includes('react'));
+    const hasNode = normalized.some((tech) => tech.includes('node'));
+    const hasDatabase = normalized.some((tech) => tech.includes('postgres') || tech.includes('prisma') || tech.includes('sql'));
+
+    if (hasReact && hasNode) {
+        score += 80;
+    }
+
+    if (hasReact && hasNode && hasDatabase) {
+        score += 40;
+    }
+
+    return score;
+}
+
+export function getResumeProjectSortScore(title: string, technologies: string[] = []): number {
+    const catalogProject = COURSE_PROJECT_BY_TITLE.get(title.trim().toLowerCase());
+
+    if (catalogProject) {
+        const keyPriority = PROJECT_KEY_DISPLAY_PRIORITY[catalogProject.key] ?? 0;
+        const stageBoost = (STAGE_ORDER[catalogProject.unlockAtStageId] ?? 0) * 5;
+        return keyPriority + stageBoost;
+    }
+
+    const titleLower = title.trim().toLowerCase();
+    let manualScore = scoreTechnologies(technologies);
+
+    if (titleLower.includes('ia') || titleLower.includes(' ai')) {
+        manualScore += 100;
+    }
+
+    if (titleLower.includes('full stack') || titleLower.includes('fullstack')) {
+        manualScore += 90;
+    }
+
+    return 500 + manualScore;
+}
+
+export function sortResumeProjectsByRelevance<T extends { title: string; technologies?: string[] }>(projects: T[]): T[] {
+    return [...projects].sort((left, right) => {
+        const leftScore = getResumeProjectSortScore(left.title, left.technologies ?? []);
+        const rightScore = getResumeProjectSortScore(right.title, right.technologies ?? []);
+
+        if (rightScore !== leftScore) {
+            return rightScore - leftScore;
+        }
+
+        return left.title.localeCompare(right.title, 'pt-BR');
+    });
+}
+
 export function getUnlockedCourseProjects(completedStageIds: Set<string>): CourseProjectDefinition[] {
     const maxCompletedOrder = [...completedStageIds]
         .map((stageId) => STAGE_ORDER[stageId] ?? 0)

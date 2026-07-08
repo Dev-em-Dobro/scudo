@@ -1,5 +1,6 @@
 'use client';
 
+import { useLayoutEffect, useRef, type ChangeEvent } from 'react';
 import Link from 'next/link';
 
 import type { AtsResumeDocument } from '@/app/lib/resume/types';
@@ -15,8 +16,40 @@ type GeneratedResumeEditorProps = {
     readonly onChange: (document: AtsResumeDocument) => void;
 };
 
+type AutoResizeTextareaProps = {
+    readonly value: string;
+    readonly onChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+    readonly className?: string;
+    readonly placeholder?: string;
+};
+
 function textareaClassName() {
-    return 'w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] leading-relaxed text-black placeholder:text-black/35 resize-y min-h-[4.5rem]';
+    return 'w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] leading-relaxed text-black placeholder:text-black/35 resize-none overflow-hidden min-h-[4.5rem]';
+}
+
+function AutoResizeTextarea({ value, onChange, className, placeholder }: AutoResizeTextareaProps) {
+    const ref = useRef<HTMLTextAreaElement | null>(null);
+
+    useLayoutEffect(() => {
+        const element = ref.current;
+        if (!element) {
+            return;
+        }
+
+        element.style.height = 'auto';
+        element.style.height = `${element.scrollHeight}px`;
+    }, [value]);
+
+    return (
+        <textarea
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            className={className}
+            placeholder={placeholder}
+            rows={1}
+        />
+    );
 }
 
 function formatHeaderLine(document: AtsResumeDocument) {
@@ -64,7 +97,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
 
                 <section className="mt-4">
                     <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Resumo profissional</h4>
-                    <textarea
+                    <AutoResizeTextarea
                         value={document.professionalSummary ?? ''}
                         onChange={(event) => updateDocument({ professionalSummary: event.target.value })}
                         className={`${textareaClassName()} mt-1`}
@@ -75,7 +108,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                 <section className="mt-4">
                     <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Experiência profissional</h4>
                     <p className="mt-1 text-[11px] text-black/50">Uma linha por experiência.</p>
-                    <textarea
+                    <AutoResizeTextarea
                         value={joinLineSeparatedList(document.experiences)}
                         onChange={(event) => updateDocument({ experiences: parseLineSeparatedList(event.target.value) })}
                         className={`${textareaClassName()} mt-1`}
@@ -101,7 +134,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                                     className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] font-semibold text-black"
                                     placeholder="Título do projeto"
                                 />
-                                <textarea
+                                <AutoResizeTextarea
                                     value={project.description}
                                     onChange={(event) => updateProject(index, { description: event.target.value })}
                                     className={textareaClassName()}
@@ -123,7 +156,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
 
                 <section className="mt-4">
                     <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Formação acadêmica</h4>
-                    <textarea
+                    <AutoResizeTextarea
                         value={joinLineSeparatedList(document.education)}
                         onChange={(event) => updateDocument({ education: parseLineSeparatedList(event.target.value) })}
                         className={`${textareaClassName()} mt-1`}
@@ -132,7 +165,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
 
                 <section className="mt-4">
                     <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Certificações</h4>
-                    <textarea
+                    <AutoResizeTextarea
                         value={joinLineSeparatedList(document.certifications)}
                         onChange={(event) => updateDocument({ certifications: parseLineSeparatedList(event.target.value) })}
                         className={`${textareaClassName()} mt-1`}
@@ -141,7 +174,7 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
 
                 <section className="mt-4">
                     <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Idiomas</h4>
-                    <textarea
+                    <AutoResizeTextarea
                         value={joinLineSeparatedList(document.languages)}
                         onChange={(event) => updateDocument({ languages: parseLineSeparatedList(event.target.value) })}
                         className={`${textareaClassName()} mt-1`}

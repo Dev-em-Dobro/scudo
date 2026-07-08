@@ -4,6 +4,7 @@ import {
     buildDefaultProfessionalSummary,
     getUnlockedCourseProjects,
     groupTechnologiesForAts,
+    sortResumeProjectsByRelevance,
 } from '@/app/lib/resume/courseProjects';
 import { dedupeResumeProjectsByTitle } from '@/app/lib/resume/documentUtils';
 import type { AtsResumeDocument } from '@/app/lib/resume/types';
@@ -70,7 +71,9 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
         deployUrl: project.deployUrl ?? null,
     }));
 
-    const projects = dedupeResumeProjectsByTitle([...courseProjectEntries, ...manualProjectEntries]);
+    const projects = sortResumeProjectsByRelevance(
+        dedupeResumeProjectsByTitle([...courseProjectEntries, ...manualProjectEntries]),
+    );
     const allTechnologies = mergeUniqueTechnologies([
         projects.flatMap((project) => project.technologies),
         input.profile.knownTechnologies,

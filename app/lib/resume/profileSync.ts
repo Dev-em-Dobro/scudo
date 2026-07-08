@@ -57,6 +57,82 @@ export function applyProfileHeaderToDocument(
     return mergeProfileHeaderIntoDocument(document, profile, userEmail, userName);
 }
 
+export type ProfileBodySource = {
+    professionalSummary: string | null;
+    experiences: string[];
+    certifications: string[];
+    languages: string[];
+};
+
+function pickRicherText(profileValue: string | null | undefined, documentValue: string | null | undefined) {
+    const profileText = profileValue?.trim() ?? '';
+    const documentText = documentValue?.trim() ?? '';
+
+    if (!profileText && !documentText) {
+        return null;
+    }
+
+    if (profileText.length >= documentText.length) {
+        return profileText || null;
+    }
+
+    return documentText || null;
+}
+
+function pickRicherStringList(profileValues: string[], documentValues: string[]) {
+    if (profileValues.length === 0) {
+        return documentValues;
+    }
+
+    if (documentValues.length === 0) {
+        return profileValues;
+    }
+
+    const profileJoined = profileValues.join('\n');
+    const documentJoined = documentValues.join('\n');
+
+    return profileJoined.length >= documentJoined.length ? profileValues : documentValues;
+}
+
+/**
+ * Antes da 1ª customização no editor, o perfil pode ter textos mais completos (ex.: upload de CV)
+ * que ainda não foram espelhados no JSON do currículo gerado.
+ */
+export function mergeProfileBodyIntoDocument(
+    document: AtsResumeDocument,
+    profile: ProfileBodySource,
+): AtsResumeDocument {
+    if (document.customizedAt) {
+        return document;
+    }
+
+    return {
+        ...document,
+        professionalSummary: pickRicherText(profile.professionalSummary, document.professionalSummary),
+        experiences: pickRicherStringList(profile.experiences, document.experiences),
+        certifications: pickRicherStringList(profile.certifications, document.certifications),
+        languages: pickRicherStringList(profile.languages, document.languages),
+    };
+}
+
+export function resumeBodyDiffersFromProfile(
+    document: AtsResumeDocument,
+    profile: ProfileBodySource,
+): boolean {
+    if (document.customizedAt) {
+        return false;
+    }
+
+    const merged = mergeProfileBodyIntoDocument(document, profile);
+
+    return (
+        merged.professionalSummary !== document.professionalSummary
+        || merged.experiences.join('\n') !== document.experiences.join('\n')
+        || merged.certifications.join('\n') !== document.certifications.join('\n')
+        || merged.languages.join('\n') !== document.languages.join('\n')
+    );
+}
+
 export async function syncResumeBodyToUserProfile(
     transaction: RlsTransaction,
     profileId: string,

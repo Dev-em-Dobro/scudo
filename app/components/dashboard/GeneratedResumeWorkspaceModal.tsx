@@ -93,16 +93,12 @@ export default function GeneratedResumeWorkspaceModal({
     }, [loadDocument, open]);
 
     useEffect(() => {
-        if (!open || !document) {
+        if (!open) {
             return;
         }
 
-        if (previousModeRef.current !== mode) {
-            setDraft(cloneDocument(document));
-            setSaveSuccess(false);
-            previousModeRef.current = mode;
-        }
-    }, [document, mode, open]);
+        previousModeRef.current = mode;
+    }, [mode, open]);
 
     useEffect(() => {
         if (!saveSuccess) {

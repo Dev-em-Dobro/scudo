@@ -1,5 +1,5 @@
 import type { CourseProjectDefinition } from '@/app/lib/resume/courseProjects';
-import { groupTechnologiesForAts } from '@/app/lib/resume/courseProjects';
+import { groupTechnologiesForAts, sortResumeProjectsByRelevance } from '@/app/lib/resume/courseProjects';
 import type { AtsResumeDocument, AtsResumeProject } from '@/app/lib/resume/types';
 
 export function formatContactUrl(url: string | null | undefined): string | null {
@@ -37,7 +37,7 @@ export function dedupeResumeProjectsByTitle<T extends Pick<AtsResumeProject, 'ti
 }
 
 export function recomputeTechnologyGroups(document: AtsResumeDocument): AtsResumeDocument {
-    const projects = dedupeResumeProjectsByTitle(document.projects);
+    const projects = sortResumeProjectsByRelevance(dedupeResumeProjectsByTitle(document.projects));
     const technologies = projects.flatMap((project) => project.technologies);
 
     return {
@@ -91,7 +91,7 @@ export function mergeUnlockedProjectsIntoDocument(
 
     return recomputeTechnologyGroups({
         ...document,
-        projects: [...document.projects, ...newProjects],
+        projects: sortResumeProjectsByRelevance([...document.projects, ...newProjects]),
         lastUpdatedAt: new Date().toISOString(),
     });
 }

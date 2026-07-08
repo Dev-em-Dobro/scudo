@@ -9,6 +9,8 @@ import {
 } from '@/app/lib/resume/documentUtils';
 import {
     applyProfileHeaderToDocument,
+    mergeProfileBodyIntoDocument,
+    resumeBodyDiffersFromProfile,
     resumeHeaderDiffersFromProfile,
     syncResumeBodyToUserProfile,
 } from '@/app/lib/resume/profileSync';
@@ -416,6 +418,10 @@ export async function getCurrentGeneratedResumeDocument(userId: string): Promise
                 city: true,
                 linkedinUrl: true,
                 githubUrl: true,
+                professionalSummary: true,
+                experiences: true,
+                certifications: true,
+                languages: true,
                 user: {
                     select: {
                         email: true,
@@ -440,9 +446,13 @@ export async function getCurrentGeneratedResumeDocument(userId: string): Promise
             profile.user.email,
             profile.user.name,
         );
-        const normalizedDocument = recomputeTechnologyGroups(withHeader);
+        const withBody = mergeProfileBodyIntoDocument(withHeader, profile);
+        const normalizedDocument = recomputeTechnologyGroups(withBody);
 
-        if (resumeHeaderDiffersFromProfile(storedDocument, profile, profile.user.email, profile.user.name)) {
+        const shouldPersist = resumeHeaderDiffersFromProfile(storedDocument, profile, profile.user.email, profile.user.name)
+            || resumeBodyDiffersFromProfile(storedDocument, profile);
+
+        if (shouldPersist) {
             const meta = await persistGeneratedResumeDocument(transaction, profile.id, normalizedDocument, {
                 stageId: profile.generatedResumeStageId,
             });

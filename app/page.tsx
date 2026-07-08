@@ -9,6 +9,7 @@ import Header from './components/layout/Header';
 import ResumeExampleCard from './components/dashboard/ResumeExampleCard';
 import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
 import GeneratedResumeCard from './components/dashboard/GeneratedResumeCard';
+import GeneratedResumeIntroBanner from './components/dashboard/GeneratedResumeIntroBanner';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
 import AptJobsEmptyHint from './components/home/AptJobsEmptyHint';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
@@ -111,6 +112,7 @@ export default async function Home() {
                         {/* Main grid */}
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                             <div className="xl:col-span-2 space-y-6">
+                                <GeneratedResumeIntroBanner />
                                 <GeneratedResumeCard />
                                 <div data-onboarding-id="painel-modelo-curriculo">
                                     <ResumeExampleCard />

@@ -37,7 +37,7 @@ export default function GeneratedResumePreview({ document }: GeneratedResumePrev
                 {document.professionalSummary && (
                     <section className="mt-4">
                         <h4 className="text-[12px] font-bold uppercase tracking-wide">Resumo profissional</h4>
-                        <p className="mt-1 text-black/85">{document.professionalSummary}</p>
+                        <p className="mt-1 whitespace-pre-wrap text-black/85">{document.professionalSummary}</p>
                     </section>
                 )}
 
