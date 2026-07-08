@@ -10,11 +10,14 @@ import {
     buildPraticaTaskIds,
     getCatalogTaskByIdFromTasks,
     getPublishedJornadaCatalog,
+    type PublishedJornadaCatalog,
 } from '@/app/lib/jornada/catalog';
 import {
     computeEditableStageId,
+    loadCompletedStageIds,
     syncStageCompletions,
 } from '@/app/lib/jornada/stageCompletion';
+import { scheduleGeneratedResumePdfGeneration } from '@/app/lib/resume/schedulePdfGeneration';
 import { syncGeneratedResumeForUser } from '@/app/lib/resume/syncGeneratedResume';
 import type { GeneratedResumeMeta } from '@/app/lib/resume/types';
 import {
@@ -41,10 +44,21 @@ export type JornadaSnapshot = {
     resumeUpdated?: GeneratedResumeMeta | null;
 };
 
+export type GetUserJornadaSnapshotOptions = {
+    /** Consulta o banco do CodeQuest e sincroniza tarefas de exercício. Padrão: true. */
+    includeCodeQuest?: boolean;
+    /** Roda sync de estágios + currículo ao montar o snapshot. Padrão: true. */
+    syncProgress?: boolean;
+};
+
 export type SetTaskDoneForUserResult = {
+    taskId: string;
+    done: boolean;
+    editableStageId: string;
+    currentRankLetter: string;
     streakAwardedToday: boolean;
     newlyUnlockedBadges: JornadaStreakBadgeView[];
-    resumeUpdated?: GeneratedResumeMeta | null;
+    resumeUpdated: GeneratedResumeMeta | null;
 };
 
 function withPersistedStatuses(catalogTasks: JornadaTask[], completedTaskIds: Set<string>) {
@@ -60,12 +74,28 @@ function computeCurrentRankLetter(stages: JornadaStage[], editableStageId: strin
     return currentStage?.rankLetter ?? 'I';
 }
 
+function computeJornadaViewState(
+    catalog: PublishedJornadaCatalog,
+    completedTaskIds: Set<string>,
+    completedStageIds: Set<string>,
+) {
+    const tasks = withPersistedStatuses(catalog.tasks, completedTaskIds);
+    const editableStageId = computeEditableStageId(catalog.stages, tasks, completedStageIds);
+
+    return {
+        tasks,
+        editableStageId,
+        currentRankLetter: computeCurrentRankLetter(catalog.stages, editableStageId),
+    };
+}
+
 async function maybeSyncGeneratedResumeAfterStageCompletion(
     transaction: Parameters<typeof syncGeneratedResumeForUser>[0]['transaction'],
     userId: string,
     stages: JornadaStage[],
     completedStageIds: Set<string>,
     newlyCompletedStageIds: string[],
+    options?: { deferPdf?: boolean },
 ): Promise<GeneratedResumeMeta | null> {
     if (newlyCompletedStageIds.length === 0) {
         return null;
@@ -94,7 +124,46 @@ async function maybeSyncGeneratedResumeAfterStageCompletion(
         completedStageIds,
         triggerStageId: latestStageId,
         rankName: latestStage?.rankLetter ?? latestStage?.title ?? null,
+        deferPdf: options?.deferPdf,
     });
+}
+
+async function mapUnlockedBadges(
+    transaction: Parameters<typeof awardDailyStreakForTask>[0],
+    badgeIds: string[],
+    earnedAt: Date,
+): Promise<JornadaStreakBadgeView[]> {
+    if (badgeIds.length === 0) {
+        return [];
+    }
+
+    const unlockedBadges = await transaction.streakBadge.findMany({
+        where: {
+            id: {
+                in: badgeIds,
+            },
+        },
+        select: {
+            id: true,
+            slug: true,
+            name: true,
+            description: true,
+            icon: true,
+            requiredDays: true,
+            isActive: true,
+        },
+    });
+
+    return unlockedBadges.map((badge) => ({
+        id: badge.id,
+        slug: badge.slug,
+        name: badge.name,
+        description: badge.description,
+        icon: badge.icon,
+        requiredDays: badge.requiredDays,
+        isActive: badge.isActive,
+        earnedAt: earnedAt.toISOString(),
+    }));
 }
 
 export async function getCatalogTaskById(taskId: string) {
@@ -110,25 +179,41 @@ export function isPraticaTask(task: JornadaTask): boolean {
     return task.title.toLowerCase().includes('exercício');
 }
 
-export async function isTaskEditableForUser(userId: string, taskId: string) {
-    const task = await getCatalogTaskById(taskId);
-    if (!task) {
-        return false;
-    }
+/**
+ * Validação leve: não carrega snapshot completo nem consulta CodeQuest.
+ */
+export async function isTaskEditableForUser(userId: string, task: JornadaTask): Promise<boolean> {
+    const catalog = await getPublishedJornadaCatalog();
 
-    const snapshot = await getUserJornadaSnapshot(userId);
+    const { completedTaskIds, completedStageIds } = await withRlsUserContext(userId, async (transaction) => {
+        const [progress, stageCompletions] = await Promise.all([
+            transaction.userJornadaTaskProgress.findMany({
+                where: { userId },
+                select: { taskId: true },
+            }),
+            transaction.userJornadaStageCompletion.findMany({
+                where: { userId },
+                select: { stageId: true },
+            }),
+        ]);
 
-    if (task.stageId === snapshot.editableStageId) {
+        return {
+            completedTaskIds: new Set(progress.map((item) => item.taskId)),
+            completedStageIds: new Set(stageCompletions.map((item) => item.stageId)),
+        };
+    });
+
+    const { editableStageId } = computeJornadaViewState(catalog, completedTaskIds, completedStageIds);
+
+    if (task.stageId === editableStageId) {
         return true;
     }
 
-    const completedStages = new Set(snapshot.completedStageIds);
-    if (!completedStages.has(task.stageId)) {
+    if (!completedStageIds.has(task.stageId)) {
         return false;
     }
 
-    const taskState = snapshot.tasks.find((item) => item.id === taskId);
-    return taskState?.status === 'pending';
+    return !completedTaskIds.has(task.id);
 }
 
 export async function isOfficialStudentUser(userId: string) {
@@ -195,7 +280,12 @@ async function autoSyncSpecificTasks(
     }
 }
 
-export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSnapshot> {
+export async function getUserJornadaSnapshot(
+    userId: string,
+    options: GetUserJornadaSnapshotOptions = {},
+): Promise<JornadaSnapshot> {
+    const includeCodeQuest = options.includeCodeQuest ?? true;
+    const syncProgress = options.syncProgress ?? true;
     const catalog = await getPublishedJornadaCatalog();
 
     const [rlsData, user] = await Promise.all([
@@ -222,7 +312,7 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
 
     let codeQuestProgress: CodeQuestProgress | null = null;
 
-    if (email) {
+    if (includeCodeQuest && email) {
         codeQuestProgress = await fetchCodeQuestProgressByEmail(email);
 
         if (codeQuestProgress) {
@@ -243,39 +333,46 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
     }
 
     let resumeUpdated: GeneratedResumeMeta | null = null;
+    let completedStageIds = await withRlsUserContext(userId, async (transaction) => loadCompletedStageIds(transaction, userId));
 
-    const { completedStageIds } = await withRlsUserContext(userId, async (transaction) => {
-        const result = await syncStageCompletions(
-            transaction,
-            userId,
-            catalog.stages,
-            catalog.tasks,
-            completedTaskIds,
-            catalog.catalogVersion,
-        );
+    if (syncProgress) {
+        const syncResult = await withRlsUserContext(userId, async (transaction) => {
+            const result = await syncStageCompletions(
+                transaction,
+                userId,
+                catalog.stages,
+                catalog.tasks,
+                completedTaskIds,
+                catalog.catalogVersion,
+            );
 
-        const updatedResume = await maybeSyncGeneratedResumeAfterStageCompletion(
-            transaction,
-            userId,
-            catalog.stages,
-            result.completedStageIds,
-            result.newlyCompletedStageIds,
-        );
+            const updatedResume = await maybeSyncGeneratedResumeAfterStageCompletion(
+                transaction,
+                userId,
+                catalog.stages,
+                result.completedStageIds,
+                result.newlyCompletedStageIds,
+            );
 
-        resumeUpdated = updatedResume;
-        return result;
-    });
+            return {
+                completedStageIds: result.completedStageIds,
+                resumeUpdated: updatedResume,
+            };
+        });
 
-    const tasks = withPersistedStatuses(catalog.tasks, completedTaskIds);
-    const editableStageId = computeEditableStageId(catalog.stages, tasks, completedStageIds);
+        completedStageIds = syncResult.completedStageIds;
+        resumeUpdated = syncResult.resumeUpdated;
+    }
+
+    const viewState = computeJornadaViewState(catalog, completedTaskIds, completedStageIds);
 
     return {
         stages: catalog.stages,
-        tasks,
+        tasks: viewState.tasks,
         completedTaskIds: [...completedTaskIds],
         completedStageIds: [...completedStageIds],
-        currentRankLetter: computeCurrentRankLetter(catalog.stages, editableStageId),
-        editableStageId,
+        currentRankLetter: viewState.currentRankLetter,
+        editableStageId: viewState.editableStageId,
         codeQuestProgress,
         hasCodeQuestAccount: codeQuestProgress !== null,
         streak: rlsData.streak,
@@ -285,17 +382,24 @@ export async function getUserJornadaSnapshot(userId: string): Promise<JornadaSna
     };
 }
 
-export async function setTaskDoneForUser(userId: string, taskId: string, done: boolean): Promise<SetTaskDoneForUserResult> {
-    if (done) {
-        const completedAt = new Date();
-        let streakResult: DailyStreakAwardResult = {
-            awardedToday: false,
-            newlyUnlockedBadgeIds: [],
-        };
-        let newlyUnlockedBadges: JornadaStreakBadgeView[] = [];
-        let resumeUpdated: GeneratedResumeMeta | null = null;
+export async function setTaskDoneForUser(
+    userId: string,
+    taskId: string,
+    done: boolean,
+): Promise<SetTaskDoneForUserResult> {
+    const catalog = await getPublishedJornadaCatalog();
+    let streakResult: DailyStreakAwardResult = {
+        awardedToday: false,
+        newlyUnlockedBadgeIds: [],
+    };
+    let newlyUnlockedBadges: JornadaStreakBadgeView[] = [];
+    let resumeUpdated: GeneratedResumeMeta | null = null;
+    let shouldScheduleResumePdf = false;
 
-        await withRlsUserContext(userId, async (transaction) => {
+    const result = await withRlsUserContext(userId, async (transaction) => {
+        if (done) {
+            const completedAt = new Date();
+
             await transaction.userJornadaTaskProgress.upsert({
                 where: {
                     userId_taskId: {
@@ -314,81 +418,63 @@ export async function setTaskDoneForUser(userId: string, taskId: string, done: b
             });
 
             streakResult = await awardDailyStreakForTask(transaction, userId, completedAt);
-
-            if (streakResult.newlyUnlockedBadgeIds.length > 0) {
-                const unlockedBadges = await transaction.streakBadge.findMany({
-                    where: {
-                        id: {
-                            in: streakResult.newlyUnlockedBadgeIds,
-                        },
-                    },
-                    select: {
-                        id: true,
-                        slug: true,
-                        name: true,
-                        description: true,
-                        icon: true,
-                        requiredDays: true,
-                        isActive: true,
-                    },
-                });
-
-                newlyUnlockedBadges = unlockedBadges.map((badge) => ({
-                    id: badge.id,
-                    slug: badge.slug,
-                    name: badge.name,
-                    description: badge.description,
-                    icon: badge.icon,
-                    requiredDays: badge.requiredDays,
-                    isActive: badge.isActive,
-                    earnedAt: completedAt.toISOString(),
-                }));
-            }
-        });
-
-        await withRlsUserContext(userId, async (transaction) => {
-            const catalog = await getPublishedJornadaCatalog({ bypassCache: true });
-            const progress = await transaction.userJornadaTaskProgress.findMany({
-                where: { userId },
-                select: { taskId: true },
-            });
-            const completedTaskIds = new Set(progress.map((item) => item.taskId));
-
-            const { completedStageIds, newlyCompletedStageIds } = await syncStageCompletions(
+            newlyUnlockedBadges = await mapUnlockedBadges(
                 transaction,
-                userId,
-                catalog.stages,
-                catalog.tasks,
-                completedTaskIds,
-                catalog.catalogVersion,
+                streakResult.newlyUnlockedBadgeIds,
+                completedAt,
             );
+        } else {
+            await transaction.userJornadaTaskProgress.deleteMany({
+                where: {
+                    userId,
+                    taskId,
+                },
+            });
+        }
 
+        const progress = await transaction.userJornadaTaskProgress.findMany({
+            where: { userId },
+            select: { taskId: true },
+        });
+        const completedTaskIds = new Set(progress.map((item) => item.taskId));
+
+        const { completedStageIds, newlyCompletedStageIds } = await syncStageCompletions(
+            transaction,
+            userId,
+            catalog.stages,
+            catalog.tasks,
+            completedTaskIds,
+            catalog.catalogVersion,
+        );
+
+        if (done && newlyCompletedStageIds.length > 0) {
             resumeUpdated = await maybeSyncGeneratedResumeAfterStageCompletion(
                 transaction,
                 userId,
                 catalog.stages,
                 completedStageIds,
                 newlyCompletedStageIds,
+                { deferPdf: true },
             );
-        });
+            shouldScheduleResumePdf = resumeUpdated !== null;
+        }
 
-        return {
-            streakAwardedToday: streakResult.awardedToday,
-            newlyUnlockedBadges,
-            resumeUpdated,
-        };
+        const viewState = computeJornadaViewState(catalog, completedTaskIds, completedStageIds);
+
+        return viewState;
+    });
+
+    if (shouldScheduleResumePdf) {
+        scheduleGeneratedResumePdfGeneration(userId);
     }
 
-    await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.deleteMany({
-        where: {
-            userId,
-            taskId,
-        },
-    }));
-
     return {
-        streakAwardedToday: false,
-        newlyUnlockedBadges: [],
-        resumeUpdated: null,
+        taskId,
+        done,
+        editableStageId: result.editableStageId,
+        currentRankLetter: result.currentRankLetter,
+        streakAwardedToday: streakResult.awardedToday,
+        newlyUnlockedBadges,
+        resumeUpdated,
     };
 }

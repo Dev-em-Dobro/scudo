@@ -72,7 +72,7 @@ export async function PATCH(request: Request) {
         );
     }
 
-    if (!await isTaskEditableForUser(session.user.id, taskId)) {
+    if (!await isTaskEditableForUser(session.user.id, task)) {
         return NextResponse.json(
             { error: 'Somente tarefas do rank atual podem ser marcadas no momento.' },
             { status: 403 },
@@ -81,12 +81,5 @@ export async function PATCH(request: Request) {
 
     const updateResult = await setTaskDoneForUser(session.user.id, taskId, done);
 
-    const snapshot = await getUserJornadaSnapshot(session.user.id);
-
-    return NextResponse.json({
-        ...snapshot,
-        streakAwardedToday: updateResult.streakAwardedToday,
-        newlyUnlockedBadges: updateResult.newlyUnlockedBadges,
-        resumeUpdated: updateResult.resumeUpdated ?? snapshot.resumeUpdated ?? null,
-    });
+    return NextResponse.json(updateResult);
 }
