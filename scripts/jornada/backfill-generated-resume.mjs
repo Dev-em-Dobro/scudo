@@ -123,7 +123,14 @@ async function main() {
             rankName,
         });
 
-        const pdfBytes = await generateAtsResumePdf(document);
+        let pdfBytes;
+        try {
+            pdfBytes = await generateAtsResumePdf(document);
+        } catch (error) {
+            console.error(`✗ ${user.email} — falha ao gerar PDF: ${error instanceof Error ? error.message : error}`);
+            continue;
+        }
+
         const knownTechnologies = [
             ...new Set([
                 ...(profile.knownTechnologies ?? []),

@@ -10,6 +10,14 @@ const MARGIN_BOTTOM = 48;
 const LINE_HEIGHT = 14;
 const SECTION_GAP = 10;
 
+/** StandardFonts (Helvetica) usam WinAnsi — remove caracteres fora do Latin-1. */
+function toPdfSafeText(text: string): string {
+    return text
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^\t\n\r\u0020-\u007e\u00a0-\u00ff]/g, '');
+}
+
 function wrapText(text: string, maxWidth: number, font: Awaited<ReturnType<PDFDocument['embedFont']>>, fontSize: number) {
     const words = text.split(/\s+/).filter(Boolean);
     const lines: string[] = [];
@@ -59,10 +67,15 @@ function drawLine(
     text: string,
     options?: { bold?: boolean; size?: number; indent?: number },
 ) {
+    const safeText = toPdfSafeText(text);
+    if (!safeText.trim()) {
+        return;
+    }
+
     const fontSize = options?.size ?? 11;
     const font = options?.bold ? writer.boldFont : writer.regularFont;
     const maxWidth = PAGE_WIDTH - MARGIN_X * 2 - (options?.indent ?? 0);
-    const lines = wrapText(text, maxWidth, font, fontSize);
+    const lines = wrapText(safeText, maxWidth, font, fontSize);
 
     for (const line of lines) {
         ensureSpace(writer, LINE_HEIGHT);
