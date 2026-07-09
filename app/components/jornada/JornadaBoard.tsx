@@ -8,6 +8,7 @@ import { resolvePracticeLink } from '@/app/lib/jornada/practiceLinks';
 import { getCodeQuestExerciseOptionsForTask } from '@/app/lib/jornada/codequestExerciseMap';
 import { getCurseducaSectionTitleByTaskId } from '@/app/lib/jornada/curseducaLessonTaskMap';
 import PracticeExercisePicker from '@/app/components/jornada/PracticeExercisePicker';
+import RankResumeUpdatedModal from '@/app/components/jornada/RankResumeUpdatedModal';
 import ClampedHelpTooltip from '@/app/components/ui/ClampedHelpTooltip';
 
 interface JornadaBoardProps {
@@ -33,10 +34,27 @@ function groupTasksByStageId(tasks: JornadaTask[]): Map<string, JornadaTask[]> {
 }
 
 type JornadaApiResponse = {
-    tasks: JornadaTask[];
+    tasks?: JornadaTask[];
     editableStageId?: string;
     currentRankLetter?: string;
     codeQuestProgress?: CodeQuestProgress | null;
+    resumeUpdated?: {
+        available: boolean;
+        updatedAt: string | null;
+        stageId: string | null;
+        rankName: string | null;
+        projectCount: number;
+    } | null;
+};
+
+type JornadaTaskToggleResponse = {
+    taskId: string;
+    done: boolean;
+    editableStageId: string;
+    currentRankLetter: string;
+    streakAwardedToday?: boolean;
+    newlyUnlockedBadges?: unknown[];
+    resumeUpdated?: JornadaApiResponse['resumeUpdated'];
 };
 
 type JornadaSyncResponse = {
@@ -370,6 +388,10 @@ export default function JornadaBoard({
     const [isSyncingExternal, setIsSyncingExternal] = useState(false);
     const [isDraggingBoard, setIsDraggingBoard] = useState(false);
     const [codeQuestProgress, setCodeQuestProgress] = useState<CodeQuestProgress | null>(initialCodeQuestProgress);
+    const [resumeUpdatedModal, setResumeUpdatedModal] = useState<{
+        rankName: string | null;
+        projectCount: number;
+    } | null>(null);
     const externalSyncInFlightRef = useRef(false);
     const boardScrollRef = useRef<HTMLDivElement | null>(null);
     const dragStartXRef = useRef(0);
@@ -398,6 +420,27 @@ export default function JornadaBoard({
         }
         if ('codeQuestProgress' in data) {
             setCodeQuestProgress(data.codeQuestProgress ?? null);
+        }
+        if (data.resumeUpdated?.available) {
+            setResumeUpdatedModal({
+                rankName: data.resumeUpdated.rankName,
+                projectCount: data.resumeUpdated.projectCount,
+            });
+        }
+    }, []);
+
+    const applyTaskToggleResponse = useCallback((data: JornadaTaskToggleResponse) => {
+        if (typeof data.editableStageId === 'string' && data.editableStageId.length > 0) {
+            setCurrentEditableStageId(data.editableStageId);
+        }
+        if (typeof data.currentRankLetter === 'string' && data.currentRankLetter.length > 0) {
+            setCurrentRankLetter(data.currentRankLetter);
+        }
+        if (data.resumeUpdated?.available) {
+            setResumeUpdatedModal({
+                rankName: data.resumeUpdated.rankName,
+                projectCount: data.resumeUpdated.projectCount,
+            });
         }
     }, []);
 
@@ -540,8 +583,8 @@ export default function JornadaBoard({
                     throw new Error('Falha ao atualizar progresso da tarefa.');
                 }
 
-                const data = await response.json() as JornadaApiResponse;
-                applyJornadaResponse(data);
+                const data = await response.json() as JornadaTaskToggleResponse;
+                applyTaskToggleResponse(data);
             })
             .catch(() => {
                 rollbackTaskStatus(taskId, targetTask.status);
@@ -550,7 +593,7 @@ export default function JornadaBoard({
             .finally(() => {
                 clearTaskUpdating(taskId);
             });
-    }, [applyJornadaResponse, boardTasks, clearTaskUpdating, currentEditableStageId, rollbackTaskStatus]);
+    }, [applyTaskToggleResponse, boardTasks, clearTaskUpdating, currentEditableStageId, rollbackTaskStatus]);
 
     const tasksByStage = useMemo(() => groupTasksByStageId(boardTasks), [boardTasks]);
     const sortedStages = useMemo(() => [...stages].sort((a, b) => a.order - b.order), [stages]);
@@ -884,6 +927,13 @@ export default function JornadaBoard({
                     })}
                 </div>
             </div>
+
+            <RankResumeUpdatedModal
+                open={resumeUpdatedModal !== null}
+                rankName={resumeUpdatedModal?.rankName ?? null}
+                projectCount={resumeUpdatedModal?.projectCount ?? 0}
+                onClose={() => setResumeUpdatedModal(null)}
+            />
         </div>
     );
 }

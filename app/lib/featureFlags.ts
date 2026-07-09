@@ -36,6 +36,15 @@ export function isMgmEnabled() {
   return parseBooleanFlag(process.env.NEXT_PUBLIC_ENABLE_MGM);
 }
 
+/**
+ * Upload manual de currículo (PDF/DOCX) no Meu Painel.
+ * Default OFF — com o currículo ATS gerado automaticamente, mantemos o fluxo
+ * disponível só quando `ENABLE_RESUME_UPLOAD=true` (ex.: piloto ou suporte).
+ */
+export function isResumeUploadEnabled() {
+  return parseBooleanFlag(process.env.ENABLE_RESUME_UPLOAD);
+}
+
 export function isResumeAiExtractionEnabled() {
   return parseBooleanFlag(process.env.RESUME_AI_EXTRACTION_ENABLED);
 }

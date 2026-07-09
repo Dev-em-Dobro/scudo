@@ -40,6 +40,7 @@ type ApiProfileResponse = {
         resumeSyncStatus: UserProfile["resumeSyncStatus"];
         resumeFileName: UserProfile["resumeFileName"];
         resumeUploadedAt: UserProfile["resumeUploadedAt"];
+        generatedResume: UserProfile["generatedResume"];
     };
 };
 
@@ -136,6 +137,13 @@ export function AuthProvider({
             resumeSyncStatus: "not_uploaded",
             resumeFileName: null,
             resumeUploadedAt: null,
+            generatedResume: {
+                available: false,
+                updatedAt: null,
+                stageId: null,
+                rankName: null,
+                projectCount: 0,
+            },
         };
 
         const baseUser: UserProfile = {
@@ -162,6 +170,13 @@ export function AuthProvider({
             resumeSyncStatus: 'not_uploaded',
             resumeFileName: null,
             resumeUploadedAt: null,
+            generatedResume: {
+                available: false,
+                updatedAt: null,
+                stageId: null,
+                rankName: null,
+                projectCount: 0,
+            },
         };
 
         const mergedUser: UserProfile = profileData
@@ -182,6 +197,7 @@ export function AuthProvider({
                 resumeSyncStatus: profileData.resumeSyncStatus,
                 resumeFileName: profileData.resumeFileName,
                 resumeUploadedAt: profileData.resumeUploadedAt,
+                generatedResume: profileData.generatedResume,
             }
             : baseUser;
 

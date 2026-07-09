@@ -23,6 +23,13 @@ export const mockUserProfile: UserProfile = {
     resumeSyncStatus: 'not_uploaded',
     resumeFileName: null,
     resumeUploadedAt: null,
+    generatedResume: {
+        available: false,
+        updatedAt: null,
+        stageId: null,
+        rankName: null,
+        projectCount: 0,
+    },
 };
 
 export const mockJobs: Job[] = [

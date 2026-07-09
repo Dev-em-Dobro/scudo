@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { UserProject } from '@/app/types';
@@ -35,6 +36,7 @@ type NewProjectDraft = {
 
 interface ProfileEditorProps {
     readonly initialProfile: EditableProfile;
+    readonly resumeManagedInPanel?: boolean;
 }
 
 type ValidationIssue = {
@@ -623,7 +625,10 @@ function mapDraftProjectsToProfileProjects(projects: EditableProjectForm[]): Edi
 }
 
 // SONAR: componente consolidado de edição/preview; refatoração completa para subcomponentes ficará para tarefa dedicada.
-export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditorProps>) {
+export default function ProfileEditor({
+    initialProfile,
+    resumeManagedInPanel = false,
+}: Readonly<ProfileEditorProps>) {
     const [profileSnapshot, setProfileSnapshot] = useState(initialProfile);
     const [isEditing, setIsEditing] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
@@ -725,12 +730,15 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
     function validateBeforeSubmit() {
         const nextErrors: Record<string, string> = {};
 
-        addLengthErrorsForList(nextErrors, parsedPreview.experiences, 'experiences', FIELD_LIMITS.experiencesItem, 'A experiência');
-        addLengthErrorsForList(nextErrors, parsedPreview.languages, 'languages', FIELD_LIMITS.languagesItem, 'O idioma');
-        addLengthErrorsForList(nextErrors, parsedPreview.certifications, 'certifications', FIELD_LIMITS.certificationsItem, 'A certificação');
+        if (!resumeManagedInPanel) {
+            addLengthErrorsForList(nextErrors, parsedPreview.experiences, 'experiences', FIELD_LIMITS.experiencesItem, 'A experiência');
+            addLengthErrorsForList(nextErrors, parsedPreview.languages, 'languages', FIELD_LIMITS.languagesItem, 'O idioma');
+            addLengthErrorsForList(nextErrors, parsedPreview.certifications, 'certifications', FIELD_LIMITS.certificationsItem, 'A certificação');
+            addLengthErrorsForList(nextErrors, parsedPreview.knownTechnologies, 'knownTechnologies', FIELD_LIMITS.knownTechnologiesItem, 'A tecnologia');
+            addProjectLengthErrors(nextErrors, parsedPreview.projects);
+        }
+
         addLengthErrorsForList(nextErrors, parsedPreview.softSkills, 'softSkills', FIELD_LIMITS.softSkillsItem, 'A habilidade');
-        addLengthErrorsForList(nextErrors, parsedPreview.knownTechnologies, 'knownTechnologies', FIELD_LIMITS.knownTechnologiesItem, 'A tecnologia');
-        addProjectLengthErrors(nextErrors, parsedPreview.projects);
 
         setFieldErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -791,12 +799,15 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
         setFieldErrors({});
 
         try {
-            const response = await fetch('/api/profile', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const patchBody = resumeManagedInPanel
+                ? {
+                    fullName,
+                    linkedinUrl,
+                    githubUrl,
+                    city,
+                    softSkills: parsedPreview.softSkills,
+                }
+                : {
                     fullName,
                     linkedinUrl,
                     githubUrl,
@@ -808,7 +819,14 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                     projects: parsedPreview.projects,
                     certifications: parsedPreview.certifications,
                     languages: parsedPreview.languages,
-                }),
+                };
+
+            const response = await fetch('/api/profile', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(patchBody),
             });
 
             const payload = (await response.json()) as {
@@ -1012,6 +1030,20 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             </label>
                         </div>
 
+                        {resumeManagedInPanel && (
+                            <div className="rounded-lg border border-[#6528d3]/30 bg-[#6528d3]/10 px-4 py-3">
+                                <p className="text-sm font-bold text-[#a78bfa]">Currículo Scudo ativo</p>
+                                <p className="mt-1 text-sm text-white/70">
+                                    Resumo, experiências, projetos, certificações e idiomas são editados no{' '}
+                                    <Link href="/" className="font-semibold text-[#a78bfa] hover:text-white transition-colors">
+                                        Meu Painel → Editar currículo
+                                    </Link>
+                                    . Aqui você mantém apenas os dados pessoais do cabeçalho.
+                                </p>
+                            </div>
+                        )}
+
+                        {!resumeManagedInPanel && (
                         <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                             <span>Resumo Profissional</span>
                             <textarea
@@ -1023,7 +1055,9 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             />
                             {getFieldError('professionalSummary') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('professionalSummary')}</span> : null}
                         </label>
+                        )}
 
+                        {!resumeManagedInPanel && (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Experiências (uma por linha)</span>
@@ -1048,17 +1082,6 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                             </label>
 
                             <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
-                                <span>Habilidades comportamentais (uma por linha)</span>
-                                <textarea
-                                    className={`${getFieldClass(Boolean(getFieldError('softSkills')))} min-h-24`}
-                                    value={softSkillsText}
-                                    aria-invalid={Boolean(getFieldError('softSkills'))}
-                                    onChange={(event) => setSoftSkillsText(event.target.value)}
-                                />
-                                {getFieldError('softSkills') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('softSkills')}</span> : null}
-                            </label>
-
-                            <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
                                 <span>Certificações (uma por linha)</span>
                                 <textarea
                                     className={`${getFieldClass(Boolean(getFieldError('certifications')))} min-h-24`}
@@ -1080,7 +1103,20 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 {getFieldError('languages') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('languages')}</span> : null}
                             </label>
                         </div>
+                        )}
 
+                        <label className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60 space-y-2 block">
+                            <span>Habilidades comportamentais (uma por linha)</span>
+                            <textarea
+                                className={`${getFieldClass(Boolean(getFieldError('softSkills')))} min-h-24`}
+                                value={softSkillsText}
+                                aria-invalid={Boolean(getFieldError('softSkills'))}
+                                onChange={(event) => setSoftSkillsText(event.target.value)}
+                            />
+                            {getFieldError('softSkills') ? <span className="text-[11px] normal-case text-red-400">{getFieldError('softSkills')}</span> : null}
+                        </label>
+
+                        {!resumeManagedInPanel && (
                         <div className="space-y-3">
                             <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-white/60">Novo Projeto</p>
 
@@ -1208,10 +1244,13 @@ export default function ProfileEditor({ initialProfile }: Readonly<ProfileEditor
                                 </div>
                             )}
                         </div>
+                        )}
 
                         <div className="flex items-center justify-between gap-4">
                             <p className="text-xs text-white/70">
-                                Itens atuais: {parsedPreview.knownTechnologies.length} skills derivadas de {parsedPreview.projects.length} projetos e {parsedPreview.experiences.length} experiências
+                                {resumeManagedInPanel
+                                    ? 'Dados pessoais sincronizam com o cabeçalho do currículo no Meu Painel.'
+                                    : `Itens atuais: ${parsedPreview.knownTechnologies.length} skills derivadas de ${parsedPreview.projects.length} projetos e ${parsedPreview.experiences.length} experiências`}
                             </p>
                             <button
                                 type="submit"

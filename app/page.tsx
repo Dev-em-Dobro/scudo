@@ -8,11 +8,13 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import ResumeExampleCard from './components/dashboard/ResumeExampleCard';
 import ResumeUploadCard from './components/dashboard/ResumeUploadCard';
+import GeneratedResumeCard from './components/dashboard/GeneratedResumeCard';
+import GeneratedResumeIntroBanner from './components/dashboard/GeneratedResumeIntroBanner';
 import CandidacyReadinessCard from './components/dashboard/CandidacyReadinessCard';
 import AptJobsEmptyHint from './components/home/AptJobsEmptyHint';
 import CuratedJobCard from './components/dashboard/CuratedJobCard';
 import { auth } from './lib/auth';
-import { isMgmEnabled } from './lib/featureFlags';
+import { isMgmEnabled, isResumeUploadEnabled } from './lib/featureFlags';
 import { getCurrentSeason } from './lib/mgm/seasons';
 import { getJobBoardJobs } from './lib/jobs/jobBoard';
 import { getOrCreateUserProfile } from './lib/profile/profile';
@@ -49,6 +51,7 @@ export default async function Home() {
 
     // Destaque sutil da temporada MGM (v0.5) — só com flag ligada + janela ativa.
     const season = isMgmEnabled() ? getCurrentSeason() : null;
+    const resumeUploadEnabled = isResumeUploadEnabled();
 
     const aptJobs = jobs
         .map((job) => ({
@@ -103,19 +106,26 @@ export default async function Home() {
                                 Prepare seu perfil antes das vagas
                             </h1>
                             <p className="mt-5 text-white/70 text-[16px] leading-relaxed max-w-[60ch] [font-family:'Ubuntu',Helvetica]">
-                                Suba seu currículo e mantenha o perfil atualizado pra que o matching das vagas funcione direito.
+                                A Scudo atualiza seu currículo ATS com os projetos do curso ao concluir cada rank.
+                                {resumeUploadEnabled
+                                    ? ' Você também pode enviar um currículo próprio para enriquecer o perfil.'
+                                    : ' Pré-visualize, edite e baixe o PDF aqui no painel conforme sua jornada avança.'}
                             </p>
                         </section>
 
                         {/* Main grid */}
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                             <div className="xl:col-span-2 space-y-6">
+                                <GeneratedResumeIntroBanner />
+                                <GeneratedResumeCard />
                                 <div data-onboarding-id="painel-modelo-curriculo">
                                     <ResumeExampleCard />
                                 </div>
-                                <div data-onboarding-id="painel-curriculo">
-                                    <ResumeUploadCard />
-                                </div>
+                                {resumeUploadEnabled && (
+                                    <div data-onboarding-id="painel-curriculo">
+                                        <ResumeUploadCard />
+                                    </div>
+                                )}
                                 <div data-onboarding-id="painel-aptidao">
                                     <CandidacyReadinessCard jobs={jobs} />
                                 </div>

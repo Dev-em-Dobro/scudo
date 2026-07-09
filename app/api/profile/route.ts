@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { auth } from '@/app/lib/auth';
 import { getOrCreateUserProfile, toClientProfile } from '@/app/lib/profile/profile';
+import { refreshGeneratedResumeForUser } from '@/app/lib/resume/syncGeneratedResume';
 import { withRlsUserContext } from '@/app/lib/rls';
 
 export const runtime = 'nodejs';
@@ -209,20 +210,56 @@ export async function PATCH(request: Request) {
     await withRlsUserContext(session.user.id, async (transaction) => {
         const profile = await transaction.userProfile.findUnique({
             where: { userId: session.user.id },
-            select: { id: true },
+            select: {
+                id: true,
+                generatedResumeUpdatedAt: true,
+            },
         });
 
         if (!profile) {
             throw new Error('Perfil não encontrado para atualização.');
         }
 
+        const resumeManagedInPanel = Boolean(profile.generatedResumeUpdatedAt);
+
+        if (resumeManagedInPanel) {
+            await transaction.userProfile.update({
+                where: { userId: session.user.id },
+                data: {
+                    fullName: normalizeOptionalText(payload.fullName),
+                    linkedinUrl: normalizeUrl(payload.linkedinUrl),
+                    githubUrl: normalizeUrl(payload.githubUrl),
+                    city: normalizeOptionalText(payload.city),
+                    softSkills,
+                },
+            });
+            return;
+        }
+
+        const existingCourseProjects = await transaction.userProject.findMany({
+            where: {
+                userProfileId: profile.id,
+                courseProjectKey: { not: null },
+            },
+            select: { title: true },
+        });
+        const courseProjectTitles = new Set(
+            existingCourseProjects.map((project) => project.title.trim().toLowerCase()),
+        );
+        const manualProjects = projects.filter(
+            (project) => !courseProjectTitles.has(project.title.trim().toLowerCase()),
+        );
+
         await transaction.userProject.deleteMany({
-            where: { userProfileId: profile.id },
+            where: {
+                userProfileId: profile.id,
+                courseProjectKey: null,
+            },
         });
 
-        if (projects.length > 0) {
+        if (manualProjects.length > 0) {
             await transaction.userProject.createMany({
-                data: projects.map((project) => ({
+                data: manualProjects.map((project) => ({
                     userProfileId: profile.id,
                     title: project.title,
                     shortDescription: project.shortDescription,
@@ -264,9 +301,24 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Não foi possível encontrar o perfil atualizado.' }, { status: 404 });
     }
 
+    if (updatedProfile.generatedResumeUpdatedAt) {
+        await refreshGeneratedResumeForUser(session.user.id);
+    }
+
+    const profileAfterResumeRefresh = await withRlsUserContext(session.user.id, async (transaction) => transaction.userProfile.findUnique({
+        where: { userId: session.user.id },
+        include: {
+            projects: {
+                orderBy: {
+                    createdAt: 'asc',
+                },
+            },
+        },
+    }));
+
     return NextResponse.json({
         message: 'Perfil atualizado com sucesso.',
-        profile: toClientProfile(updatedProfile),
+        profile: toClientProfile(profileAfterResumeRefresh ?? updatedProfile),
     });
 }
 
