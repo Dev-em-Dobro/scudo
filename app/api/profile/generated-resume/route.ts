@@ -9,8 +9,13 @@ import {
     getCurrentGeneratedResumeDocument,
     saveGeneratedResumeDocument,
 } from '@/app/lib/resume/syncGeneratedResume';
-import { atsResumeDocumentSchema } from '@/app/lib/validations/generatedResume';
 import { withRlsUserContext } from '@/app/lib/rls';
+import {
+    checkUserRateLimit,
+    RATE_LIMIT_RULES,
+    rateLimitResponse,
+} from '@/app/lib/security/rateLimit';
+import { atsResumeDocumentSchema } from '@/app/lib/validations/generatedResume';
 
 export const runtime = 'nodejs';
 
@@ -19,6 +24,11 @@ export async function GET() {
 
     if (!session?.user) {
         return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+    }
+
+    const rateLimit = checkUserRateLimit(session.user.id, 'generatedResumePdfDownload', RATE_LIMIT_RULES.generatedResumePdfDownload);
+    if (!rateLimit.allowed) {
+        return rateLimitResponse(rateLimit);
     }
 
     await ensureGeneratedResumeIsCurrent(session.user.id);
@@ -87,6 +97,11 @@ export async function POST() {
         return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
     }
 
+    const rateLimit = checkUserRateLimit(session.user.id, 'generatedResumeRead', RATE_LIMIT_RULES.generatedResumeRead);
+    if (!rateLimit.allowed) {
+        return rateLimitResponse(rateLimit);
+    }
+
     const current = await getCurrentGeneratedResumeDocument(session.user.id);
 
     if (!current) {
@@ -108,6 +123,11 @@ export async function PATCH(request: Request) {
 
     if (!session?.user) {
         return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+    }
+
+    const rateLimit = checkUserRateLimit(session.user.id, 'generatedResumeSave', RATE_LIMIT_RULES.generatedResumeSave);
+    if (!rateLimit.allowed) {
+        return rateLimitResponse(rateLimit);
     }
 
     const rawBody = await request.json().catch(() => null);

@@ -4,6 +4,11 @@ import { z } from 'zod';
 
 import { auth } from '@/app/lib/auth';
 import {
+    checkUserRateLimit,
+    RATE_LIMIT_RULES,
+    rateLimitResponse,
+} from '@/app/lib/security/rateLimit';
+import {
     getCatalogTaskById,
     getUserJornadaSnapshot,
     isOfficialStudentUser,
@@ -46,6 +51,11 @@ export async function PATCH(request: Request) {
     const isOfficialStudent = await isOfficialStudentUser(session.user.id);
     if (!isOfficialStudent) {
         return NextResponse.json({ error: 'A jornada está disponível apenas para alunos oficiais.' }, { status: 403 });
+    }
+
+    const rateLimit = checkUserRateLimit(session.user.id, 'jornadaTaskToggle', RATE_LIMIT_RULES.jornadaTaskToggle);
+    if (!rateLimit.allowed) {
+        return rateLimitResponse(rateLimit);
     }
 
     const rawBody = await request.json().catch(() => null);

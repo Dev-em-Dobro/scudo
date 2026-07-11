@@ -1,29 +1,17 @@
-// Adicionar import do auth no topo
 import { auth } from "@/app/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 import { prisma } from "@/app/lib/prisma";
 import { syncCurseducaProgressForUser } from "@/app/lib/jornada/curseducaSync";
+import {
+    checkRateLimit,
+    getClientIp,
+    RATE_LIMIT_RULES,
+    rateLimitResponse,
+} from "@/app/lib/security/rateLimit";
 
 export const runtime = "nodejs";
-
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_REQUESTS = 5;
-
-type RateLimitEntry = {
-    count: number;
-    resetAt: number;
-};
-
-const globalRateLimitStore = globalThis as unknown as {
-    studentAccessRateLimit?: Map<string, RateLimitEntry>;
-};
-
-const studentAccessRateLimit =
-    globalRateLimitStore.studentAccessRateLimit ?? new Map<string, RateLimitEntry>();
-
-globalRateLimitStore.studentAccessRateLimit ??= studentAccessRateLimit;
 
 interface CurseducaMemberByEmail {
     uuid: string;
@@ -40,39 +28,6 @@ interface CurseducaMemberDetails {
     uuid: string;
     email: string;
     slug: string;
-}
-
-function getClientIp(request: NextRequest) {
-    const forwardedFor = request.headers.get("x-forwarded-for");
-    if (forwardedFor) {
-        return forwardedFor.split(",")[0]?.trim() ?? "unknown";
-    }
-
-    return request.headers.get("x-real-ip")?.trim() ?? "unknown";
-}
-
-function canProceedWithRateLimit(key: string) {
-    const now = Date.now();
-    const current = studentAccessRateLimit.get(key);
-
-    if (!current || now >= current.resetAt) {
-        studentAccessRateLimit.set(key, {
-            count: 1,
-            resetAt: now + RATE_LIMIT_WINDOW_MS,
-        });
-        return true;
-    }
-
-    if (current.count >= RATE_LIMIT_MAX_REQUESTS) {
-        return false;
-    }
-
-    studentAccessRateLimit.set(key, {
-        ...current,
-        count: current.count + 1,
-    });
-
-    return true;
 }
 
 function logStudentAccessError(event: string, error: unknown, metadata?: Record<string, unknown>) {
@@ -214,12 +169,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Best-effort anti-abuse guard. In serverless, this is per instance.
-    const rateLimitKey = `${clientIp}:${rawEmail}`;
-    if (!canProceedWithRateLimit(rateLimitKey)) {
-        return NextResponse.json(
-            { error: "Muitas tentativas. Aguarde um minuto antes de tentar novamente." },
-            { status: 429 }
-        );
+    const rateLimitKey = `studentAccess:${clientIp}:${rawEmail}`;
+    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMIT_RULES.studentAccess);
+    if (!rateLimit.allowed) {
+        return rateLimitResponse(rateLimit);
     }
 
     // --- 1. Validar contra API externa ---

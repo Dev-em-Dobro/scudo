@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/app/lib/auth';
 import {
+    checkUserRateLimit,
+    RATE_LIMIT_RULES,
+    rateLimitResponse,
+} from '@/app/lib/security/rateLimit';
+import {
     autoSyncPraticaTasksForUser,
     isOfficialStudentUser,
     getUserJornadaSnapshot,
@@ -21,6 +26,11 @@ export async function POST() {
         const isOfficialStudent = await isOfficialStudentUser(session.user.id);
         if (!isOfficialStudent) {
             return NextResponse.json({ error: 'Acesso restrito.' }, { status: 403 });
+        }
+
+        const rateLimit = checkUserRateLimit(session.user.id, 'jornadaCodequestSync', RATE_LIMIT_RULES.jornadaCodequestSync);
+        if (!rateLimit.allowed) {
+            return rateLimitResponse(rateLimit);
         }
 
         const snapshot = await getUserJornadaSnapshot(session.user.id);

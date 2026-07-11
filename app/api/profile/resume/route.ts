@@ -6,6 +6,11 @@ import { getData } from 'pdf-parse/worker';
 
 import { auth } from '@/app/lib/auth';
 import {
+    checkUserRateLimit,
+    RATE_LIMIT_RULES,
+    rateLimitResponse,
+} from '@/app/lib/security/rateLimit';
+import {
     getResumeAiConfidenceThreshold,
     getResumeAiProviderOrder,
     isResumeAiExtractionEnabled,
@@ -147,6 +152,11 @@ export async function POST(request: Request) {
 
     if (!session?.user) {
         return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+    }
+
+    const rateLimit = checkUserRateLimit(session.user.id, 'profileResumeUpload', RATE_LIMIT_RULES.profileResumeUpload);
+    if (!rateLimit.allowed) {
+        return rateLimitResponse(rateLimit);
     }
 
     const formData = await request.formData();
