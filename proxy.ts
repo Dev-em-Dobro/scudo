@@ -14,6 +14,7 @@ const PUBLIC_PATHS = new Set([
 
 const PUBLIC_API_PREFIXES = [
     '/api/auth',            // Better Auth internals + student-access
+    '/api/backoffice',      // Handoff de personificação (ticket one-time do scudo-backoffice)
     '/api/health',          // Monitoramento
     '/api/jobs/webhook',    // Autenticado via JOBS_WEBHOOK_SECRET
     '/api/jobs/bootstrap',  // Autenticado via JOBS_BOOTSTRAP_SECRET + cron Vercel
