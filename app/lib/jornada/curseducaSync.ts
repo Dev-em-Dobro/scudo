@@ -1,6 +1,7 @@
 import { prisma } from "@/app/lib/prisma";
 import { getCatalogTaskById } from "@/app/lib/jornada/service";
 import { resolveTaskIdFromClassId } from "@/app/lib/jornada/curseducaLessonTaskMap";
+import { reconcileStreakFromUserTaskProgress } from "@/app/lib/jornada/streak";
 import { withRlsUserContext } from "@/app/lib/rls";
 
 type CurseducaProgressItem = {
@@ -279,6 +280,14 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
 
             upsertedTasks = upsertOps.length;
         }
+
+        // Recupera dias já sincronizados sem streak e passa a pontuar syncs futuros.
+        await withRlsUserContext(userId, async (transaction) => {
+            await reconcileStreakFromUserTaskProgress(transaction, userId);
+        }, {
+            maxWait: 10_000,
+            timeout: 25_000,
+        });
 
         await prisma.user.update({
             where: { id: userId },

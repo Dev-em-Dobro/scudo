@@ -3,7 +3,10 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/app/lib/auth';
 import { isOfficialStudentUser } from '@/app/lib/jornada/service';
-import { getUserStreakViewInTransaction } from '@/app/lib/jornada/streak';
+import {
+    getUserStreakViewInTransaction,
+    reconcileStreakFromUserTaskProgress,
+} from '@/app/lib/jornada/streak';
 import { withRlsUserContext } from '@/app/lib/rls';
 
 export const runtime = 'nodejs';
@@ -59,6 +62,7 @@ export async function GET() {
     const currentMonth = getCurrentMonthRange();
 
     const { streak, calendarDayKeys } = await withRlsUserContext(session.user.id, async (transaction) => {
+        await reconcileStreakFromUserTaskProgress(transaction, session.user.id);
         const streakView = await getUserStreakViewInTransaction(transaction, session.user.id);
 
         const dailyActivity = await transaction.userStreakDailyActivity.findMany({

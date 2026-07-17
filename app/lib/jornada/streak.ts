@@ -80,6 +80,82 @@ function diffDayKeys(previousDayKey: string, currentDayKey: string): number {
     return Math.floor((currentDate.getTime() - previousDate.getTime()) / DAY_IN_MS);
 }
 
+function toDayKeyFromUtcDate(date: Date): string {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function shiftDayKey(dayKey: string, deltaDays: number): string | null {
+    const date = parseDayKey(dayKey);
+    if (!date) {
+        return null;
+    }
+
+    date.setUTCDate(date.getUTCDate() + deltaDays);
+    return toDayKeyFromUtcDate(date);
+}
+
+function computeLongestConsecutiveDays(sortedDayKeys: string[]): number {
+    if (sortedDayKeys.length === 0) {
+        return 0;
+    }
+
+    let longest = 1;
+    let current = 1;
+
+    for (let index = 1; index < sortedDayKeys.length; index += 1) {
+        const gap = diffDayKeys(sortedDayKeys[index - 1]!, sortedDayKeys[index]!);
+        if (gap === 1) {
+            current += 1;
+            longest = Math.max(longest, current);
+            continue;
+        }
+
+        current = 1;
+    }
+
+    return longest;
+}
+
+function computeConsecutiveDaysEndingAt(sortedDayKeys: string[], endDayKey: string): number {
+    const dayKeySet = new Set(sortedDayKeys);
+    if (!dayKeySet.has(endDayKey)) {
+        return 0;
+    }
+
+    let count = 0;
+    let cursor: string | null = endDayKey;
+
+    while (cursor && dayKeySet.has(cursor)) {
+        count += 1;
+        cursor = shiftDayKey(cursor, -1);
+    }
+
+    return count;
+}
+
+/**
+ * Streak ainda "vivo" se o último dia qualificado foi hoje ou ontem (America/Sao_Paulo).
+ */
+export function getEffectiveCurrentStreakDays(
+    currentStreakDays: number,
+    lastQualifiedDay: string | null,
+    todayDayKey = toStreakDayKey(new Date()),
+): number {
+    if (!lastQualifiedDay || currentStreakDays <= 0) {
+        return 0;
+    }
+
+    const gapFromLastQualified = diffDayKeys(lastQualifiedDay, todayDayKey);
+    if (gapFromLastQualified < 0 || gapFromLastQualified > 1) {
+        return 0;
+    }
+
+    return currentStreakDays;
+}
+
 function getDatePart(parts: Intl.DateTimeFormatPart[], type: 'year' | 'month' | 'day') {
     return parts.find((part) => part.type === type)?.value ?? '';
 }
@@ -328,6 +404,193 @@ export async function awardDailyStreakForTask(
     };
 }
 
+export type ReconcileStreakResult = {
+    newlyQualifiedDayKeys: string[];
+    currentStreakDays: number;
+    longestStreakDays: number;
+    streakPoints: number;
+    newlyUnlockedBadgeIds: string[];
+};
+
+/**
+ * Garante atividade diária para cada data de conclusão e recalcula o streak
+ * a partir do calendário completo (idempotente). Usado pelos syncs e para
+ * recuperar dias que já estavam em userJornadaTaskProgress sem streak.
+ */
+export async function reconcileStreakFromCompletionDates(
+    transaction: RlsTransaction,
+    userId: string,
+    completionDates: Date[],
+): Promise<ReconcileStreakResult> {
+    const todayDayKey = toStreakDayKey(new Date());
+    const bestCompletedAtByDay = new Map<string, Date>();
+
+    for (const completedAt of completionDates) {
+        if (Number.isNaN(completedAt.getTime())) {
+            continue;
+        }
+
+        const dayKey = toStreakDayKey(completedAt);
+        const previous = bestCompletedAtByDay.get(dayKey);
+        if (!previous || completedAt.getTime() < previous.getTime()) {
+            bestCompletedAtByDay.set(dayKey, completedAt);
+        }
+    }
+
+    const existingActivities = await transaction.userStreakDailyActivity.findMany({
+        where: { userId },
+        select: {
+            dayKey: true,
+            completedAt: true,
+        },
+    });
+
+    const existingDayKeys = new Set(existingActivities.map((activity) => activity.dayKey));
+    const newlyQualifiedDayKeys: string[] = [];
+
+    const activitiesToCreate = [...bestCompletedAtByDay.entries()]
+        .filter(([dayKey]) => !existingDayKeys.has(dayKey))
+        .map(([dayKey, completedAt]) => {
+            newlyQualifiedDayKeys.push(dayKey);
+            return {
+                userId,
+                dayKey,
+                completedAt,
+            };
+        });
+
+    if (activitiesToCreate.length > 0) {
+        await transaction.userStreakDailyActivity.createMany({
+            data: activitiesToCreate,
+            skipDuplicates: true,
+        });
+    }
+
+    for (const activity of existingActivities) {
+        const candidate = bestCompletedAtByDay.get(activity.dayKey);
+        if (!candidate) {
+            continue;
+        }
+
+        if (candidate.getTime() < activity.completedAt.getTime()) {
+            await transaction.userStreakDailyActivity.updateMany({
+                where: {
+                    userId,
+                    dayKey: activity.dayKey,
+                },
+                data: {
+                    completedAt: candidate,
+                },
+            });
+        }
+    }
+
+    const allActivities = await transaction.userStreakDailyActivity.findMany({
+        where: { userId },
+        select: {
+            dayKey: true,
+            completedAt: true,
+        },
+        orderBy: {
+            dayKey: 'asc',
+        },
+    });
+
+    const sortedDayKeys = allActivities.map((activity) => activity.dayKey);
+    const streakPoints = sortedDayKeys.length;
+    const longestFromHistory = computeLongestConsecutiveDays(sortedDayKeys);
+    const lastQualifiedDay = sortedDayKeys.at(-1) ?? null;
+
+    let currentStreakDays = 0;
+    if (lastQualifiedDay) {
+        const gapFromToday = diffDayKeys(lastQualifiedDay, todayDayKey);
+        if (gapFromToday === 0 || gapFromToday === 1) {
+            currentStreakDays = computeConsecutiveDaysEndingAt(sortedDayKeys, lastQualifiedDay);
+        }
+    }
+
+    const longestStreakDays = Math.max(longestFromHistory, currentStreakDays);
+    const lastTaskCompletedAt = allActivities.reduce<Date | null>((latest, activity) => {
+        if (!latest || activity.completedAt.getTime() > latest.getTime()) {
+            return activity.completedAt;
+        }
+        return latest;
+    }, null);
+
+    const existingStreak = await transaction.userStreak.findUnique({
+        where: { userId },
+        select: { id: true },
+    });
+
+    if (streakPoints === 0) {
+        return {
+            newlyQualifiedDayKeys: [],
+            currentStreakDays: 0,
+            longestStreakDays: 0,
+            streakPoints: 0,
+            newlyUnlockedBadgeIds: [],
+        };
+    }
+
+    const awardedAt = lastTaskCompletedAt ?? new Date();
+
+    if (!existingStreak) {
+        await transaction.userStreak.create({
+            data: {
+                userId,
+                currentStreakDays,
+                longestStreakDays,
+                streakPoints,
+                lastQualifiedDay,
+                lastTaskCompletedAt,
+            },
+        });
+    } else {
+        await transaction.userStreak.update({
+            where: { userId },
+            data: {
+                currentStreakDays,
+                longestStreakDays,
+                streakPoints,
+                lastQualifiedDay,
+                lastTaskCompletedAt,
+            },
+        });
+    }
+
+    const badgeReferenceDays = Math.max(currentStreakDays, longestStreakDays);
+    const newlyUnlockedBadgeIds = await unlockEligibleBadges(
+        transaction,
+        userId,
+        badgeReferenceDays,
+        awardedAt,
+    );
+
+    return {
+        newlyQualifiedDayKeys,
+        currentStreakDays,
+        longestStreakDays,
+        streakPoints,
+        newlyUnlockedBadgeIds,
+    };
+}
+
+export async function reconcileStreakFromUserTaskProgress(
+    transaction: RlsTransaction,
+    userId: string,
+): Promise<ReconcileStreakResult> {
+    const progress = await transaction.userJornadaTaskProgress.findMany({
+        where: { userId },
+        select: { completedAt: true },
+    });
+
+    return reconcileStreakFromCompletionDates(
+        transaction,
+        userId,
+        progress.map((item) => item.completedAt),
+    );
+}
+
 function toBadgeViews(
     badgeDefinitions: BadgeDefinitionRecord[],
     userBadges: UserBadgeRecord[],
@@ -399,7 +662,11 @@ export async function getUserStreakViewInTransaction(
     });
 
     const badges = toBadgeViews(badgeDefinitions, userBadges);
-    const currentStreakDays = streak?.currentStreakDays ?? 0;
+    const currentStreakDays = getEffectiveCurrentStreakDays(
+        streak?.currentStreakDays ?? 0,
+        streak?.lastQualifiedDay ?? null,
+        todayDayKey,
+    );
     const longestStreakDays = streak?.longestStreakDays ?? 0;
     const streakPoints = streak?.streakPoints ?? 0;
 

@@ -23,6 +23,7 @@ import type { GeneratedResumeMeta } from '@/app/lib/resume/types';
 import {
     awardDailyStreakForTask,
     getUserStreakViewInTransaction,
+    reconcileStreakFromUserTaskProgress,
     type DailyStreakAwardResult,
     type JornadaStreakBadgeView,
     type JornadaStreakView,
@@ -244,14 +245,18 @@ export async function autoSyncPraticaTasksForUser(userId: string) {
     }
 
     const now = new Date();
-    await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.createMany({
-        data: missing.map((taskId) => ({
-            userId,
-            taskId,
-            completedAt: now,
-        })),
-        skipDuplicates: true,
-    }));
+    await withRlsUserContext(userId, async (transaction) => {
+        await transaction.userJornadaTaskProgress.createMany({
+            data: missing.map((taskId) => ({
+                userId,
+                taskId,
+                completedAt: now,
+            })),
+            skipDuplicates: true,
+        });
+
+        await reconcileStreakFromUserTaskProgress(transaction, userId);
+    });
 }
 
 async function autoSyncSpecificTasks(
@@ -266,14 +271,18 @@ async function autoSyncSpecificTasks(
     }
 
     const now = new Date();
-    await withRlsUserContext(userId, async (transaction) => transaction.userJornadaTaskProgress.createMany({
-        data: missing.map((taskId) => ({
-            userId,
-            taskId,
-            completedAt: now,
-        })),
-        skipDuplicates: true,
-    }));
+    await withRlsUserContext(userId, async (transaction) => {
+        await transaction.userJornadaTaskProgress.createMany({
+            data: missing.map((taskId) => ({
+                userId,
+                taskId,
+                completedAt: now,
+            })),
+            skipDuplicates: true,
+        });
+
+        await reconcileStreakFromUserTaskProgress(transaction, userId);
+    });
 
     for (const id of missing) {
         completedTaskIds.add(id);
@@ -294,12 +303,8 @@ export async function getUserJornadaSnapshot(
                 where: { userId },
                 select: { taskId: true },
             });
-            const streak = await getUserStreakViewInTransaction(transaction, userId);
 
-            return {
-                progress,
-                streak,
-            };
+            return { progress };
         }),
         prisma.user.findUnique({
             where: { id: userId },
@@ -366,6 +371,12 @@ export async function getUserJornadaSnapshot(
 
     const viewState = computeJornadaViewState(catalog, completedTaskIds, completedStageIds);
 
+    // Recalcula streak a partir do progresso persistido (recupera dias de sync sem award).
+    const streak = await withRlsUserContext(userId, async (transaction) => {
+        await reconcileStreakFromUserTaskProgress(transaction, userId);
+        return getUserStreakViewInTransaction(transaction, userId);
+    });
+
     return {
         stages: catalog.stages,
         tasks: viewState.tasks,
@@ -375,7 +386,7 @@ export async function getUserJornadaSnapshot(
         editableStageId: viewState.editableStageId,
         codeQuestProgress,
         hasCodeQuestAccount: codeQuestProgress !== null,
-        streak: rlsData.streak,
+        streak,
         catalogSource: catalog.source,
         catalogVersion: catalog.catalogVersion,
         resumeUpdated,
