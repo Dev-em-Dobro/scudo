@@ -256,6 +256,9 @@ export async function autoSyncPraticaTasksForUser(userId: string) {
         });
 
         await reconcileStreakFromUserTaskProgress(transaction, userId);
+    }, {
+        maxWait: 10_000,
+        timeout: 20_000,
     });
 }
 
@@ -282,6 +285,9 @@ async function autoSyncSpecificTasks(
         });
 
         await reconcileStreakFromUserTaskProgress(transaction, userId);
+    }, {
+        maxWait: 10_000,
+        timeout: 20_000,
     });
 
     for (const id of missing) {
@@ -372,10 +378,29 @@ export async function getUserJornadaSnapshot(
     const viewState = computeJornadaViewState(catalog, completedTaskIds, completedStageIds);
 
     // Recalcula streak a partir do progresso persistido (recupera dias de sync sem award).
-    const streak = await withRlsUserContext(userId, async (transaction) => {
-        await reconcileStreakFromUserTaskProgress(transaction, userId);
-        return getUserStreakViewInTransaction(transaction, userId);
-    });
+    // Falha no streak não deve derrubar a Jornada inteira.
+    let streak: JornadaStreakView;
+    try {
+        streak = await withRlsUserContext(userId, async (transaction) => {
+            await reconcileStreakFromUserTaskProgress(transaction, userId);
+            return getUserStreakViewInTransaction(transaction, userId);
+        }, {
+            maxWait: 10_000,
+            timeout: 20_000,
+        });
+    } catch (error) {
+        console.error('[jornada] Falha ao reconciliar streak no snapshot:', error);
+        streak = await withRlsUserContext(userId, async (transaction) => (
+            getUserStreakViewInTransaction(transaction, userId)
+        )).catch(() => ({
+            currentStreakDays: 0,
+            longestStreakDays: 0,
+            streakPoints: 0,
+            hasCompletedTaskToday: false,
+            badges: [],
+            nextBadge: null,
+        }));
+    }
 
     return {
         stages: catalog.stages,

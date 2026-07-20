@@ -61,38 +61,49 @@ export async function GET() {
 
     const currentMonth = getCurrentMonthRange();
 
-    const { streak, calendarDayKeys } = await withRlsUserContext(session.user.id, async (transaction) => {
-        await reconcileStreakFromUserTaskProgress(transaction, session.user.id);
-        const streakView = await getUserStreakViewInTransaction(transaction, session.user.id);
+    try {
+        const { streak, calendarDayKeys } = await withRlsUserContext(session.user.id, async (transaction) => {
+            await reconcileStreakFromUserTaskProgress(transaction, session.user.id);
+            const streakView = await getUserStreakViewInTransaction(transaction, session.user.id);
 
-        const dailyActivity = await transaction.userStreakDailyActivity.findMany({
-            where: {
-                userId: session.user.id,
-                dayKey: {
-                    gte: currentMonth.startDayKey,
-                    lte: currentMonth.endDayKey,
+            const dailyActivity = await transaction.userStreakDailyActivity.findMany({
+                where: {
+                    userId: session.user.id,
+                    dayKey: {
+                        gte: currentMonth.startDayKey,
+                        lte: currentMonth.endDayKey,
+                    },
                 },
-            },
-            orderBy: {
-                dayKey: 'asc',
-            },
-            select: {
-                dayKey: true,
-            },
+                orderBy: {
+                    dayKey: 'asc',
+                },
+                select: {
+                    dayKey: true,
+                },
+            });
+
+            return {
+                streak: streakView,
+                calendarDayKeys: dailyActivity.map((item) => item.dayKey),
+            };
+        }, {
+            maxWait: 10_000,
+            timeout: 20_000,
         });
 
-        return {
-            streak: streakView,
-            calendarDayKeys: dailyActivity.map((item) => item.dayKey),
-        };
-    });
-
-    return NextResponse.json({
-        streak,
-        calendar: {
-            year: currentMonth.year,
-            month: currentMonth.month,
-            dayKeys: calendarDayKeys,
-        },
-    });
+        return NextResponse.json({
+            streak,
+            calendar: {
+                year: currentMonth.year,
+                month: currentMonth.month,
+                dayKeys: calendarDayKeys,
+            },
+        });
+    } catch (error) {
+        console.error('[jornada/streak] Falha ao carregar streak:', error);
+        return NextResponse.json(
+            { error: 'Não foi possível carregar o streak agora. Tente novamente em instantes.' },
+            { status: 503 },
+        );
+    }
 }
