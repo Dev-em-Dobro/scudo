@@ -6,7 +6,11 @@ import {
     groupTechnologiesForAts,
     sortResumeProjectsByRelevance,
 } from '@/app/lib/resume/courseProjects';
-import { dedupeResumeProjectsByTitle } from '@/app/lib/resume/documentUtils';
+import {
+    dedupeResumeProjectsByTitle,
+    ensureProjectLinkPlaceholders,
+    withEnsuredProjectLinkPlaceholders,
+} from '@/app/lib/resume/documentUtils';
 import type { AtsResumeDocument } from '@/app/lib/resume/types';
 
 type ProfileWithProjects = Prisma.UserProfileGetPayload<{
@@ -57,18 +61,20 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
     const courseProjects = getUnlockedCourseProjects(input.completedStageIds);
     const manualProjects = input.profile.projects.filter((project) => !project.courseProjectKey);
 
-    const courseProjectEntries = courseProjects.map((project) => ({
+    const courseProjectEntries = courseProjects.map((project) => ensureProjectLinkPlaceholders({
         title: project.title,
         description: project.description,
         technologies: project.technologies,
         deployUrl: project.deployUrl ?? null,
+        repositoryUrl: null,
     }));
 
-    const manualProjectEntries = manualProjects.map((project) => ({
+    const manualProjectEntries = manualProjects.map((project) => ensureProjectLinkPlaceholders({
         title: project.title,
         description: project.shortDescription ?? '',
         technologies: project.technologies,
         deployUrl: project.deployUrl ?? null,
+        repositoryUrl: null,
     }));
 
     const projects = sortResumeProjectsByRelevance(
@@ -82,7 +88,7 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
     const professionalSummary = input.profile.professionalSummary?.trim()
         || buildDefaultProfessionalSummary(input.rankName, projects.length);
 
-    return {
+    return withEnsuredProjectLinkPlaceholders({
         header: {
             fullName: input.profile.fullName?.trim() || input.userName?.trim() || 'Seu Nome',
             city: input.profile.city?.trim() || null,
@@ -103,5 +109,5 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
             : ['Português — Nativo'],
         lastUpdatedAt: new Date().toISOString(),
         lastRankName: input.rankName,
-    };
+    });
 }

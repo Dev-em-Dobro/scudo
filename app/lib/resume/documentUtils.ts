@@ -2,6 +2,40 @@ import type { CourseProjectDefinition } from '@/app/lib/resume/courseProjects';
 import { groupTechnologiesForAts, sortResumeProjectsByRelevance } from '@/app/lib/resume/courseProjects';
 import type { AtsResumeDocument, AtsResumeProject } from '@/app/lib/resume/types';
 
+export const PROJECT_DEPLOY_URL_PLACEHOLDER = '[preencher] link do projeto no ar';
+export const PROJECT_REPOSITORY_URL_PLACEHOLDER = '[preencher] https://github.com/seu-usuario/seu-repositorio';
+
+export function isProjectLinkPlaceholder(value: string | null | undefined): boolean {
+    if (!value?.trim()) {
+        return true;
+    }
+
+    return value.trim().toLowerCase().startsWith('[preencher]');
+}
+
+export function toPersistedProjectLink(value: string | null | undefined): string | null {
+    if (!value?.trim() || isProjectLinkPlaceholder(value)) {
+        return null;
+    }
+
+    return value.trim();
+}
+
+export function ensureProjectLinkPlaceholders(project: AtsResumeProject): AtsResumeProject {
+    return {
+        ...project,
+        deployUrl: toPersistedProjectLink(project.deployUrl) ?? PROJECT_DEPLOY_URL_PLACEHOLDER,
+        repositoryUrl: toPersistedProjectLink(project.repositoryUrl) ?? PROJECT_REPOSITORY_URL_PLACEHOLDER,
+    };
+}
+
+export function withEnsuredProjectLinkPlaceholders(document: AtsResumeDocument): AtsResumeDocument {
+    return {
+        ...document,
+        projects: document.projects.map(ensureProjectLinkPlaceholders),
+    };
+}
+
 export function formatContactUrl(url: string | null | undefined): string | null {
     if (!url) {
         return null;
@@ -78,22 +112,23 @@ export function mergeUnlockedProjectsIntoDocument(
     const existingTitles = new Set(document.projects.map((project) => project.title.trim().toLowerCase()));
     const newProjects = unlockedProjects
         .filter((project) => !existingTitles.has(project.title.trim().toLowerCase()))
-        .map((project) => ({
+        .map((project) => ensureProjectLinkPlaceholders({
             title: project.title,
             description: project.description,
             technologies: project.technologies,
             deployUrl: project.deployUrl ?? null,
+            repositoryUrl: null,
         }));
 
     if (newProjects.length === 0) {
-        return document;
+        return withEnsuredProjectLinkPlaceholders(document);
     }
 
-    return recomputeTechnologyGroups({
+    return withEnsuredProjectLinkPlaceholders(recomputeTechnologyGroups({
         ...document,
         projects: sortResumeProjectsByRelevance([...document.projects, ...newProjects]),
         lastUpdatedAt: new Date().toISOString(),
-    });
+    }));
 }
 
 export function parseCommaSeparatedList(value: string): string[] {

@@ -1,10 +1,24 @@
 'use client';
 
 import type { AtsResumeDocument } from '@/app/lib/resume/types';
+import {
+    isProjectLinkPlaceholder,
+    PROJECT_DEPLOY_URL_PLACEHOLDER,
+    PROJECT_REPOSITORY_URL_PLACEHOLDER,
+} from '@/app/lib/resume/documentUtils';
 
 type GeneratedResumePreviewProps = {
     document: AtsResumeDocument;
 };
+
+function formatProjectLink(value: string | null | undefined, placeholder: string) {
+    const trimmed = value?.trim();
+    if (!trimmed || isProjectLinkPlaceholder(trimmed)) {
+        return placeholder;
+    }
+
+    return trimmed;
+}
 
 function formatHeaderLine(document: AtsResumeDocument) {
     return [
@@ -67,6 +81,12 @@ export default function GeneratedResumePreview({ document }: GeneratedResumePrev
                                             Tech stacks: {project.technologies.join(', ')}
                                         </p>
                                     )}
+                                    <p className="mt-1 text-[11px] text-black/65">
+                                        Deploy: {formatProjectLink(project.deployUrl, PROJECT_DEPLOY_URL_PLACEHOLDER)}
+                                    </p>
+                                    <p className="text-[11px] text-black/65">
+                                        Repositório: {formatProjectLink(project.repositoryUrl, PROJECT_REPOSITORY_URL_PLACEHOLDER)}
+                                    </p>
                                 </div>
                             ))}
                         </div>

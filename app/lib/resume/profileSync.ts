@@ -2,6 +2,7 @@ import { COURSE_PROJECT_CATALOG } from '@/app/lib/resume/courseProjects';
 import {
     formatContactUrl,
     mergeProfileHeaderIntoDocument,
+    toPersistedProjectLink,
 } from '@/app/lib/resume/documentUtils';
 import type { AtsResumeDocument, AtsResumeProject } from '@/app/lib/resume/types';
 import type { RlsTransaction } from '@/app/lib/rls';
@@ -179,7 +180,7 @@ async function syncResumeProjectsToUserProfile(
                     title: resumeProject.title,
                     shortDescription: resumeProject.description || null,
                     technologies: resumeProject.technologies,
-                    deployUrl: resumeProject.deployUrl ?? null,
+                    deployUrl: toPersistedProjectLink(resumeProject.deployUrl),
                 },
                 create: {
                     userProfileId: profileId,
@@ -187,7 +188,7 @@ async function syncResumeProjectsToUserProfile(
                     title: resumeProject.title,
                     shortDescription: resumeProject.description || null,
                     technologies: resumeProject.technologies,
-                    deployUrl: resumeProject.deployUrl ?? null,
+                    deployUrl: toPersistedProjectLink(resumeProject.deployUrl),
                 },
             });
             continue;
@@ -204,7 +205,7 @@ async function syncResumeProjectsToUserProfile(
                     title: resumeProject.title,
                     shortDescription: resumeProject.description || null,
                     technologies: resumeProject.technologies,
-                    deployUrl: resumeProject.deployUrl ?? null,
+                    deployUrl: toPersistedProjectLink(resumeProject.deployUrl),
                 },
             });
             continue;
@@ -216,7 +217,7 @@ async function syncResumeProjectsToUserProfile(
                 title: resumeProject.title,
                 shortDescription: resumeProject.description || null,
                 technologies: resumeProject.technologies,
-                deployUrl: resumeProject.deployUrl ?? null,
+                deployUrl: toPersistedProjectLink(resumeProject.deployUrl),
             },
         });
     }

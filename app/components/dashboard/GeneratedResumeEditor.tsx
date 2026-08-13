@@ -9,6 +9,8 @@ import {
     joinLineSeparatedList,
     parseCommaSeparatedList,
     parseLineSeparatedList,
+    PROJECT_DEPLOY_URL_PLACEHOLDER,
+    PROJECT_REPOSITORY_URL_PLACEHOLDER,
 } from '@/app/lib/resume/documentUtils';
 
 type GeneratedResumeEditorProps = {
@@ -122,7 +124,12 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                         <span className="text-[11px] text-black/45">{document.projects.length} projeto(s)</span>
                     </div>
                     <p className="mt-1 text-[11px] text-black/50">
-                        Projetos do curso são adicionados ao concluir ranks. Ajuste aqui títulos, descrições e stacks.
+                        Projetos do curso são adicionados ao concluir ranks. Ajuste aqui títulos, descrições, stacks e links.
+                    </p>
+                    <p className="mt-2 rounded-md border border-amber-500/40 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-950">
+                        Em cada projeto, preencha o <strong>link do projeto no ar</strong> (deploy) e o{' '}
+                        <strong>link do repositório no GitHub</strong>. Enquanto não preencher, o currículo mostra um
+                        placeholder para você completar depois.
                     </p>
                     <div className="mt-2 space-y-4">
                         {document.projects.map((project, index) => (
@@ -149,6 +156,30 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                                     className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[13px] text-black"
                                     placeholder="React, TypeScript, Node.js"
                                 />
+                                <label className="block space-y-0.5">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-black/45">
+                                        Projeto no ar (deploy)
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={project.deployUrl ?? ''}
+                                        onChange={(event) => updateProject(index, { deployUrl: event.target.value })}
+                                        className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[12px] text-black"
+                                        placeholder={PROJECT_DEPLOY_URL_PLACEHOLDER}
+                                    />
+                                </label>
+                                <label className="block space-y-0.5">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-black/45">
+                                        Repositório no GitHub
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={project.repositoryUrl ?? ''}
+                                        onChange={(event) => updateProject(index, { repositoryUrl: event.target.value })}
+                                        className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#6528d3]/40 focus:outline-none focus:ring-0 px-0 py-0.5 text-[12px] text-black"
+                                        placeholder={PROJECT_REPOSITORY_URL_PLACEHOLDER}
+                                    />
+                                </label>
                             </div>
                         ))}
                     </div>

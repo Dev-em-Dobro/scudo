@@ -2,7 +2,10 @@ export type AtsResumeProject = {
     title: string;
     description: string;
     technologies: string[];
+    /** Link do projeto no ar (deploy). Pode ser placeholder até o aluno preencher. */
     deployUrl?: string | null;
+    /** Link do repositório no GitHub. Pode ser placeholder até o aluno preencher. */
+    repositoryUrl?: string | null;
 };
 
 export type AtsResumeTechnologyGroups = {

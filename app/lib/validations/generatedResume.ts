@@ -15,6 +15,7 @@ const projectSchema = z.object({
     description: z.string().max(2000),
     technologies: z.array(z.string().max(80)).max(30),
     deployUrl: z.string().max(500).nullish(),
+    repositoryUrl: z.string().max(500).nullish(),
 });
 
 export const atsResumeDocumentSchema = z.object({

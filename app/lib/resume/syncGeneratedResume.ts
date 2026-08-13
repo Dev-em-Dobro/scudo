@@ -6,6 +6,7 @@ import {
     mergeProfileHeaderIntoDocument,
     mergeUnlockedProjectsIntoDocument,
     recomputeTechnologyGroups,
+    withEnsuredProjectLinkPlaceholders,
 } from '@/app/lib/resume/documentUtils';
 import {
     applyProfileHeaderToDocument,
@@ -104,10 +105,10 @@ async function persistGeneratedResumeDocument(
         deferPdf?: boolean;
     },
 ): Promise<GeneratedResumeMeta> {
-    const normalizedDocument = recomputeTechnologyGroups({
+    const normalizedDocument = withEnsuredProjectLinkPlaceholders(recomputeTechnologyGroups({
         ...document,
         lastUpdatedAt: new Date().toISOString(),
-    });
+    }));
     const now = new Date();
 
     if (options.syncBodyToProfile) {
@@ -201,7 +202,9 @@ export async function syncGeneratedResumeForUser(input: SyncGeneratedResumeInput
                 title: courseProject.title,
                 shortDescription: courseProject.description,
                 technologies: courseProject.technologies,
-                deployUrl: courseProject.deployUrl ?? null,
+                ...(courseProject.deployUrl
+                    ? { deployUrl: courseProject.deployUrl }
+                    : {}),
             },
             create: {
                 userProfileId: profile.id,
@@ -484,7 +487,7 @@ export function parseGeneratedResumeDocument(value: Prisma.JsonValue | null): At
         return null;
     }
 
-    return value as AtsResumeDocument;
+    return withEnsuredProjectLinkPlaceholders(value as AtsResumeDocument);
 }
 
 export function toGeneratedResumeMeta(profile: {

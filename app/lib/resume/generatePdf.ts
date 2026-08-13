@@ -1,5 +1,9 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
+import {
+    PROJECT_DEPLOY_URL_PLACEHOLDER,
+    PROJECT_REPOSITORY_URL_PLACEHOLDER,
+} from '@/app/lib/resume/documentUtils';
 import type { AtsResumeDocument, AtsResumeTechnologyGroups } from '@/app/lib/resume/types';
 
 const PAGE_WIDTH = 595.28;
@@ -162,6 +166,16 @@ export async function generateAtsResumePdf(document: AtsResumeDocument): Promise
             if (project.technologies.length > 0) {
                 drawLine(writer, `Tech stacks: ${project.technologies.join(', ')}`, { indent: 8, size: 10 });
             }
+            drawLine(
+                writer,
+                `Deploy: ${project.deployUrl?.trim() || PROJECT_DEPLOY_URL_PLACEHOLDER}`,
+                { indent: 8, size: 10 },
+            );
+            drawLine(
+                writer,
+                `Repositório: ${project.repositoryUrl?.trim() || PROJECT_REPOSITORY_URL_PLACEHOLDER}`,
+                { indent: 8, size: 10 },
+            );
             writer.y -= 4;
         }
     }
