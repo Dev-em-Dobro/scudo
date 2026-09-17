@@ -11,6 +11,8 @@ import {
 import { syncCurseducaProgressForUser } from "@/app/lib/jornada/curseducaSync";
 
 export const runtime = "nodejs";
+/** Sync de alunos com muitas aulas pode passar de 10s (fetch Curseduca + writes). */
+export const maxDuration = 60;
 
 export async function POST() {
     const session = await auth.api.getSession({ headers: await headers() });

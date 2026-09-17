@@ -1,5 +1,5 @@
 import { prisma } from "@/app/lib/prisma";
-import { getCatalogTaskById } from "@/app/lib/jornada/service";
+import { getPublishedJornadaCatalog } from "@/app/lib/jornada/catalog";
 import { resolveTaskIdFromClassId } from "@/app/lib/jornada/curseducaLessonTaskMap";
 import { reconcileStreakFromUserTaskProgress } from "@/app/lib/jornada/streak";
 import { withRlsUserContext } from "@/app/lib/rls";
@@ -26,6 +26,22 @@ type CurseducaAuthConfig = {
     token: string;
     apiKey: string;
 };
+
+type MappedTaskCompletion = {
+    taskId: string;
+    completedAt: Date;
+};
+
+/** Inserts por transação — createMany é barato; mantém a tx curta. */
+const CREATE_BATCH_SIZE = 100;
+/** Updates paralelos por transação — evita N upserts sequenciais. */
+const UPDATE_BATCH_SIZE = 25;
+const UPDATE_CONCURRENCY = 8;
+
+const TX_OPTIONS = {
+    maxWait: 10_000,
+    timeout: 20_000,
+} as const;
 
 function getCurseducaAuthConfig(): CurseducaAuthConfig {
     const baseUrl = process.env.CURSEDUCA_API_URL ?? process.env.USER_API_BASE_URL;
@@ -55,6 +71,44 @@ function redactUrlForLog(urlStr: string): string {
     } catch {
         return urlStr;
     }
+}
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+    if (items.length === 0) {
+        return [];
+    }
+
+    const chunks: T[][] = [];
+    for (let offset = 0; offset < items.length; offset += size) {
+        chunks.push(items.slice(offset, offset + size));
+    }
+    return chunks;
+}
+
+async function mapWithConcurrency<T>(
+    items: T[],
+    concurrency: number,
+    worker: (item: T) => Promise<void>,
+): Promise<void> {
+    if (items.length === 0) {
+        return;
+    }
+
+    let nextIndex = 0;
+
+    async function runWorker() {
+        while (nextIndex < items.length) {
+            const currentIndex = nextIndex;
+            nextIndex += 1;
+            await worker(items[currentIndex]!);
+        }
+    }
+
+    const workers = Array.from(
+        { length: Math.min(concurrency, items.length) },
+        () => runWorker(),
+    );
+    await Promise.all(workers);
 }
 
 async function fetchJsonOrThrow(url: string, auth?: CurseducaAuthConfig) {
@@ -200,11 +254,73 @@ async function fetchAllProgress(memberSlug: string, auth: CurseducaAuthConfig): 
     return items;
 }
 
+/**
+ * Mapeia progresso Curseduca → taskIds do catálogo (1 task por id, finishedAt mais recente).
+ */
+function mapProgressToTaskCompletions(
+    progressItems: CurseducaProgressItem[],
+    catalogTaskIds: Set<string>,
+): {
+    completedLessons: number;
+    mappedLessons: number;
+    skippedWithoutMap: number;
+    completions: MappedTaskCompletion[];
+} {
+    let completedLessons = 0;
+    let mappedLessons = 0;
+    let skippedWithoutMap = 0;
+    const bestByTaskId = new Map<string, Date>();
+
+    for (const item of progressItems) {
+        if (!item.finishedAt) {
+            continue;
+        }
+
+        completedLessons += 1;
+        const classId = item.lesson?.id ?? null;
+        if (!classId) {
+            skippedWithoutMap += 1;
+            continue;
+        }
+
+        const taskId = resolveTaskIdFromClassId(classId);
+        if (!taskId || !catalogTaskIds.has(taskId)) {
+            skippedWithoutMap += 1;
+            continue;
+        }
+
+        const completedAt = new Date(item.finishedAt);
+        if (Number.isNaN(completedAt.getTime())) {
+            skippedWithoutMap += 1;
+            continue;
+        }
+
+        mappedLessons += 1;
+        const previous = bestByTaskId.get(taskId);
+        if (!previous || completedAt.getTime() > previous.getTime()) {
+            bestByTaskId.set(taskId, completedAt);
+        }
+    }
+
+    return {
+        completedLessons,
+        mappedLessons,
+        skippedWithoutMap,
+        completions: [...bestByTaskId.entries()].map(([taskId, completedAt]) => ({
+            taskId,
+            completedAt,
+        })),
+    };
+}
+
 export type CurseducaSyncResult = {
     totalProgressItems: number;
     completedLessons: number;
     mappedLessons: number;
     upsertedTasks: number;
+    createdTasks: number;
+    updatedTasks: number;
+    unchangedTasks: number;
     skippedWithoutMap: number;
     memberSlug: string;
 };
@@ -213,72 +329,91 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
     try {
         const auth = getCurseducaAuthConfig();
 
-        const { slug: memberSlug } = await getMemberSlugForSync(userId, auth);
+        const [{ slug: memberSlug }, catalog] = await Promise.all([
+            getMemberSlugForSync(userId, auth),
+            getPublishedJornadaCatalog(),
+        ]);
+
         const rawProgress = await fetchAllProgress(memberSlug, auth);
-
         const progressItems = dedupeProgressByLessonId(rawProgress);
+        const catalogTaskIds = new Set(catalog.tasks.map((task) => task.id));
 
-        let completedLessons = 0;
-        let mappedLessons = 0;
-        let upsertedTasks = 0;
-        let skippedWithoutMap = 0;
-        const upsertOps: Parameters<typeof prisma.userJornadaTaskProgress.upsert>[0][] = [];
+        const {
+            completedLessons,
+            mappedLessons,
+            skippedWithoutMap,
+            completions,
+        } = mapProgressToTaskCompletions(progressItems, catalogTaskIds);
 
-        for (const item of progressItems) {
-            if (!item.finishedAt) {
-                continue;
-            }
+        let createdTasks = 0;
+        let updatedTasks = 0;
+        let unchangedTasks = 0;
 
-            completedLessons += 1;
-            const classId = item.lesson?.id ?? null;
-            if (!classId) {
-                skippedWithoutMap += 1;
-                continue;
-            }
-
-            const taskId = resolveTaskIdFromClassId(classId);
-            if (!taskId || !(await getCatalogTaskById(taskId))) {
-                skippedWithoutMap += 1;
-                continue;
-            }
-
-            mappedLessons += 1;
-            const completedAt = new Date(item.finishedAt);
-            upsertOps.push({
-                where: {
-                    userId_taskId: {
-                        userId,
-                        taskId,
+        if (completions.length > 0) {
+            const existing = await withRlsUserContext(userId, async (transaction) => (
+                transaction.userJornadaTaskProgress.findMany({
+                    where: { userId },
+                    select: {
+                        taskId: true,
+                        completedAt: true,
                     },
-                },
-                update: {
-                    completedAt,
-                },
-                create: {
-                    userId,
-                    taskId,
-                    completedAt,
-                },
-            });
-        }
+                })
+            ), TX_OPTIONS);
 
-        if (upsertOps.length > 0) {
-            const UPSERT_BATCH_SIZE = 40;
+            const existingByTaskId = new Map(
+                existing.map((row) => [row.taskId, row.completedAt] as const),
+            );
 
-            for (let offset = 0; offset < upsertOps.length; offset += UPSERT_BATCH_SIZE) {
-                const batch = upsertOps.slice(offset, offset + UPSERT_BATCH_SIZE);
+            const toCreate: MappedTaskCompletion[] = [];
+            const toUpdate: MappedTaskCompletion[] = [];
 
-                await withRlsUserContext(userId, async (transaction) => {
-                    for (const args of batch) {
-                        await transaction.userJornadaTaskProgress.upsert(args);
-                    }
-                }, {
-                    maxWait: 10_000,
-                    timeout: 25_000,
-                });
+            for (const completion of completions) {
+                const current = existingByTaskId.get(completion.taskId);
+                if (!current) {
+                    toCreate.push(completion);
+                    continue;
+                }
+
+                if (current.getTime() !== completion.completedAt.getTime()) {
+                    toUpdate.push(completion);
+                    continue;
+                }
+
+                unchangedTasks += 1;
             }
 
-            upsertedTasks = upsertOps.length;
+            for (const batch of chunkArray(toCreate, CREATE_BATCH_SIZE)) {
+                await withRlsUserContext(userId, async (transaction) => {
+                    await transaction.userJornadaTaskProgress.createMany({
+                        data: batch.map((item) => ({
+                            userId,
+                            taskId: item.taskId,
+                            completedAt: item.completedAt,
+                        })),
+                        skipDuplicates: true,
+                    });
+                }, TX_OPTIONS);
+            }
+            createdTasks = toCreate.length;
+
+            for (const batch of chunkArray(toUpdate, UPDATE_BATCH_SIZE)) {
+                await withRlsUserContext(userId, async (transaction) => {
+                    await mapWithConcurrency(batch, UPDATE_CONCURRENCY, async (item) => {
+                        await transaction.userJornadaTaskProgress.update({
+                            where: {
+                                userId_taskId: {
+                                    userId,
+                                    taskId: item.taskId,
+                                },
+                            },
+                            data: {
+                                completedAt: item.completedAt,
+                            },
+                        });
+                    });
+                }, TX_OPTIONS);
+            }
+            updatedTasks = toUpdate.length;
         }
 
         // Recupera dias já sincronizados sem streak e passa a pontuar syncs futuros.
@@ -300,7 +435,10 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
             totalProgressItems: rawProgress.length,
             completedLessons,
             mappedLessons,
-            upsertedTasks,
+            upsertedTasks: createdTasks + updatedTasks,
+            createdTasks,
+            updatedTasks,
+            unchangedTasks,
             skippedWithoutMap,
             memberSlug,
         };
@@ -310,7 +448,7 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
             data: {
                 curseducaSyncNeedsRetry: true,
             },
-        });
+        }).catch(() => undefined);
         throw error;
     }
 }
