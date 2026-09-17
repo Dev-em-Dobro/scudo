@@ -15,7 +15,10 @@ export default async function JornadaPage() {
         redirect('/login');
     }
 
-    syncCurseducaProgressForUser(session.user.id).catch((error) => {
+    syncCurseducaProgressForUser(session.user.id, {
+        writeBudgetMs: 20_000,
+        maxCreatesPerRun: 150,
+    }).catch((error) => {
         console.error('[jornada] Falha ao sincronizar progresso da Curseduca em background.', {
             error: error instanceof Error ? error.message : 'unknown_error',
         });

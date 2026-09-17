@@ -11,7 +11,7 @@ import {
 import { syncCurseducaProgressForUser } from "@/app/lib/jornada/curseducaSync";
 
 export const runtime = "nodejs";
-/** Sync de alunos com muitas aulas pode passar de 10s (fetch Curseduca + writes). */
+/** Sync grande é fatiado; cada invocação precisa caber no limite do plano. */
 export const maxDuration = 60;
 
 export async function POST() {
@@ -35,9 +35,24 @@ export async function POST() {
     }
 
     try {
-        const result = await syncCurseducaProgressForUser(session.user.id);
-        const snapshot = await getUserJornadaSnapshot(session.user.id);
-        return NextResponse.json({ ok: true, result, snapshot });
+        const result = await syncCurseducaProgressForUser(session.user.id, {
+            writeBudgetMs: 40_000,
+            maxCreatesPerRun: 250,
+        });
+
+        // Snapshot leve só no fim: evita CodeQuest + trabalho extra enquanto ainda há fatias.
+        const snapshot = result.incomplete
+            ? null
+            : await getUserJornadaSnapshot(session.user.id, {
+                includeCodeQuest: false,
+            });
+
+        return NextResponse.json({
+            ok: true,
+            result,
+            incomplete: result.incomplete,
+            snapshot,
+        });
     } catch (error) {
         console.error("[jornada/curseduca-sync] Falha ao sincronizar progresso da Curseduca:", error);
         return NextResponse.json(

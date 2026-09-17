@@ -28,8 +28,8 @@ const PRUNE_INTERVAL_MS = 5 * 60_000;
 export const RATE_LIMIT_RULES = {
     /** Toggle de tarefas na jornada — uso intenso legítimo ao marcar várias tarefas seguidas. */
     jornadaTaskToggle: { windowMs: 60_000, maxRequests: 120 },
-    /** Sync manual com API externa da Curseduca. */
-    jornadaCurseducaSync: { windowMs: 5 * 60_000, maxRequests: 3 },
+    /** Sync manual com API externa da Curseduca (múltiplas fatias para progresso grande). */
+    jornadaCurseducaSync: { windowMs: 5 * 60_000, maxRequests: 30 },
     /** Sync de exercícios CodeQuest na jornada. */
     jornadaCodequestSync: { windowMs: 60_000, maxRequests: 10 },
     /** Atualização de perfil (PATCH). */

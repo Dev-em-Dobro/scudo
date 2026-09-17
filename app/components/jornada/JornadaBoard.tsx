@@ -60,7 +60,13 @@ type JornadaTaskToggleResponse = {
 type JornadaSyncResponse = {
     ok: boolean;
     error?: string;
-    snapshot?: JornadaApiResponse;
+    incomplete?: boolean;
+    snapshot?: JornadaApiResponse | null;
+    result?: {
+        createdTasks?: number;
+        remainingCreates?: number;
+        incomplete?: boolean;
+    };
 };
 
 const EXTERNAL_SYNC_HELP =
@@ -478,20 +484,44 @@ export default function JornadaBoard({
 
     const runCurseducaSync = useCallback(async (): Promise<boolean> => {
         try {
-            const response = await fetch('/api/jornada/curseduca-sync', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            const maxPasses = 12;
+            let incomplete = true;
+            let lastSnapshot: JornadaApiResponse | null | undefined;
 
-            const data = await response.json() as JornadaSyncResponse;
-            if (!response.ok || !data.ok) {
-                throw new Error(data.error ?? 'sync_failed');
+            for (let pass = 0; pass < maxPasses && incomplete; pass += 1) {
+                const response = await fetch('/api/jornada/curseduca-sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json() as JornadaSyncResponse;
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.error ?? 'sync_failed');
+                }
+
+                incomplete = Boolean(data.incomplete ?? data.result?.incomplete);
+                if (data.snapshot) {
+                    lastSnapshot = data.snapshot;
+                }
+
+                if (incomplete && pass < maxPasses - 1) {
+                    setSyncMessage(
+                        `Sincronizando aulas… ainda restam ${data.result?.remainingCreates ?? 'algumas'} tarefa(s).`,
+                    );
+                }
             }
 
-            if (data.snapshot) {
-                applyJornadaResponse(data.snapshot);
+            if (incomplete) {
+                setRequestError(
+                    'A sincronização das aulas avançou, mas ainda há progresso pendente. Clique em Sincronizar novamente.',
+                );
+                return false;
+            }
+
+            if (lastSnapshot) {
+                applyJornadaResponse(lastSnapshot);
             }
             return true;
         } catch {

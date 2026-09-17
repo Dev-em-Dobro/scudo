@@ -34,9 +34,10 @@ type MappedTaskCompletion = {
 
 /** Inserts por transação — createMany é barato; mantém a tx curta. */
 const CREATE_BATCH_SIZE = 100;
-/** Updates paralelos por transação — evita N upserts sequenciais. */
-const UPDATE_BATCH_SIZE = 25;
-const UPDATE_CONCURRENCY = 8;
+/** Limite por invocação para caber no timeout da Vercel (~60s). */
+const DEFAULT_MAX_CREATES_PER_RUN = 250;
+/** Orçamento só para writes depois do fetch da Curseduca. */
+const DEFAULT_WRITE_BUDGET_MS = 40_000;
 
 const TX_OPTIONS = {
     maxWait: 10_000,
@@ -83,32 +84,6 @@ function chunkArray<T>(items: T[], size: number): T[][] {
         chunks.push(items.slice(offset, offset + size));
     }
     return chunks;
-}
-
-async function mapWithConcurrency<T>(
-    items: T[],
-    concurrency: number,
-    worker: (item: T) => Promise<void>,
-): Promise<void> {
-    if (items.length === 0) {
-        return;
-    }
-
-    let nextIndex = 0;
-
-    async function runWorker() {
-        while (nextIndex < items.length) {
-            const currentIndex = nextIndex;
-            nextIndex += 1;
-            await worker(items[currentIndex]!);
-        }
-    }
-
-    const workers = Array.from(
-        { length: Math.min(concurrency, items.length) },
-        () => runWorker(),
-    );
-    await Promise.all(workers);
 }
 
 async function fetchJsonOrThrow(url: string, auth?: CurseducaAuthConfig) {
@@ -228,7 +203,7 @@ function dedupeProgressByLessonId(items: CurseducaProgressItem[]): CurseducaProg
 
 async function fetchAllProgress(memberSlug: string, auth: CurseducaAuthConfig): Promise<CurseducaProgressItem[]> {
     const { contentsBaseUrl } = auth;
-    const limit = 200;
+    const limit = 500;
     let offset = 0;
     let hasMore = true;
     const items: CurseducaProgressItem[] = [];
@@ -322,10 +297,25 @@ export type CurseducaSyncResult = {
     updatedTasks: number;
     unchangedTasks: number;
     skippedWithoutMap: number;
+    remainingCreates: number;
+    incomplete: boolean;
     memberSlug: string;
 };
 
-export async function syncCurseducaProgressForUser(userId: string): Promise<CurseducaSyncResult> {
+export type SyncCurseducaProgressOptions = {
+    /** Orçamento de tempo para writes após o fetch. */
+    writeBudgetMs?: number;
+    /** Máximo de tarefas novas criadas nesta invocação. */
+    maxCreatesPerRun?: number;
+};
+
+export async function syncCurseducaProgressForUser(
+    userId: string,
+    options: SyncCurseducaProgressOptions = {},
+): Promise<CurseducaSyncResult> {
+    const writeBudgetMs = options.writeBudgetMs ?? DEFAULT_WRITE_BUDGET_MS;
+    const maxCreatesPerRun = options.maxCreatesPerRun ?? DEFAULT_MAX_CREATES_PER_RUN;
+
     try {
         const auth = getCurseducaAuthConfig();
 
@@ -346,8 +336,8 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
         } = mapProgressToTaskCompletions(progressItems, catalogTaskIds);
 
         let createdTasks = 0;
-        let updatedTasks = 0;
         let unchangedTasks = 0;
+        let remainingCreates = 0;
 
         if (completions.length > 0) {
             const existing = await withRlsUserContext(userId, async (transaction) => (
@@ -355,34 +345,26 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
                     where: { userId },
                     select: {
                         taskId: true,
-                        completedAt: true,
                     },
                 })
             ), TX_OPTIONS);
 
-            const existingByTaskId = new Map(
-                existing.map((row) => [row.taskId, row.completedAt] as const),
-            );
+            const existingTaskIds = new Set(existing.map((row) => row.taskId));
+            const toCreateAll = completions.filter((completion) => !existingTaskIds.has(completion.taskId));
+            unchangedTasks = completions.length - toCreateAll.length;
 
-            const toCreate: MappedTaskCompletion[] = [];
-            const toUpdate: MappedTaskCompletion[] = [];
+            // Só cria o que falta. Atualizar completedAt de quem já existe é caro e
+            // irrelevante para o board (status done) — o primeiro create já carrega a data.
+            const toCreateNow = toCreateAll.slice(0, maxCreatesPerRun);
+            remainingCreates = Math.max(0, toCreateAll.length - toCreateNow.length);
 
-            for (const completion of completions) {
-                const current = existingByTaskId.get(completion.taskId);
-                if (!current) {
-                    toCreate.push(completion);
-                    continue;
+            const writeStartedAt = Date.now();
+
+            for (const batch of chunkArray(toCreateNow, CREATE_BATCH_SIZE)) {
+                if (Date.now() - writeStartedAt >= writeBudgetMs) {
+                    break;
                 }
 
-                if (current.getTime() !== completion.completedAt.getTime()) {
-                    toUpdate.push(completion);
-                    continue;
-                }
-
-                unchangedTasks += 1;
-            }
-
-            for (const batch of chunkArray(toCreate, CREATE_BATCH_SIZE)) {
                 await withRlsUserContext(userId, async (transaction) => {
                     await transaction.userJornadaTaskProgress.createMany({
                         data: batch.map((item) => ({
@@ -393,41 +375,29 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
                         skipDuplicates: true,
                     });
                 }, TX_OPTIONS);
-            }
-            createdTasks = toCreate.length;
 
-            for (const batch of chunkArray(toUpdate, UPDATE_BATCH_SIZE)) {
-                await withRlsUserContext(userId, async (transaction) => {
-                    await mapWithConcurrency(batch, UPDATE_CONCURRENCY, async (item) => {
-                        await transaction.userJornadaTaskProgress.update({
-                            where: {
-                                userId_taskId: {
-                                    userId,
-                                    taskId: item.taskId,
-                                },
-                            },
-                            data: {
-                                completedAt: item.completedAt,
-                            },
-                        });
-                    });
-                }, TX_OPTIONS);
+                createdTasks += batch.length;
             }
-            updatedTasks = toUpdate.length;
+
+            remainingCreates = Math.max(0, toCreateAll.length - createdTasks);
         }
 
-        // Recupera dias já sincronizados sem streak e passa a pontuar syncs futuros.
-        await withRlsUserContext(userId, async (transaction) => {
-            await reconcileStreakFromUserTaskProgress(transaction, userId);
-        }, {
-            maxWait: 10_000,
-            timeout: 25_000,
-        });
+        const incomplete = remainingCreates > 0;
+
+        // No fim do sync completo, recalcula streak a partir de todo o progresso.
+        if (!incomplete) {
+            await withRlsUserContext(userId, async (transaction) => {
+                await reconcileStreakFromUserTaskProgress(transaction, userId);
+            }, {
+                maxWait: 10_000,
+                timeout: 20_000,
+            });
+        }
 
         await prisma.user.update({
             where: { id: userId },
             data: {
-                curseducaSyncNeedsRetry: false,
+                curseducaSyncNeedsRetry: incomplete,
             },
         });
 
@@ -435,11 +405,13 @@ export async function syncCurseducaProgressForUser(userId: string): Promise<Curs
             totalProgressItems: rawProgress.length,
             completedLessons,
             mappedLessons,
-            upsertedTasks: createdTasks + updatedTasks,
+            upsertedTasks: createdTasks,
             createdTasks,
-            updatedTasks,
+            updatedTasks: 0,
             unchangedTasks,
             skippedWithoutMap,
+            remainingCreates,
+            incomplete,
             memberSlug,
         };
     } catch (error) {
