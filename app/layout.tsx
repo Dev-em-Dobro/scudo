@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { Martian_Mono, Orbitron, Ubuntu } from 'next/font/google';
+import Script from 'next/script';
 
 import { auth } from '@/app/lib/auth';
 import { AuthProvider } from '@/app/providers/AuthProvider';
@@ -66,6 +67,8 @@ export default async function RootLayout({
                         </TutorialProvider>
                     </SidebarProvider>
                 </AuthProvider>
+                {/* [Black] Popup da live 29/10 — só pra aluno logado; sai do ar sozinho em 30/10 */}
+                {session?.user && <Script src="/live-popup.js" strategy="afterInteractive" />}
             </body>
         </html>
     );
