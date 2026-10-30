@@ -1,35 +1,37 @@
 /* =====================================================================
-   [Black] Popup — Live exclusiva pra alunos 29/10
-   Componente drop-in pras ferramentas (Scudo, Orion, Agents, CodeQuest).
+   [Black] Popup — Black para alunos: DevQuest 2.0 + Builders Club
+   Mesmo popup da live de 29/10, agora levando pra oferta de alunos da
+   Black Infinita. Componente drop-in pras ferramentas (Scudo, Orion,
+   Agents, CodeQuest, Comunidade).
 
    Uso (antes do </body>):
-     <script src="/live-popup.js" defer></script>
+     <script src="/black-popup.js" defer></script>
 
    Copie gemeos.webp pra mesma pasta do script: a foto é buscada ao lado dele.
 
    Atributos opcionais:
-     data-link    link do grupo da live (padrão: grupo oficial da live 29/10)
+     data-link    link da página da oferta (padrão: oferta de alunos da Black Infinita)
      data-foto    URL da foto do topo (padrão: gemeos.webp ao lado do script)
-     data-expira  data ISO a partir da qual o popup some (padrão: 30/10/2026 00:00 BRT)
+     data-expira  data ISO a partir da qual o popup some (sem ela, não expira)
      data-delay   ms até abrir depois do carregamento (padrão: 1200)
      data-chave   chave do localStorage, troque pra reexibir pra todo mundo
 
    API pra teste no console:
-     DevEmDobroLivePopup.abrir()   força abrir
-     DevEmDobroLivePopup.resetar() esquece que o usuário fechou
+     DevEmDobroBlackPopup.abrir()   força abrir
+     DevEmDobroBlackPopup.resetar() esquece que o usuário fechou
    ===================================================================== */
 (function () {
   "use strict";
 
-  if (window.DevEmDobroLivePopup) return;
+  if (window.DevEmDobroBlackPopup) return;
 
   var script = document.currentScript;
   var cfg = {
-    link: (script && script.dataset.link) || "https://sndflw.com/i/xZ3DxbDGlgCWhDEW7FUg",
+    link: (script && script.dataset.link) || "https://blackinfinita.devemdobro.com/alunos-dq",
     foto: (script && script.dataset.foto) || (script && script.src ? new URL("gemeos.webp", script.src).href : ""),
-    expira: new Date((script && script.dataset.expira) || "2026-10-30T00:00:00-03:00"),
+    expira: script && script.dataset.expira ? new Date(script.dataset.expira) : null,
     delay: Number((script && script.dataset.delay) || 1200),
-    chave: (script && script.dataset.chave) || "dd-live-2910-fechado",
+    chave: (script && script.dataset.chave) || "dd-black-alunos-fechado",
   };
 
   // Persistência: localStorage com cookie de fallback (aba anônima, storage bloqueado)
@@ -104,16 +106,16 @@
 
   var HTML =
     '<div class="overlay" part="overlay">' +
-    '  <div class="card" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dd-live-titulo" aria-describedby="dd-live-texto">' +
+    '  <div class="card" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dd-black-titulo" aria-describedby="dd-black-texto">' +
     '    <button class="fechar" type="button" aria-label="Fechar">' +
     '      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
     "    </button>" +
     '    <div class="foto"><img alt="Os gêmeos da Dev em Dobro" width="840" height="840" decoding="async"></div>' +
     '    <div class="corpo">' +
-    '    <div class="tags"><span class="tag tag--black">Black em Dobro</span><span class="tag tag--data">Qui · 29/10</span></div>' +
-    '    <h2 id="dd-live-titulo">Live exclusiva pra alunos — <span>29/10</span></h2>' +
-    '    <p id="dd-live-texto">Dia 29/10 tem live só pra quem já é aluno da Dev em Dobro, com uma <strong>novidade especial pra você</strong>. Entra no grupo da live pra receber o link e não perder.</p>' +
-    '    <a class="cta" target="_blank" rel="noopener noreferrer">Entrar no grupo da live <span aria-hidden="true">→</span></a>' +
+    '    <div class="tags"><span class="tag tag--black">Black em Dobro</span><span class="tag tag--data">Exclusivo pra alunos</span></div>' +
+    '    <h2 id="dd-black-titulo">Black para alunos: <span>DevQuest 2.0 + Builders Club</span></h2>' +
+    '    <p id="dd-black-texto">Aprenda a criar projetos com IA, prospectar clientes e tenha 1 ano de acompanhamento. <strong>R$ 797 à vista ou 12x de R$ 80,98.</strong> Condição exclusiva desta turma. Depois, o preço volta ao normal.</p>' +
+    '    <a class="cta" target="_blank" rel="noopener noreferrer">Quero aproveitar <span aria-hidden="true">→</span></a>' +
     '    <button class="depois" type="button">Agora não</button>' +
     "    </div>" +
     "  </div>" +
@@ -165,7 +167,7 @@
     if (host) return;
 
     host = document.createElement("div");
-    host.id = "dd-live-popup";
+    host.id = "dd-black-popup";
     var root = host.attachShadow({ mode: "open" });
     root.innerHTML = "<style>" + CSS + "</style>" + HTML;
     document.body.appendChild(host);
@@ -190,7 +192,7 @@
 
     root.querySelector(".fechar").addEventListener("click", fechar);
     root.querySelector(".depois").addEventListener("click", fechar);
-    cta.addEventListener("click", fechar); // quem entrou no grupo não precisa ver de novo
+    cta.addEventListener("click", fechar); // quem foi pra oferta não precisa ver de novo
     overlay.addEventListener("click", function (e) {
       if (e.target === overlay) fechar();
     });
@@ -203,13 +205,13 @@
     });
   }
 
-  window.DevEmDobroLivePopup = {
+  window.DevEmDobroBlackPopup = {
     abrir: abrir,
     fechar: fechar,
     resetar: store.clear,
   };
 
-  if (new Date() >= cfg.expira || store.get()) return;
+  if (!cfg.link || (cfg.expira && new Date() >= cfg.expira) || store.get()) return;
 
   function iniciar() {
     setTimeout(abrir, cfg.delay);

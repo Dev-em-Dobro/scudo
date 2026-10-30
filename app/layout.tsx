@@ -67,8 +67,8 @@ export default async function RootLayout({
                         </TutorialProvider>
                     </SidebarProvider>
                 </AuthProvider>
-                {/* [Black] Popup da live 29/10 — só pra aluno logado; sai do ar sozinho em 30/10 */}
-                {session?.user && <Script src="/live-popup.js" strategy="afterInteractive" />}
+                {/* [Black] Popup da oferta de alunos da Black Infinita — só pra aluno logado */}
+                {session?.user && <Script src="/black-popup.js" strategy="afterInteractive" />}
             </body>
         </html>
     );
