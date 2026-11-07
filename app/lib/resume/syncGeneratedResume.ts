@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { buildAtsResumeDocument } from '@/app/lib/resume/buildDocument';
 import { getUnlockedCourseProjects } from '@/app/lib/resume/courseProjects';
 import {
+    identifyLegacyCourseProjects,
     mergeProfileHeaderIntoDocument,
     mergeUnlockedProjectsIntoDocument,
     recomputeTechnologyGroups,
@@ -278,6 +279,7 @@ export async function saveGeneratedResumeDocument(
             where: { userId },
             select: {
                 id: true,
+                generatedResumeJson: true,
                 generatedResumeUpdatedAt: true,
                 generatedResumeStageId: true,
                 fullName: true,
@@ -297,8 +299,28 @@ export async function saveGeneratedResumeDocument(
             return null;
         }
 
+        const previousDocument = parseGeneratedResumeDocument(profile.generatedResumeJson);
+        const knownCourseKeys = new Set(previousDocument?.projects
+            .map((project) => project.courseProjectKey).filter((key): key is string => Boolean(key)) ?? []);
+        const knownCourseTitles = new Set(previousDocument?.projects
+            .filter((project) => project.source !== 'manual' && !project.courseProjectKey)
+            .map((project) => project.title.trim().toLowerCase()) ?? []);
+        const projects = document.projects.map((project) => {
+            const isCourse = project.source !== 'manual' && (
+                (project.courseProjectKey && knownCourseKeys.has(project.courseProjectKey))
+                || knownCourseTitles.has(project.title.trim().toLowerCase())
+            );
+            return isCourse
+                ? { ...project, source: 'course' as const }
+                : { ...project, source: 'manual' as const, courseProjectKey: undefined };
+        });
+        const orderedProjects = [
+            ...projects.filter((project) => project.source === 'course'),
+            ...projects.filter((project) => project.source === 'manual'),
+        ];
+
         const withProfileHeader = applyProfileHeaderToDocument(
-            document,
+            { ...document, projects: orderedProjects },
             profile,
             profile.user.email,
             profile.user.name,
@@ -487,7 +509,7 @@ export function parseGeneratedResumeDocument(value: Prisma.JsonValue | null): At
         return null;
     }
 
-    return withEnsuredProjectLinkPlaceholders(value as AtsResumeDocument);
+    return identifyLegacyCourseProjects(withEnsuredProjectLinkPlaceholders(value as AtsResumeDocument));
 }
 
 export function toGeneratedResumeMeta(profile: {

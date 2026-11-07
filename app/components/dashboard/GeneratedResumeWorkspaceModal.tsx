@@ -117,6 +117,11 @@ export default function GeneratedResumeWorkspaceModal({
             return;
         }
 
+        if (draft.projects.some((project) => !project.title.trim())) {
+            setError('Preencha o título de cada projeto antes de salvar.');
+            return;
+        }
+
         setIsSaving(true);
         setError(null);
         setSaveSuccess(false);

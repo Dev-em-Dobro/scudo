@@ -75,6 +75,35 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
         updateDocument({ projects });
     }
 
+    function addProject() {
+        if (document.projects.length >= 30) return;
+        updateDocument({
+            projects: [...document.projects, {
+                source: 'manual',
+                title: '',
+                description: '',
+                technologies: [],
+                deployUrl: '',
+                repositoryUrl: '',
+            }],
+        });
+    }
+
+    function moveProject(index: number, direction: -1 | 1) {
+        const target = index + direction;
+        const project = document.projects[index];
+        if (!project || target < 0 || target >= document.projects.length
+            || (project.source === 'manual') !== (document.projects[target].source === 'manual')) return;
+        const projects = [...document.projects];
+        [projects[index], projects[target]] = [projects[target], projects[index]];
+        updateDocument({ projects });
+    }
+
+    function removeProject(index: number) {
+        if (document.projects[index]?.source !== 'manual') return;
+        updateDocument({ projects: document.projects.filter((_, projectIndex) => projectIndex !== index) });
+    }
+
     return (
         <article className="rounded-lg border border-[#333] bg-white text-black shadow-inner">
             <div className="max-h-[32rem] overflow-y-auto px-6 py-5 text-[13px] leading-relaxed scrollbar-modern">
@@ -121,10 +150,16 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                 <section className="mt-4">
                     <div className="flex items-center justify-between gap-2">
                         <h4 className="text-[12px] font-bold uppercase tracking-wide text-black/70">Projetos</h4>
-                        <span className="text-[11px] text-black/45">{document.projects.length} projeto(s)</span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-[11px] text-black/45">{document.projects.length} projeto(s)</span>
+                            <button type="button" onClick={addProject} disabled={document.projects.length >= 30}
+                                className="rounded-md border border-[#6528d3] px-2 py-1 text-[11px] font-semibold text-[#6528d3] hover:bg-[#6528d3]/10 disabled:opacity-50">
+                                + Adicionar projeto
+                            </button>
+                        </div>
                     </div>
                     <p className="mt-1 text-[11px] text-black/50">
-                        Projetos do curso são adicionados ao concluir ranks. Ajuste aqui títulos, descrições, stacks e links.
+                        Projetos do curso são adicionados ao concluir ranks. Reordene os projetos do curso com as setas. Projetos adicionados por você ficam no final.
                     </p>
                     <p className="mt-2 rounded-md border border-amber-500/40 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-950">
                         Em cada projeto, preencha o <strong>link do projeto no ar</strong> (deploy) e o{' '}
@@ -134,6 +169,21 @@ export default function GeneratedResumeEditor({ document, onChange }: GeneratedR
                     <div className="mt-2 space-y-4">
                         {document.projects.map((project, index) => (
                             <div key={`project-${index}`} className="rounded-md border border-black/10 p-3 space-y-2">
+                                <div className="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wide text-black/45">
+                                    <span>{project.source === 'manual' ? 'Projeto pessoal' : 'Projeto da jornada'}</span>
+                                    <div className="flex items-center gap-1">
+                                        <button type="button" onClick={() => moveProject(index, -1)}
+                                            disabled={index === 0 || (project.source === 'manual') !== (document.projects[index - 1]?.source === 'manual')}
+                                            aria-label={`Mover projeto ${index + 1} para cima`} className="rounded border border-black/15 px-2 py-0.5 disabled:opacity-30">↑</button>
+                                        <button type="button" onClick={() => moveProject(index, 1)}
+                                            disabled={index === document.projects.length - 1 || (project.source === 'manual') !== (document.projects[index + 1]?.source === 'manual')}
+                                            aria-label={`Mover projeto ${index + 1} para baixo`} className="rounded border border-black/15 px-2 py-0.5 disabled:opacity-30">↓</button>
+                                        {project.source === 'manual' && (
+                                            <button type="button" onClick={() => removeProject(index)} aria-label={`Remover projeto ${index + 1}`}
+                                                className="ml-2 text-red-700 hover:underline">Remover</button>
+                                        )}
+                                    </div>
+                                </div>
                                 <input
                                     type="text"
                                     value={project.title}

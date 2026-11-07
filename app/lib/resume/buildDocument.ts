@@ -7,7 +7,6 @@ import {
     sortResumeProjectsByRelevance,
 } from '@/app/lib/resume/courseProjects';
 import {
-    dedupeResumeProjectsByTitle,
     ensureProjectLinkPlaceholders,
     withEnsuredProjectLinkPlaceholders,
 } from '@/app/lib/resume/documentUtils';
@@ -62,6 +61,8 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
     const manualProjects = input.profile.projects.filter((project) => !project.courseProjectKey);
 
     const courseProjectEntries = courseProjects.map((project) => ensureProjectLinkPlaceholders({
+        source: 'course',
+        courseProjectKey: project.key,
         title: project.title,
         description: project.description,
         technologies: project.technologies,
@@ -70,6 +71,7 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
     }));
 
     const manualProjectEntries = manualProjects.map((project) => ensureProjectLinkPlaceholders({
+        source: 'manual',
         title: project.title,
         description: project.shortDescription ?? '',
         technologies: project.technologies,
@@ -77,9 +79,10 @@ export function buildAtsResumeDocument(input: BuildDocumentInput): AtsResumeDocu
         repositoryUrl: null,
     }));
 
-    const projects = sortResumeProjectsByRelevance(
-        dedupeResumeProjectsByTitle([...courseProjectEntries, ...manualProjectEntries]),
-    );
+    const projects = [
+        ...sortResumeProjectsByRelevance(courseProjectEntries),
+        ...manualProjectEntries,
+    ];
     const allTechnologies = mergeUniqueTechnologies([
         projects.flatMap((project) => project.technologies),
         input.profile.knownTechnologies,

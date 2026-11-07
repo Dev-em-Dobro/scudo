@@ -11,6 +11,8 @@ const technologyGroupsSchema = z.object({
 });
 
 const projectSchema = z.object({
+    source: z.enum(['course', 'manual']).optional(),
+    courseProjectKey: z.string().max(100).optional(),
     title: z.string().trim().min(1).max(200),
     description: z.string().max(2000),
     technologies: z.array(z.string().max(80)).max(30),
