@@ -1,4 +1,8 @@
 export type AtsResumeProject = {
+    /** Identifica a origem para manter projetos pessoais depois dos projetos da jornada. */
+    source?: 'course' | 'manual';
+    /** Chave estável do catálogo, preservada quando o aluno edita o título. */
+    courseProjectKey?: string;
     title: string;
     description: string;
     technologies: string[];

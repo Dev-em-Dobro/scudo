@@ -1,5 +1,5 @@
 import type { CourseProjectDefinition } from '@/app/lib/resume/courseProjects';
-import { groupTechnologiesForAts, sortResumeProjectsByRelevance } from '@/app/lib/resume/courseProjects';
+import { COURSE_PROJECT_CATALOG, groupTechnologiesForAts, sortResumeProjectsByRelevance } from '@/app/lib/resume/courseProjects';
 import type { AtsResumeDocument, AtsResumeProject } from '@/app/lib/resume/types';
 
 export const PROJECT_DEPLOY_URL_PLACEHOLDER = '[preencher] link do projeto no ar';
@@ -71,7 +71,7 @@ export function dedupeResumeProjectsByTitle<T extends Pick<AtsResumeProject, 'ti
 }
 
 export function recomputeTechnologyGroups(document: AtsResumeDocument): AtsResumeDocument {
-    const projects = sortResumeProjectsByRelevance(dedupeResumeProjectsByTitle(document.projects));
+    const projects = document.projects;
     const technologies = projects.flatMap((project) => project.technologies);
 
     return {
@@ -109,10 +109,13 @@ export function mergeUnlockedProjectsIntoDocument(
     document: AtsResumeDocument,
     unlockedProjects: CourseProjectDefinition[],
 ): AtsResumeDocument {
-    const existingTitles = new Set(document.projects.map((project) => project.title.trim().toLowerCase()));
+    const existingKeys = new Set(document.projects.map((project) => project.courseProjectKey).filter(Boolean));
+    const existingTitles = new Set(document.projects.filter((project) => project.source !== 'manual').map((project) => project.title.trim().toLowerCase()));
     const newProjects = unlockedProjects
-        .filter((project) => !existingTitles.has(project.title.trim().toLowerCase()))
+        .filter((project) => !existingKeys.has(project.key) && !existingTitles.has(project.title.trim().toLowerCase()))
         .map((project) => ensureProjectLinkPlaceholders({
+            source: 'course',
+            courseProjectKey: project.key,
             title: project.title,
             description: project.description,
             technologies: project.technologies,
@@ -124,11 +127,37 @@ export function mergeUnlockedProjectsIntoDocument(
         return withEnsuredProjectLinkPlaceholders(document);
     }
 
+    const courseProjects = document.projects.filter((project) => project.source !== 'manual');
+    const manualProjects = document.projects.filter((project) => project.source === 'manual');
+    // Preserve a ordem escolhida pelo aluno; novos projetos entram na prioridade do catálogo.
+    for (const project of sortResumeProjectsByRelevance(newProjects)) {
+        const priorityOrder = sortResumeProjectsByRelevance([...courseProjects, project]);
+        const nextProject = priorityOrder.slice(priorityOrder.indexOf(project) + 1)
+            .find((candidate) => courseProjects.includes(candidate));
+        const index = nextProject ? courseProjects.indexOf(nextProject) : courseProjects.length;
+        courseProjects.splice(index, 0, project);
+    }
+
     return withEnsuredProjectLinkPlaceholders(recomputeTechnologyGroups({
         ...document,
-        projects: sortResumeProjectsByRelevance([...document.projects, ...newProjects]),
+        projects: [...courseProjects, ...manualProjects],
         lastUpdatedAt: new Date().toISOString(),
     }));
+}
+
+export function identifyLegacyCourseProjects(document: AtsResumeDocument): AtsResumeDocument {
+    return {
+        ...document,
+        projects: document.projects.map((project) => {
+            if (project.source || project.courseProjectKey) return project;
+            const catalogProject = COURSE_PROJECT_CATALOG.find(
+                (candidate) => candidate.title.trim().toLowerCase() === project.title.trim().toLowerCase(),
+            );
+            return catalogProject
+                ? { ...project, source: 'course' as const, courseProjectKey: catalogProject.key }
+                : project;
+        }),
+    };
 }
 
 export function parseCommaSeparatedList(value: string): string[] {

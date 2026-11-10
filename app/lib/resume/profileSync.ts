@@ -139,8 +139,6 @@ export async function syncResumeBodyToUserProfile(
     profileId: string,
     document: AtsResumeDocument,
 ): Promise<void> {
-    const knownTechnologies = deriveKnownTechnologiesFromResumeProjects(document.projects);
-
     await transaction.userProfile.update({
         where: { id: profileId },
         data: {
@@ -165,8 +163,22 @@ async function syncResumeProjectsToUserProfile(
     });
     const existingManual = existing.filter((project) => !project.courseProjectKey);
 
+    const currentManualTitles = new Set(resumeProjects
+        .filter((project) => project.source === 'manual')
+        .map((project) => project.title.trim().toLowerCase()));
+    await transaction.userProject.deleteMany({
+        where: {
+            userProfileId: profileId,
+            id: { in: existingManual
+                .filter((project) => !currentManualTitles.has(project.title.trim().toLowerCase()))
+                .map((project) => project.id) },
+        },
+    });
+
     for (const resumeProject of resumeProjects) {
-        const courseKey = findCourseProjectKeyByTitle(resumeProject.title);
+        const courseKey = resumeProject.source === 'manual'
+            ? null
+            : resumeProject.courseProjectKey ?? findCourseProjectKeyByTitle(resumeProject.title);
 
         if (courseKey) {
             await transaction.userProject.upsert({
